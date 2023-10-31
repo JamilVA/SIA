@@ -1,9 +1,12 @@
-const   { Sequelize, DataTypes } = require ('sequelize');
-
-const sequelize = new Sequelize('mysql::memory:');
+const { Sequelize, DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
 
 const Persona = sequelize.define('Persona', {
-  codigo: DataTypes.INTEGER,
+  codigo:
+  {
+    type: DataTypes.INTEGER,
+    primaryKey: true
+  },
   paterno: DataTypes.STRING(20),
   materno: DataTypes.STRING(20),
   nombres: DataTypes.STRING(40),
@@ -14,4 +17,4 @@ const Persona = sequelize.define('Persona', {
   email: DataTypes.STRING(100),
 });
 
-module.exports =  {Persona};
+module.exports = Persona;

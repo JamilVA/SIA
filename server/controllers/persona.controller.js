@@ -1,5 +1,5 @@
 const { response } = require('express');
-const Persona = require('../models/Persona')
+const Persona = require('../models/persona.model')
 
 const crearPersona = async (req, res = response) => {
     try {
@@ -34,7 +34,7 @@ const crearPersona = async (req, res = response) => {
 const getPersona = async (req, res) => {
     //const desde = Number(req.query.desde) || 0;
     //const limite = Number(req.query.limite) || 0;
-    const personas = await sequelize.models.Persona.findAll();
+    const personas = await Persona.findAll();
 
     res.json({
         ok: true,

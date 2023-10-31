@@ -1,11 +1,22 @@
-const mysql = require("mysql");
+//const mysql = require("mysql");
+const { Sequelize } = require('sequelize');
+
+const sequelize = new Sequelize(process.env.CONEX, {
+    //host: 'localhost',
+    dialect: 'mysql',
+    define: {
+        freezeTableName: true, //Esta opción evita que se busquen las tablas en plural
+        timestamps: false //Esta opción evita las columnas createdAt y updatedAt
+      }
+  });
 
 
 const dbConnection = async() => {
     try {
-        //Debemos utilizar la cadena de conexion que tenemos en mongocompass        
-        await mysql.createConnection(process.env.CONEX);
-        console.log('Se ha conectado exitosamente a siaDB')
+        
+        await sequelize.authenticate();       
+        //await mysql.createConnection(process.env.CONEX);
+        console.log('Se ha conectado exitosamente a siaDB');
 
     } catch (error) {
 
@@ -17,5 +28,6 @@ const dbConnection = async() => {
 }
 
 module.exports ={
+    sequelize,
     dbConnection
 }
