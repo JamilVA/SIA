@@ -1,8 +1,6 @@
-//const mysql = require("mysql");
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize(process.env.CONEX, {
-    //host: 'localhost',
+const sequelize = new Sequelize(process.env.CONEX, {  
     dialect: 'mysql',
     define: {
         freezeTableName: true, //Esta opción evita que se busquen las tablas en plural
@@ -10,12 +8,10 @@ const sequelize = new Sequelize(process.env.CONEX, {
       }
   });
 
-
 const dbConnection = async() => {
     try {
         
         await sequelize.authenticate();       
-        //await mysql.createConnection(process.env.CONEX);
         console.log('Se ha conectado exitosamente a siaDB');
 
     } catch (error) {
