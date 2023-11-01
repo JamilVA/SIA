@@ -13,8 +13,8 @@ const getEstudiante = async (req, res) => {
     });
 }
 
-const crearEstudiante = async (req, res = response) => {
-    const persona = await Persona.create(
+const crearEstudiante = async (req, res) => {
+    /*const persona = await Persona.create(
         {
             paterno: req.body.paterno,
             materno: req.body.materno,
@@ -23,27 +23,37 @@ const crearEstudiante = async (req, res = response) => {
             fechaNacimiento: req.body.fechaNacimiento,
             sexo: req.body.sexo,
             DNI: req.body.DNI,
-            correo: req.body.correo,
+            email: req.body.email,
         }
     )
-    const person = await persona.save()
+    const person = await persona.save()*/
 
-    /*const estudiante = await Estudiante.create(
+    const estudiante = await Estudiante.create(
         {
             codigoSunedu: req.body.codigoSunedu,
             creditosLlevados: req.body.creditosLlevados,
             creditosAprobados: req.body.creditosAprobados,
             anioIngreso: new Date().getFullYear().toString(),
-            codigoPersona: person.codigo
-        }
+            persona: {
+                paterno: req.body.paterno,
+                materno: req.body.materno,
+                nombres: req.body.nombres,
+                rutaFoto: req.body.rutaFoto,
+                fechaNacimiento: req.body.fechaNacimiento,
+                sexo: req.body.sexo,
+                DNI: req.body.DNI,
+                email: req.body.email,
+            }
+        }, {include : [Persona]}
     )
-    await estudiante.save()*/
 
-    console.log(persona)
+    await estudiante.save()
+
+    //console.log(persona)
 
     res.json({
         ok: true,
-        persona,
+        estudiante,
         //estudiante
     });
 
