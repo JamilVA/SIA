@@ -5,7 +5,8 @@ const Persona = sequelize.define('Persona', {
   codigo:
   {
     type: DataTypes.INTEGER,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   paterno: DataTypes.STRING(20),
   materno: DataTypes.STRING(20),
