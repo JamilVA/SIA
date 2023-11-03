@@ -1,12 +1,17 @@
 "use client";
+
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
+import Navbar from "react-bootstrap/Navbar";
+import Alert from 'react-bootstrap/Alert';
+import { Container } from "react-bootstrap";
 
 import { useState, useEffect } from "react";
 import Axios from "axios";
 import Swal from "sweetalert2";
+
 
 const page = () => {
   const [nombres, setNombres] = useState("");
@@ -63,8 +68,18 @@ const page = () => {
   };
 
   return (
-    <div className="container">
-      <h1>Registrar Estudiante</h1>
+    <Container>
+      <Navbar >
+        <Container>
+          <Navbar.Brand >CRUD Estudiantes</Navbar.Brand>
+        </Container>
+      </Navbar>
+      <Container>
+        <h1>Registrar Estudiante</h1>
+        <Alert variant="warning">
+        Ingresar correctamente los datos del nuevo estudiante a registrar!
+        </Alert>
+      </Container>
       <Form>
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label>Nombres</Form.Label>
@@ -192,7 +207,7 @@ const page = () => {
           Guardar
         </Button>
       </Form>
-    </div>
+    </Container>
   );
 };
 

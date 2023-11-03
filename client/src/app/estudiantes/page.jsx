@@ -3,9 +3,11 @@
 import axios from "axios";
 import React from "react";
 import { useState, useEffect } from "react";
+
 import Table from "react-bootstrap/Table";
 import Container from "react-bootstrap/Container";
 import Card from "react-bootstrap/Card";
+import Button from "react-bootstrap/Button";
 
 const page = () => {
   const [estudianteData, setEstudianteData] = useState([]);
@@ -29,25 +31,41 @@ const page = () => {
       <Card>
         <Card.Header></Card.Header>
         <Card.Body>
-          <Card.Title>Lista Estudiantes</Card.Title>
-          <Table striped bordered hover >
+          <h1>Lista Estudiantes</h1>
+          <Table striped hover>
             <thead>
               <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Content</th>
-                <th>Nombre</th>
+                <th>Nombres Completos</th>
+                <th>Codigo</th>
+                <th>Correo</th>
+                <th>DNI</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {estudianteData.map((estudiante, i) => {
                 return (
                   <tr key={i}>
-                    <td className="text-black-50">{i + 1}</td>
-                    <td className="text-black-50">{estudiante.codigoSunedu}</td>
-                    <td className="text-black-50">{estudiante.anioIngreso}</td>
-                    <td className="text-black-50">
-                      {estudiante.Persona.nombres}
+                    <td>
+                      {estudiante.Persona.nombres +
+                        " " +
+                        estudiante.Persona.paterno +
+                        " " +
+                        estudiante.Persona.materno}
+                    </td>
+                    <td>{estudiante.codigoSunedu}</td>
+                    <td>{estudiante.Persona.email}</td>
+                    <td>{estudiante.Persona.DNI}</td>
+                    <td>
+                    <Button  onClick={() => {}} variant="info">
+                        Ver
+                      </Button>
+                      <Button className="m-2" onClick={() => {}} variant="warning">
+                        Editar
+                      </Button>
+                      <Button  onClick={() => {}} variant="danger">
+                        Eliminar
+                      </Button>
                     </td>
                   </tr>
                 );
