@@ -3,11 +3,13 @@
 import axios from "axios";
 import React from "react";
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
 import Table from "react-bootstrap/Table";
 import Container from "react-bootstrap/Container";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
+
 
 const page = () => {
   const [estudianteData, setEstudianteData] = useState([]);
@@ -57,13 +59,22 @@ const page = () => {
                     <td>{estudiante.Persona.email}</td>
                     <td>{estudiante.Persona.DNI}</td>
                     <td>
-                    <Button  onClick={() => {}} variant="info">
+                      <Button onClick={() => {}} variant="info">
                         Ver
                       </Button>
-                      <Button className="m-2" onClick={() => {}} variant="warning">
+                      <Button
+                        className="m-2"
+                        onClick={() => {}}
+                        variant="warning"
+                      >
                         Editar
                       </Button>
-                      <Button  onClick={() => {}} variant="danger">
+                      <Button
+                        onClick={() => {
+                          eliminar(estudiante);
+                        }}
+                        variant="danger"
+                      >
                         Eliminar
                       </Button>
                     </td>

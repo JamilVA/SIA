@@ -10,5 +10,4 @@ router.get('/', getEstudiante);
 
 router.post('/', crearEstudiante);
 
-
 module.exports = router;

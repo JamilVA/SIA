@@ -51,7 +51,8 @@ const crearEstudiante = async (req, res) => {
     }
 }
 
+
 module.exports = {
     getEstudiante,
-    crearEstudiante
+    crearEstudiante,
 }
