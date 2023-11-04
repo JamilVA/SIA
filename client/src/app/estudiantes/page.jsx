@@ -86,17 +86,20 @@ const page = () => {
                       <Button onClick={() => {}} variant="info">
                         Ver
                       </Button>
+                      <a href='estudiantes/registrar/?'>
                       <Button
                         className="m-2"
                         onClick={() => {
                           setEditar(true);
-                          window.location.href='estudiantes/registrar';
+                          
                           // console.log("hola")
                         }}
                         variant="warning"
                       >
                         Editar
                       </Button>
+                      </a>
+                      
                       <Button
                         onClick={() => {
                           actualizarEstado(estudiante);
