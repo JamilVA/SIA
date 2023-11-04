@@ -14,6 +14,8 @@ import Button from "react-bootstrap/Button";
 const page = () => {
   const [estudianteData, setEstudianteData] = useState([]);
 
+  const [editar, setEditar] = useState(false);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -23,6 +25,28 @@ const page = () => {
       const result = await axios("http://localhost:3001/api/estudiante");
       setEstudianteData(result.data.estudiantes);
       console.log(result.data.estudiantes);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const actualizarEstado = async (persona) => {
+    try {
+      axios.put("http://localhost:3001/api/estudiante",{
+        codigo: persona.codigo,
+        estado: false
+      
+      }).then((response) => {
+        
+        console.log(response)
+
+        Swal.fire({
+          title: "<strong>Estudiante Eliminado!</strong>",
+          html: "<i>" + persona.Persona.nombres + " fue eliminado con éxito</i>",
+          icon: "error",
+        });
+    });
+      
     } catch (e) {
       console.log(e);
     }
@@ -64,14 +88,18 @@ const page = () => {
                       </Button>
                       <Button
                         className="m-2"
-                        onClick={() => {}}
+                        onClick={() => {
+                          setEditar(true);
+                          window.location.href='estudiantes/registrar';
+                          // console.log("hola")
+                        }}
                         variant="warning"
                       >
                         Editar
                       </Button>
                       <Button
                         onClick={() => {
-                          eliminar(estudiante);
+                          actualizarEstado(estudiante);
                         }}
                         variant="danger"
                       >

@@ -5,13 +5,12 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Navbar from "react-bootstrap/Navbar";
-import Alert from 'react-bootstrap/Alert';
+import Alert from "react-bootstrap/Alert";
 import { Container } from "react-bootstrap";
 
 import { useState, useEffect } from "react";
 import Axios from "axios";
 import Swal from "sweetalert2";
-
 
 const page = () => {
   const [nombres, setNombres] = useState("");
@@ -23,10 +22,11 @@ const page = () => {
   const [DNI, setDNI] = useState("");
   const [codigoSunedu, setCodigoSunedu] = useState("");
   const [rutaFoto, setRutaFoto] = useState("");
-  const [creditosLlevados, setCreditosLlevados] = useState(0);
-  const [creditosAprobados, setCreditosAprobados] = useState(0);
 
-  const [codigo, setCodigo] = useState("");
+  // const [creditosLlevados, setCreditosLlevados] = useState(0);
+  // const [creditosAprobados, setCreditosAprobados] = useState(0);
+
+  // const [codigo, setCodigo] = useState("");
 
   const create = () => {
     Axios.post("http://localhost:3001/api/estudiante", {
@@ -69,15 +69,15 @@ const page = () => {
 
   return (
     <Container>
-      <Navbar >
+      <Navbar>
         <Container>
-          <Navbar.Brand >CRUD Estudiantes</Navbar.Brand>
+          <Navbar.Brand>CRUD Estudiantes</Navbar.Brand>
         </Container>
       </Navbar>
       <Container>
         <h1>Registrar Estudiante</h1>
         <Alert variant="warning">
-        Ingresar correctamente los datos del nuevo estudiante a registrar!
+          Ingresar correctamente los datos del nuevo estudiante a registrar!
         </Alert>
       </Container>
       <Form>
@@ -197,6 +197,19 @@ const page = () => {
             </Form.Group>
           </Col>
         </Row>
+
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Foto</Form.Label>
+          <Form.Control
+            data-show-preview="true"
+            type="file"
+            placeholder="Foto del estudiante"
+            onChange={(event) => {
+              // setRutaFoto(event.target.value);
+            }}
+            // value={rutaFoto}
+          />
+        </Form.Group>
 
         <Button
           onClick={() => {
