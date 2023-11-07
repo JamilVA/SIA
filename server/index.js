@@ -18,6 +18,9 @@ dbConnection();
 
 app.use('/api/persona', require('./routes/persona.route'));
 app.use('/api/estudiante', require('./routes/estudiante.route'));
+app.use('/api/pago', require('./routes/pago.route'));
+app.use('/api/docente', require('./routes/docente.route'));
+app.use('/api/jefeDepartamento', require('./routes/jefeDepartamento.route'));
 
 //Para levantar el servidor
 app.listen(process.env.PORT, ()=>{
