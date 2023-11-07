@@ -3,12 +3,18 @@
 import axios from "axios";
 import React from "react";
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+
 import Table from "react-bootstrap/Table";
 import Container from "react-bootstrap/Container";
 import Card from "react-bootstrap/Card";
+import Button from "react-bootstrap/Button";
+
 
 const page = () => {
   const [estudianteData, setEstudianteData] = useState([]);
+
+  const [editar, setEditar] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -24,30 +30,84 @@ const page = () => {
     }
   };
 
+  const actualizarEstado = async (persona) => {
+    try {
+      axios.put("http://localhost:3001/api/estudiante",{
+        codigo: persona.codigo,
+        estado: false
+      
+      }).then((response) => {
+        
+        console.log(response)
+
+        Swal.fire({
+          title: "<strong>Estudiante Eliminado!</strong>",
+          html: "<i>" + persona.Persona.nombres + " fue eliminado con éxito</i>",
+          icon: "error",
+        });
+    });
+      
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <Container>
       <Card>
         <Card.Header></Card.Header>
         <Card.Body>
-          <Card.Title>Lista Estudiantes</Card.Title>
-          <Table striped bordered hover >
+          <h1>Lista Estudiantes</h1>
+          <Table striped hover>
             <thead>
               <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Content</th>
-                <th>Nombre</th>
+                <th>Nombres Completos</th>
+                <th>Codigo</th>
+                <th>Correo</th>
+                <th>DNI</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {estudianteData.map((estudiante, i) => {
                 return (
                   <tr key={i}>
-                    <td className="text-black-50">{i + 1}</td>
-                    <td className="text-black-50">{estudiante.codigoSunedu}</td>
-                    <td className="text-black-50">{estudiante.anioIngreso}</td>
-                    <td className="text-black-50">
-                      {estudiante.Persona.nombres}
+                    <td>
+                      {estudiante.Persona.nombres +
+                        " " +
+                        estudiante.Persona.paterno +
+                        " " +
+                        estudiante.Persona.materno}
+                    </td>
+                    <td>{estudiante.codigoSunedu}</td>
+                    <td>{estudiante.Persona.email}</td>
+                    <td>{estudiante.Persona.DNI}</td>
+                    <td>
+                      <Button onClick={() => {}} variant="info">
+                        Ver
+                      </Button>
+                      <a href='estudiantes/registrar/?'>
+                      <Button
+                        className="m-2"
+                        onClick={() => {
+                          setEditar(true);
+                          
+                          // console.log("hola")
+                        }}
+                        variant="warning"
+                      >
+                        Editar
+                      </Button>
+                      </a>
+                      
+                      <Button
+                        onClick={() => {
+                          actualizarEstado(estudiante);
+                        }}
+                        variant="danger"
+                      >
+                        Eliminar
+                      </Button>
                     </td>
                   </tr>
                 );

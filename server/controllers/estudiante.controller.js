@@ -51,7 +51,53 @@ const crearEstudiante = async (req, res) => {
     }
 }
 
+const actualizarEstudiante = async (req, res) => {
+    try {
+        const persona = await Persona.update(
+            {
+                paterno: req.body.paterno,
+                materno: req.body.materno,
+                nombres: req.body.nombres,
+                rutaFoto: req.body.rutaFoto,
+                fechaNacimiento: req.body.fechaNacimiento,
+                sexo: req.body.sexo,
+                DNI: req.body.DNI,
+                email: req.body.email,
+            },{
+                where:{
+                    codigo:req.body.codigo,
+                }
+            }
+        )
+
+        const estudiante = await Estudiante.update(
+            {
+                codigoSunedu: req.body.codigoSunedu,
+                creditosLlevados: req.body.creditosLlevados,
+                creditosAprobados: req.body.creditosAprobados,
+                anioIngreso: new Date().getFullYear().toString(),
+                estado: req.body.estado,
+            },{
+                where:{
+                    codigoPersona:req.body.codigo,
+                }
+            })
+
+        res.json({
+            "Estado": "Actualizado con éxito",
+            persona,
+            estudiante
+        })
+    } catch (error) {
+        res.json({
+            "Estado": "Error al Actualizar, " + error,
+        })
+    }
+}
+
+
 module.exports = {
     getEstudiante,
-    crearEstudiante
+    crearEstudiante,
+    actualizarEstudiante
 }
