@@ -1,8 +1,12 @@
 const { DataTypes } = require ('sequelize');
-import sequelize from "../config/database.js";
+const { sequelize } = require('../config/database');
 
 const Curso = sequelize.define('Curso', {
-  Codigo:DataTypes.CHAR(5),
+  Codigo:
+    {
+      type: DataTypes.CHAR(5),
+      primaryKey: true,
+    },
   Nombre: DataTypes.STRING(70),
   HorasTeoria: DataTypes.INTEGER,
   HorasPractica: DataTypes.INTEGER,
@@ -12,7 +16,6 @@ const Curso = sequelize.define('Curso', {
   Tipo: DataTypes.STRING(3),
   Estado: DataTypes.BOOLEAN,
   ConPrerequisito: DataTypes.BOOLEAN,
-  CodigoCurso: CHAR(5)
 });
 
 module.exports = Curso;

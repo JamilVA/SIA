@@ -9,7 +9,7 @@ router.post('/', crearCurso);
 
 router.put('/', actualizarCurso);
 
-router.put('/', bajaCurso);
+router.put('/bajacurso/', bajaCurso);
 
 
 module.exports = router;
