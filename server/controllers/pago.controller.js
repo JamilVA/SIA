@@ -4,18 +4,18 @@ const Periodo = require("../models/periodo.model");
 const Pago = require('../models/pago.model');
 const Estudiante = require("../models/estudiante.model");
 
-ConceptoPago.hasMany(Pago, {foreignKey: 'CodigoConceptoPago'})
-Pago.belongsTo(ConceptoPago, {foreignKey: 'CodigoConceptoPago'})
+ConceptoPago.hasMany(Pago, { foreignKey: 'CodigoConceptoPago' })
+Pago.belongsTo(ConceptoPago, { foreignKey: 'CodigoConceptoPago' })
 
-Periodo.hasMany(Pago, {foreignKey: 'CodigoPeriodo'})
-Pago.belongsTo(Periodo, {foreignKey: 'CodigoPeriodo'})
+Periodo.hasMany(Pago, { foreignKey: 'CodigoPeriodo' })
+Pago.belongsTo(Periodo, { foreignKey: 'CodigoPeriodo' })
 
-Estudiante.hasMany(Pago, {foreignKey: 'CodigoEstudiante'})
-Pago.belongsTo(Estudiante, {foreignKey: 'CodigoEstudiante'})
+Estudiante.hasMany(Pago, { foreignKey: 'CodigoEstudiante' })
+Pago.belongsTo(Estudiante, { foreignKey: 'CodigoEstudiante' })
 
 const getPagos = async (req, res = response) => {
     const pagos = await Pago.findAll({
-        include: [{all: true}]
+        include: [{ all: true }]
     })
 
     res.json({
@@ -24,17 +24,46 @@ const getPagos = async (req, res = response) => {
     })
 }
 
+async function numeroComprobante() {
+    let cantidad = await Pago.count() + 1;
+    let correlativo;
+
+    if (cantidad >= 0 && cantidad < 10) {
+        correlativo = "000" + cantidad
+    }
+
+    if (cantidad >= 10 && cantidad < 100) {
+        correlativo = "00" + cantidad
+    }
+
+    if (cantidad >= 100 && cantidad < 1000) {
+        correlativo = "0" + cantidad
+    }
+
+    if (cantidad >= 1000) {
+        correlativo = cantidad.toString()
+    }
+
+    const fecha = new Date();
+
+    return "C" + fecha.getFullYear().toString().slice(-2) + correlativo
+}
+
 const crearPago = async (req, res) => {
+
+    const numeroComprob = (await numeroComprobante()).toString()
+
     try {
         const pago = await Pago.create({
             Codigo: null,
-            NumeroComprobante: 'B00003',
-            EstadoPago: 'R', 
+            NumeroComprobante: numeroComprob,
+            EstadoPago: 'R',
+            Fecha: Date.now(),
             CodigoEstudiante: req.body.CodigoEstudiante,
             CodigoConceptoPago: req.body.CodigoConceptoPago,
             CodigoPeriodo: req.body.CodigoPeriodo
         })
-    
+
         res.json({
             mensaje: 'El pago se ha registrado correctamente',
             pago
@@ -45,15 +74,30 @@ const crearPago = async (req, res) => {
 }
 
 const actualizarPago = async (req, res) => {
-    
+
 }
 
 const anularPago = async (req, res) => {
-    
+
+   try {
+     let pago = await Pago.findByPk(req.body.codigo)
+ 
+     pago.EstadoPago = "A"
+ 
+     pago.save()
+ 
+     res.json({
+         mensaje: 'El pago ha sido anulado',
+         pago
+     })
+   } catch (error) {
+    console.log("Ha ocurrido un error", error)
+   }
 }
 
 
 module.exports = {
     getPagos,
-    crearPago
+    crearPago,
+    anularPago
 }
