@@ -1,5 +1,9 @@
 const Estudiante = require('../models/estudiante.model');
 const Persona = require('../models/persona.model');
+const CarreraProfesional = require('../models/carreraProfesional.model')
+
+Estudiante.belongsTo(Persona, { foreignKey: 'CodigoPersona' })
+Estudiante.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' })
 
 const getEstudiante = async (req, res) => {
     const estudiantes = await Estudiante.findAll({
@@ -16,27 +20,28 @@ const crearEstudiante = async (req, res) => {
     try {
         const persona = await Persona.create(
             {
-                codigo: null,
-                paterno: req.body.paterno,
-                materno: req.body.materno,
-                nombres: req.body.nombres,
-                rutaFoto: req.body.rutaFoto,
-                fechaNacimiento: req.body.fechaNacimiento,
-                sexo: req.body.sexo,
+                Codigo: null,
+                Paterno: req.body.paterno,
+                Materno: req.body.materno,
+                Nombres: req.body.nombres,
+                RutaFoto: req.body.rutaFoto,
+                FechaNacimiento: req.body.fechaNacimiento,
+                Sexo: req.body.sexo,
                 DNI: req.body.DNI,
-                email: req.body.email,
+                Email: req.body.email,
             }
         )
 
         const estudiante = await Estudiante.create(
             {
-                codigo: null,
-                codigoSunedu: req.body.codigoSunedu,
-                creditosLlevados: req.body.creditosLlevados,
-                creditosAprobados: req.body.creditosAprobados,
-                anioIngreso: new Date().getFullYear().toString(),
-                estado: true,
-                codigoPersona: persona.codigo
+                Codigo: null,
+                CodigoSunedu: req.body.codigoSunedu,
+                CreditosLlevados: 0,
+                CreditosAprobados: 0,
+                AnioIngreso: new Date().getFullYear().toString(),
+                Estado: true,
+                CodigoPersona: persona.Codigo,
+                CodigoCarreraProfesional: req.body.codigoCarreraProfesional,
             })
 
         res.json({
@@ -55,33 +60,33 @@ const actualizarEstudiante = async (req, res) => {
     try {
         const persona = await Persona.update(
             {
-                paterno: req.body.paterno,
-                materno: req.body.materno,
-                nombres: req.body.nombres,
-                rutaFoto: req.body.rutaFoto,
-                fechaNacimiento: req.body.fechaNacimiento,
-                sexo: req.body.sexo,
+                Paterno: req.body.paterno,
+                Materno: req.body.materno,
+                Nombres: req.body.nombres,
+                RutaFoto: req.body.rutaFoto,
+                FechaNacimiento: req.body.fechaNacimiento,
+                Sexo: req.body.sexo,
                 DNI: req.body.DNI,
-                email: req.body.email,
-            },{
-                where:{
-                    codigo:req.body.codigo,
-                }
+                Email: req.body.email,
+            }, {
+            where: {
+                Codigo: req.body.codigo,
             }
+        }
         )
 
         const estudiante = await Estudiante.update(
             {
-                codigoSunedu: req.body.codigoSunedu,
-                creditosLlevados: req.body.creditosLlevados,
-                creditosAprobados: req.body.creditosAprobados,
-                anioIngreso: new Date().getFullYear().toString(),
-                estado: req.body.estado,
-            },{
-                where:{
-                    codigoPersona:req.body.codigo,
-                }
-            })
+                CodigoSunedu: req.body.codigoSunedu,
+                CreditosLlevados: req.body.creditosLlevados,
+                CreditosAprobados: req.body.creditosAprobados,
+                AnioIngreso: new Date().getFullYear().toString(),
+                Estado: req.body.estado,
+            }, {
+            where: {
+                CodigoPersona: req.body.codigo,
+            }
+        })
 
         res.json({
             "Estado": "Actualizado con éxito",
@@ -95,9 +100,9 @@ const actualizarEstudiante = async (req, res) => {
     }
 }
 
-
 module.exports = {
     getEstudiante,
     crearEstudiante,
     actualizarEstudiante
 }
+
