@@ -100,9 +100,21 @@ const actualizarEstudiante = async (req, res) => {
     }
 }
 
+const buscarPorDNI = async (req, res) => {
+    const estudiante = await Persona.findOne({                     
+        where: {'DNI' : req.query.dni}       
+    });
+
+    res.json({
+        ok: true,
+        estudiante,
+    });
+}
+
 module.exports = {
     getEstudiante,
     crearEstudiante,
-    actualizarEstudiante
+    actualizarEstudiante,
+    buscarPorDNI
 }
 

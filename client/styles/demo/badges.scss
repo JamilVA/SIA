@@ -1,4 +1,4 @@
-.customer-badge,
+.pago-badge,
 .product-badge,
 .order-badge {
     border-radius: var(--border-radius);
@@ -26,36 +26,21 @@
     }
 }
 
-.customer-badge {
-    &.status-qualified {
+.pago-badge {
+    &.status-r {
         background: #C8E6C9;
         color: #256029;
     }
 
-    &.status-unqualified {
+    &.status-a {
         background: #FFCDD2;
         color: #C63737;
     }
 
-    &.status-negotiation {
+    &.status-u {
         background: #FEEDAF;
         color: #8A5340;
-    }
-
-    &.status-new {
-        background: #B3E5FC;
-        color: #23547B;
-    }
-
-    &.status-renewal {
-        background: #ECCFFF;
-        color: #694382;
-    }
-
-    &.status-proposal {
-        background: #FFD8B2;
-        color: #805B36;
-    }
+    }    
 }
 
 .order-badge {

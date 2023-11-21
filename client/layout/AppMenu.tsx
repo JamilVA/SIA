@@ -22,7 +22,7 @@ const AppMenu = () => {
                 { label: 'GestionDocentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
                 { label: 'GestionCursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
 
-                { label: 'Horarios', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },
+                { label: 'Horarios-Docente', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },
                 { label: 'Cursos-Docente', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
 
                 { label: 'Calificaciones', icon: 'pi pi-fw pi-check-square', to: '/estudiante/calificaciones' },

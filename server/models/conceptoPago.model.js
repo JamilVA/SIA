@@ -8,7 +8,8 @@ const ConceptoPago = sequelize.define('ConceptoPago', {
         primaryKey: true,
         autoIncrement: true
     },
-    Denominacion: DataTypes.STRING(25)
+    Denominacion: DataTypes.STRING(25),
+    Monto: DataTypes.DECIMAL
 })
 
 module.exports = ConceptoPago;

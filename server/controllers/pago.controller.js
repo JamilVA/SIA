@@ -1,17 +1,22 @@
 const { response } = require("express");
 const ConceptoPago = require("../models/conceptoPago.model");
-const Periodo = require("../models/periodo.model");
 const Pago = require('../models/pago.model');
 const Estudiante = require("../models/estudiante.model");
 
 ConceptoPago.hasMany(Pago, { foreignKey: 'CodigoConceptoPago' })
 Pago.belongsTo(ConceptoPago, { foreignKey: 'CodigoConceptoPago' })
 
-Periodo.hasMany(Pago, { foreignKey: 'CodigoPeriodo' })
-Pago.belongsTo(Periodo, { foreignKey: 'CodigoPeriodo' })
-
 Estudiante.hasMany(Pago, { foreignKey: 'CodigoEstudiante' })
 Pago.belongsTo(Estudiante, { foreignKey: 'CodigoEstudiante' })
+
+const getConceptos = async (req, res = response) => {
+    const conceptos = await ConceptoPago.findAll()
+
+    res.json({
+        ok: true,
+        conceptos
+    })
+}
 
 const getPagos = async (req, res = response) => {
     const pagos = await Pago.findAll({
@@ -60,8 +65,7 @@ const crearPago = async (req, res) => {
             EstadoPago: 'R',
             Fecha: Date.now(),
             CodigoEstudiante: req.body.CodigoEstudiante,
-            CodigoConceptoPago: req.body.CodigoConceptoPago,
-            CodigoPeriodo: req.body.CodigoPeriodo
+            CodigoConceptoPago: req.body.CodigoConceptoPago,           
         })
 
         res.json({
@@ -71,10 +75,6 @@ const crearPago = async (req, res) => {
     } catch (error) {
         console.log("Ha ocurrido un error", error)
     }
-}
-
-const actualizarPago = async (req, res) => {
-
 }
 
 const anularPago = async (req, res) => {
@@ -99,5 +99,6 @@ const anularPago = async (req, res) => {
 module.exports = {
     getPagos,
     crearPago,
-    anularPago
+    anularPago,
+    getConceptos
 }
