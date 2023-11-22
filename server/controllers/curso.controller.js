@@ -5,7 +5,9 @@ CarreraProfesional.hasMany(Curso, { foreignKey: 'CodigoCarreraProfesional' })
 Curso.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' })
 
 const getCurso = async (req, res) => {
-    const cursos = await Curso.findAll();
+    const cursos = await Curso.findAll(
+        { include: CarreraProfesional }
+    );
 
     res.json({
         ok: true,
@@ -17,18 +19,18 @@ const crearCurso = async (req, res) => {
     try {
         const curso = await Curso.create(
             {
-                Codigo: 'ABC02',
-                Nombre: req.body.nombre,
-                HorasTeoria: req.body.horasTeoria,
-                HorasPractica: req.body.horasPractica,
-                Creditos: req.body.creditos,
-                Nivel: req.body.nivel,
-                Semestre: req.body.semestre,
-                Tipo: req.body.tipo,
-                Estado: true,
-                ConPrerequisito: req.body.conPrerequisito,
-                CodigoCurso: req.body.codigoCurso,
-                CodigoCarreraProfesional: req.body.codigoCarreraProfesional
+                Codigo: req.body.Codigo,
+                Nombre: req.body.Nombre,
+                HorasTeoria: req.body.HorasTeoria,
+                HorasPractica: req.body.HorasPractica,
+                Creditos: req.body.Creditos,
+                Nivel: req.body.Nivel,
+                Semestre: req.body.Semestre,
+                Tipo: req.body.Tipo,
+                Estado: req.body.Estado,
+                ConPrerequisito: req.body.ConPrerequisito,
+                CodigoCurso: req.body.CodigoCurso,
+                CodigoCarreraProfesional: req.body.CodigoCarreraProfesional
             }
         )
 
@@ -38,7 +40,7 @@ const crearCurso = async (req, res) => {
         })
     } catch (error) {
         res.json({
-            "Estado": "Error al guardar, " + error
+            "Estado": "Error"
         })
     }
 }
@@ -47,20 +49,20 @@ const actualizarCurso = async (req, res) => {
     try {
         const curso = await Curso.update(
             {
-                Nombre: req.body.nombre,
-                HorasTeoria: req.body.horasTeoria,
-                HorasPractica: req.body.horasPractica,
-                Creditos: req.body.creditos,
-                Nivel: req.body.nivel,
-                Semestre: req.body.semestre,
-                Tipo: req.body.tipo,
-                Estado: req.body.estado,
-                ConPrerequisito: req.body.conPrerequisito,
-                CodigoCurso: req.body.codigoCurso,
-                CodigoCarreraProfesional: req.body.codigoCarreraProfesional
+                Nombre: req.body.Nombre,
+                HorasTeoria: req.body.HorasTeoria,
+                HorasPractica: req.body.HorasPractica,
+                Creditos: req.body.Creditos,
+                Nivel: req.body.Nivel,
+                Semestre: req.body.Semestre,
+                Tipo: req.body.Tipo,
+                Estado: req.body.Estado,
+                ConPrerequisito: req.body.ConPrerequisito,
+                CodigoCurso: req.body.CodigoCurso,
+                CodigoCarreraProfesional: req.body.CodigoCarreraProfesional
             }, {
             where: {
-                Codigo: req.body.codigo,
+                Codigo: req.body.Codigo,
             }
         }
         )
@@ -71,32 +73,9 @@ const actualizarCurso = async (req, res) => {
         })
     } catch (error) {
         res.json({
-            "Estado": "Error al actualizar, " + error
+            "Estado": "Error"
         })
     }
 }
 
-const bajaCurso = async (req, res) => {
-    try {
-        const curso = await Curso.update(
-            {
-                Estado: false
-            }, {
-            where: {
-                Codigo: req.body.codigo,
-            }
-        }
-        )
-
-        res.json({
-            "Estado": "Actualizado con éxito",
-            curso
-        })
-    } catch (error) {
-        res.json({
-            "Estado": "Error al actualizar, " + error
-        })
-    }
-}
-
-module.exports = { getCurso, crearCurso, actualizarCurso, bajaCurso }
+module.exports = { getCurso, crearCurso, actualizarCurso }
