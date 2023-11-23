@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
-const Pago = require('./pago.model');
 
 const Periodo = sequelize.define('Periodo', {
     Codigo:{
