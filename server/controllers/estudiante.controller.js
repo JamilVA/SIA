@@ -46,7 +46,7 @@ const crearEstudiante = async (req, res) => {
                 creditosAprobados: 0,
                 anioIngreso: new Date().getFullYear().toString(),
                 estado: true,
-                codigoPersona: persona.codigo,
+                codigoPersona: persona.Codigo,
                 codigoCarreraProfesional: req.body.CodigoCarreraProfesional,
             })
 
