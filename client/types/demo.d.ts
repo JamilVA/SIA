@@ -117,6 +117,43 @@ declare namespace Demo {
         createdAt: number;
     }
 
+    type Student = {
+        Codigo: string;
+        Paterno: string;
+        Materno: string;
+        Nombres: string;
+        Estado: boolean;
+        RutaFoto: string;
+        FechaNacimiento: string | Date;
+        Sexo: string | undefined;
+        DNI: string;
+        Email: string;
+        CodigoSunedu: string;
+        CreditosLlevados: number;
+        CreditosAprobados: number;
+        CodigoCarreraProfesional: number | undefined;
+        Persona: {
+            Nombres: string;
+        };
+        [key: string]: string | number | boolean | string [{}];
+    }
+
+    type Curso = {
+        Codigo: string;
+        Nombre: string;
+        HorasTeoria: number | null;
+        HorasPractica: number | null;
+        Creditos: number | null;
+        Nivel: number | null;
+        Semestre: number | null;
+        Tipo: string | undefined;
+        Estado: boolean;
+        ConPrerequisito: boolean;
+        CodigoCurso: string | undefined;
+        CodigoCarreraProfesional: number | undefined;
+        [key: string]: string | string[] | number | boolean | undefined | null;
+    }
+
     //ProductService
     type Product = {
         id?: string;
