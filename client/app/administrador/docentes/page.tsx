@@ -20,11 +20,6 @@ import { Calendar } from 'primereact/calendar';
 import { CalendarChangeEvent } from 'primereact/calendar';
 import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 
-import FileServer from 'jspdf';
-
-import * as jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
 export default function DocentesDemo() {
     let emptyDocente: {
         codigo: null | string;
@@ -292,20 +287,6 @@ export default function DocentesDemo() {
         console.log(docente);
     };
 
-    // const customBase64Uploader = async (e:any) => {
-    //     // convert file to base64 encoded
-    //     const file = e.files[0];
-    //     const reader = new FileReader();
-    //     let blob = await fetch(file.objectURL).then((r) => r.blob()); //blob:url
-
-    //     reader.readAsDataURL(blob);
-
-    //     reader.onloadend = function () {
-    //         const base64data = reader.result;
-    //     };
-    // };
-
-
     const onFileSelect = (e: any) => {
         // Aquí se puede manejar el archivo seleccionado
         console.log(e.files);
@@ -431,9 +412,9 @@ export default function DocentesDemo() {
                     header={header}
                 >
                     <Column field="NombreCompleto" header="Nombre Completo" body={nombreBodyTemplate} sortable style={{ minWidth: '20rem' }}></Column>
-                    <Column field="Persona.DNI" header="DNI" body={DNIBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
+                    <Column field="Persona.DNI" header="DNI" body={DNIBodyTemplate} style={{ minWidth: '6rem' }}></Column>
                     <Column header="Condición Laboral" body={condicionLaboralBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
-                    <Column field="Persona.Email" header="Correo" body={emailBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
+                    <Column field="Persona.Email" header="Correo" body={emailBodyTemplate} style={{ minWidth: '16rem' }}></Column>
                     <Column header="Estado" dataType="boolean" sortable style={{ minWidth: '4rem' }} body={estadoBodyTemplate} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
                 </DataTable>

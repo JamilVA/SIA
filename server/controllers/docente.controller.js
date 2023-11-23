@@ -1,20 +1,16 @@
-const { Op } = require("sequelize");
-
 const Docente = require("../models/docente.model");
 const Persona = require("../models/persona.model");
 const Usuario = require("../models/usuario.model");
 const NivelUsuario = require("../models/nivelUsuario.model");
 
-NivelUsuario.hasMany(Usuario,{ foreignKey: "CodigoNivelUsuario"})
+NivelUsuario.hasMany(Usuario, { foreignKey: "CodigoNivelUsuario" });
 Usuario.belongsTo(NivelUsuario, { foreignKey: "CodigoNivelUsuario" });
 
-Persona.hasOne(Usuario,{ foreignKey: "CodigoPersona"})
+Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
 Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 
-Persona.hasOne(Docente,{ foreignKey: "CodigoPersona"})
+Persona.hasOne(Docente, { foreignKey: "CodigoPersona" });
 Docente.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-
-
 
 const getDocente = async (req, res) => {
   const docentes = await Docente.findAll({
@@ -53,14 +49,14 @@ const crearDocente = async (req, res) => {
       Codigo: null,
       Estado: true,
       CodigoPersona: persona.Codigo,
-      CodigoNivelUsuario: 3
+      CodigoNivelUsuario: 3,
     });
 
     res.json({
       Estado: "Guardado con éxito",
       persona,
       docente,
-      usuario
+      usuario,
     });
   } catch (error) {
     res.json({
