@@ -9,7 +9,6 @@ const Docente = sequelize.define('Docente', {
       primaryKey: true,
       autoIncrement: true
     },
-    CodigoInterno: DataTypes.STRING(12),
     CondicionLaboral: DataTypes.STRING(20),
     Estado: DataTypes.BOOLEAN,
   });

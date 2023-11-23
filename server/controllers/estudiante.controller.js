@@ -1,14 +1,19 @@
 const Estudiante = require('../models/estudiante.model');
 const Persona = require('../models/persona.model');
-const CarreraProfesional = require('../models/carreraProfesional.model')
+const CarreraProfesional = require('../models/carreraProfesional.model');
+const { sequelize } = require('../config/database');
+const { QueryTypes } = require('sequelize');
 
-Estudiante.belongsTo(Persona, { foreignKey: 'CodigoPersona' })
-Estudiante.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' })
+Estudiante.belongsTo(Persona, { foreignKey: 'codigoPersona' })
+Estudiante.belongsTo(CarreraProfesional, { foreignKey: 'codigoCarreraProfesional' })
 
 const getEstudiante = async (req, res) => {
     const estudiantes = await Estudiante.findAll({
-        include: Persona
+        include: [Persona, CarreraProfesional]
     });
+
+    /*const estudiantes = await sequelize.query("SELECT E.Codigo, Estado, Paterno, Materno, Nombres, RutaFoto, AnioIngreso, FechaNacimiento, Sexo, DNI, Email, CodigoSunedu, CreditosLlevados, CreditosAprobados, CodigoCarreraProfesional, C.NombreCarrera, CodigoPersona FROM persona as P INNER JOIN estudiante as E ON E.CodigoPersona = P.Codigo INNER JOIN carreraprofesional as C ON E.CodigoCarreraProfesional = C.Codigo",
+        { Type: QueryTypes.SELECT })*/
 
     res.json({
         ok: true,
@@ -17,31 +22,32 @@ const getEstudiante = async (req, res) => {
 }
 
 const crearEstudiante = async (req, res) => {
+
     try {
         const persona = await Persona.create(
             {
-                Codigo: null,
-                Paterno: req.body.paterno,
-                Materno: req.body.materno,
-                Nombres: req.body.nombres,
-                RutaFoto: req.body.rutaFoto,
-                FechaNacimiento: req.body.fechaNacimiento,
-                Sexo: req.body.sexo,
+                codigo: null,
+                paterno: req.body.Paterno,
+                materno: req.body.Materno,
+                nombres: req.body.Nombres,
+                rutaFoto: req.body.RutaFoto,
+                fechaNacimiento: req.body.FechaNacimiento,
+                sexo: req.body.Sexo,
                 DNI: req.body.DNI,
-                Email: req.body.email,
+                email: req.body.Email,
             }
         )
 
         const estudiante = await Estudiante.create(
             {
-                Codigo: null,
-                CodigoSunedu: req.body.codigoSunedu,
-                CreditosLlevados: 0,
-                CreditosAprobados: 0,
-                AnioIngreso: new Date().getFullYear().toString(),
-                Estado: true,
-                CodigoPersona: persona.Codigo,
-                CodigoCarreraProfesional: req.body.codigoCarreraProfesional,
+                codigo: null,
+                codigoSunedu: req.body.CodigoSunedu,
+                creditosLlevados: 0,
+                creditosAprobados: 0,
+                anioIngreso: new Date().getFullYear().toString(),
+                estado: true,
+                codigoPersona: persona.codigo,
+                codigoCarreraProfesional: req.body.CodigoCarreraProfesional,
             })
 
         res.json({
@@ -51,7 +57,7 @@ const crearEstudiante = async (req, res) => {
         })
     } catch (error) {
         res.json({
-            "Estado": "Error al guardar, " + error,
+            "Estado": "Error",
         })
     }
 }
@@ -60,31 +66,32 @@ const actualizarEstudiante = async (req, res) => {
     try {
         const persona = await Persona.update(
             {
-                Paterno: req.body.paterno,
-                Materno: req.body.materno,
-                Nombres: req.body.nombres,
-                RutaFoto: req.body.rutaFoto,
-                FechaNacimiento: req.body.fechaNacimiento,
-                Sexo: req.body.sexo,
+                paterno: req.body.Paterno,
+                materno: req.body.Materno,
+                nombres: req.body.Nombres,
+                rutaFoto: req.body.RutaFoto,
+                fechaNacimiento: req.body.FechaNacimiento,
+                sexo: req.body.Sexo,
                 DNI: req.body.DNI,
-                Email: req.body.email,
+                email: req.body.Email,
             }, {
             where: {
-                Codigo: req.body.codigo,
+                codigo: req.body.CodigoPersona,
             }
         }
         )
 
         const estudiante = await Estudiante.update(
             {
-                CodigoSunedu: req.body.codigoSunedu,
-                CreditosLlevados: req.body.creditosLlevados,
-                CreditosAprobados: req.body.creditosAprobados,
-                AnioIngreso: new Date().getFullYear().toString(),
-                Estado: req.body.estado,
+                codigoSunedu: req.body.CodigoSunedu,
+                creditosLlevados: req.body.CreditosLlevados,
+                creditosAprobados: req.body.CreditosAprobados,
+                anioIngreso: new Date().getFullYear().toString(),
+                estado: req.body.Estado,
+                codigoCarreraProfesional: req.body.CodigoCarreraProfesional,
             }, {
             where: {
-                CodigoPersona: req.body.codigo,
+                codigo: req.body.Codigo,
             }
         })
 
@@ -95,26 +102,13 @@ const actualizarEstudiante = async (req, res) => {
         })
     } catch (error) {
         res.json({
-            "Estado": "Error al Actualizar, " + error,
+            "Estado": "Error",
         })
     }
-}
-
-const buscarPorDNI = async (req, res) => {
-    const estudiante = await Persona.findOne({                     
-        where: {'DNI' : req.query.dni}       
-    });
-
-    res.json({
-        ok: true,
-        estudiante,
-    });
 }
 
 module.exports = {
     getEstudiante,
     crearEstudiante,
-    actualizarEstudiante,
-    buscarPorDNI
+    actualizarEstudiante
 }
-

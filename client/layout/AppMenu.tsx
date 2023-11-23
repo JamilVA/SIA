@@ -18,9 +18,10 @@ const AppMenu = () => {
                 { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
                 { label: 'Perfil', icon: 'pi pi-fw pi-user', to: '/perfil' },
 
-                { label: 'GestionEstudiantes', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes' },
-                { label: 'GestionDocentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
-                { label: 'GestionCursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
+                { label: 'Gestion de Estudiantes', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes' },
+                { label: 'Gestion de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
+                { label: 'Gestion de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/administrador/jefesDepartamento' },
+                { label: 'Gestion de Cursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
 
                 { label: 'Horarios-Docente', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },
                 { label: 'Cursos-Docente', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
@@ -31,11 +32,11 @@ const AppMenu = () => {
                 { label: 'Matrícula', icon: 'pi pi-fw pi-list', to: '/estudiante/matricula' },
                 { label: 'Pagos', icon: 'pi pi-fw pi-money-bill', to: '/estudiante/pagos' },
 
-                { label: 'GestionHorarios', icon: 'pi pi-fw pi-list', to: '/jefe/horarios' },
-                { label: 'GestionMatricula', icon: 'pi pi-fw pi-list', to: '/jefe/matricula' },
-                { label: 'GestionPeriodo', icon: 'pi pi-fw pi-clock', to: '/jefe/periodo' },
+                { label: 'Gestion de Horarios', icon: 'pi pi-fw pi-list', to: '/jefe/horarios' },
+                { label: 'Gestion de Matricula', icon: 'pi pi-fw pi-list', to: '/jefe/matricula' },
+                { label: 'Gestion de Periodo', icon: 'pi pi-fw pi-clock', to: '/jefe/periodo' },
 
-                { label: 'GestionPagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' },
+                { label: 'Gestion de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' },
 
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
