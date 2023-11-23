@@ -251,18 +251,18 @@ export default function DocentesDemo() {
 
     const deleteDocente = (rowData: any) => {
         console.log(rowData.Codigo);
-
+        const _estado = rowData.Estado ? false : true
         axios
             .put('http://localhost:3001/api/docente', {
                 codigo: rowData.Codigo,
-                estado: false
+                estado: _estado
             })
             .then((response) => {
                 console.log(response.data);
                 fetchData();
                 setDeleteDocenteDialog(false);
                 setDocente(emptyDocente);
-                toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente Eliminado', life: 3000 });
+                toast.current!.show({ severity: 'success', summary: 'Successful', detail: rowData.Estado ? 'Docente deshabilitado' : 'Docente habilitado', life: 3000 });
             });
     };
 
@@ -353,9 +353,8 @@ export default function DocentesDemo() {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editDocente(rowData)} />
-                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteDocente(rowData)} />
-                {/* <InputSwitch checked={rowData.Estado} onChange={(e) => confirmDeleteDocente(rowData)} /> */}
+                <Button icon="pi pi-pencil" rounded outlined className="mr-2" severity='warning' onClick={() => editDocente(rowData)} />
+                <Button icon="pi pi-power-off" rounded outlined severity={rowData.Estado ? 'danger' : 'info'} onClick={() => confirmDeleteDocente(rowData)} />
             </React.Fragment>
         );
     };
@@ -513,7 +512,7 @@ export default function DocentesDemo() {
             <Dialog visible={deleteDocenteDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirmar" modal footer={deleteDocenteDialogFooter(docente)} onHide={hideDeleteDocenteDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {docente && <span>¿Esta seguro de que desea eliminar al docente?</span>}
+                    {docente && <span>¿Esta seguro de que desea {docente.estado ? 'desabilitar' : 'habilitar'} al Docente?</span>}
                 </div>
             </Dialog>
 

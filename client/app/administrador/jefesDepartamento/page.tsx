@@ -248,19 +248,18 @@ export default function JefeDepartamentosDemo() {
 
     const deleteJefeDepartamento = (rowData: any) => {
         console.log(rowData.Codigo);
-
+        const _estado = rowData.Estado ? false : true
         axios
             .put('http://localhost:3001/api/jefeDepartamento', {
                 codigo: rowData.Codigo,
-                estado: false,
+                estado: _estado,
                 fechaBaja: new Date()
             })
             .then((response) => {
-                console.log(response.data);
                 fetchData();
                 setDeleteJefeDepartamentoDialog(false);
                 setJefeDepartamento(emptyJefeDepartamento);
-                toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Jefe de Departamento Eliminado', life: 3000 });
+                toast.current!.show({ severity: 'success', summary: 'Successful', detail: rowData.Estado ? 'Jefe de departamento deshabilitado' : 'Jefe de departamento habilitado', life: 3000 });
             });
     };
 
@@ -344,15 +343,15 @@ export default function JefeDepartamentosDemo() {
     };
 
     const estadoBodyTemplate = (rowData: any) => {
+        
         return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Estado, 'text-red-500 pi-times-circle': !rowData.Estado })}></i>;
     };
 
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editJefeDepartamento(rowData)} />
-                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteJefeDepartamento(rowData)} />
-                {/* <InputSwitch checked={rowData.Estado} onChange={(e) => confirmDeleteJefeDepartamento(rowData)} /> */}
+                <Button icon="pi pi-pencil" rounded outlined className="mr-2" severity='warning' onClick={() => editJefeDepartamento(rowData)} />
+                <Button icon="pi pi-power-off" rounded outlined severity={rowData.Estado ? 'danger' : 'info'} onClick={() => confirmDeleteJefeDepartamento(rowData)} />
             </React.Fragment>
         );
     };
@@ -530,7 +529,7 @@ export default function JefeDepartamentosDemo() {
             >
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {jefeDepartamento && <span>¿Esta seguro de que desea eliminar al Jefe de Departamento?</span>}
+                    {jefeDepartamento && <span>¿Esta seguro de que desea {jefeDepartamento.Estado ? 'desabilitar' : 'habilitar'} al Jefe de Departamento?</span>}
                 </div>
             </Dialog>
 

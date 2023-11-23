@@ -14,7 +14,7 @@ import axios from 'axios'
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 
-const page = () => {
+const Page = () => {
 
     let emptyCurso: Demo.Curso = {
         Codigo: '',
@@ -464,4 +464,4 @@ const page = () => {
 
 };
 
-export default page;
+export default Page;
