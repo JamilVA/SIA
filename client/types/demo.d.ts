@@ -132,9 +132,7 @@ declare namespace Demo {
         CreditosLlevados: number;
         CreditosAprobados: number;
         CodigoCarreraProfesional: number | undefined;
-        Persona: {
-            Nombres: string;
-        };
+        CodigoPersona: number | undefined;
         [key: string]: string | number | boolean | string [{}];
     }
 

@@ -26,28 +26,28 @@ const crearEstudiante = async (req, res) => {
     try {
         const persona = await Persona.create(
             {
-                codigo: null,
-                paterno: req.body.Paterno,
-                materno: req.body.Materno,
-                nombres: req.body.Nombres,
-                rutaFoto: req.body.RutaFoto,
-                fechaNacimiento: req.body.FechaNacimiento,
-                sexo: req.body.Sexo,
+                Codigo: null,
+                Paterno: req.body.Paterno,
+                Materno: req.body.Materno,
+                Nombres: req.body.Nombres,
+                RutaFoto: req.body.RutaFoto,
+                FechaNacimiento: req.body.FechaNacimiento,
+                Sexo: req.body.Sexo,
                 DNI: req.body.DNI,
-                email: req.body.Email,
+                Email: req.body.Email,
             }
         )
 
         const estudiante = await Estudiante.create(
             {
-                codigo: null,
-                codigoSunedu: req.body.CodigoSunedu,
-                creditosLlevados: 0,
-                creditosAprobados: 0,
-                anioIngreso: new Date().getFullYear().toString(),
-                estado: true,
-                codigoPersona: persona.Codigo,
-                codigoCarreraProfesional: req.body.CodigoCarreraProfesional,
+                Codigo: null,
+                CodigoSunedu: req.body.CodigoSunedu,
+                CreditosLlevados: req.body.CreditosLlevados,
+                CreditosAprobados: req.body.CreditosAprobados,
+                AnioIngreso: new Date().getFullYear().toString(),
+                Estado: req.body.Estado,
+                CodigoPersona: persona.Codigo,
+                CodigoCarreraProfesional: req.body.CodigoCarreraProfesional,
             })
 
         res.json({
@@ -58,6 +58,7 @@ const crearEstudiante = async (req, res) => {
     } catch (error) {
         res.json({
             "Estado": "Error",
+            "Error": error
         })
     }
 }
@@ -66,32 +67,32 @@ const actualizarEstudiante = async (req, res) => {
     try {
         const persona = await Persona.update(
             {
-                paterno: req.body.Paterno,
-                materno: req.body.Materno,
-                nombres: req.body.Nombres,
-                rutaFoto: req.body.RutaFoto,
-                fechaNacimiento: req.body.FechaNacimiento,
-                sexo: req.body.Sexo,
+                Paterno: req.body.Paterno,
+                Materno: req.body.Materno,
+                Nombres: req.body.Nombres,
+                RutaFoto: req.body.RutaFoto,
+                FechaNacimiento: req.body.FechaNacimiento,
+                Sexo: req.body.Sexo,
                 DNI: req.body.DNI,
-                email: req.body.Email,
+                Email: req.body.Email,
             }, {
             where: {
-                codigo: req.body.CodigoPersona,
+                Codigo: req.body.CodigoPersona,
             }
         }
         )
 
         const estudiante = await Estudiante.update(
             {
-                codigoSunedu: req.body.CodigoSunedu,
-                creditosLlevados: req.body.CreditosLlevados,
-                creditosAprobados: req.body.CreditosAprobados,
-                anioIngreso: new Date().getFullYear().toString(),
-                estado: req.body.Estado,
-                codigoCarreraProfesional: req.body.CodigoCarreraProfesional,
+                CodigoSunedu: req.body.CodigoSunedu,
+                CreditosLlevados: req.body.CreditosLlevados,
+                CreditosAprobados: req.body.CreditosAprobados,
+                AnioIngreso: new Date().getFullYear().toString(),
+                Estado: req.body.Estado,
+                CodigoCarreraProfesional: req.body.CodigoCarreraProfesional,
             }, {
             where: {
-                codigo: req.body.Codigo,
+                Codigo: req.body.Codigo,
             }
         })
 
@@ -103,6 +104,7 @@ const actualizarEstudiante = async (req, res) => {
     } catch (error) {
         res.json({
             "Estado": "Error",
+            "Error": error
         })
     }
 }

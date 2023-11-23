@@ -31,9 +31,7 @@ const page = () => {
         CreditosLlevados: 0,
         CreditosAprobados: 0,
         CodigoCarreraProfesional: 0,
-        Persona: {
-            Nombres: ''
-        }
+        CodigoPersona: 0
     };
 
     const [products, setProducts] = useState(null);
@@ -167,7 +165,7 @@ const page = () => {
 
     const verifyInputs = () => {
         if (product.Paterno.trim() && product.DNI.trim() && isNumeric(product.DNI) && product.DNI.length == 8 && product.Nombres.trim() && product.FechaNacimiento != ''
-            && product.RutaFoto.trim() && selectedCarrera != undefined && product.Email!.trim() && selectedGenero != undefined) {
+             && selectedCarrera != undefined && product.Email!.trim() && selectedGenero != undefined) {
             return true
         } else {
             return false
@@ -195,9 +193,27 @@ const page = () => {
     };
 
     const editProduct = (product: Demo.Student) => {
-        setProduct({ ...product });
-        setSelectedCarrera(product.CodigoCarreraProfesional);
-        setSelectedGenero(product.Sexo);
+        let tempProduct: Demo.Student = {
+            Codigo: product.Codigo,
+            Paterno: product.Persona.Paterno,
+            Materno: product.Persona.Materno,
+            Nombres: product.Persona.Nombres,
+            Estado: product.Estado,
+            RutaFoto: product.RutaFoto,
+            FechaNacimiento: new Date(product.Persona.FechaNacimiento),
+            Sexo: product.Persona.Sexo,
+            DNI: product.Persona.DNI,
+            Email: product.Persona.Email,
+            CodigoSunedu: product.Persona.CodigoSunedu,
+            CreditosLlevados: product.CreditosLlevados,
+            CreditosAprobados: product.CreditosAprobados,
+            CodigoCarreraProfesional: product.CodigoCarreraProfesional,
+            CodigoPersona: product.CodigoPersona,
+        }
+
+        setProduct(tempProduct);
+        setSelectedCarrera(tempProduct.CodigoCarreraProfesional);
+        setSelectedGenero(tempProduct.Sexo);
         setProductDialog(true);
     };
 
@@ -435,7 +451,7 @@ const page = () => {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {product && (
                                 <span>
-                                    Estás seguro de <span>{state} a</span> <b>{product.Persona.Nombres}</b>?
+                                    Estás seguro de <span>{state}</span> al estudiante?
                                 </span>
                             )}
                         </div>
