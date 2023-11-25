@@ -125,7 +125,7 @@ declare namespace Demo {
         Estado: boolean;
         RutaFoto: string;
         FechaNacimiento: string | Date;
-        Sexo: string | undefined;
+        Sexo: string;
         DNI: string;
         Email: string;
         CodigoSunedu: string;
