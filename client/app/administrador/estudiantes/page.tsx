@@ -15,7 +15,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
 import { RadioButton } from 'primereact/radiobutton';
 
-const page = () => {
+export default function Page ()  {
 
     let emptyEstudiante: Demo.Student = {
         Codigo: '',
@@ -448,5 +448,3 @@ const page = () => {
         </div>
     );
 };
-
-export default page;

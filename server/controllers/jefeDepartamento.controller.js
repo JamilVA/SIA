@@ -1,5 +1,8 @@
+const CarreraProfesional = require("../models/carreraProfesional.model")
+
 const JefeDepartamento = require("../models/jefeDepartamento.model");
 const Persona = require("../models/persona.model");
+
 const Usuario = require("../models/usuario.model");
 const NivelUsuario = require("../models/nivelUsuario.model");
 
@@ -101,6 +104,32 @@ const actualizarJefeDepartamento = async (req, res) => {
       persona,
       jefeDepartamento,
     });
+
+  } catch (error) {
+    res.json({
+      Estado: "Error al Actualizar, " + error,
+    });
+  }
+};
+
+const asignarCarreraProfesional = async (req, res) => {
+  try {
+    const carrera = await CarreraProfesional.update(
+      {
+        CodigoJefeDepartamento: req.body.codigoJefeDepartamento,
+      },
+      {
+        where: {
+            Codigo: req.body.codigo,
+        },
+      }
+    );
+
+    res.json({
+      Estado: "Actualizado con éxito",
+      carrera,
+    });
+
   } catch (error) {
     res.json({
       Estado: "Error al Actualizar, " + error,
@@ -112,4 +141,5 @@ module.exports = {
   getJefeDepartamento,
   crearJefeDepartamento,
   actualizarJefeDepartamento,
+  asignarCarreraProfesional
 };

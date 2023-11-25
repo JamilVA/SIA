@@ -50,6 +50,8 @@ export default function DocentesDemo() {
     };
 
     const [docenteDialog, setDocenteDialog] = useState(false);
+    const [cambioDNI, setCambioDNI] = useState(false);
+    const [cambioEmail, setCambioEmail] = useState(false);
     const [deleteDocenteDialog, setDeleteDocenteDialog] = useState(false);
     const [advertencia, setAdvertencia] = useState({ activo: false, mensaje: '' });
     const [docente, setDocente] = useState(emptyDocente);
@@ -80,19 +82,10 @@ export default function DocentesDemo() {
         }
     };
 
-    const cols = [
-        { field: 'Codigo', header: 'Codigo' },
-        { field: 'Persona.DNI', header: 'DNI' },
-        { field: 'NombreCompleto', header: 'Nombres Completos' },
-        { field: 'CondicionLaboral', header: 'Condicion Laboral' },
-        { field: 'Email', header: 'Email' },
-        { field: 'Estado', header: 'Estado' }
-    ];
-
-    const exportColumns = cols.map((col) => ({ title: col.header, dataKey: col.field }));
-
     const openNew = () => {
         setDocente(emptyDocente);
+        setCambioEmail(false)
+        setCambioDNI(false)
         setSubmitted(false);
         setDocenteDialog(true);
     };
@@ -100,30 +93,49 @@ export default function DocentesDemo() {
     const hideDialog = () => {
         setSubmitted(false);
         setDocenteDialog(false);
+        setCambioEmail(false)
+        setCambioDNI(false)
     };
 
     const hideDeleteDocenteDialog = () => {
         setDeleteDocenteDialog(false);
+        setCambioEmail(false)
+        setCambioDNI(false)
     };
 
     const saveDocente = () => {
         setSubmitted(true);
 
-        if (
-            docente.nombres.trim() &&
-            docente.paterno.trim() &&
-            docente.materno.trim() &&
-            docente.fechaNacimiento &&
-            docente.sexo &&
-            docente.DNI.trim() &&
-            docente.email.trim() &&
-            docente.condicionLaboral.trim() &&
-            validarDNI(docente.DNI.trim()) &&
-            validarEmail(docente.email.trim())
-        ) {
+        if (docente.nombres.trim() && docente.paterno.trim() && docente.materno.trim() && docente.fechaNacimiento && docente.sexo && docente.DNI.trim() && docente.email.trim() && docente.condicionLaboral.trim()) {
             let _docente = { ...docente };
 
-            if (docente.codigo) {
+            if (!docente.codigo) {
+                if (validarDNI(docente.DNI.trim()) && validarEmail(docente.email.trim())) {
+                    axios
+                        .post('http://localhost:3001/api/docente', {
+                            paterno: _docente.paterno,
+                            materno: _docente.materno,
+                            nombres: _docente.nombres,
+                            email: _docente.email,
+                            sexo: _docente.sexo,
+                            fechaNacimiento: _docente.fechaNacimiento,
+                            DNI: _docente.DNI,
+                            rutaFoto: _docente.rutaFoto,
+
+                            condicionLaboral: _docente.condicionLaboral
+                        })
+                        .then((response) => {
+                            console.log(response.data);
+                            toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente creado con éxito', life: 3000 });
+                            fetchData();
+                        });
+                    setDocenteDialog(false);
+                    setDocente(emptyDocente);
+
+                    setCambioEmail(false);
+                    setCambioDNI(false);
+                }
+            } else if ((!cambioDNI || (cambioDNI && validarDNI(docente.DNI.trim()))) && (!cambioEmail || (cambioEmail && validarEmail(docente.email.trim())))) {
                 axios
                     .put('http://localhost:3001/api/docente', {
                         codigo: _docente.codigo,
@@ -143,29 +155,12 @@ export default function DocentesDemo() {
                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente actualizado con éxito', life: 3000 });
                         fetchData();
                     });
-                fetchData();
-            } else {
-                axios
-                    .post('http://localhost:3001/api/docente', {
-                        paterno: _docente.paterno,
-                        materno: _docente.materno,
-                        nombres: _docente.nombres,
-                        email: _docente.email,
-                        sexo: _docente.sexo,
-                        fechaNacimiento: _docente.fechaNacimiento,
-                        DNI: _docente.DNI,
-                        rutaFoto: _docente.rutaFoto,
+                setDocenteDialog(false);
+                setDocente(emptyDocente);
 
-                        condicionLaboral: _docente.condicionLaboral
-                    })
-                    .then((response) => {
-                        console.log(response.data);
-                        toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente creado con éxito', life: 3000 });
-                        fetchData();
-                    });
+                setCambioEmail(false);
+                setCambioDNI(false);
             }
-            setDocenteDialog(false);
-            setDocente(emptyDocente);
         }
     };
 
@@ -251,7 +246,7 @@ export default function DocentesDemo() {
 
     const deleteDocente = (rowData: any) => {
         console.log(rowData.Codigo);
-        const _estado = rowData.Estado ? false : true
+        const _estado = rowData.Estado ? false : true;
         axios
             .put('http://localhost:3001/api/docente', {
                 codigo: rowData.Codigo,
@@ -297,6 +292,18 @@ export default function DocentesDemo() {
         let _docente = { ...docente };
 
         _docente[`${name}`] = val;
+
+        if(name == "DNI"){
+            setCambioDNI(true)
+            console.log("DNI Cambio: "+cambioDNI)
+            console.log(cambioDNI)
+        }
+
+        if(name == "email"){
+            setCambioEmail(true)
+            console.log("Email Cambio: "+cambioEmail)
+            console.log(cambioEmail)
+        }
 
         setDocente(_docente);
         console.log(docente);
@@ -353,7 +360,7 @@ export default function DocentesDemo() {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" severity='warning' onClick={() => editDocente(rowData)} />
+                <Button icon="pi pi-pencil" rounded outlined className="mr-2" severity="warning" onClick={() => editDocente(rowData)} />
                 <Button icon="pi pi-power-off" rounded outlined severity={rowData.Estado ? 'danger' : 'info'} onClick={() => confirmDeleteDocente(rowData)} />
             </React.Fragment>
         );
@@ -424,7 +431,7 @@ export default function DocentesDemo() {
                     <label htmlFor="imagen" className="font-bold">
                         Foto
                     </label>
-                    <FileUpload name="foto" url="/api/upload" accept="image/*" chooseLabel="Cargar Imagen" uploadLabel="Confirmar" cancelLabel="Cancelar" className="p-mb-3"  maxFileSize={5 * 1024 * 1024} customUpload uploadHandler={onFileSelect} />
+                    <FileUpload name="foto" url="/api/upload" accept="image/*" chooseLabel="Cargar Imagen" uploadLabel="Confirmar" cancelLabel="Cancelar" className="p-mb-3" maxFileSize={5 * 1024 * 1024} customUpload uploadHandler={onFileSelect} />
                 </div>
 
                 <div className="field">
