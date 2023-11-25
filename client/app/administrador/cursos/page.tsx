@@ -22,8 +22,8 @@ const Page = () => {
         HorasTeoria: null,
         HorasPractica: null,
         Creditos: null,
-        Nivel: null,
-        Semestre: null,
+        Nivel: 0,
+        Semestre: 0,
         Tipo: '',
         Estado: true,
         ConPrerequisito: false,
@@ -33,6 +33,7 @@ const Page = () => {
 
     const [cursos, setCursos] = useState<(Demo.Curso)[]>([]);
     const [carreras, setCarreras] = useState<(Demo.CarreraProfesional)[]>([]);
+    const [prerequisitos, setPrerequisitos] = useState<(Demo.Curso)[]>([]);
     const [cursoDialog, setCursoDialog] = useState(false);
     const [deleteCursoDialog, setDeleteCursoDialog] = useState(false);
     const [curso, setCurso] = useState<Demo.Curso>(emptyCurso);
@@ -41,6 +42,7 @@ const Page = () => {
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [state, setState] = useState('');
+    const [className, setClassName] = useState('disable');
 
     const niveles = [
         { value: 1 },
@@ -80,8 +82,16 @@ const Page = () => {
         }
     }
 
+    const getPrerequisitos = (carrera: number | undefined = 0, nivel: number = 0, semestre: number = 0) => {
+
+        let _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera &&
+            a.Nivel <= nivel && a.Semestre < semestre);
+        setPrerequisitos(_prerequisitos);
+    }
+
     const openNew = () => {
         setCurso(emptyCurso);
+        setPrerequisitos([]);
         setSubmitted(false);
         setCursoDialog(true);
     };
@@ -160,7 +170,7 @@ const Page = () => {
         }
     }
 
-    const crearCodigo = (carrera: number | undefined, nivel: number | null, semestre: number | null) => {
+    const crearCodigo = (carrera: number | undefined, nivel: number, semestre: number) => {
         let correlativo = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera &&
             a.Nivel == nivel && a.Semestre == semestre).length + 1;
         let cadena = nivel?.toString();
@@ -190,7 +200,7 @@ const Page = () => {
         setSubmitted(true);
         if (verifyInputs()) {
             let _curso = { ...curso };
-            _curso.ConPrerequisito = _curso.CodigoCurso != '' ? true : false;
+            _curso.ConPrerequisito = _curso.CodigoCurso == undefined ? false : true;
 
             if (_curso.Codigo != '') {
                 onUpdate(e, _curso)
@@ -205,6 +215,7 @@ const Page = () => {
 
     const editCurso = (curso: Demo.Curso) => {
         setCurso({ ...curso });
+        getPrerequisitos(curso.CodigoCarreraProfesional, curso.Nivel, curso.Semestre);
         setCursoDialog(true);
     };
 
@@ -261,6 +272,7 @@ const Page = () => {
         _curso[`${name}`] = val;
 
         setCurso(_curso);
+        getPrerequisitos(_curso.CodigoCarreraProfesional, _curso.Nivel, _curso.Semestre)
     };
 
     const leftToolbarTemplate = () => {
@@ -282,7 +294,7 @@ const Page = () => {
     };
 
     const statusBodyTemplate = (rowData: any) => {
-        
+
         return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Estado, 'text-red-500 pi-times-circle': !rowData.Estado })}></i>;
     };
 
@@ -341,6 +353,7 @@ const Page = () => {
                     >
                         <Column field="Codigo" header="COD" sortable />
                         <Column field="Nombre" header="Nombre" sortable />
+                        <Column field="CodigoCurso" header="Prerequisito" />
                         <Column field="CarreraProfesional.NombreCarrera" header="Carrera" sortable />
                         <Column field="Nivel" header="Nivel" sortable />
                         <Column field="Semestre" header="Semestre" sortable />
@@ -446,8 +459,20 @@ const Page = () => {
                                     className={classNames({ 'p-invalid': submitted && !curso.HorasTeoria })} />
                             </div>
                             <div className="field col">
-                                <label htmlFor="CodigoCurso">Prerequisito</label>
-                                <InputText id="CodigoCurso" maxLength={5} value={curso.CodigoCurso} onChange={(e) => onInputChange(e, 'CodigoCurso')} required />
+                                <label htmlFor="Prerequisito">Prerequisito</label>
+                                <Dropdown
+                                    value={curso.CodigoCurso}
+                                    options={prerequisitos}
+                                    optionLabel="Nombre"
+                                    optionValue="Codigo"
+                                    name="Prerequisito"
+                                    onChange={(e) => {
+                                        onDropdownChange(e, 'CodigoCurso');
+                                    }}
+                                    placeholder="Selecciona"
+                                    id="Prerequisito"
+                                    required
+                                />
                             </div>
                         </div>
                     </Dialog>

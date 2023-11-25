@@ -142,8 +142,8 @@ declare namespace Demo {
         HorasTeoria: number | null;
         HorasPractica: number | null;
         Creditos: number | null;
-        Nivel: number | null;
-        Semestre: number | null;
+        Nivel: number;
+        Semestre: number;
         Tipo: string | undefined;
         Estado: boolean;
         ConPrerequisito: boolean;
