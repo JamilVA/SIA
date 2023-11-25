@@ -165,7 +165,7 @@ const page = () => {
 
     const verifyInputs = () => {
         if (product.Paterno.trim() && product.DNI.trim() && isNumeric(product.DNI) && product.DNI.length == 8 && product.Nombres.trim() && product.FechaNacimiento != ''
-             && selectedCarrera != undefined && product.Email!.trim() && selectedGenero != undefined) {
+            && selectedCarrera != undefined && product.Email!.trim() && selectedGenero != undefined) {
             return true
         } else {
             return false
@@ -283,34 +283,20 @@ const page = () => {
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Import" className="mr-2 inline-block" />
                 <Button label="Export" icon="pi pi-upload" severity="help" onClick={exportCSV} />
             </React.Fragment>
         );
     };
 
-    const estado = (x: string | undefined) => {
-        if (x == 'true') {
-            return 'instock';
-        } else {
-            return 'outofstock';
-        }
-    }
-
     const statusBodyTemplate = (rowData: Demo.Product) => {
-        return (
-            <>
-                <span className="p-column-title">Status</span>
-                <span className={`product-badge status-${estado(rowData.Estado?.toString())}`}>{rowData.inventoryStatus}</span>
-            </>
-        );
+        return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Estado, 'text-red-500 pi-times-circle': !rowData.Estado })}></i>;
     };
 
     const actionBodyTemplate = (rowData: Demo.Student) => {
         return (
             <>
-                <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editProduct(rowData)} />
-                <Button icon="pi pi-power-off" rounded severity="warning" onClick={() => confirmDeleteProduct(rowData)} />
+                <Button icon="pi pi-pencil" rounded severity="warning" className="mr-2" onClick={() => editProduct(rowData)} />
+                <Button icon="pi pi-power-off" rounded severity="danger" onClick={() => confirmDeleteProduct(rowData)} />
             </>
         );
     };
@@ -327,14 +313,14 @@ const page = () => {
 
     const productDialogFooter = (
         <>
-            <Button label="Cancelar" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Guardar" icon="pi pi-check" text onClick={saveProduct} />
+            <Button label="Cancelar" outlined icon="pi pi-times" onClick={hideDialog} />
+            <Button label="Guardar" icon="pi pi-check" onClick={saveProduct} />
         </>
     );
     const deleteProductDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeleteProductDialog} />
-            <Button label="Si" icon="pi pi-check" text onClick={deleteProduct} />
+            <Button label="No" outlined icon="pi pi-times" onClick={hideDeleteProductDialog} />
+            <Button label="Si" icon="pi pi-check" onClick={deleteProduct} />
         </>
     );
 

@@ -137,7 +137,7 @@ declare namespace Demo {
     }
 
     type Curso = {
-        Codigo: string;
+        Codigo: string | undefined;
         Nombre: string;
         HorasTeoria: number | null;
         HorasPractica: number | null;
@@ -150,6 +150,13 @@ declare namespace Demo {
         CodigoCurso: string | undefined;
         CodigoCarreraProfesional: number | undefined;
         [key: string]: string | string[] | number | boolean | undefined | null;
+    }
+
+    type CarreraProfesional = {
+        Codigo: number;
+        NombreCarrera: string;
+        RutaPlanEstudios: string;
+        CodigoJefeDepatamento: number;
     }
 
     //ProductService

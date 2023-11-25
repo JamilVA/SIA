@@ -9,9 +9,12 @@ const getCurso = async (req, res) => {
         { include: CarreraProfesional }
     );
 
+    const carreras = await CarreraProfesional.findAll();
+
     res.json({
         ok: true,
         cursos,
+        carreras,
     });
 }
 
@@ -40,7 +43,8 @@ const crearCurso = async (req, res) => {
         })
     } catch (error) {
         res.json({
-            "Estado": "Error"
+            "Estado": "Error",
+            "Error": error
         })
     }
 }
