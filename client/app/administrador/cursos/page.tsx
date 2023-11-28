@@ -10,12 +10,11 @@ import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Demo } from '../../../types/types';
-import axios from 'axios'
+import axios from 'axios';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 
 const Page = () => {
-
     let emptyCurso: Demo.Curso = {
         Codigo: '',
         Nombre: '',
@@ -29,11 +28,11 @@ const Page = () => {
         ConPrerequisito: false,
         CodigoCurso: undefined,
         CodigoCarreraProfesional: 0
-    }
+    };
 
-    const [cursos, setCursos] = useState<(Demo.Curso)[]>([]);
-    const [carreras, setCarreras] = useState<(Demo.CarreraProfesional)[]>([]);
-    const [prerequisitos, setPrerequisitos] = useState<(Demo.Curso)[]>([]);
+    const [cursos, setCursos] = useState<Demo.Curso[]>([]);
+    const [carreras, setCarreras] = useState<Demo.CarreraProfesional[]>([]);
+    const [prerequisitos, setPrerequisitos] = useState<Demo.Curso[]>([]);
     const [cursoDialog, setCursoDialog] = useState(false);
     const [deleteCursoDialog, setDeleteCursoDialog] = useState(false);
     const [curso, setCurso] = useState<Demo.Curso>(emptyCurso);
@@ -44,32 +43,23 @@ const Page = () => {
     const [state, setState] = useState('');
     const [className, setClassName] = useState('disable');
 
-    const niveles = [
-        { value: 1 },
-        { value: 2 },
-        { value: 3 },
-        { value: 4 },
-        { value: 5 },
-    ]
+    const niveles = [{ value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }, { value: 5 }];
 
-    const semestres = [
-        { value: 1 },
-        { value: 2 }
-    ]
+    const semestres = [{ value: 1 }, { value: 2 }];
 
     const tipos = [
         { name: 'Teórico obligatorio', value: 'TO' },
         { name: 'Taller práctico obligatorio', value: 'TPO' },
         { name: 'Formación artística obligatoria', value: 'FAO' }
-    ]
+    ];
 
     useEffect(() => {
         fetchData();
-    }, [])
+    }, []);
 
     const fetchData = async () => {
         try {
-            const result = await axios("http://localhost:3001/api/curso");
+            const result = await axios('http://localhost:3001/api/curso');
             setCursos(result.data.cursos);
             setCarreras(result.data.carreras);
         } catch (e) {
@@ -80,22 +70,19 @@ const Page = () => {
                 life: 3000
             });
         }
-    }
+    };
 
     const getPrerequisitos = (carrera: number | undefined = 0, nivel: number = 0, semestre: number = 0) => {
-
-        let _prerequisitos: (Demo.Curso)[];
+        let _prerequisitos: Demo.Curso[];
 
         if (semestre == 1) {
-            _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera &&
-                a.Nivel == (nivel - 1) && a.Semestre == 2);
+            _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel - 1 && a.Semestre == 2);
             setPrerequisitos(_prerequisitos);
         } else {
-            _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera &&
-                a.Nivel == nivel && a.Semestre == 1);
+            _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel && a.Semestre == 1);
             setPrerequisitos(_prerequisitos);
         }
-    }
+    };
 
     const openNew = () => {
         setCurso(emptyCurso);
@@ -117,10 +104,10 @@ const Page = () => {
         e.preventDefault();
         var response = '';
         try {
-            const result = await axios.post("http://127.0.0.1:3001/api/curso", data);
+            const result = await axios.post('http://127.0.0.1:3001/api/curso', data);
             response = result.data.Estado;
             fetchData();
-            if (response == "Error") {
+            if (response == 'Error') {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -143,17 +130,17 @@ const Page = () => {
                 life: 3000
             });
         }
-    }
+    };
 
     const onUpdate = async (e: React.MouseEvent<HTMLButtonElement>, data: object) => {
         e.preventDefault();
         var response = '';
         try {
-            const result = await axios.put("http://127.0.0.1:3001/api/curso", data);
+            const result = await axios.put('http://127.0.0.1:3001/api/curso', data);
             response = result.data.Estado;
             fetchData();
 
-            if (response == "Error") {
+            if (response == 'Error') {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -176,11 +163,10 @@ const Page = () => {
                 life: 3000
             });
         }
-    }
+    };
 
     const crearCodigo = (carrera: number | undefined, nivel: number, semestre: number) => {
-        let correlativo = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera &&
-            a.Nivel == nivel && a.Semestre == semestre).length + 1;
+        let correlativo = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel && a.Semestre == semestre).length + 1;
         let cadena = nivel?.toString();
         cadena += semestre?.toString() + '';
         let c: string;
@@ -202,8 +188,7 @@ const Page = () => {
     };
 
     const verifyInputs = () => {
-        if (curso.Nombre.trim() && curso.CodigoCarreraProfesional != 0 && curso.Tipo != '' && curso.Nivel != 0 &&
-            curso.Semestre != 0 && curso.Creditos != 0) {
+        if (curso.Nombre.trim() && curso.CodigoCarreraProfesional != 0 && curso.Tipo != '' && curso.Nivel != 0 && curso.Semestre != 0 && curso.Creditos != 0) {
             return true;
         } else {
             return false;
@@ -217,10 +202,10 @@ const Page = () => {
             _curso.ConPrerequisito = _curso.CodigoCurso == undefined ? false : true;
 
             if (_curso.Codigo != '') {
-                onUpdate(e, _curso)
+                onUpdate(e, _curso);
             } else {
                 _curso.Codigo = crearCodigo(_curso.CodigoCarreraProfesional, _curso.Nivel, curso.Semestre);
-                onSubmitChange(e, _curso)
+                onSubmitChange(e, _curso);
             }
             setCursoDialog(false);
             setCurso(emptyCurso);
@@ -236,9 +221,9 @@ const Page = () => {
     const confirmDeleteCurso = (curso: Demo.Curso) => {
         setCurso(curso);
         if (curso.Estado == false) {
-            setState('habilitar')
+            setState('habilitar');
         } else {
-            setState('deshabilitar')
+            setState('deshabilitar');
         }
         setDeleteCursoDialog(true);
     };
@@ -254,7 +239,7 @@ const Page = () => {
         setSubmitted(true);
         let _curso = { ...curso };
         _curso.Estado = state;
-        onUpdate(e, _curso)
+        onUpdate(e, _curso);
         setDeleteCursoDialog(false);
         setCurso(emptyCurso);
     };
@@ -266,7 +251,7 @@ const Page = () => {
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
         const val = (e.target && e.target.value) || '';
         let _curso = { ...curso };
-        _curso[`${name}`] = (val.toUpperCase());
+        _curso[`${name}`] = val.toUpperCase();
 
         setCurso(_curso);
     };
@@ -286,7 +271,7 @@ const Page = () => {
         _curso[`${name}`] = val;
 
         setCurso(_curso);
-        getPrerequisitos(_curso.CodigoCarreraProfesional, _curso.Nivel, _curso.Semestre)
+        getPrerequisitos(_curso.CodigoCarreraProfesional, _curso.Nivel, _curso.Semestre);
     };
 
     const leftToolbarTemplate = () => {
@@ -308,7 +293,6 @@ const Page = () => {
     };
 
     const statusBodyTemplate = (rowData: any) => {
-
         return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Estado, 'text-red-500 pi-times-circle': !rowData.Estado })}></i>;
     };
 
@@ -380,12 +364,10 @@ const Page = () => {
                     </DataTable>
 
                     <Dialog visible={cursoDialog} style={{ width: '750px' }} header="Detalles de curso" modal className="p-fluid" footer={cursoDialogFooter} onHide={hideDialog}>
-
-                        <div className='formgrid grid'>
+                        <div className="formgrid grid">
                             <div className="field col">
                                 <label htmlFor="Nombre">Nombre</label>
-                                <InputText autoFocus id="Nombre" value={curso.Nombre} onChange={(e) => onInputChange(e, 'Nombre')} required
-                                    className={classNames({ 'p-invalid': submitted && !curso.Nombre })} />
+                                <InputText autoFocus id="Nombre" value={curso.Nombre} onChange={(e) => onInputChange(e, 'Nombre')} required className={classNames({ 'p-invalid': submitted && !curso.Nombre })} />
                             </div>
                             <div className="field col">
                                 <label htmlFor="Carrera">Carrera</label>
@@ -395,53 +377,13 @@ const Page = () => {
                                     onChange={(e) => {
                                         onDropdownChange(e, 'CodigoCarreraProfesional');
                                     }}
-                                    name='CodigoCarreraProfesional'
+                                    name="CodigoCarreraProfesional"
                                     options={carreras}
-                                    optionLabel='NombreCarrera'
-                                    optionValue='Codigo'
+                                    optionLabel="NombreCarrera"
+                                    optionValue="Codigo"
                                     placeholder="Selecciona"
-                                    className={classNames({ 'p-invalid': submitted && !curso.CodigoCarreraProfesional })}></Dropdown>
-                            </div>
-                            <div className='field col'>
-                                <label htmlFor="Nivel">Nivel</label>
-                                <Dropdown
-                                    value={curso.Nivel}
-                                    options={niveles}
-                                    optionLabel="value"
-                                    optionValue="value"
-                                    name="Nivel"
-                                    onChange={(e) => {
-                                        onDropdownChange(e, 'Nivel');
-                                    }}
-                                    placeholder="Seleccione el Nivel"
-                                    id="Nivel"
-                                    required
-                                    className={classNames({ 'p-invalid': submitted && !curso.Nivel })}
-                                />
-                            </div>
-                        </div>
-                        <div className='formgrid grid'>
-                            <div className="field col">
-                                <label htmlFor="Semestre">Semestre</label>
-                                <Dropdown
-                                    value={curso.Semestre}
-                                    options={semestres}
-                                    optionLabel="value"
-                                    optionValue="value"
-                                    name="Nivel"
-                                    onChange={(e) => {
-                                        onDropdownChange(e, 'Semestre');
-                                    }}
-                                    placeholder="Seleccione el Semestre"
-                                    id="Semestre"
-                                    required
-                                    className={classNames({ 'p-invalid': submitted && !curso.Semestre })}
-                                />
-                            </div>
-                            <div className="field col">
-                                <label htmlFor="Creditos">Creditos</label>
-                                <InputNumber maxLength={1} id="Creditos" value={curso.Creditos} onValueChange={(e) => onInputNumberChange(e, 'Creditos')} required
-                                    className={classNames({ 'p-invalid': submitted && !curso.Creditos })} />
+                                    className={classNames({ 'p-invalid': submitted && !curso.CodigoCarreraProfesional })}
+                                ></Dropdown>
                             </div>
                             <div className="field col">
                                 <label htmlFor="Tipo">Tipo</label>
@@ -461,16 +403,61 @@ const Page = () => {
                                 />
                             </div>
                         </div>
-                        <div className='formgrid grid'>
-                        <div className="field col">
+                        <div className="formgrid grid">
+                            <div className="field col">
+                                <label htmlFor="Nivel">Nivel</label>
+                                <Dropdown
+                                    value={curso.Nivel}
+                                    options={niveles}
+                                    optionLabel="value"
+                                    optionValue="value"
+                                    name="Nivel"
+                                    onChange={(e) => {
+                                        onDropdownChange(e, 'Nivel');
+                                    }}
+                                    placeholder="Seleccione el Nivel"
+                                    id="Nivel"
+                                    required
+                                    className={classNames({ 'p-invalid': submitted && !curso.Nivel })}
+                                />
+                            </div>
+                            <div className="field col">
+                                <label htmlFor="Semestre">Semestre</label>
+                                <Dropdown
+                                    value={curso.Semestre}
+                                    options={semestres}
+                                    optionLabel="value"
+                                    optionValue="value"
+                                    name="Nivel"
+                                    onChange={(e) => {
+                                        onDropdownChange(e, 'Semestre');
+                                    }}
+                                    placeholder="Seleccione el Semestre"
+                                    id="Semestre"
+                                    required
+                                    className={classNames({ 'p-invalid': submitted && !curso.Semestre })}
+                                />
+                            </div>
+                            <div className="field col">
+                                <label htmlFor="Creditos">Creditos</label>
+                                <InputNumber maxLength={1} id="Creditos" value={curso.Creditos} onValueChange={(e) => onInputNumberChange(e, 'Creditos')} required className={classNames({ 'p-invalid': submitted && !curso.Creditos })} />
+                            </div>
+                        </div>
+                        <div className="formgrid grid">
+                            <div className="field col">
                                 <label htmlFor="HorasTeoria">Horas Teoria</label>
-                                <InputNumber maxLength={2} id="HorasTeoria" value={curso.HorasTeoria} onValueChange={(e) => onInputNumberChange(e, 'HorasTeoria')} required
-                                    className={classNames({ 'p-invalid': submitted && !curso.HorasTeoria })} />
+                                <InputNumber maxLength={2} id="HorasTeoria" value={curso.HorasTeoria} onValueChange={(e) => onInputNumberChange(e, 'HorasTeoria')} required className={classNames({ 'p-invalid': submitted && !curso.HorasTeoria })} />
                             </div>
                             <div className="field col">
                                 <label htmlFor="HorasPractica">Horas Practica</label>
-                                <InputNumber maxLength={2} id="HorasPractica" value={curso.HorasPractica} onValueChange={(e) => onInputNumberChange(e, 'HorasPractica')} required
-                                    className={classNames({ 'p-invalid': submitted && !curso.HorasPractica })} />
+                                <InputNumber
+                                    maxLength={2}
+                                    id="HorasPractica"
+                                    value={curso.HorasPractica}
+                                    onValueChange={(e) => onInputNumberChange(e, 'HorasPractica')}
+                                    required
+                                    className={classNames({ 'p-invalid': submitted && !curso.HorasPractica })}
+                                />
                             </div>
 
                             <div className="field col">
@@ -506,7 +493,6 @@ const Page = () => {
             </div>
         </div>
     );
-
 };
 
 export default Page;
