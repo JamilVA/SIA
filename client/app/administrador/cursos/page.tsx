@@ -462,16 +462,17 @@ const Page = () => {
                             </div>
                         </div>
                         <div className='formgrid grid'>
+                        <div className="field col">
+                                <label htmlFor="HorasTeoria">Horas Teoria</label>
+                                <InputNumber maxLength={1} id="HorasTeoria" value={curso.HorasTeoria} onValueChange={(e) => onInputNumberChange(e, 'HorasTeoria')} required
+                                    className={classNames({ 'p-invalid': submitted && !curso.HorasTeoria })} />
+                            </div>
                             <div className="field col">
                                 <label htmlFor="HorasPractica">Horas Practica</label>
                                 <InputNumber maxLength={1} id="HorasPractica" value={curso.HorasPractica} onValueChange={(e) => onInputNumberChange(e, 'HorasPractica')} required
                                     className={classNames({ 'p-invalid': submitted && !curso.HorasPractica })} />
                             </div>
-                            <div className="field col">
-                                <label htmlFor="HorasTeoria">Horas Teoria</label>
-                                <InputNumber maxLength={1} id="HorasTeoria" value={curso.HorasTeoria} onValueChange={(e) => onInputNumberChange(e, 'HorasTeoria')} required
-                                    className={classNames({ 'p-invalid': submitted && !curso.HorasTeoria })} />
-                            </div>
+
                             <div className="field col">
                                 <label htmlFor="Prerequisito">Prerequisito</label>
                                 <Dropdown
