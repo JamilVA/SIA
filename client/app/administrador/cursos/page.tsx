@@ -22,13 +22,13 @@ const Page = () => {
         HorasTeoria: null,
         HorasPractica: null,
         Creditos: null,
-        Nivel: 0,
-        Semestre: 0,
-        Tipo: '',
+        Nivel: 1,
+        Semestre: 1,
+        Tipo: 'TO',
         Estado: true,
         ConPrerequisito: false,
         CodigoCurso: undefined,
-        CodigoCarreraProfesional: 0
+        CodigoCarreraProfesional: 2
     }
 
     const [cursos, setCursos] = useState<(Demo.Curso)[]>([]);
@@ -177,9 +177,9 @@ const Page = () => {
         cadena += semestre?.toString() + '';
         let c : string;
         if(correlativo < 10){
-            c = '';
-        }else{
             c = '0';
+        }else{
+            c = '';
         }
 
         if (carrera == 1) {
