@@ -84,9 +84,17 @@ const Page = () => {
 
     const getPrerequisitos = (carrera: number | undefined = 0, nivel: number = 0, semestre: number = 0) => {
 
-        let _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera &&
-            a.Nivel <= nivel && a.Semestre < semestre);
-        setPrerequisitos(_prerequisitos);
+        let _prerequisitos: (Demo.Curso)[];
+
+        if (semestre == 1) {
+            _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera &&
+                a.Nivel == (nivel - 1) && a.Semestre == 2);
+            setPrerequisitos(_prerequisitos);
+        } else {
+            _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera &&
+                a.Nivel == nivel && a.Semestre == 1);
+            setPrerequisitos(_prerequisitos);
+        }
     }
 
     const openNew = () => {
@@ -175,21 +183,21 @@ const Page = () => {
             a.Nivel == nivel && a.Semestre == semestre).length + 1;
         let cadena = nivel?.toString();
         cadena += semestre?.toString() + '';
-        let c : string;
-        if(correlativo < 10){
+        let c: string;
+        if (correlativo < 10) {
             c = '0';
-        }else{
+        } else {
             c = '';
         }
 
         if (carrera == 1) {
-            return 'A' + cadena +c+ correlativo?.toString();
+            return 'A' + cadena + c + correlativo?.toString();
         } else if (carrera == 2) {
-            return 'M' + cadena +c+ correlativo?.toString();
+            return 'M' + cadena + c + correlativo?.toString();
         } else if (carrera == 3) {
-            return 'P' + cadena +c+ correlativo?.toString();
+            return 'P' + cadena + c + correlativo?.toString();
         } else if (carrera == 4) {
-            return 'E' + cadena +c+ correlativo?.toString();
+            return 'E' + cadena + c + correlativo?.toString();
         }
     };
 
