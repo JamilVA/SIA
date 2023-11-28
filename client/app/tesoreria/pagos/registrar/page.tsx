@@ -78,16 +78,28 @@ export default function RegistroPagoPage() {
     }
 
     const buscarEstudiante = async (dni: string) => {
-
+        setSubmitted(false)
         await axios.get('http://localhost:3001/api/estudiante/buscar', {
             params: {
                 dni: dni
             }
         })
             .then(response => {
+                let value = response.data.estudiante             
                 //console.log("Estudiante:", response.data.estudiante)
-                if (response.data.estudiante !== null) {
-                    setEstudiante(response.data.estudiante)
+                if (value !== null) {
+                    let _estudiante = {
+                        Codigo: value.Codigo,
+                        Paterno: value.Persona.Paterno,
+                        Materno: value.Persona.Materno,
+                        Nombres: value.Persona.Nombres,
+                        RutaFoto: '',
+                        FechaNacimiento: '',
+                        Sexo: '',
+                        DNI: '',
+                        Email: ''
+                    }
+                    setEstudiante(_estudiante)
                 } else {
                     setEstudiante(estudianteVacio)
                     toast.current?.show({

@@ -2,9 +2,13 @@ const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(process.env.CONEX, {  
     dialect: 'mysql',
+    dialectOptions: {
+        dateStrings: true,
+        typeCast: true
+    },
     define: {
         freezeTableName: true, //Esta opción evita que se busquen las tablas en plural
-        timestamps: false //Esta opción evita las columnas createdAt y updatedAt
+        timestamps: false //Esta opción evita las columnas createdAt y updatedAt      
       }
   });
 
