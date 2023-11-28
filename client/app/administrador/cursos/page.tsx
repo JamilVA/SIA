@@ -175,21 +175,27 @@ const Page = () => {
             a.Nivel == nivel && a.Semestre == semestre).length + 1;
         let cadena = nivel?.toString();
         cadena += semestre?.toString() + '';
+        let c : string;
+        if(correlativo < 10){
+            c = '';
+        }else{
+            c = '0';
+        }
 
         if (carrera == 1) {
-            return 'A' + cadena + correlativo?.toString();
+            return 'A' + cadena +c+ correlativo?.toString();
         } else if (carrera == 2) {
-            return 'M' + cadena + correlativo?.toString();
+            return 'M' + cadena +c+ correlativo?.toString();
         } else if (carrera == 3) {
-            return 'P' + cadena + correlativo?.toString();
+            return 'P' + cadena +c+ correlativo?.toString();
         } else if (carrera == 4) {
-            return 'E' + cadena + correlativo?.toString();
+            return 'E' + cadena +c+ correlativo?.toString();
         }
     };
 
     const verifyInputs = () => {
         if (curso.Nombre.trim() && curso.CodigoCarreraProfesional != 0 && curso.Tipo != '' && curso.Nivel != 0 &&
-            curso.Semestre != 0 && curso.Creditos != 0 && curso.HorasPractica != 0 && curso.HorasTeoria != 0) {
+            curso.Semestre != 0 && curso.Creditos != 0) {
             return true;
         } else {
             return false;
