@@ -2,22 +2,19 @@
 'use client';
 import axios from 'axios';
 import { Button } from 'primereact/button';
+import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { FileUpload } from 'primereact/fileupload';
-import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
-import { Rating } from 'primereact/rating';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
-export default function PeriodoPage () {
+export default function PeriodoPage() {
 
     const periodoVacio = {
         Codigo: '',
@@ -26,12 +23,14 @@ export default function PeriodoPage () {
         FechaFin: '',
         InicioMatricula: '',
         FinMatricula: '',
-        Estado: false
+        Estado: true
     }
     const [periodos, setPeriodos] = useState([periodoVacio])
     const [loading, setLoading] = useState(true)
-    const [productDialog, setProductDialog] = useState(false);
-    const [deleteProductDialog, setDeleteProductDialog] = useState(false);
+    const [editar, setEditar] = useState(false)
+    const [periodoDialog, setPeriodoDialog] = useState(false);
+    const [deletePeriodoDialog, setDeletePeriodoDialog] = useState(false);
+    const [finalizarPeriodoDialog, setFinalizarPeriodoDialog] = useState(false);
     const [periodo, setPeriodo] = useState(periodoVacio);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -40,21 +39,22 @@ export default function PeriodoPage () {
 
     const fetchPeriodos = async () => {
         await axios.get('http://localhost:3001/api/periodo')
-        .then(response => {
-            setPeriodos(response.data.periodos)
-            setLoading(false)
-        })
-        .catch (error => {
-            setLoading(false)
-            setPeriodos([])
-            console.log("Error de carga: ", error)
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Erro en la carga de datos',
-                life: 3000
-            });
-        })
+            .then(response => {
+                console.log(response.data.periodos)
+                setPeriodos(response.data.periodos)
+                setLoading(false)
+            })
+            .catch(error => {
+                setLoading(false)
+                setPeriodos([])
+                console.log("Error de carga: ", error)
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error en la carga de datos',
+                    life: 3000
+                });
+            })
     }
 
     useEffect(() => {
@@ -64,62 +64,272 @@ export default function PeriodoPage () {
     const openNew = () => {
         setPeriodo(periodoVacio);
         setSubmitted(false);
-        setProductDialog(true);
+        setPeriodoDialog(true);
     };
 
     const hideDialog = () => {
         setSubmitted(false);
-        setProductDialog(false);
+        setPeriodoDialog(false);
     };
 
-    const hideDeleteProductDialog = () => {
-        setDeleteProductDialog(false);
+    const hideDeletePeriodoDialog = () => {
+        setDeletePeriodoDialog(false);
     };
 
-    const saveProduct = () => {
-        setSubmitted(true);
+    const hideFinalizarPeriodoDialog = () => {
+        setFinalizarPeriodoDialog(false);
+    };
 
-           
+    const periodoValido = () => {
+        let valido = true;
+        if (periodo.Denominacion === '') {
+            valido = false
+        }
+        if (periodo.FechaInicio === null) {
+            valido = false
+        }
+        if (periodo.FechaFin === null) {
+            valido = false
+        }
+        if (periodo.InicioMatricula === null) {
+            valido = false
+        }
+        if (periodo.FinMatricula === null) {
+            valido = false
+        }
+        return valido
+    }
 
-            // setProducts(_products);
-            // setProductDialog(false);
-            // setPeriodo(emptyProduct);
+    const crearPeriodo = async () => {
         
+        if (!periodoValido()) {
+            return
+        }
+
+        await axios.post('http://localhost:3001/api/periodo', {
+            codigo: periodo.Codigo,
+            denominacion: periodo.Denominacion,
+            fechaInicio: periodo.FechaInicio,
+            fechaFin: periodo.FechaFin,
+            inicioMatricula: periodo.InicioMatricula,
+            finMatricula: periodo.FinMatricula,
+            estado: periodo.Estado
+        })
+            .then(response => {
+                if (response.data.error !== 'error') {
+                    console.log(response.data)
+                    const _periodo = response.data.periodo
+                    periodos.push(_periodo)
+                    setPeriodos(periodos)
+
+                    toast.current?.show({
+                        severity: 'success',
+                        summary: 'Operación exitosa',
+                        detail: 'El periodo académico ha sido registrado exitosamente',
+                        life: 3000
+                    });
+                } else {
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Operación fallida',
+                        detail: 'Ha ocurrido un error en el servidor',
+                        life: 3000
+                    });
+                }
+
+            })
+            .catch(error => {
+                console.log("Ha ocurrido un error", error)
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Ha ocurrido un error al registrar el periodo académico',
+                    life: 3000
+                });
+            })
+
+        setPeriodo(periodoVacio)
+        
+    }
+
+    const editarPeriodo = async () => {
+        await axios.put('http://localhost:3001/api/periodo', {
+            codigo: periodo.Codigo,
+            denominacion: periodo.Denominacion,
+            fechaInicio: periodo.FechaInicio,
+            fechaFin: periodo.FechaFin,
+            inicioMatricula: periodo.InicioMatricula,
+            finMatricula: periodo.FinMatricula,
+        })
+            .then(response => {
+                const _periodos = periodos.map(p => {
+                    if (p.Codigo === periodo.Codigo) {
+                        return periodo
+                    } else {
+                        return p
+                    }
+                });
+                setPeriodos(_periodos)
+                setPeriodo(periodoVacio)              
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Operación exitosa',
+                    detail: 'Los datos han sido actualizados',
+                    life: 3000
+                });
+            })
+            .catch(error => {
+                console.log("Ha ocurrido un error", error)
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Ha ocurrido un error al actualizar el periodo académico',
+                    life: 3000
+                });
+            })
+        setEditar(false)
+    }
+
+    const savePeriodo = async () => {
+        setSubmitted(true);
+        setPeriodoDialog(false)
+
+        if (editar) {
+            await editarPeriodo()
+        } else {
+            await crearPeriodo()
+        }
+
     };
 
-    const editProduct = (periodo: any) => {
-        setPeriodo({ ...periodo });
-        setProductDialog(true);
+    const editPeriodo = (periodo: any) => {
+        let _periodo = { ...periodo }
+        setEditar(true)
+        setPeriodo(_periodo);
+        setPeriodoDialog(true);
     };
 
-    const confirmDeleteProduct = (periodo: any) => {
+    const confirmDeletePeriodo = (periodo: any) => {
         setPeriodo(periodo);
-        setDeleteProductDialog(true);
+        setDeletePeriodoDialog(true);
     };
 
-    const deleteProduct = () => {
-        // let _products = (products as any)?.filter((val: any) => val.id !== periodo.id);
-        // setProducts(_products);
-        // setDeleteProductDialog(false);
-        // setPeriodo(emptyProduct);
-        // toast.current?.show({
-        //     severity: 'success',
-        //     summary: 'Successful',
-        //     detail: 'periodo Deleted',
-        //     life: 3000
-        // });
+    const confirmFinalizarPeriodo = (periodo: any) => {
+        setPeriodo(periodo);
+        setFinalizarPeriodoDialog(true);
+    };
+
+    const deletePeriodo = async () => {
+        await axios.delete('http://localhost:3001/api/periodo', {
+            params: {
+                codigo: periodo.Codigo
+            }
+        })
+            .then(response => {
+                let _periodos = periodos.filter(p =>  p.Codigo !== periodo.Codigo )
+                console.log(_periodos)
+                setPeriodos(_periodos)
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Operación exitosa',
+                    detail: 'El periodo académico se ha eliminado correctamente',
+                    life: 3000
+                });
+            })
+            .catch(error => {
+                console.log(error)
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Operación fallida',
+                    detail: 'El periodo no se ha podido eliminar',
+                    life: 3000
+                });
+            })
+
+        setDeletePeriodoDialog(false);
+        setPeriodo(periodoVacio);
+
+    };
+
+    const finalizarPeriodo = async () => {
+        setFinalizarPeriodoDialog(false);
+        
+        await axios.put('http://localhost:3001/api/periodo/finalizar', {}, {
+            params: {
+                codigo: periodo.Codigo,
+            }
+        })
+            .then(response => {
+                const _periodos = periodos.map(p => {
+                    if (p.Codigo === periodo.Codigo) {
+                        return {
+                            ...periodo,
+                            Estado: false
+                        }
+                    } else {
+                        return p
+                    }
+                });               
+                setPeriodos(_periodos)                
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Operación exitosa',
+                    detail: 'El periodo académico se ha finalizado correctamente',
+                    life: 3000
+                });
+            })
+            .catch(error => {
+                console.log(error)
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Operación fallida',
+                    detail: 'El periodo no se ha podido finalizar',
+                    life: 3000
+                });
+            })        
+        setPeriodo(periodoVacio);
     };
 
     const exportCSV = () => {
         dt.current?.exportCSV();
     };
 
-    const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, denominacion: string) => {
+    const generarCodigo = (denominacion: string) => {
+        let semestre = denominacion.substring(5).length === 1 ? 1 : 2
+        return denominacion.substring(2, 4).concat(semestre.toString())
+    }
+
+    const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const val = (e.target && e.target.value) || '';
         let _periodo = { ...periodo };
+        _periodo.Codigo = generarCodigo(val)
         _periodo.Denominacion = val;
-
         setPeriodo(_periodo);
+        console.log(_periodo)
+    };
+
+    const onCalendarChange = (e: CalendarChangeEvent, fechaName: string) => {
+        const selectedDate = e.value as Date;
+        console.log(selectedDate)
+        let _periodo = { ...periodo };
+        // switch (fechaName) {
+        //     case 'inicio':
+        //         _periodo.FechaInicio = selectedDate;
+        //         break;
+        //     case 'fin':
+        //         _periodo.FechaFin = selectedDate;
+        //         break;
+        //     case 'inicioMatricula':
+        //         _periodo.InicioMatricula = selectedDate;
+        //         break;
+        //     case 'finMatricula':
+        //         _periodo.FinMatricula = selectedDate;
+        //         break;
+        //     default:
+        //         break;
+        // }
+        setPeriodo(_periodo);
+        console.log(_periodo);
     };
 
     const leftToolbarTemplate = () => {
@@ -142,24 +352,6 @@ export default function PeriodoPage () {
         );
     };
 
-    const codeBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <span className="p-column-title">Code</span>
-                {rowData.Codigo}
-            </>
-        );
-    };
-
-    const nameBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <span className="p-column-title">Name</span>
-                {rowData.Denominacion}
-            </>
-        );
-    };
-
     const dateInicioBodyTemplate = (rowData: any) => {
         return formatDate(new Date(rowData.FechaInicio));
     };
@@ -177,27 +369,19 @@ export default function PeriodoPage () {
     };
 
     const formatDate = (value: Date) => {
-        return value.toLocaleDateString('es-PE', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
+        return value.toLocaleDateString('es-PE');
     };
 
     const statusBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <span className="p-column-title">Status</span>
-                <span className={`periodo-badge status-${rowData.inventoryStatus?.toLowerCase()}`}>{rowData.inventoryStatus}</span>
-            </>
-        );
+        return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Estado, 'text-red-500 pi-times-circle': !rowData.Estado })}></i>;
     };
 
     const actionBodyTemplate = (rowData: any) => {
         return (
             <>
-                <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editProduct(rowData)} />
-                <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteProduct(rowData)} />
+                <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editPeriodo(rowData)} />
+                <Button icon="pi pi-trash" rounded severity="warning" className='mr-2' onClick={() => confirmDeletePeriodo(rowData)} />
+                <Button icon="pi pi-power-off" rounded severity="danger" onClick={() => confirmFinalizarPeriodo(rowData)} />
             </>
         );
     };
@@ -215,13 +399,21 @@ export default function PeriodoPage () {
     const productDialogFooter = (
         <>
             <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={saveProduct} />
+            <Button label="Save" icon="pi pi-check" text onClick={savePeriodo} />
         </>
     );
-    const deleteProductDialogFooter = (
+
+    const deletePeriodoDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeleteProductDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={deleteProduct} />
+            <Button label="No" icon="pi pi-times" text onClick={hideDeletePeriodoDialog} />
+            <Button label="Yes" icon="pi pi-check" text onClick={deletePeriodo} />
+        </>
+    );
+
+    const finalizarPeriodoDialogFooter = (
+        <>
+            <Button label="No" icon="pi pi-times" text onClick={hideFinalizarPeriodoDialog} />
+            <Button label="Yes" icon="pi pi-check" text onClick={finalizarPeriodo} />
         </>
     );
 
@@ -234,7 +426,8 @@ export default function PeriodoPage () {
 
                     <DataTable
                         ref={dt}
-                        value={periodos}                                              
+                        loading={loading}
+                        value={periodos}
                         dataKey="Codigo"
                         paginator
                         rows={10}
@@ -247,44 +440,84 @@ export default function PeriodoPage () {
                         header={header}
                         responsiveLayout="scroll"
                     >
-                        <Column field="Codigo" header="Code" sortable body={codeBodyTemplate} headerStyle={{ minWidth: '15rem' }}></Column>
-                        <Column field="Denominacion" header="Denominacion" sortable body={nameBodyTemplate} headerStyle={{ minWidth: '15rem' }}></Column>                       
-                        <Column field='FechaInicio' header="Fecha de inicio" body={dateInicioBodyTemplate} dataType="date" headerStyle={{ minWidth: '10rem' }} />
-                        <Column field='FechaFin' header="Fecha de fin" body={dateFinBodyTemplate} dataType="date" headerStyle={{ minWidth: '10rem' }} />
-                        <Column field='InicioMatricula' header="Inicio matrículas" body={dateInicioBodyTemplate} dataType="date" headerStyle={{ minWidth: '10rem' }} />
+                        <Column field="Codigo" header="Código" sortable headerStyle={{ minWidth: '5rem' }}></Column>
+                        <Column field="Denominacion" header="Denominacion" sortable headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field='FechaInicio' header="Fecha de inicio" body={dateInicioBodyTemplate} headerStyle={{ minWidth: '10rem' }} />
+                        <Column field='FechaFin' header="Fecha de fin" body={dateFinBodyTemplate} dataType="date" headerStyle={{ minWidth: '8rem' }} />
+                        <Column field='InicioMatricula' header="Inicio matrículas" body={dateInicioMatriculaBodyTemplate} dataType="date" headerStyle={{ minWidth: '10rem' }} />
                         <Column field='FinMatricula' header="Fin matrículas" body={dateFinMatriculaBodyTemplate} dataType="date" headerStyle={{ minWidth: '10rem' }} />
-                        <Column field="Estado" header="Estado" body={statusBodyTemplate} sortable headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="Estado" header="Estado" body={statusBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
+                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '12rem' }}></Column>
                     </DataTable>
 
-                    <Dialog visible={productDialog} style={{ width: '450px' }} header="periodo Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>                        
+                    <Dialog visible={periodoDialog} style={{ width: '450px' }} header="Detalles del periodo académico" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
                         <div className="field">
-                            <label htmlFor="denominacion">Denominación</label>
+                            <label htmlFor="denominacion" className="font-bold">Denominación</label>
                             <InputText
                                 id="denominacion"
                                 value={periodo.Denominacion}
-                                onChange={(e) => onInputChange(e, 'denominacion')}
+                                onChange={(e) => onInputChange(e)}
                                 required
+                                placeholder='2024-I'
                                 autoFocus
                                 className={classNames({
                                     'p-invalid': submitted && !periodo.Denominacion
                                 })}
                             />
-                            {submitted && !periodo.Denominacion && <small className="p-invalid">Name is required.</small>}
+                            {submitted && !periodo.Denominacion && <small className="p-invalid">Ingrese una denominación para el periódo académico</small>}
                         </div>
-                                                                      
+                        <div className="field col">
+                            <label htmlFor="fechaInicio" className="font-bold">
+                                Inicio del periodo académico
+                            </label>
+                            <Calendar id="fechaInicio" value={new Date(periodo.FechaInicio)} onChange={(e) => onCalendarChange(e, 'inicio')} required className={classNames({ 'p-invalid': submitted && !periodo.FechaInicio })} />
+                            {submitted && !periodo.FechaInicio && <small className="p-error">Ingrese fecha de inicio del periodo académico</small>}
+                        </div>
+                        <div className="field col">
+                            <label htmlFor="fechaFin" className="font-bold">
+                                Fin del periodo académico
+                            </label>
+                            <Calendar id="fechaFin" value={new Date(periodo.FechaFin)} onChange={(e) => onCalendarChange(e, 'fin')} required className={classNames({ 'p-invalid': submitted && !periodo.FechaFin })} />
+                            {submitted && !periodo.FechaFin && <small className="p-error">Ingrese fecha de fin del periodo académico</small>}
+                        </div>
+                        <div className="field col">
+                            <label htmlFor="inicioMatriculas" className="font-bold">
+                                Inicio de matrículas
+                            </label>
+                            <Calendar id="inicioMatriculas" value={new Date(periodo.InicioMatricula)} onChange={(e) => onCalendarChange(e, 'inicioMatricula')} required className={classNames({ 'p-invalid': submitted && !periodo.InicioMatricula })} />
+                            {submitted && !periodo.InicioMatricula && <small className="p-error">Ingrese fecha de inicio de matrículas</small>}
+                        </div>
+                        <div className="field col">
+                            <label htmlFor="finMatriculas" className="font-bold">
+                                Fin de matrículas
+                            </label>
+                            <Calendar id="finMatriculas" value={new Date(periodo.FinMatricula)} onChange={(e) => onCalendarChange(e, 'finMatricula')} required className={classNames({ 'p-invalid': submitted && !periodo.FinMatricula })} />
+                            {submitted && !periodo.FinMatricula && <small className="p-error">Ingrese fecha de fin de matrículas</small>}
+                        </div>
                     </Dialog>
 
-                    <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
+                    <Dialog visible={deletePeriodoDialog} style={{ width: '450px' }} header="Eliminar perido académico" modal footer={deletePeriodoDialogFooter} onHide={hideDeletePeriodoDialog}>
                         <div className="flex align-items-center justify-content-center">
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {periodo && (
                                 <span>
-                                    {/* Are you sure you want to delete <b>{periodo.name}</b>? */}
+                                    ¿Seguro de que desea eliminar el periodo académico <b>{periodo.Denominacion}</b>?
                                 </span>
                             )}
                         </div>
-                    </Dialog>                   
+                    </Dialog>
+
+                    <Dialog visible={finalizarPeriodoDialog} style={{ width: '450px' }} header="Finalizar el periodo académico" modal footer={finalizarPeriodoDialogFooter} onHide={hideFinalizarPeriodoDialog}>
+                        <div className="flex align-items-center justify-content-center">
+                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            {periodo && (
+                                <span>
+                                    ¿Seguro de que desea finalizar el periodo académico <b>{periodo.Denominacion}</b>?
+                                    Esta acción es irreversible.
+                                </span>
+                            )}
+                        </div>
+                    </Dialog>
                 </div>
             </div>
         </div>

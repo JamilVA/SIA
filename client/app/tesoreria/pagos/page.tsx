@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import { Button } from 'primereact/button';
-import { Column, ColumnFilterApplyTemplateOptions, ColumnFilterClearTemplateOptions, ColumnFilterElementTemplateOptions } from 'primereact/column';
+import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { FileUpload } from 'primereact/fileupload';
@@ -11,7 +11,6 @@ import { Toolbar } from 'primereact/toolbar';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
-import { MultiSelect } from 'primereact/multiselect';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import Link from 'next/link';
 import axios from 'axios';
@@ -27,7 +26,7 @@ const Crud = () => {
         ConceptoPago: { Denominacion: '', Monto: 0 },
     }
 
-    const conceptos = ['Matricula','Certificado','Otro'];
+    const conceptos = ['Matricula', 'Certificado', 'Otro'];
 
     const estados = ['r', 'a', 'u'];
 
@@ -40,9 +39,10 @@ const Crud = () => {
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
 
-    useEffect(() => {
-        axios("http://localhost:3001/api/pago")
+    const fetchPagos = async () => {
+        await axios("http://localhost:3001/api/pago")
             .then(response => {
+                console.log(response.data.pagos)
                 setPagos(response.data.pagos)
                 setLoading(false);
             })
@@ -57,7 +57,10 @@ const Crud = () => {
                     life: 3000
                 });
             })
+    }
 
+    useEffect(() => {     
+        fetchPagos()
         initFilters();
     }, []);
 
@@ -103,7 +106,7 @@ const Crud = () => {
             });
         })
 
-        setAnularPagoDialog(false);  
+        setAnularPagoDialog(false);
     };
 
     const exportCSV = () => {
@@ -171,7 +174,10 @@ const Crud = () => {
         return value.toLocaleDateString('es-PE', {
             day: '2-digit',
             month: '2-digit',
-            year: 'numeric'
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
         });
     };
 
@@ -185,45 +191,25 @@ const Crud = () => {
     const initFilters = () => {
         setFilters({
             global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            Codigo: {
-                operator: FilterOperator.AND,
-                constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }]
-            },
-            NumeroComprobante: {
-                operator: FilterOperator.AND,
-                constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }]
-            },
-            'ConceptoPago.Denominacion': { 
+            'ConceptoPago.Denominacion': {
                 operator: FilterOperator.OR,
                 constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-             },
+            },
             Fecha: {
                 operator: FilterOperator.AND,
-                constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }]
+                constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }]
             },
             EstadoPago: {
                 operator: FilterOperator.OR,
                 constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
             },
-            'Estudiante.CodigoSunedu': {
-                operator: FilterOperator.AND,
-                constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }]
-            }
 
         });
         setGlobalFilterValue('');
     };
 
-    const filterClearTemplate = (options: ColumnFilterClearTemplateOptions) => {
-        return <Button type="button" icon="pi pi-times" onClick={options.filterClearCallback} severity="secondary"></Button>;
-    };
-
-    const filterApplyTemplate = (options: ColumnFilterApplyTemplateOptions) => {
-        return <Button type="button" icon="pi pi-check" onClick={options.filterApplyCallback} severity="success"></Button>;
-    };
-
     const conceptoFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return <Dropdown value={options.value} options={conceptos} onChange={(e) => options.filterCallback(e.value, options.index)} placeholder="Concepto" className="p-column-filter" showClear />;         
+        return <Dropdown value={options.value} options={conceptos} onChange={(e) => options.filterCallback(e.value, options.index)} placeholder="Concepto" className="p-column-filter" showClear />;
     };
 
     const dateBodyTemplate = (rowData: any) => {
@@ -231,7 +217,7 @@ const Crud = () => {
     };
 
     const dateFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" mask="99/99/9999" />;
+        return <Calendar value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} dateFormat="dd/mm/yy" placeholder="dd/mm/yyyy" mask="99/99/9999" />;
     };
 
     const montoBodyTemplate = (rowData: any) => {
@@ -274,16 +260,14 @@ const Crud = () => {
                     emptyMessage="Ningún pago encontrado"
                     header={header1}
                 >
-                    <Column field='Codigo' header="Cod." filterField="Codigo" style={{ minWidth: '8rem' }} filter filterPlaceholder="Cod. Comprobante" filterClear={filterClearTemplate} filterApply={filterApplyTemplate} />
-                    <Column field='NumeroComprobante' header="Nro. Comprobante" filterField="NumeroComprobante" style={{ minWidth: '12rem' }} filter filterPlaceholder="Nro. Comprobante" filterClear={filterClearTemplate} filterApply={filterApplyTemplate} />
-                    <Column field='Fecha' header="Fecha" body={dateBodyTemplate} filterField="Fecha" dataType="date" style={{ minWidth: '10rem' }} filter filterElement={dateFilterTemplate} />
-                    <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '8rem' }} filter filterElement={estadoFilterTemplate} />
-                    <Column field="Estudiante.CodigoSunedu" header="Cód. Estudiante" filterField='Estudiante.CodigoSunedu' filter filterPlaceholder="Search by name" style={{ minWidth: '12rem' }} />
+                    <Column field='Codigo' header="Cod." sortable style={{ minWidth: '8rem' }} />
+                    <Column field='NumeroComprobante' header="Nro. Comprobante" sortable style={{ minWidth: '12rem' }} />
+                    <Column field='Fecha' header="Fecha" body={dateBodyTemplate} showFilterMenuOptions={false} filterField="Fecha" dataType="date" style={{ minWidth: '10rem' }} filter filterElement={dateFilterTemplate} />
+                    <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} showFilterMenuOptions={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '8rem' }} filter filterElement={estadoFilterTemplate} />
+                    <Column field="Estudiante.CodigoSunedu" header="Cód. Estudiante" style={{ minWidth: '12rem' }} />
                     <Column
                         header="Concepto"
                         filterField="ConceptoPago.Denominacion"
-                        showFilterMatchModes={false}
-                        showAddButton={false}
                         showFilterMenuOptions={false}
                         filterMenuStyle={{ width: '14rem' }}
                         style={{ minWidth: '10rem' }}
@@ -295,7 +279,7 @@ const Crud = () => {
                     <Column body={actionBodyTemplate} headerStyle={{ minWidth: '4rem' }}></Column>
                 </DataTable>
 
-                <Dialog visible={anularPagoDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
+                <Dialog visible={anularPagoDialog} style={{ width: '450px' }} header="Anular pago" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
                     <div className="flex align-items-center justify-content-center">
                         <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
 

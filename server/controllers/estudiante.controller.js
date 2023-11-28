@@ -5,6 +5,7 @@ const { sequelize } = require('../config/database');
 const { QueryTypes } = require('sequelize');
 
 Estudiante.belongsTo(Persona, { foreignKey: 'codigoPersona' })
+Persona.hasOne(Estudiante, {foreignKey: 'codigoPersona'})
 Estudiante.belongsTo(CarreraProfesional, { foreignKey: 'codigoCarreraProfesional' })
 
 const getEstudiante = async (req, res) => {
@@ -109,8 +110,27 @@ const actualizarEstudiante = async (req, res) => {
     }
 }
 
+const buscarEstudiante = async (req, res) => {
+    try {
+        let estudiante = await Estudiante.findOne({
+            where: {
+                '$Persona.DNI$': req.query.dni
+            },
+            include: Persona
+        })
+    
+        res.json({
+            mensaje: "Encontrado",
+            estudiante
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     getEstudiante,
     crearEstudiante,
-    actualizarEstudiante
+    actualizarEstudiante,
+    buscarEstudiante
 }
