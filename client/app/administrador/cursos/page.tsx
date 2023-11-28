@@ -22,13 +22,13 @@ const Page = () => {
         HorasTeoria: null,
         HorasPractica: null,
         Creditos: null,
-        Nivel: 1,
-        Semestre: 1,
-        Tipo: 'TO',
+        Nivel: 0,
+        Semestre: 0,
+        Tipo: '',
         Estado: true,
         ConPrerequisito: false,
         CodigoCurso: undefined,
-        CodigoCarreraProfesional: 2
+        CodigoCarreraProfesional: 0
     }
 
     const [cursos, setCursos] = useState<(Demo.Curso)[]>([]);
