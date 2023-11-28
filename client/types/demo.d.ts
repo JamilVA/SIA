@@ -125,33 +125,38 @@ declare namespace Demo {
         Estado: boolean;
         RutaFoto: string;
         FechaNacimiento: string | Date;
-        Sexo: string | undefined;
+        Sexo: string;
         DNI: string;
         Email: string;
         CodigoSunedu: string;
         CreditosLlevados: number;
         CreditosAprobados: number;
         CodigoCarreraProfesional: number | undefined;
-        Persona: {
-            Nombres: string;
-        };
+        CodigoPersona: number | undefined;
         [key: string]: string | number | boolean | string [{}];
     }
 
     type Curso = {
-        Codigo: string;
+        Codigo: string | undefined;
         Nombre: string;
         HorasTeoria: number | null;
         HorasPractica: number | null;
         Creditos: number | null;
-        Nivel: number | null;
-        Semestre: number | null;
+        Nivel: number;
+        Semestre: number;
         Tipo: string | undefined;
         Estado: boolean;
         ConPrerequisito: boolean;
         CodigoCurso: string | undefined;
         CodigoCarreraProfesional: number | undefined;
         [key: string]: string | string[] | number | boolean | undefined | null;
+    }
+
+    type CarreraProfesional = {
+        Codigo: number;
+        NombreCarrera: string;
+        RutaPlanEstudios: string;
+        CodigoJefeDepatamento: number;
     }
 
     //ProductService

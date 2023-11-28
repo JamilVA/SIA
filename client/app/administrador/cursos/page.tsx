@@ -14,7 +14,7 @@ import axios from 'axios'
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 
-const page = () => {
+const Page = () => {
 
     let emptyCurso: Demo.Curso = {
         Codigo: '',
@@ -22,8 +22,8 @@ const page = () => {
         HorasTeoria: null,
         HorasPractica: null,
         Creditos: null,
-        Nivel: null,
-        Semestre: null,
+        Nivel: 0,
+        Semestre: 0,
         Tipo: '',
         Estado: true,
         ConPrerequisito: false,
@@ -31,7 +31,9 @@ const page = () => {
         CodigoCarreraProfesional: 0
     }
 
-    const [cursos, setCursos] = useState(null);
+    const [cursos, setCursos] = useState<(Demo.Curso)[]>([]);
+    const [carreras, setCarreras] = useState<(Demo.CarreraProfesional)[]>([]);
+    const [prerequisitos, setPrerequisitos] = useState<(Demo.Curso)[]>([]);
     const [cursoDialog, setCursoDialog] = useState(false);
     const [deleteCursoDialog, setDeleteCursoDialog] = useState(false);
     const [curso, setCurso] = useState<Demo.Curso>(emptyCurso);
@@ -40,9 +42,26 @@ const page = () => {
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [state, setState] = useState('');
-    const [selectedCarrera, setSelectedCarrera] = useState<number | undefined>();
-    const [selectedTipo, setSelectedTipo] = useState<string | undefined>();
-    const [correlativo, setCorrelativo] = useState<number>();
+    const [className, setClassName] = useState('disable');
+
+    const niveles = [
+        { value: 1 },
+        { value: 2 },
+        { value: 3 },
+        { value: 4 },
+        { value: 5 },
+    ]
+
+    const semestres = [
+        { value: 1 },
+        { value: 2 }
+    ]
+
+    const tipos = [
+        { name: 'Teórico obligatorio', value: 'TO' },
+        { name: 'Taller práctico obligatorio', value: 'TPO' },
+        { name: 'Formación artística obligatoria', value: 'FAO' }
+    ]
 
     useEffect(() => {
         fetchData();
@@ -51,11 +70,8 @@ const page = () => {
     const fetchData = async () => {
         try {
             const result = await axios("http://localhost:3001/api/curso");
-            let n = (result.data.cursos.length) + 1;
             setCursos(result.data.cursos);
-            setCorrelativo(n);
-
-            console.log(result.data.cursos);
+            setCarreras(result.data.carreras);
         } catch (e) {
             toast.current?.show({
                 severity: 'error',
@@ -66,10 +82,16 @@ const page = () => {
         }
     }
 
+    const getPrerequisitos = (carrera: number | undefined = 0, nivel: number = 0, semestre: number = 0) => {
+
+        let _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera &&
+            a.Nivel <= nivel && a.Semestre < semestre);
+        setPrerequisitos(_prerequisitos);
+    }
+
     const openNew = () => {
         setCurso(emptyCurso);
-        setSelectedCarrera(undefined);
-        setSelectedTipo(undefined);
+        setPrerequisitos([]);
         setSubmitted(false);
         setCursoDialog(true);
     };
@@ -90,7 +112,6 @@ const page = () => {
             const result = await axios.post("http://127.0.0.1:3001/api/curso", data);
             response = result.data.Estado;
             fetchData();
-
             if (response == "Error") {
                 toast.current?.show({
                     severity: 'error',
@@ -149,23 +170,32 @@ const page = () => {
         }
     }
 
-    const crearCodigo = () => {
-        let cadena = curso.Nivel?.toString();
-        cadena += curso.Semestre?.toString() + '';
-        if (selectedCarrera == 1) {
-            return 'A' + cadena + correlativo?.toString();
-        } else if (selectedCarrera == 2) {
-            return 'M' + cadena + correlativo?.toString()
-        } else if (selectedCarrera == 3) {
-            return 'P' + cadena + correlativo?.toString()
-        } else {
-            return 'E' + cadena + correlativo?.toString()
+    const crearCodigo = (carrera: number | undefined, nivel: number, semestre: number) => {
+        let correlativo = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera &&
+            a.Nivel == nivel && a.Semestre == semestre).length + 1;
+        let cadena = nivel?.toString();
+        cadena += semestre?.toString() + '';
+        let c : string;
+        if(correlativo < 10){
+            c = '';
+        }else{
+            c = '0';
+        }
+
+        if (carrera == 1) {
+            return 'A' + cadena +c+ correlativo?.toString();
+        } else if (carrera == 2) {
+            return 'M' + cadena +c+ correlativo?.toString();
+        } else if (carrera == 3) {
+            return 'P' + cadena +c+ correlativo?.toString();
+        } else if (carrera == 4) {
+            return 'E' + cadena +c+ correlativo?.toString();
         }
     };
 
     const verifyInputs = () => {
-        if (curso.Nombre.trim() && selectedCarrera != undefined && selectedTipo != undefined && curso.Nivel != 0 &&
-            curso.Semestre != 0 && curso.Creditos != 0 && curso.HorasPractica != 0 && curso.HorasTeoria != 0) {
+        if (curso.Nombre.trim() && curso.CodigoCarreraProfesional != 0 && curso.Tipo != '' && curso.Nivel != 0 &&
+            curso.Semestre != 0 && curso.Creditos != 0) {
             return true;
         } else {
             return false;
@@ -176,14 +206,12 @@ const page = () => {
         setSubmitted(true);
         if (verifyInputs()) {
             let _curso = { ...curso };
-            _curso.Tipo = selectedTipo;
-            _curso.CodigoCarreraProfesional = selectedCarrera;
-            _curso.ConPrerequisito = _curso.CodigoCurso != '' ? true : false;
+            _curso.ConPrerequisito = _curso.CodigoCurso == undefined ? false : true;
 
             if (_curso.Codigo != '') {
                 onUpdate(e, _curso)
             } else {
-                _curso.Codigo = crearCodigo();
+                _curso.Codigo = crearCodigo(_curso.CodigoCarreraProfesional, _curso.Nivel, curso.Semestre);
                 onSubmitChange(e, _curso)
             }
             setCursoDialog(false);
@@ -193,8 +221,7 @@ const page = () => {
 
     const editCurso = (curso: Demo.Curso) => {
         setCurso({ ...curso });
-        setSelectedCarrera(curso.CodigoCarreraProfesional);
-        setSelectedTipo(curso.Tipo);
+        getPrerequisitos(curso.CodigoCarreraProfesional, curso.Nivel, curso.Semestre);
         setCursoDialog(true);
     };
 
@@ -244,6 +271,16 @@ const page = () => {
         setCurso(_curso);
     };
 
+    const onDropdownChange = (e: any, name: keyof typeof emptyCurso) => {
+        const val = (e.target && e.target.value) || '';
+        let _curso = { ...curso };
+
+        _curso[`${name}`] = val;
+
+        setCurso(_curso);
+        getPrerequisitos(_curso.CodigoCarreraProfesional, _curso.Nivel, _curso.Semestre)
+    };
+
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
@@ -257,60 +294,21 @@ const page = () => {
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Import" className="mr-2 inline-block" />
                 <Button label="Export" icon="pi pi-upload" severity="help" onClick={exportCSV} />
             </React.Fragment>
         );
     };
 
-    const estado = (x: string | undefined) => {
-        if (x == 'true') {
-            return 'instock';
-        } else {
-            return 'outofstock';
-        }
-    }
+    const statusBodyTemplate = (rowData: any) => {
 
-    const statusBodyTemplate = (rowData: Demo.Product) => {
-        return (
-            <>
-                <span className="p-column-title">Status</span>
-                <span className={`product-badge status-${estado(rowData.Estado?.toString())}`}>{rowData.inventoryStatus}</span>
-            </>
-        );
-    };
-
-    const carreaBodyTemplate = (rowData: Demo.Curso) => {
-        let carrera = '';
-        switch (rowData.CodigoCarreraProfesional) {
-            case 1:
-                carrera = carreras[0].name;
-                break;
-            case 2:
-                carrera = carreras[1].name;
-                break;
-            case 3:
-                carrera = carreras[2].name;
-                break;
-            case 4:
-                carrera = carreras[3].name;
-                break;
-            default:
-                break;
-        }
-        return (
-            <>
-                <span className="p-column-title">Name</span>
-                {carrera}
-            </>
-        );
+        return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Estado, 'text-red-500 pi-times-circle': !rowData.Estado })}></i>;
     };
 
     const actionBodyTemplate = (rowData: Demo.Curso) => {
         return (
             <>
-                <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editCurso(rowData)} />
-                <Button icon="pi pi-power-off" rounded severity="warning" onClick={() => confirmDeleteCurso(rowData)} />
+                <Button icon="pi pi-pencil" rounded severity="warning" className="mr-2" onClick={() => editCurso(rowData)} />
+                <Button icon="pi pi-power-off" rounded severity={rowData.Estado ? 'danger' : 'info'} onClick={() => confirmDeleteCurso(rowData)} />
             </>
         );
     };
@@ -327,37 +325,16 @@ const page = () => {
 
     const cursoDialogFooter = (
         <>
-            <Button label="Cancelar" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Guardar" icon="pi pi-check" text onClick={saveCurso} />
+            <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideDialog} />
+            <Button label="Guardar" icon="pi pi-check" onClick={saveCurso} />
         </>
     );
     const deleteCursoDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeleteCursoDialog} />
-            <Button label="Si" icon="pi pi-check" text onClick={deleteCurso} />
+            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteCursoDialog} />
+            <Button label="Si" icon="pi pi-check" onClick={deleteCurso} />
         </>
     );
-
-    const carreras = [
-        { name: 'Artes visuales', value: 1 },
-        { name: 'Música', value: 2 },
-        { name: 'Pintura', value: 3 },
-        { name: 'Escultura', value: 4 },
-    ]
-
-    const tipos = [
-        { name: 'Teórico obligatorio', value: 'TO' },
-        { name: 'Taller práctico obligatorio', value: 'TPO' },
-        { name: 'Formación artística obligatoria', value: 'FAO' }
-    ]
-
-    const onSelectCarrera = (e: number) => {
-        setSelectedCarrera(e);
-    }
-
-    const onSelectTipo = (e: string) => {
-        setSelectedTipo(e);
-    }
 
     return (
         <div className="grid crud-demo">
@@ -382,6 +359,7 @@ const page = () => {
                     >
                         <Column field="Codigo" header="COD" sortable />
                         <Column field="Nombre" header="Nombre" sortable />
+                        <Column field="CodigoCurso" header="Prerequisito" />
                         <Column field="CarreraProfesional.NombreCarrera" header="Carrera" sortable />
                         <Column field="Nivel" header="Nivel" sortable />
                         <Column field="Semestre" header="Semestre" sortable />
@@ -393,7 +371,7 @@ const page = () => {
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
 
-                    <Dialog visible={cursoDialog} style={{ width: '750px' }} header="Detalles de estudiante" modal className="p-fluid" footer={cursoDialogFooter} onHide={hideDialog}>
+                    <Dialog visible={cursoDialog} style={{ width: '750px' }} header="Detalles de curso" modal className="p-fluid" footer={cursoDialogFooter} onHide={hideDialog}>
 
                         <div className='formgrid grid'>
                             <div className="field col">
@@ -403,20 +381,54 @@ const page = () => {
                             </div>
                             <div className="field col">
                                 <label htmlFor="Carrera">Carrera</label>
-                                <Dropdown id="arrera" value={selectedCarrera} onChange={(e) => onSelectCarrera(e.value)} options={carreras} optionLabel="name" placeholder="Selecciona"
-                                    className={classNames({ 'p-invalid': submitted && !selectedCarrera })}></Dropdown>
+                                <Dropdown
+                                    id="Carrera"
+                                    value={curso.CodigoCarreraProfesional}
+                                    onChange={(e) => {
+                                        onDropdownChange(e, 'CodigoCarreraProfesional');
+                                    }}
+                                    name='CodigoCarreraProfesional'
+                                    options={carreras}
+                                    optionLabel='NombreCarrera'
+                                    optionValue='Codigo'
+                                    placeholder="Selecciona"
+                                    className={classNames({ 'p-invalid': submitted && !curso.CodigoCarreraProfesional })}></Dropdown>
                             </div>
-                            <div className="field col">
+                            <div className='field col'>
                                 <label htmlFor="Nivel">Nivel</label>
-                                <InputNumber maxLength={1} id="Nivel" value={curso.Nivel} onValueChange={(e) => onInputNumberChange(e, 'Nivel')} required
-                                    className={classNames({ 'p-invalid': submitted && !curso.Nivel })} />
+                                <Dropdown
+                                    value={curso.Nivel}
+                                    options={niveles}
+                                    optionLabel="value"
+                                    optionValue="value"
+                                    name="Nivel"
+                                    onChange={(e) => {
+                                        onDropdownChange(e, 'Nivel');
+                                    }}
+                                    placeholder="Seleccione el Nivel"
+                                    id="Nivel"
+                                    required
+                                    className={classNames({ 'p-invalid': submitted && !curso.Nivel })}
+                                />
                             </div>
                         </div>
                         <div className='formgrid grid'>
                             <div className="field col">
                                 <label htmlFor="Semestre">Semestre</label>
-                                <InputNumber maxLength={1} id="Semestre" value={curso.Semestre} onValueChange={(e) => onInputNumberChange(e, 'Semestre')} required
-                                    className={classNames({ 'p-invalid': submitted && !curso.Semestre })} />
+                                <Dropdown
+                                    value={curso.Semestre}
+                                    options={semestres}
+                                    optionLabel="value"
+                                    optionValue="value"
+                                    name="Nivel"
+                                    onChange={(e) => {
+                                        onDropdownChange(e, 'Semestre');
+                                    }}
+                                    placeholder="Seleccione el Semestre"
+                                    id="Semestre"
+                                    required
+                                    className={classNames({ 'p-invalid': submitted && !curso.Semestre })}
+                                />
                             </div>
                             <div className="field col">
                                 <label htmlFor="Creditos">Creditos</label>
@@ -425,8 +437,20 @@ const page = () => {
                             </div>
                             <div className="field col">
                                 <label htmlFor="Tipo">Tipo</label>
-                                <Dropdown id="Tipo" value={selectedTipo} onChange={(e) => onSelectTipo(e.value)} options={tipos} optionLabel="name" placeholder="Selecciona"
-                                    className={classNames({ 'p-invalid': submitted && !selectedTipo })}></Dropdown>
+                                <Dropdown
+                                    value={curso.Tipo}
+                                    options={tipos}
+                                    optionLabel="name"
+                                    optionValue="value"
+                                    name="Nivel"
+                                    onChange={(e) => {
+                                        onDropdownChange(e, 'Tipo');
+                                    }}
+                                    placeholder="Seleccione el Tipo"
+                                    id="Tipo"
+                                    required
+                                    className={classNames({ 'p-invalid': submitted && !curso.Tipo })}
+                                />
                             </div>
                         </div>
                         <div className='formgrid grid'>
@@ -441,8 +465,20 @@ const page = () => {
                                     className={classNames({ 'p-invalid': submitted && !curso.HorasTeoria })} />
                             </div>
                             <div className="field col">
-                                <label htmlFor="CodigoCurso">Prerequisito</label>
-                                <InputText id="CodigoCurso" maxLength={5} value={curso.CodigoCurso} onChange={(e) => onInputChange(e, 'CodigoCurso')} required />
+                                <label htmlFor="Prerequisito">Prerequisito</label>
+                                <Dropdown
+                                    value={curso.CodigoCurso}
+                                    options={prerequisitos}
+                                    optionLabel="Nombre"
+                                    optionValue="Codigo"
+                                    name="Prerequisito"
+                                    onChange={(e) => {
+                                        onDropdownChange(e, 'CodigoCurso');
+                                    }}
+                                    placeholder="Selecciona"
+                                    id="Prerequisito"
+                                    required
+                                />
                             </div>
                         </div>
                     </Dialog>
@@ -464,4 +500,4 @@ const page = () => {
 
 };
 
-export default page;
+export default Page;

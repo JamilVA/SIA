@@ -14,12 +14,10 @@ import { RadioButton } from 'primereact/radiobutton';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { InputSwitch } from 'primereact/inputswitch';
 import { Tag } from 'primereact/tag';
 import { Message } from 'primereact/message';
 import { Calendar } from 'primereact/calendar';
 import { CalendarChangeEvent } from 'primereact/calendar';
-import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 
 export default function JefeDepartamentosDemo() {
     let emptyJefeDepartamento: {
@@ -54,9 +52,12 @@ export default function JefeDepartamentosDemo() {
         Email: ''
     };
 
-    const departamentos = [{ Denominacion: 'Artistas Profesionales' }, { Denominacion: 'Profesionales Pedagógicos' }];
+    const departamentos = [{ Denominacion: 'Profesionales Pedagógicos' }, { Denominacion: 'Artistas Profesionales' }];
 
     const [jefeDepartamentoDialog, setJefeDepartamentoDialog] = useState(false);
+    const [cambioDNI, setCambioDNI] = useState(false);
+    const [cambioEmail, setCambioEmail] = useState(false);
+    const [cambioDepartamento, setCambioDepartamento] = useState(false);
     const [deleteJefeDepartamentoDialog, setDeleteJefeDepartamentoDialog] = useState(false);
     const [advertencia, setAdvertencia] = useState({ activo: false, mensaje: '' });
     const [jefeDepartamento, setJefeDepartamento] = useState(emptyJefeDepartamento);
@@ -89,6 +90,9 @@ export default function JefeDepartamentosDemo() {
 
     const openNew = () => {
         setJefeDepartamento(emptyJefeDepartamento);
+        setCambioEmail(false)
+        setCambioDNI(false)
+        setCambioDepartamento(false)
         setSubmitted(false);
         setJefeDepartamentoDialog(true);
     };
@@ -96,29 +100,74 @@ export default function JefeDepartamentosDemo() {
     const hideDialog = () => {
         setSubmitted(false);
         setJefeDepartamentoDialog(false);
+        setCambioEmail(false)
+        setCambioDNI(false)
+        setCambioDepartamento(false)
     };
 
     const hideDeleteJefeDepartamentoDialog = () => {
         setDeleteJefeDepartamentoDialog(false);
+        setCambioEmail(false)
+        setCambioDNI(false)
+        setCambioDepartamento(false)
     };
 
     const saveJefeDepartamento = () => {
         setSubmitted(true);
 
-        if (
-            jefeDepartamento.Nombres.trim() &&
-            jefeDepartamento.Paterno.trim() &&
-            jefeDepartamento.Materno.trim() &&
-            jefeDepartamento.FechaNacimiento &&
-            jefeDepartamento.Sexo &&
-            jefeDepartamento.DNI.trim() &&
-            jefeDepartamento.Email.trim() &&
-            validarDNI(jefeDepartamento.DNI.trim()) &&
-            validarEmail(jefeDepartamento.Email.trim())
-        ) {
+        if (jefeDepartamento.Nombres.trim() && jefeDepartamento.Paterno.trim() && jefeDepartamento.Materno.trim() && jefeDepartamento.FechaNacimiento && jefeDepartamento.Sexo && jefeDepartamento.DNI.trim() && jefeDepartamento.Email.trim()) {
             let _jefeDepartamento = { ...jefeDepartamento };
 
-            if (jefeDepartamento.Codigo) {
+            const codigosCarreras = [0, 0];
+
+            if (jefeDepartamento.Departamento == 'Profesionales Pedagógicos') {
+                codigosCarreras[0] = 1;
+                codigosCarreras[1] = 2;
+                console.log(codigosCarreras);
+            } else if (jefeDepartamento.Departamento == 'Artistas Profesionales') {
+                codigosCarreras[0] = 3;
+                codigosCarreras[1] = 4;
+                console.log(codigosCarreras);
+            }
+            if (!jefeDepartamento.Codigo) {
+                if (validarDNI(jefeDepartamento.DNI.trim()) && validarEmail(jefeDepartamento.Email.trim()) && validarDepartamento(jefeDepartamento.Departamento.trim())) {
+                    axios
+                        .post('http://localhost:3001/api/jefeDepartamento', {
+                            departamento: _jefeDepartamento.Departamento,
+                            fechaAlta: new Date(),
+                            paterno: _jefeDepartamento.Paterno,
+                            materno: _jefeDepartamento.Materno,
+                            nombres: _jefeDepartamento.Nombres,
+                            email: _jefeDepartamento.Email,
+                            sexo: _jefeDepartamento.Sexo,
+                            fechaNacimiento: _jefeDepartamento.FechaNacimiento,
+                            DNI: _jefeDepartamento.DNI,
+                            rutaFoto: _jefeDepartamento.RutaFoto
+                        })
+                        .then((response) => {
+                            for (let i = 0; i < codigosCarreras.length; i++) {
+                                axios
+                                    .put('http://localhost:3001/api/jefeDepartamento/carrera', {
+                                        codigoJefeDepartamento: response.data.jefeDepartamento.Codigo,
+                                        codigo: codigosCarreras[i]
+                                    })
+                                    .then((response) => {
+                                        console.log(response);
+                                        toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Carrera Profesional asignada con éxito', life: 3000 });
+                                    });
+                            }
+                            console.log(response.data);
+                            toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Jefe de Departamento creado con éxito', life: 3000 });
+                            fetchData();
+                        });
+                    setJefeDepartamentoDialog(false);
+                    setJefeDepartamento(emptyJefeDepartamento);
+
+                    setCambioEmail(false);
+                    setCambioDNI(false);
+                    setCambioDepartamento(false)
+                }
+            } else if((!cambioDNI || (cambioDNI && validarDNI(jefeDepartamento.DNI.trim())))&&(!cambioEmail || (cambioEmail && validarEmail(jefeDepartamento.Email.trim())))&&(!cambioDepartamento || (cambioDepartamento && validarDepartamento(jefeDepartamento.Departamento)))){
                 axios
                     .put('http://localhost:3001/api/jefeDepartamento', {
                         codigo: _jefeDepartamento.Codigo,
@@ -135,34 +184,45 @@ export default function JefeDepartamentosDemo() {
                     })
                     .then((response) => {
                         console.log(response);
+                        for (let i = 0; i < codigosCarreras.length; i++) {
+                            axios
+                                .put('http://localhost:3001/api/jefeDepartamento/carrera', {
+                                    codigoJefeDepartamento: _jefeDepartamento.Codigo,
+                                    codigo: codigosCarreras[i]
+                                })
+                                .then((response) => {
+                                    console.log(response);
+                                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Carrera Profesional actualizada con éxito', life: 3000 });
+                                });
+                        }
                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Jefe de Departamento actualizado con éxito', life: 3000 });
                         fetchData();
+                        setCambioEmail(false)
+                        setCambioDNI(false)
+                        setCambioDepartamento(false)
                     });
-                fetchData();
-            } else {
-                axios
-                    .post('http://localhost:3001/api/jefeDepartamento', {
-                        departamento: _jefeDepartamento.Departamento,
-                        fechaAlta: new Date(),
-                        paterno: _jefeDepartamento.Paterno,
-                        materno: _jefeDepartamento.Materno,
-                        nombres: _jefeDepartamento.Nombres,
-                        email: _jefeDepartamento.Email,
-                        sexo: _jefeDepartamento.Sexo,
-                        fechaNacimiento: _jefeDepartamento.FechaNacimiento,
-                        DNI: _jefeDepartamento.DNI,
-                        rutaFoto: _jefeDepartamento.RutaFoto
-                    })
-                    .then((response) => {
-                        console.log(response.data);
-                        toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Jefe de Departamento creado con éxito', life: 3000 });
-                        fetchData();
-                    });
+
+                setJefeDepartamentoDialog(false);
+                setJefeDepartamento(emptyJefeDepartamento);
             }
-            setJefeDepartamentoDialog(false);
-            setJefeDepartamento(emptyJefeDepartamento);
         }
     };
+
+    const validarDepartamento = (Departamento : string) =>{
+        const departamentoExists = jefeDepartamentos.some((doc: any) => {
+            return doc.Departamento === Departamento;
+        });
+
+        console.log('Departamento:', departamentoExists);
+
+        if (departamentoExists) {
+            setAdvertencia({ activo: true, mensaje: 'Este departamento ya tiene un Jefe asignado,<br/>por favor deshabilítelo primero antes de asignar uno nuevo' });
+            return false;
+        }
+
+        setAdvertencia({ activo: false, mensaje: '' });
+        return true;
+    }
 
     const validarEmail = (Email: string) => {
         const emailExists = jefeDepartamentos.some((doc: any) => {
@@ -219,6 +279,12 @@ export default function JefeDepartamentosDemo() {
     };
 
     const editJefeDepartamento = (jefeDepartamento: any) => {
+
+        if(jefeDepartamento.Estado == false) {
+            setAdvertencia({ activo: true, mensaje: 'Este Jefe de Departamento esta desabilitado,<br/>por favor habilítelo primero antes de editar su información'});
+            return false;
+        }
+
         let tempJefeDepartamento = {
             Codigo: jefeDepartamento.Codigo,
             Departamento: jefeDepartamento.Departamento,
@@ -249,18 +315,42 @@ export default function JefeDepartamentosDemo() {
     const deleteJefeDepartamento = (rowData: any) => {
         console.log(rowData.Codigo);
 
+        const codigosCarreras = [0, 0];
+
+            if (rowData.Departamento == 'Profesionales Pedagógicos') {
+                codigosCarreras[0] = 1;
+                codigosCarreras[1] = 2;
+                console.log(codigosCarreras);
+            } else if (rowData.Departamento == 'Artistas Profesionales') {
+                codigosCarreras[0] = 3;
+                codigosCarreras[1] = 4;
+                console.log(codigosCarreras);
+            }
+
+        const _estado = rowData.Estado ? false : true;
         axios
             .put('http://localhost:3001/api/jefeDepartamento', {
                 codigo: rowData.Codigo,
-                estado: false,
+                departamento: "No asignado",
+                estado: _estado,
                 fechaBaja: new Date()
             })
             .then((response) => {
-                console.log(response.data);
+                for (let i = 0; i < codigosCarreras.length; i++) {
+                    axios
+                        .put('http://localhost:3001/api/jefeDepartamento/carrera', {
+                            codigoJefeDepartamento: null,
+                            codigo: codigosCarreras[i]
+                        })
+                        .then((response) => {
+                            console.log(response);
+                            toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Carrera Profesional desasignada con éxito', life: 3000 });
+                        });
+                }
                 fetchData();
                 setDeleteJefeDepartamentoDialog(false);
                 setJefeDepartamento(emptyJefeDepartamento);
-                toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Jefe de Departamento Eliminado', life: 3000 });
+                toast.current!.show({ severity: 'success', summary: 'Successful', detail: rowData.Estado ? 'Jefe de departamento deshabilitado' : 'Jefe de departamento habilitado', life: 3000 });
             });
     };
 
@@ -285,7 +375,22 @@ export default function JefeDepartamentosDemo() {
         const val = (e.target && e.target.value) || '';
         let _jefeDepartamento = { ...jefeDepartamento };
 
+        console.log(name)
+
         _jefeDepartamento[`${name}`] = val;
+
+        if(name == "DNI"){
+            setCambioDNI(true)
+            console.log("DNI Cambio: "+cambioDNI)
+            console.log(cambioDNI)
+        }
+
+        if(name == "Email"){
+            setCambioEmail(true)
+            console.log("Email Cambio: "+cambioEmail)
+            console.log(cambioEmail)
+
+        }
 
         setJefeDepartamento(_jefeDepartamento);
         console.log(jefeDepartamento);
@@ -293,12 +398,17 @@ export default function JefeDepartamentosDemo() {
 
     const onDropdownChange = (e: any, name: keyof typeof emptyJefeDepartamento) => {
         const val = (e.target && e.target.value) || '';
-        let _jefeDepartamento = { ...jefeDepartamento };
+        
+        if (val != 'Seleccione') {
+            let _jefeDepartamento = { ...jefeDepartamento };
 
-        _jefeDepartamento[`${name}`] = val;
+            _jefeDepartamento[`${name}`] = val;
 
-        setJefeDepartamento(_jefeDepartamento);
-        console.log(jefeDepartamento);
+            setCambioDepartamento(true)
+
+            setJefeDepartamento(_jefeDepartamento);
+            console.log(jefeDepartamento);
+        } else return;
     };
 
     const onCalendarChange = (e: CalendarChangeEvent) => {
@@ -350,9 +460,8 @@ export default function JefeDepartamentosDemo() {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editJefeDepartamento(rowData)} />
-                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteJefeDepartamento(rowData)} />
-                {/* <InputSwitch checked={rowData.Estado} onChange={(e) => confirmDeleteJefeDepartamento(rowData)} /> */}
+                <Button icon="pi pi-pencil" rounded outlined className="mr-2" severity="warning" onClick={() => editJefeDepartamento(rowData)} />
+                <Button icon="pi pi-power-off" rounded outlined severity={rowData.Estado ? 'danger' : 'info'} onClick={() => confirmDeleteJefeDepartamento(rowData)} />
             </React.Fragment>
         );
     };
@@ -512,9 +621,11 @@ export default function JefeDepartamentosDemo() {
                             onChange={(e) => {
                                 onDropdownChange(e, 'Departamento');
                             }}
-                            placeholder="Seleccione el Departamento"
-                            className="p-column-filter"
+                            placeholder="Seleccione"
+                            required
+                            className={classNames({ 'p-invalid': submitted && !jefeDepartamento.Departamento })}
                         />
+                        {submitted && !jefeDepartamento.Departamento && <small className="p-error">Seleccione el Departamento.</small>}
                     </div>
                 </div>
             </Dialog>
@@ -530,7 +641,7 @@ export default function JefeDepartamentosDemo() {
             >
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {jefeDepartamento && <span>¿Esta seguro de que desea eliminar al Jefe de Departamento?</span>}
+                    {jefeDepartamento && <span>¿Esta seguro de que desea {jefeDepartamento.Estado ? 'desabilitar' : 'habilitar'} al Jefe de Departamento?</span>}
                 </div>
             </Dialog>
 
@@ -545,8 +656,8 @@ export default function JefeDepartamentosDemo() {
                     </div>
                 }
             >
-                <div>
-                    <p>{advertencia.mensaje}</p>
+                <div dangerouslySetInnerHTML={{ __html: advertencia.mensaje }}>
+                
                 </div>
             </Dialog>
         </div>
