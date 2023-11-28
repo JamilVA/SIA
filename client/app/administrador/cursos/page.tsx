@@ -440,7 +440,7 @@ const Page = () => {
                             </div>
                             <div className="field col">
                                 <label htmlFor="Creditos">Creditos</label>
-                                <InputNumber maxLength={1} id="Creditos" value={curso.Creditos} onValueChange={(e) => onInputNumberChange(e, 'Creditos')} required
+                                <InputNumber maxLength={2} id="Creditos" value={curso.Creditos} onValueChange={(e) => onInputNumberChange(e, 'Creditos')} required
                                     className={classNames({ 'p-invalid': submitted && !curso.Creditos })} />
                             </div>
                             <div className="field col">
