@@ -16,7 +16,15 @@ import React, { useEffect, useRef, useState } from 'react';
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function PeriodoPage() {
 
-    const periodoVacio = {
+    const periodoVacio: {
+        Codigo: string,
+        Denominacion: string,
+        FechaInicio: string | Date,
+        FechaFin: string | Date,
+        InicioMatricula: string | Date,
+        FinMatricula: string | Date,
+        Estado: boolean
+    } = {
         Codigo: '',
         Denominacion: '',
         FechaInicio: '',
@@ -203,7 +211,12 @@ export default function PeriodoPage() {
     };
 
     const editPeriodo = (periodo: any) => {
-        let _periodo = { ...periodo }
+        let _periodo = { ...periodo,
+            FechaInicio: new Date(periodo.FechaInicio + 'T05:00:00.000Z'),
+            FechaFin: new Date(periodo.FechaFin + 'T05:00:00.000Z'),
+            InicioMatricula: new Date(periodo.InicioMatricula + 'T05:00:00.000Z'),
+            FinMatricula: new Date(periodo.FinMatricula + 'T05:00:00.000Z')
+        }
         setEditar(true)
         setPeriodo(_periodo);
         setPeriodoDialog(true);
@@ -312,22 +325,22 @@ export default function PeriodoPage() {
         const selectedDate = e.value as Date;
         console.log(selectedDate)
         let _periodo = { ...periodo };
-        // switch (fechaName) {
-        //     case 'inicio':
-        //         _periodo.FechaInicio = selectedDate;
-        //         break;
-        //     case 'fin':
-        //         _periodo.FechaFin = selectedDate;
-        //         break;
-        //     case 'inicioMatricula':
-        //         _periodo.InicioMatricula = selectedDate;
-        //         break;
-        //     case 'finMatricula':
-        //         _periodo.FinMatricula = selectedDate;
-        //         break;
-        //     default:
-        //         break;
-        // }
+        switch (fechaName) {
+            case 'inicio':
+                _periodo.FechaInicio = selectedDate;
+                break;
+            case 'fin':
+                _periodo.FechaFin = selectedDate;
+                break;
+            case 'inicioMatricula':
+                _periodo.InicioMatricula = selectedDate;
+                break;
+            case 'finMatricula':
+                _periodo.FinMatricula = selectedDate;
+                break;
+            default:
+                break;
+        }
         setPeriodo(_periodo);
         console.log(_periodo);
     };
@@ -369,7 +382,8 @@ export default function PeriodoPage() {
     };
 
     const formatDate = (value: Date) => {
-        return value.toLocaleDateString('es-PE');
+        value.setDate(value.getDate() + 1)
+        return value.toLocaleDateString();
     };
 
     const statusBodyTemplate = (rowData: any) => {
@@ -470,28 +484,28 @@ export default function PeriodoPage() {
                             <label htmlFor="fechaInicio" className="font-bold">
                                 Inicio del periodo académico
                             </label>
-                            <Calendar id="fechaInicio" value={new Date(periodo.FechaInicio)} onChange={(e) => onCalendarChange(e, 'inicio')} required className={classNames({ 'p-invalid': submitted && !periodo.FechaInicio })} />
+                            <Calendar id="fechaInicio" value={periodo.FechaInicio} onChange={(e) => onCalendarChange(e, 'inicio')} required className={classNames({ 'p-invalid': submitted && !periodo.FechaInicio })} />
                             {submitted && !periodo.FechaInicio && <small className="p-error">Ingrese fecha de inicio del periodo académico</small>}
                         </div>
                         <div className="field col">
                             <label htmlFor="fechaFin" className="font-bold">
                                 Fin del periodo académico
                             </label>
-                            <Calendar id="fechaFin" value={new Date(periodo.FechaFin)} onChange={(e) => onCalendarChange(e, 'fin')} required className={classNames({ 'p-invalid': submitted && !periodo.FechaFin })} />
+                            <Calendar id="fechaFin" value={periodo.FechaFin} onChange={(e) => onCalendarChange(e, 'fin')} required className={classNames({ 'p-invalid': submitted && !periodo.FechaFin })} />
                             {submitted && !periodo.FechaFin && <small className="p-error">Ingrese fecha de fin del periodo académico</small>}
                         </div>
                         <div className="field col">
                             <label htmlFor="inicioMatriculas" className="font-bold">
                                 Inicio de matrículas
                             </label>
-                            <Calendar id="inicioMatriculas" value={new Date(periodo.InicioMatricula)} onChange={(e) => onCalendarChange(e, 'inicioMatricula')} required className={classNames({ 'p-invalid': submitted && !periodo.InicioMatricula })} />
+                            <Calendar id="inicioMatriculas" value={periodo.InicioMatricula} onChange={(e) => onCalendarChange(e, 'inicioMatricula')} required className={classNames({ 'p-invalid': submitted && !periodo.InicioMatricula })} />
                             {submitted && !periodo.InicioMatricula && <small className="p-error">Ingrese fecha de inicio de matrículas</small>}
                         </div>
                         <div className="field col">
                             <label htmlFor="finMatriculas" className="font-bold">
                                 Fin de matrículas
                             </label>
-                            <Calendar id="finMatriculas" value={new Date(periodo.FinMatricula)} onChange={(e) => onCalendarChange(e, 'finMatricula')} required className={classNames({ 'p-invalid': submitted && !periodo.FinMatricula })} />
+                            <Calendar id="finMatriculas" value={periodo.FinMatricula} onChange={(e) => onCalendarChange(e, 'finMatricula')} required className={classNames({ 'p-invalid': submitted && !periodo.FinMatricula })} />
                             {submitted && !periodo.FinMatricula && <small className="p-error">Ingrese fecha de fin de matrículas</small>}
                         </div>
                     </Dialog>
