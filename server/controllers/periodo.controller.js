@@ -2,14 +2,19 @@ const { response } = require('express')
 const Periodo = require('../models/periodo.model')
 
 const getPeriodo = async (req, res) => {
-    const periodos = await Periodo.findAll({
-        order: [['Codigo', 'desc']]
-    })
+    try {
+        const periodos = await Periodo.findAll({
+            order: [['Codigo', 'desc']]
+        })
 
-    res.json({
-        mensaje: 'ok',
-        periodos
-    })
+        res.json({
+            mensaje: 'ok',
+            periodos
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error en la carga de datos' })
+    }
 }
 
 const crearPeriodo = async (req, res) => {
@@ -26,24 +31,25 @@ const crearPeriodo = async (req, res) => {
         })
 
         res.json({
-            mensaje: "Periodo creado exitosamente",
+            message: "Periodo académico creado exitosamente",
             periodo
         })
 
     } catch (error) {
-        res.json({
-            error: 'error'
-        })
         console.log(error)
+        res.json({
+            error: 'Error al crear el periodo académico'
+        })
     }
 
 }
 
 const editarPeriodo = async (req, res) => {
 
-    const periodo = await Periodo.findByPk(req.body.codigo)
+    try {
+        const periodo = await Periodo.findByPk(req.body.codigo)
 
-    periodo.Denominacion = req.body.denominacion,
+        periodo.Denominacion = req.body.denominacion,
         periodo.FechaInicio = req.body.fechaInicio,
         periodo.FechaFin = req.body.fechaFin,
         periodo.InicioMatricula = req.body.inicioMatricula,
@@ -51,10 +57,14 @@ const editarPeriodo = async (req, res) => {
 
         await periodo.save()
 
-    res.json({
-        mensaje: "Periodo editado exitosamente",
-        periodo
-    })
+        res.json({
+            message: "Datos del periodo académico editados exitosamente",
+            periodo
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({error: 'Error al editar los datos del perido académico'})
+    }
 }
 
 const eliminarPeriodo = async (req, res) => {
@@ -65,18 +75,18 @@ const eliminarPeriodo = async (req, res) => {
     })
         .then(() => {
             res.json({
-                mensaje: "Periodo eliminado correctamente",
+                message: "Periodo eliminado correctamente",
                 codigo: req.query.codigo
             })
         })
         .catch(error => {
             console.log(error)
+            res.status(500).json({error: 'Ha ocurrido un error al eliminar el perido académico'})
         })
 }
 
 const finalizarPeriodo = async (req, res) => {
-    try {
-        console.log("Código finalizado", req.query.codigo)
+    try {       
         await Periodo.update({
             Estado: false
         }, {
@@ -85,7 +95,7 @@ const finalizarPeriodo = async (req, res) => {
             }
         })
         res.json({
-            mensaje: "Periodo finalizado exitosamente",
+            message: "Periodo finalizado exitosamente",
             codigo: req.query.codigo
         })
     } catch (error) {

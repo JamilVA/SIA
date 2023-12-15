@@ -1,5 +1,6 @@
 const Curso = require('../models/curso.model');
-const CarreraProfesional = require('../models/carreraProfesional.model')
+const CarreraProfesional = require('../models/carreraProfesional.model');
+const CursoCalificacion = require('../models/cursoCalificacion.model');
 
 CarreraProfesional.hasMany(Curso, { foreignKey: 'CodigoCarreraProfesional' })
 Curso.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' })
@@ -82,4 +83,24 @@ const actualizarCurso = async (req, res) => {
     }
 }
 
-module.exports = { getCurso, crearCurso, actualizarCurso }
+const buscarCurso = async (req, res) => {
+    try {
+        const curso = await Curso.findOne({
+            include: [{
+                model: CursoCalificacion,
+                where: {
+                    'Codigo': req.query.codigo
+                }
+            }]
+        })
+        if (!curso) {
+            return res.json({ message: 'Curso no encontrado' })
+        }
+        res.json({ curso })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({error: 'Error al buscar el curso'})
+    }
+}
+
+module.exports = { getCurso, crearCurso, actualizarCurso, buscarCurso }
