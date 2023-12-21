@@ -25,6 +25,7 @@ app.use('/api/curso', require('./routes/curso.route'));
 app.use('/api/periodo', require('./routes/periodo.route'));
 app.use('/api/curso-calificacion', require('./routes/cursoCalificacion.route'));
 app.use('/api/horario', require('./routes/horario.route'));
+app.use('/api/matricula', require('./routes/matricula.route'));
 
 
 //Para levantar el servidor

@@ -14,8 +14,6 @@ Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 Persona.hasOne(Estudiante, { foreignKey: "CodigoPersona" });
 Estudiante.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 
-Estudiante.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-Persona.hasOne(Estudiante, { foreignKey: "CodigoPersona" });
 Estudiante.belongsTo(CarreraProfesional, {
   foreignKey: "CodigoCarreraProfesional",
 });
