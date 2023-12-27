@@ -1,8 +1,8 @@
 const { Router } = require('express');
+const requireToken = require('../middleware/requireToken');
 //const { check } =  require('express-validator');
 //const { validarCampos } = require('../middlewares/validar-campos');
-const { getEstudiante, crearEstudiante, actualizarEstudiante, buscarEstudiante } = require('../controllers/estudiante.controller');
-//const { validarJWT } = require ('../middlewares/validar-jwt');
+const { getEstudiante, crearEstudiante, actualizarEstudiante, buscarEstudiante, getEstudianteByCod } = require('../controllers/estudiante.controller');
 
 const router = Router();
 
@@ -12,6 +12,8 @@ router.post('/', crearEstudiante);
 
 router.put('/', actualizarEstudiante);
 
-router.get('/buscar', buscarEstudiante)
+router.get('/buscar', buscarEstudiante);
+
+router.get('/getbycod', requireToken, getEstudianteByCod)
 
 module.exports = router;

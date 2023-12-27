@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const {getPagos, crearPago, anularPago, getConceptos} = require('../controllers/pago.controller')
+const {getPagos, crearPago, anularPago, getConceptos, getPagosByStudent} = require('../controllers/pago.controller')
 
 const router = Router();
 
@@ -10,5 +10,7 @@ router.post('/', crearPago);
 router.put('/', anularPago);
 
 router.get('/conceptos', getConceptos);
+
+router.post('/estudiante', getPagosByStudent);
 
 module.exports = router;

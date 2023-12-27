@@ -85,6 +85,7 @@ export default function Page ()  {
         var response = '';
         try {
             const result = await axios.post("http://127.0.0.1:3001/api/estudiante", data);
+            console.log(result);
             response = result.data.Estado;
             fetchData();
 

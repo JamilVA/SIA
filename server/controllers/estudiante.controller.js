@@ -1,12 +1,34 @@
 const Estudiante = require('../models/estudiante.model');
 const Persona = require('../models/persona.model');
+const Usuario = require('../models/usuario.model')
+const NivelUsuario = require('../models/nivelUsuario.model')
 const CarreraProfesional = require('../models/carreraProfesional.model');
 const { sequelize } = require('../config/database');
-const { QueryTypes } = require('sequelize');
+const { QueryTypes, json } = require('sequelize');
+const bcrypt = require('bcryptjs');
+
+NivelUsuario.hasMany(Usuario, { foreignKey: "CodigoNivelUsuario" });
+Usuario.belongsTo(NivelUsuario, { foreignKey: "CodigoNivelUsuario" });
+
+Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
+Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 
 Estudiante.belongsTo(Persona, { foreignKey: 'codigoPersona' })
-Persona.hasOne(Estudiante, {foreignKey: 'codigoPersona'})
+Persona.hasOne(Estudiante, { foreignKey: 'codigoPersona' })
+
 Estudiante.belongsTo(CarreraProfesional, { foreignKey: 'codigoCarreraProfesional' })
+
+const getEstudianteByCod = async (req, res) => {
+    try {
+        const estudiante = await Usuario.findByPk(req.uid);
+        return res.json({
+            ok: true,
+            estudiante: estudiante
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 const getEstudiante = async (req, res) => {
     const estudiantes = await Estudiante.findAll({
@@ -20,6 +42,16 @@ const getEstudiante = async (req, res) => {
         ok: true,
         estudiantes,
     });
+}
+
+const hash = (password) => {
+    try {
+        const salt = bcrypt.genSaltSync(10);
+        const hashPassword = bcrypt.hashSync(password, salt);
+        return hashPassword;
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 const crearEstudiante = async (req, res) => {
@@ -51,10 +83,21 @@ const crearEstudiante = async (req, res) => {
                 CodigoCarreraProfesional: req.body.CodigoCarreraProfesional,
             })
 
+        const usuario = await Usuario.create(
+            {
+                Codigo: null,
+                Estado: true,
+                CodigoPersona: persona.Codigo,
+                CodigoNivelUsuario: 4,
+                Email: req.body.Email,
+                Password: hash(req.body.DNI)
+            });
+
         res.json({
             "Estado": "Guardado con éxito",
             persona,
-            estudiante
+            estudiante,
+            usuario
         })
     } catch (error) {
         res.json({
@@ -118,7 +161,7 @@ const buscarEstudiante = async (req, res) => {
             },
             include: Persona
         })
-    
+
         res.json({
             mensaje: "Encontrado",
             estudiante
@@ -132,5 +175,6 @@ module.exports = {
     getEstudiante,
     crearEstudiante,
     actualizarEstudiante,
-    buscarEstudiante
+    buscarEstudiante,
+    getEstudianteByCod
 }

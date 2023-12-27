@@ -29,6 +29,20 @@ const getPagos = async (req, res = response) => {
     })
 }
 
+const getPagosByStudent = async (req, res) => {
+    const pagos = await Pago.findAll({
+        include: [{ all: true }],
+        where: {
+            CodigoEstudiante: req.body.codigo,
+        }
+    })
+
+    res.json({
+        ok: true,
+        pagos
+    })
+}
+
 async function numeroComprobante() {
     let cantidad = await Pago.count() + 1;
     let correlativo;
@@ -65,7 +79,7 @@ const crearPago = async (req, res) => {
             EstadoPago: 'R',
             Fecha: Date.now(),
             CodigoEstudiante: req.body.CodigoEstudiante,
-            CodigoConceptoPago: req.body.CodigoConceptoPago,           
+            CodigoConceptoPago: req.body.CodigoConceptoPago,
         })
 
         res.json({
@@ -79,20 +93,20 @@ const crearPago = async (req, res) => {
 
 const anularPago = async (req, res) => {
 
-   try {
-     let pago = await Pago.findByPk(req.body.codigo)
- 
-     pago.EstadoPago = "A"
- 
-     pago.save()
- 
-     res.json({
-         mensaje: 'El pago ha sido anulado',
-         pago
-     })
-   } catch (error) {
-    console.log("Ha ocurrido un error", error)
-   }
+    try {
+        let pago = await Pago.findByPk(req.body.codigo)
+
+        pago.EstadoPago = "A"
+
+        pago.save()
+
+        res.json({
+            mensaje: 'El pago ha sido anulado',
+            pago
+        })
+    } catch (error) {
+        console.log("Ha ocurrido un error", error)
+    }
 }
 
 
@@ -100,5 +114,6 @@ module.exports = {
     getPagos,
     crearPago,
     anularPago,
-    getConceptos
+    getConceptos,
+    getPagosByStudent
 }
