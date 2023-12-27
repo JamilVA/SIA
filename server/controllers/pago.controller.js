@@ -2,6 +2,7 @@ const { response } = require("express");
 const ConceptoPago = require("../models/conceptoPago.model");
 const Pago = require('../models/pago.model');
 const Estudiante = require("../models/estudiante.model");
+const { json } = require("sequelize");
 
 ConceptoPago.hasMany(Pago, { foreignKey: 'CodigoConceptoPago' })
 Pago.belongsTo(ConceptoPago, { foreignKey: 'CodigoConceptoPago' })
@@ -10,23 +11,51 @@ Estudiante.hasMany(Pago, { foreignKey: 'CodigoEstudiante' })
 Pago.belongsTo(Estudiante, { foreignKey: 'CodigoEstudiante' })
 
 const getConceptos = async (req, res = response) => {
-    const conceptos = await ConceptoPago.findAll()
+    try {
+        const conceptos = await ConceptoPago.findAll()
 
-    res.json({
-        ok: true,
-        conceptos
-    })
+        res.json({
+            ok: true,
+            conceptos
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error en la carga de conceptos de pago' })
+    }
 }
 
 const getPagos = async (req, res = response) => {
+    try {
+        const pagos = await Pago.findAll({
+            include: [{ all: true }]
+        })
+
+        res.json({
+            ok: true,
+            pagos
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error en la carga de datos' })
+    }
+}
+
+const getPagosByStudent = async (req, res) => {
     const pagos = await Pago.findAll({
-        include: [{ all: true }]
+        include: [{ all: true }],
+        where: {
+            CodigoEstudiante: req.body.codigo,
+        }
     })
 
-    res.json({
-        ok: true,
-        pagos
-    })
+        res.json({
+            ok: true,
+            pagos
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error en la carga de datos' })
+    }
 }
 
 const getPagosByStudent = async (req, res) => {
@@ -69,16 +98,15 @@ async function numeroComprobante() {
 }
 
 const crearPago = async (req, res) => {
-
-    const numeroComprob = (await numeroComprobante()).toString()
-
     try {
+        const numeroComprob = (await numeroComprobante()).toString()
         const pago = await Pago.create({
             Codigo: null,
             NumeroComprobante: numeroComprob,
             EstadoPago: 'R',
             Fecha: Date.now(),
             CodigoEstudiante: req.body.CodigoEstudiante,
+            CodigoConceptoPago: req.body.CodigoConceptoPago,
             CodigoConceptoPago: req.body.CodigoConceptoPago,
         })
 
@@ -88,6 +116,7 @@ const crearPago = async (req, res) => {
         })
     } catch (error) {
         console.log("Ha ocurrido un error", error)
+        res.status(500).json({ error: 'Ha ocurrido un error al registrar el pago' })
     }
 }
 
@@ -106,6 +135,21 @@ const anularPago = async (req, res) => {
         })
     } catch (error) {
         console.log("Ha ocurrido un error", error)
+    }
+    try {
+        let pago = await Pago.findByPk(req.body.codigo)
+
+        pago.EstadoPago = "A"
+
+        pago.save()
+
+        res.json({
+            mensaje: 'El pago ha sido anulado',
+            pago
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'Ha ocurrido un error al anular el pago' })
     }
 }
 

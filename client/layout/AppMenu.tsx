@@ -32,6 +32,7 @@ const AppMenu = () => {
                 { label: 'Matrícula', icon: 'pi pi-fw pi-list', to: '/estudiante/matricula' },
                 { label: 'Pagos', icon: 'pi pi-fw pi-money-bill', to: '/estudiante/pagos' },
 
+                { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefe/curso-calificacion' },
                 { label: 'Gestion de Horarios', icon: 'pi pi-fw pi-list', to: '/jefe/horarios' },
                 { label: 'Gestion de Matricula', icon: 'pi pi-fw pi-list', to: '/jefe/matricula' },
                 { label: 'Gestion de Periodo', icon: 'pi pi-fw pi-clock', to: '/jefe/periodo' },

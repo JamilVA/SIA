@@ -35,6 +35,9 @@ app.use('/api/docente', require('./routes/docente.route'));
 app.use('/api/jefeDepartamento', require('./routes/jefeDepartamento.route'));
 app.use('/api/curso', require('./routes/curso.route'));
 app.use('/api/periodo', require('./routes/periodo.route'));
+app.use('/api/curso-calificacion', require('./routes/cursoCalificacion.route'));
+app.use('/api/horario', require('./routes/horario.route'));
+app.use('/api/matricula', require('./routes/matricula.route'));
 app.use('/api', require('./routes/auth.route'));
 
 

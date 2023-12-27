@@ -572,7 +572,7 @@ export default function JefeDepartamentosDemo() {
                         <label htmlFor="FechaNacimiento" className="font-bold">
                             Fecha de Nacimiento
                         </label>
-                        <Calendar id="FechaNacimiento" value={jefeDepartamento.FechaNacimiento} onChange={(e) => onCalendarChange(e)} required className={classNames({ 'p-invalid': submitted && !jefeDepartamento.FechaNacimiento })} />
+                        <Calendar id="FechaNacimiento" value={jefeDepartamento.FechaNacimiento} onChange={(e) => onCalendarChange(e)}showIcon required className={classNames({ 'p-invalid': submitted && !jefeDepartamento.FechaNacimiento })} />
                         {submitted && !jefeDepartamento.FechaNacimiento && <small className="p-error">Ingrese la Fecha de Nacimiento.</small>}
                     </div>
 
