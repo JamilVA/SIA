@@ -4,9 +4,6 @@ const Usuario = require('../models/usuario.model')
 const NivelUsuario = require('../models/nivelUsuario.model')
 const CarreraProfesional = require("../models/carreraProfesional.model");
 
-const Usuario = require("../models/usuario.model");
-const NivelUsuario = require("../models/nivelUsuario.model");
-
 const { sequelize } = require("../config/database");
 const { QueryTypes, json } = require("sequelize");
 const bcrypt = require('bcryptjs');
@@ -39,13 +36,13 @@ const getEstudiante = async (req, res) => {
 };
 
 const hash = (password) => {
-    try {
-        const salt = bcrypt.genSaltSync(10);
-        const hashPassword = bcrypt.hashSync(password, salt);
-        return hashPassword;
-    } catch (error) {
-        console.log(error);
-    }
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const hashPassword = bcrypt.hashSync(password, salt);
+    return hashPassword;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 const crearEstudiante = async (req, res) => {
@@ -73,28 +70,20 @@ const crearEstudiante = async (req, res) => {
       CodigoCarreraProfesional: req.body.CodigoCarreraProfesional,
     });
 
-    const usuario = await Usuario.create({
-      Codigo: null,
-      Estado: true,
-      CodigoPersona: persona.Codigo,
-      CodigoNivelUsuario: 3,
-    });
-
-        const usuario = await Usuario.create(
-            {
-                Codigo: null,
-                Estado: true,
-                CodigoPersona: persona.Codigo,
-                CodigoNivelUsuario: 4,
-                Email: req.body.Email,
-                Password: hash(req.body.DNI)
-            });
+    const usuario = await Usuario.create(
+      {
+        Codigo: null,
+        Estado: true,
+        CodigoPersona: persona.Codigo,
+        CodigoNivelUsuario: 4,
+        Email: req.body.Email,
+        Password: hash(req.body.DNI)
+      });
 
     res.json({
       Estado: "Guardado con éxito",
       persona,
-      estudiante,,
-            usuario
+      estudiante,
       usuario
     });
   } catch (error) {
@@ -176,6 +165,5 @@ module.exports = {
   getEstudiante,
   crearEstudiante,
   actualizarEstudiante,
-  buscarEstudiante,
-    getEstudianteByCod,
+  buscarEstudiante
 };
