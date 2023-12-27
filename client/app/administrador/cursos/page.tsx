@@ -440,24 +440,37 @@ const Page = () => {
                             </div>
                             <div className="field col">
                                 <label htmlFor="Creditos">Creditos</label>
-                                <InputNumber maxLength={1} id="Creditos" value={curso.Creditos} onValueChange={(e) => onInputNumberChange(e, 'Creditos')} required className={classNames({ 'p-invalid': submitted && !curso.Creditos })} />
+                                <InputNumber maxLength={2} id="Creditos" value={curso.Creditos} onValueChange={(e) => onInputNumberChange(e, 'Creditos')} required
+                                    className={classNames({ 'p-invalid': submitted && !curso.Creditos })} />
+                            </div>
+                            <div className="field col">
+                                <label htmlFor="Tipo">Tipo</label>
+                                <Dropdown
+                                    value={curso.Tipo}
+                                    options={tipos}
+                                    optionLabel="name"
+                                    optionValue="value"
+                                    name="Nivel"
+                                    onChange={(e) => {
+                                        onDropdownChange(e, 'Tipo');
+                                    }}
+                                    placeholder="Seleccione el Tipo"
+                                    id="Tipo"
+                                    required
+                                    className={classNames({ 'p-invalid': submitted && !curso.Tipo })}
+                                />
                             </div>
                         </div>
                         <div className="formgrid grid">
                             <div className="field col">
                                 <label htmlFor="HorasTeoria">Horas Teoria</label>
-                                <InputNumber maxLength={2} id="HorasTeoria" value={curso.HorasTeoria} onValueChange={(e) => onInputNumberChange(e, 'HorasTeoria')} required className={classNames({ 'p-invalid': submitted && !curso.HorasTeoria })} />
+                                <InputNumber maxLength={2} id="HorasTeoria" value={curso.HorasTeoria} onValueChange={(e) => onInputNumberChange(e, 'HorasTeoria')} required
+                                    className={classNames({ 'p-invalid': submitted && !curso.HorasTeoria })} />
                             </div>
                             <div className="field col">
                                 <label htmlFor="HorasPractica">Horas Practica</label>
-                                <InputNumber
-                                    maxLength={2}
-                                    id="HorasPractica"
-                                    value={curso.HorasPractica}
-                                    onValueChange={(e) => onInputNumberChange(e, 'HorasPractica')}
-                                    required
-                                    className={classNames({ 'p-invalid': submitted && !curso.HorasPractica })}
-                                />
+                                <InputNumber maxLength={2} id="HorasPractica" value={curso.HorasPractica} onValueChange={(e) => onInputNumberChange(e, 'HorasPractica')} required
+                                    className={classNames({ 'p-invalid': submitted && !curso.HorasPractica })} />
                             </div>
 
                             <div className="field col">

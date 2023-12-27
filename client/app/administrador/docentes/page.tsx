@@ -76,7 +76,7 @@ export default function DocentesDemo() {
 
             // Establecer los docentes en el estado
             setDocentes(docentesConNombreCompleto);
-            console.log(docentesConNombreCompleto);
+
         } catch (e) {
             console.log(e);
         }
@@ -463,7 +463,7 @@ export default function DocentesDemo() {
                         <label htmlFor="fechaNacimiento" className="font-bold">
                             Fecha de Nacimiento
                         </label>
-                        <Calendar id="fechaNacimiento" value={docente.fechaNacimiento} onChange={(e) => onCalendarChange(e)} required className={classNames({ 'p-invalid': submitted && !docente.fechaNacimiento })} />
+                        <Calendar id="fechaNacimiento" value={docente.fechaNacimiento} onChange={(e) => onCalendarChange(e)} showIcon required className={classNames({ 'p-invalid': submitted && !docente.fechaNacimiento })} />
                         {submitted && !docente.fechaNacimiento && <small className="p-error">Ingrese la Fecha de Nacimiento.</small>}
                     </div>
 

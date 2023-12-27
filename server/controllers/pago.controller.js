@@ -40,6 +40,25 @@ const getPagos = async (req, res = response) => {
     }
 }
 
+const getPagosByStudent = async (req, res) => {
+    try {
+        const pagos = await Pago.findAll({
+            include: [{ all: true }],
+            where: {
+                CodigoEstudiante: req.body.codigo,
+            }
+        })
+
+        res.json({
+            ok: true,
+            pagos
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error en la carga de datos' })
+    }
+}
+
 async function numeroComprobante() {
     let cantidad = await Pago.count() + 1;
     let correlativo;
@@ -75,6 +94,7 @@ const crearPago = async (req, res) => {
             Fecha: Date.now(),
             CodigoEstudiante: req.body.CodigoEstudiante,
             CodigoConceptoPago: req.body.CodigoConceptoPago,
+            CodigoConceptoPago: req.body.CodigoConceptoPago,
         })
 
         res.json({
@@ -101,6 +121,20 @@ const anularPago = async (req, res) => {
             pago
         })
     } catch (error) {
+        console.log("Ha ocurrido un error", error)
+    }
+    try {
+        let pago = await Pago.findByPk(req.body.codigo)
+
+        pago.EstadoPago = "A"
+
+        pago.save()
+
+        res.json({
+            mensaje: 'El pago ha sido anulado',
+            pago
+        })
+    } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'Ha ocurrido un error al anular el pago' })
     }
@@ -111,5 +145,6 @@ module.exports = {
     getPagos,
     crearPago,
     anularPago,
-    getConceptos
+    getConceptos,
+    getPagosByStudent
 }

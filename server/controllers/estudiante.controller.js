@@ -1,12 +1,21 @@
 const Estudiante = require("../models/estudiante.model");
 const Persona = require("../models/persona.model");
+const Usuario = require('../models/usuario.model')
+const NivelUsuario = require('../models/nivelUsuario.model')
 const CarreraProfesional = require("../models/carreraProfesional.model");
 
 const Usuario = require("../models/usuario.model");
 const NivelUsuario = require("../models/nivelUsuario.model");
 
 const { sequelize } = require("../config/database");
-const { QueryTypes } = require("sequelize");
+const { QueryTypes, json } = require("sequelize");
+const bcrypt = require('bcryptjs');
+
+NivelUsuario.hasMany(Usuario, { foreignKey: "CodigoNivelUsuario" });
+Usuario.belongsTo(NivelUsuario, { foreignKey: "CodigoNivelUsuario" });
+
+Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
+Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 
 Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
 Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
@@ -14,8 +23,6 @@ Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 Persona.hasOne(Estudiante, { foreignKey: "CodigoPersona" });
 Estudiante.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 
-Estudiante.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-Persona.hasOne(Estudiante, { foreignKey: "CodigoPersona" });
 Estudiante.belongsTo(CarreraProfesional, {
   foreignKey: "CodigoCarreraProfesional",
 });
@@ -30,6 +37,16 @@ const getEstudiante = async (req, res) => {
     estudiantes,
   });
 };
+
+const hash = (password) => {
+    try {
+        const salt = bcrypt.genSaltSync(10);
+        const hashPassword = bcrypt.hashSync(password, salt);
+        return hashPassword;
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 const crearEstudiante = async (req, res) => {
   try {
@@ -63,10 +80,21 @@ const crearEstudiante = async (req, res) => {
       CodigoNivelUsuario: 3,
     });
 
+        const usuario = await Usuario.create(
+            {
+                Codigo: null,
+                Estado: true,
+                CodigoPersona: persona.Codigo,
+                CodigoNivelUsuario: 4,
+                Email: req.body.Email,
+                Password: hash(req.body.DNI)
+            });
+
     res.json({
       Estado: "Guardado con éxito",
       persona,
-      estudiante,
+      estudiante,,
+            usuario
       usuario
     });
   } catch (error) {
@@ -149,4 +177,5 @@ module.exports = {
   crearEstudiante,
   actualizarEstudiante,
   buscarEstudiante,
+    getEstudianteByCod,
 };

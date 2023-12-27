@@ -1,6 +1,8 @@
 const Curso = require('../models/curso.model');
 const CarreraProfesional = require('../models/carreraProfesional.model');
-const CursoCalificacion = require('../models/cursoCalificacion.model');
+const CursoCalificacion = require('../models/cursoCalificacion.model');;
+const { sequelize } = require('../config/database');
+const { QueryTypes } = require('sequelize');
 
 CarreraProfesional.hasMany(Curso, { foreignKey: 'CodigoCarreraProfesional' })
 Curso.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' })
@@ -103,4 +105,19 @@ const buscarCurso = async (req, res) => {
     }
 }
 
-module.exports = { getCurso, crearCurso, actualizarCurso, buscarCurso }
+const getCursosByDP = async (req, res) => {
+    try {
+        const cursos = await sequelize.query(`select c.Codigo as CodCurso, cc.Codigo as CodCursoCal, c.Nombre, cp.NombreCarrera as Carrera from carreraprofesional cp join curso c on cp.Codigo = c.CodigoCarreraProfesional join cursocalificacion cc on c.Codigo = cc.CodigoCurso join periodo p on p.Codigo = cc.CodigoPeriodo join docente d on cc.CodigoDocente = d.Codigo where d.Codigo = ${req.body.CodDocente} and p.Estado = 1`, { type: QueryTypes.SELECT });
+
+        res.json({
+            ok: true,
+            cursos
+        });
+    } catch (error) {
+        res.json({
+            "Estado": "Error" + error
+        })
+    }
+}
+
+module.exports = { getCurso, crearCurso, actualizarCurso, getCursosByDP, buscarCurso }

@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/database");
 
+
 const CursoCalificacion = sequelize.define('CursoCalificacion', {
     Codigo: {
         primaryKey: true,
@@ -16,3 +17,4 @@ const CursoCalificacion = sequelize.define('CursoCalificacion', {
 })
 
 module.exports = CursoCalificacion;
+
