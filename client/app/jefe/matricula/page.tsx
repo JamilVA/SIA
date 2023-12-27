@@ -9,20 +9,10 @@ import { Card } from 'primereact/card';
 
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
-import { FileUpload } from 'primereact/fileupload';
-import { Toolbar } from 'primereact/toolbar';
-import { RadioButton } from 'primereact/radiobutton';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { Calendar } from 'primereact/calendar';
-import { CalendarChangeEvent } from 'primereact/calendar';
-import { Row } from 'jspdf-autotable';
 
 export default function Matricula() {
-    const usuario = {
-        Email: 'jamilvasquez20@gmail.com',
-        CodigoSunedu: 'PI72763398'
-    };
 
     const estudianteVacio = {
         AnioIngreso: '',

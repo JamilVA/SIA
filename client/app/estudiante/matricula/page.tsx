@@ -9,13 +9,14 @@ import { Card } from 'primereact/card';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
+import Link from 'next/link';
 
 import { Message } from 'primereact/message';
 
 export default function Matricula() {
     const usuario = {
         Email: 'jamilvasquez20@gmail.com',
-        CodigoSunedu: 'PI72763398'
+        CodigoSunedu: 'PI72763399'
     };
 
     const estudianteVacio = {
@@ -68,7 +69,18 @@ export default function Matricula() {
         FinMatricula: ''
     };
 
+    const pagoVacio = {
+        Codigo: '',
+        EstadoPago: '',
+        CodigoEstudiante:'',
+        Estudiante: {
+            Codigo:'',
+            Email:''
+        },
+    };
+
     const [matriculaDialog, setMatriculaDialog] = useState(false);
+    const [pagosDialog, setPagosDialog] = useState(false);
     const [deleteMatriculaDialog, setDeleteMatriculaDialog] = useState(false);
     const [matriculaHabilitada, setMatriculaHabilitada] = useState(false);
 
@@ -78,20 +90,18 @@ export default function Matricula() {
     const [periodoActual, setPeriodoActual] = useState(periodoVacio);
 
     const [matriculas, setMatriculas] = useState<(typeof matricula)[]>([]);
-    const [matriculasActuales, setMatriculasActuales] = useState<(typeof matricula)[]>([]);
+    const [pagos, setPagos] = useState<(typeof pagoVacio)[]>([]);
     const [cursosCalificacion, setCursosCalificacion] = useState<(typeof cursoCalificacion)[]>([]);
 
     const [cursosLlevar, setCursosLlevar] = useState<(typeof cursoCalificacion)[]>([]);
     const [cursosMatriculados, setCursosMatriculados] = useState<(typeof cursoCalificacion)[]>([]);
 
-    const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
-
-
+    const [globalFilter, setGlobalFilter] = useState('');
 
     useEffect(() => {
-        const cargarDatos = async (usuario:any) => {
+        const cargarDatos = async (usuario: any) => {
             try {
                 const { data } = await axios.get('http://localhost:3001/api/matricula', {
                     params: {
@@ -108,24 +118,39 @@ export default function Matricula() {
                 console.error(e);
             }
         };
+        const cargarPagos = async (usuario: any) => {
+            try {
+                const result = await axios.get('http://localhost:3001/api/pago/pagosEstudiante', {
+                    params: {
+                        Email: usuario.Email
+                    }
+                });
+
+                setPagos(result.data.pagos);
+                console.log('Pagos del Estudiante', result.data.pagos);
+            } catch (e) {
+                console.error(e);
+            }
+        };
+        cargarPagos(usuario);
         cargarDatos(usuario);
     }, []);
 
     useEffect(() => {
         comprobarMatricula();
     }, [periodoActual]);
-    
+
     useEffect(() => {
         if (cursosCalificacion.length > 0) {
             const cursosMatriculados = buscarCursosMatriculados();
             setCursosMatriculados(cursosMatriculados);
-    
+
             const cursosLlevar = buscarCursosLlevar(cursosMatriculados);
             setCursosLlevar(cursosLlevar);
         }
     }, [cursosCalificacion, matriculas, estudiante]);
-    
-    const buscarCursosLlevar = (cursosMatriculados:(typeof cursoCalificacion)[]) => {
+
+    const buscarCursosLlevar = (cursosMatriculados: (typeof cursoCalificacion)[]) => {
         const ultimaMatricula = matriculas.filter((m: any) => m.CodigoCursoCalificacion.slice(-3) !== periodoActual.Codigo).pop();
 
         if (ultimaMatricula) {
@@ -170,10 +195,9 @@ export default function Matricula() {
         const finMatricula = new Date(periodoActual.FinMatricula);
         const currentDate = new Date();
 
-        console.log('Inicio de Matricula',inicioMatricula),
-        console.log('Fin de Matricula',finMatricula),
-        console.log('Fecha Actual',currentDate),
-        setMatriculaHabilitada(currentDate >= inicioMatricula && currentDate <= finMatricula);
+        console.log('Inicio de Matricula', inicioMatricula), console.log('Fin de Matricula', finMatricula), console.log('Fecha Actual', currentDate);
+        setMatriculaHabilitada((currentDate >= inicioMatricula && currentDate <= finMatricula) && pagos.some(p => p.Estudiante !=null));
+        
     };
 
     const crearMatricula = async (rowData: any) => {
@@ -212,10 +236,9 @@ export default function Matricula() {
             });
     };
 
-    // const hideDialog = () => {
-    //     setSubmitted(false);
-    //     setDocenteDialog(false);
-    // };
+    const hidePagosDialog = () => {
+        setPagosDialog(false);
+    };
 
     const hideMatriculaDialog = () => {
         setMatriculaDialog(false);
@@ -230,14 +253,14 @@ export default function Matricula() {
         setMatriculaDialog(true);
     };
 
+    const openDialogPagos = () => {
+        setPagosDialog(true);
+    };
+
     const confirmDeleteMatricula = (curso: any) => {
         setCursoCalificaion(curso);
         setDeleteMatriculaDialog(true);
     };
-
-    // const exportCSV = () => {
-    //     dt.current!.exportCSV();
-    // };
 
     const codigoBodyTemplate = (rowData: any) => {
         return rowData.Codigo.slice(0, 5);
@@ -270,9 +293,25 @@ export default function Matricula() {
     const actionBodyTemplate2 = (rowData: any) => {
         return (
             <React.Fragment>
-                <Button label="Eliminar" icon="pi pi-times" className="p-button-danger p-button-sm" style={{ padding: '0.75em', fontSize: '0.75em' }}onClick={() => confirmDeleteMatricula(rowData)} />
+                <Button label="Eliminar" icon="pi pi-times" className="p-button-danger p-button-sm" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => confirmDeleteMatricula(rowData)} />
             </React.Fragment>
         );
+    };
+
+    const codigoPagoBodyTemplate = (rowData: any) => {
+        return rowData.Codigo;
+    };
+
+    const conceptoPagoBodyTemplate = (rowData: any) => {
+        return rowData.ConceptoPago.Denominacion;
+    };
+
+    const montoPagoBodyTemplate = (rowData: any) => {
+        return rowData.ConceptoPago.Monto;
+    };
+
+    const estadoPagoBodyTemplate = (rowData: any) => {
+        return rowData.Curso.EstadoPago;
     };
 
     const header1 = (
@@ -319,8 +358,14 @@ export default function Matricula() {
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Matrícula en el periodo {periodoActual.Denominacion}</h4>
             <div className="flex flex-wrap gap-2">
-                <Button label="Constancia" icon="pi pi-file-pdf" className="p-button-warning" onClick={buscarCursosMatriculados} />
+                <Button label="Constancia de Matrícula" icon="pi pi-file-pdf" className="p-button-warning" onClick={buscarCursosMatriculados} />
             </div>
+        </div>
+    );
+
+    const header4 = (
+        <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+            <h4 className="m-0">Pagos del Estudiante {periodoActual.Denominacion}</h4>
         </div>
     );
 
@@ -332,6 +377,15 @@ export default function Matricula() {
             </React.Fragment>
         );
     };
+
+    const pagosDialogFooter = () => {
+        return (
+            <React.Fragment>
+                <Button label="Cerrar" icon="pi pi-check" severity="danger" onClick={() => hidePagosDialog()} />
+            </React.Fragment>
+        );
+    };
+
     const matriculaDialogFooter = () => {
         return (
             <React.Fragment>
@@ -341,7 +395,15 @@ export default function Matricula() {
         );
     };
 
-    const header = <img alt="Profile" src="imagen_del_perfil.jpg" />;
+    const headerCard = (
+        <div className="flex flex-wrap gap-2 align-items-center justify-content-center">
+            <div className="flex flex-wrap gap-2 mt-4">
+                <Link href="/estudiante/estudiante-pagos">
+                    <Button label="Pagos" icon="pi pi-money-bill" className="p-button-info p-button-sm" />{' '}
+                </Link>
+            </div>
+        </div>
+    );
 
     const footer = (
         <span>
@@ -352,7 +414,7 @@ export default function Matricula() {
     return (
         <div className="grid">
             <div className="col-3">
-                <Card title={estudiante.Persona.Nombres} subTitle={estudiante.Persona.Paterno + ' ' + estudiante.Persona.Materno} style={{ width: '100%' }} footer={footer} header={header}></Card>
+                <Card title={estudiante.Persona.Nombres} subTitle={estudiante.Persona.Paterno + ' ' + estudiante.Persona.Materno} style={{ width: '100%' }} footer={footer} header={headerCard}></Card>
             </div>
             <div className="col-9">
                 <Toast ref={toast} />
@@ -363,6 +425,7 @@ export default function Matricula() {
                                 ref={dt}
                                 value={cursosLlevar}
                                 dataKey="Codigo"
+                                emptyMessage="No se han encontrado cursos a matricular"
                                 paginator
                                 rows={5}
                                 rowsPerPageOptions={[5, 10, 25]}
@@ -385,6 +448,7 @@ export default function Matricula() {
                                 ref={dt}
                                 value={cursosMatriculados}
                                 dataKey="Codigo"
+                                emptyMessage="No se han encontrado cursos matriculados"
                                 paginator
                                 rows={5}
                                 rowsPerPageOptions={[5, 10, 25]}
@@ -412,7 +476,7 @@ export default function Matricula() {
                             }}
                             className="w-full justify-content-start"
                             severity="error"
-                            content={'El periodo de matrícula ha finalizado'}
+                            content={'Su matrícula no esta habilitada, revisar fechas de matricula y pagos correspondientes'}
                         />
 
                         <br />
@@ -423,6 +487,7 @@ export default function Matricula() {
                                 ref={dt}
                                 value={cursosMatriculados}
                                 dataKey="Codigo"
+                                emptyMessage="No se han encontrado cursos matriculados"
                                 paginator
                                 rows={5}
                                 rowsPerPageOptions={[5, 10, 25]}
@@ -447,12 +512,35 @@ export default function Matricula() {
                     {cursosCalificacion && <span>¿Esta seguro de que desea eliminar la Matricula?</span>}
                 </div>
             </Dialog>
-            <Dialog visible={matriculaDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirmar" modal footer={matriculaDialogFooter()} onHide={hideMatriculaDialog}>
+            <Dialog visible={matriculaDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirmar" modal footer={matriculaDialogFooter} onHide={hideMatriculaDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-check-circle mr-3" style={{ fontSize: '2rem' }} />
                     {cursosCalificacion && <span>¿Esta seguro de que desea agrregar la Matricula?</span>}
                 </div>
             </Dialog>
+            {/* <Dialog visible={pagosDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirmar" modal footer={pagosDialogFooter} onHide={hidePagosDialog}>
+                <div className="card">
+                    <div className="card">
+                        <DataTable
+                            ref={dt}
+                            value={pagos}
+                            dataKey="Codigo"
+                            paginator
+                            rows={5}
+                            rowsPerPageOptions={[5, 10, 25]}
+                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                            currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} pagos"
+                            globalFilter={globalFilter}
+                            header={header4}
+                        >
+                            <Column field="Codigo" header="Codigo" body={codigoPagoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                            <Column field="ConceptoPago.Denominacion" header="Conceto de Pago" body={conceptoPagoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
+                            <Column header="Monto" body={montoPagoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                            <Column header="Estado" body={estadoPagoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                        </DataTable>
+                    </div>
+                </div>
+            </Dialog> */}
         </div>
     );
 }
