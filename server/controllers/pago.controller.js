@@ -41,12 +41,13 @@ const getPagos = async (req, res = response) => {
 }
 
 const getPagosByStudent = async (req, res) => {
-    const pagos = await Pago.findAll({
-        include: [{ all: true }],
-        where: {
-            CodigoEstudiante: req.body.codigo,
-        }
-    })
+    try {
+        const pagos = await Pago.findAll({
+            include: [{ all: true }],
+            where: {
+                CodigoEstudiante: req.body.codigo,
+            }
+        })
 
         res.json({
             ok: true,
@@ -56,20 +57,6 @@ const getPagosByStudent = async (req, res) => {
         console.error(error)
         res.status(500).json({ error: 'Error en la carga de datos' })
     }
-}
-
-const getPagosByStudent = async (req, res) => {
-    const pagos = await Pago.findAll({
-        include: [{ all: true }],
-        where: {
-            CodigoEstudiante: req.body.codigo,
-        }
-    })
-
-    res.json({
-        ok: true,
-        pagos
-    })
 }
 
 async function numeroComprobante() {
