@@ -17,4 +17,4 @@ const Sesion = sequelize.define('Sesion', {
     SalidaDocente: DataTypes.TIME,
 })
 
-module.exports = UnidadAcemica
+module.exports = Sesion
