@@ -13,8 +13,8 @@ import { Demo } from '../../types/types';
 import { ChartData, ChartOptions } from 'chart.js';
 import { useAppDispatch, useAppSelector } from '../../redux/services/hooks';
 import { updateInfoUser } from '../../redux/features/userSlice'
-import { useSession } from "next-auth/react";
-import { useDispatch } from "react-redux"
+// import { useSession } from "next-auth/react";
+// import { useDispatch } from "react-redux"
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 const lineData: ChartData = {
@@ -40,14 +40,14 @@ const lineData: ChartData = {
 };
 
 export default function Dashboard() {
-    const userState = useAppSelector(state => state.userPerson)
+    // const userState = useAppSelector(state => state.userPerson)
     const [products, setProducts] = useState<Demo.Product[]>([]);
     const menu1 = useRef<Menu>(null);
     const menu2 = useRef<Menu>(null);
     const [lineOptions, setLineOptions] = useState<ChartOptions>({});
     const { layoutConfig } = useContext(LayoutContext);
 
-    const { data: session, status } = useSession();
+    // const { data: session, status } = useSession();
 
     const applyLightTheme = () => {
         const lineOptions: ChartOptions = {
@@ -119,16 +119,16 @@ export default function Dashboard() {
         ProductService.getProductsSmall().then((data) => setProducts(data));
     }, []);
 
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
 
-    const changeValue = () => {
-        if (_nivelUsuario != undefined)
-            dispatch(updateInfoUser(_nivelUsuario));
-    }
+    // const changeValue = () => {
+    //     if (_nivelUsuario != undefined)
+    //         dispatch(updateInfoUser(_nivelUsuario));
+    // }
 
 
-    _nivelUsuario = session?.user.nivelUsuario;
-    changeValue();
+    // _nivelUsuario = session?.user.nivelUsuario;
+    // changeValue();
 
     useEffect(() => {
         if (layoutConfig.colorScheme === 'light') {
@@ -150,7 +150,7 @@ export default function Dashboard() {
     }
 
     if (status === "authenticated") {
-        return <p>Signed in as {session.user.email}</p>
+        // return <p>Signed in as {session.user.email}</p>
     }
 
     return <a href="/api/auth/signin">Sign in</a>

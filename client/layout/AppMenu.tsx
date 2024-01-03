@@ -12,7 +12,7 @@ const AppMenu = () => {
 
     const model: AppMenuItem[] = [
         {
-            label: 'SIA',
+            label: 'NAVEGACIÓN',
             items: [
                 { label: 'PageDeLaPlantilla', icon: 'pi pi-fw pi-home', to: '/' },
                 { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },

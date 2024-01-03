@@ -5,7 +5,6 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import axios from 'axios';
-import Link from 'next/link';
 
 const Page = () => {
 
@@ -49,9 +48,6 @@ const Page = () => {
         return (
             <>
                 <Button rounded severity="warning" className="mr-2 py-1">Ver</Button>
-                <Link href={`/docente/cursos/gestion-curso?codigo=${rowData.Codigo}`}>
-                    <Button icon="pi pi-clock" rounded severity="success" tooltip='Gestionar horario' />
-                </Link>
                 <Button rounded severity="success" className="mr-2 py-1">Calificar</Button>
             </>
         );
