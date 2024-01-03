@@ -20,7 +20,7 @@ const Page = () => {
     const dt = useRef<DataTable<any>>(null);
 
     const d = {
-        CodDocente: 1
+        CodDocente: 2
     }
 
     useEffect(() => {
