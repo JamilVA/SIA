@@ -1,12 +1,12 @@
 .layout-sidebar {
     position: fixed;
     width: 300px;
-    height: calc(100vh - 9rem);
+    height: 90vh;
     z-index: 999;
     overflow-y: auto;
     user-select: none;
-    top: 7rem;
-    left: 2rem;
+    top: 5rem;
+    left: 0rem;
     transition: transform $transitionDuration, left $transitionDuration;
     background-color: var(--surface-overlay);
     border-radius: $borderRadius;
@@ -80,11 +80,12 @@
 
             &.active-route {
                 font-weight: 700;
-                color: var(--primary-color);
+                color: #002479;
+                background-color: #fccd22;
             }
 
             &:hover {
-                background-color: var(--surface-hover);
+                background-color: #fccd2242;
             }
 
             &:focus {

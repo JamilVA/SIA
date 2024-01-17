@@ -6,7 +6,7 @@
     top: 0;
     width: 100%;
     padding: 0 2rem;
-    background-color: var(--surface-card);
+    background-color: #002479;
     transition: left $transitionDuration;
     display: flex;
     align-items: center;
@@ -15,15 +15,15 @@
     .layout-topbar-logo {
         display: flex;
         align-items: center;
-        color: var(--surface-900);
+        color: #fff;
         font-size: 1.5rem;
         font-weight: 500;
-        width: 300px;
+        width: 200px;
         border-radius: 12px;
 
         img {
-            height: 2.5rem;
-            margin-right: .5rem;
+            height: 4.5rem;
+            margin-right: 1rem;
         }
 
         &:focus {
@@ -36,7 +36,7 @@
         justify-content: center;
         align-items: center;
         position: relative;
-        color: var(--text-color-secondary);
+        color: #fff;
         border-radius: 50%;
         width: 3rem;
         height: 3rem;

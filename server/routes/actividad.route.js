@@ -1,0 +1,16 @@
+const { Router } = require('express')
+const { crearActividad, getActividades, eliminarActividad, actualizarActividad, actualizarRutaRecursoGuia } = require('../controllers/actividad.controller')
+
+const router = Router()
+
+router.get('/', getActividades)
+
+router.post('/', crearActividad)
+
+router.put('/', actualizarActividad)
+
+router.put('/recurso-guia', actualizarRutaRecursoGuia)
+
+router.delete('/', eliminarActividad)
+
+module.exports = router

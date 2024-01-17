@@ -5,6 +5,10 @@ const Docente = require('../models/docente.model')
 const Periodo = require('../models/periodo.model')
 const Persona = require('../models/persona.model')
 const UnidadAcemica = require('../models/unidadAcademica.model')
+const Estudiante = require('../models/estudiante.model')
+const Matricula = require('../models/matricula.model')
+const Asistencia = require('../models/asistencia.model')
+const Sesion = require('../models/sesion.model')
 
 CursoCalificacion.belongsTo(Curso, { foreignKey: 'CodigoCurso' })
 Curso.hasOne(CursoCalificacion, { foreignKey: 'CodigoCurso' })
@@ -239,6 +243,40 @@ const asignarDocente = async (req, res) => {
     }
 }
 
+const getMatriculados = async (req, res) => {
+    try {
+        const matriculados = await Matricula.findAll({
+            where: { CodigoCursoCalificacion: req.query.codigoCursoCalificacion },
+            attributes: { exclude: ['FechaMatricula', 'NotaFinal', 'Observacion'] },           
+            include: [
+                {
+                    model: Estudiante,
+                    include: [
+                        {
+                            model: Persona
+                        },
+                        {
+                            model: Asistencia,
+                            where: { CodigoSesion:  req.query.codigoSesion},
+                            limit: 1
+                        }
+                    ]
+                }
+            ]
+             
+        })
+
+        res.json({ matriculados })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Error al obtener la lista de matriculados' })
+    }
+}
+
+const contarSesiones = async (req, res) => {
+    
+}
+
 module.exports = {
     getCursosCalificacion,
     crearCursoCalificacion,
@@ -247,5 +285,6 @@ module.exports = {
     eliminarCursoCalificacion,
     asignarDocente,
     habilitarIngreso,
-    deshabilitarIngreso
+    deshabilitarIngreso,
+    getMatriculados
 }

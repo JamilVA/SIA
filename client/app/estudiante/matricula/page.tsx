@@ -15,8 +15,8 @@ import { Message } from 'primereact/message';
 
 export default function Matricula() {
     const usuario = {
-        Email: 'magy@gmail.com',
-        CodigoSunedu: 'MU12345678'
+        Email: 'darlyn@email.com',
+        CodigoSunedu: 'MU75500598'
     };
 
     const estudianteVacio = {

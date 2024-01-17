@@ -39,8 +39,10 @@ app.use('/api/curso-calificacion', require('./routes/cursoCalificacion.route'));
 app.use('/api/horario', require('./routes/horario.route'));
 app.use('/api/matricula', require('./routes/matricula.route'));
 app.use('/api', require('./routes/auth.route'));
-
-
+app.use('/api/asistencia', require('./routes/asistencia.route'))
+app.use('/api/sesion', require('./routes/sesion.route'))
+app.use('/api/actividad', require('./routes/actividad.route'))
+app.use('/api/files', require('./routes/files.route'))
 
 //Para levantar el servidor
 app.listen(process.env.PORT, () => {
