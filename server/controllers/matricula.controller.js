@@ -5,52 +5,54 @@ const Matricula = require("../models/matricula.model");
 const Periodo = require("../models/periodo.model");
 const Persona = require("../models/persona.model");
 const CarreraProfesional = require("../models/carreraProfesional.model");
+const { sequelize } = require("../config/database");
+const { QueryTypes } = require("sequelize");
 
-CarreraProfesional.hasMany(Curso,{foreignKey:'CodigoCarreraProfesional'})
-Curso.belongsTo(CarreraProfesional,{foreignKey:'CodigoCarreraProfesional'})
+CarreraProfesional.hasMany(Curso, { foreignKey: 'CodigoCarreraProfesional' })
+Curso.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' })
 
-Curso.hasMany(CursoCalificacion,{foreignKey:'CodigoCurso'})
-CursoCalificacion.belongsTo(Curso,{foreignKey:'CodigoCurso'})
+Curso.hasMany(CursoCalificacion, { foreignKey: 'CodigoCurso' })
+CursoCalificacion.belongsTo(Curso, { foreignKey: 'CodigoCurso' })
 
-Periodo.hasMany(CursoCalificacion,{foreignKey:'CodigoPeriodo'})
-CursoCalificacion.belongsTo(Periodo,{foreignKey:'CodigoPeriodo'})
+Periodo.hasMany(CursoCalificacion, { foreignKey: 'CodigoPeriodo' })
+CursoCalificacion.belongsTo(Periodo, { foreignKey: 'CodigoPeriodo' })
 
-CursoCalificacion.hasMany(Matricula, {foreignKey:"CodigoCursoCalificacion"})
-Matricula.belongsTo(CursoCalificacion, {foreignKey:"CodigoCursoCalificacion"})
+CursoCalificacion.hasMany(Matricula, { foreignKey: "CodigoCursoCalificacion" })
+Matricula.belongsTo(CursoCalificacion, { foreignKey: "CodigoCursoCalificacion" })
 
-Estudiante.hasMany(Matricula, {foreignKey:"CodigoEstudiante"})
-Matricula.belongsTo(Estudiante, {foreignKey:"CodigoEstudiante"})
+Estudiante.hasMany(Matricula, { foreignKey: "CodigoEstudiante" })
+Matricula.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" })
 
 const getMatricula = async (req, res) => {
   try {
     const { Email } = req.query;
 
     const estudiante = await Estudiante.findOne({
-      include:[
+      include: [
         {
-          model:Persona,
-          attributes: ['Nombres','Paterno','Materno','Email'],
-          where:{Email}
+          model: Persona,
+          attributes: ['Nombres', 'Paterno', 'Materno', 'Email'],
+          where: { Email }
         }
       ]
     })
 
     const matriculas = await Matricula.findAll({
       attributes: { exclude: ['Observacion', 'Habilitado', 'PorcentajeAsistencia'] },
-      where: {CodigoEstudiante: estudiante.Codigo}
+      where: { CodigoEstudiante: estudiante.Codigo }
     });
 
     const cursosCalificacion = await CursoCalificacion.findAll({
-      attributes:['Codigo'],
-      include:[
+      attributes: ['Codigo'],
+      include: [
         {
-          model:Curso,
-          attributes:['Codigo','Nombre','Creditos','Nivel','Semestre','CodigoCurso','CodigoCarreraProfesional'],
-          where:{CodigoCarreraProfesional:estudiante.CodigoCarreraProfesional}
-        },{
-          model:Periodo,
-          attributes:['Codigo','InicioMatricula','FinMatricula'],
-          where:{Estado:true}
+          model: Curso,
+          attributes: ['Codigo', 'Nombre', 'Creditos', 'Nivel', 'Semestre', 'CodigoCurso', 'CodigoCarreraProfesional'],
+          where: { CodigoCarreraProfesional: estudiante.CodigoCarreraProfesional }
+        }, {
+          model: Periodo,
+          attributes: ['Codigo', 'InicioMatricula', 'FinMatricula'],
+          where: { Estado: true }
         }
       ]
     })
@@ -79,11 +81,11 @@ const buscarEstudiante = async (req, res) => {
     let estudiante = await Estudiante.findOne({
       include: [
         {
-          model:Persona,
-          attributes: { exclude: ['DNI', 'FechaNacimiento', 'Sexo','RutaFoto'] },
+          model: Persona,
+          attributes: { exclude: ['DNI', 'FechaNacimiento', 'Sexo', 'RutaFoto'] },
         }
       ],
-      where:{CodigoSunedu:CodigoSunedu}
+      where: { CodigoSunedu: CodigoSunedu }
     });
 
     res.json({
@@ -118,7 +120,7 @@ const crearMatricula = async (req, res) => {
 const eliminarMatricula = async (req, res) => {
   try {
     const matriculaEliminada = await Matricula.destroy({
-      where:{
+      where: {
         CodigoCursoCalificacion: req.body.codigoCursoCalificacion,
         CodigoEstudiante: req.body.codigoEstudiante,
       }
@@ -168,10 +170,83 @@ const actualizarMatricula = async (req, res) => {
   }
 };
 
+const getMatriculaByCurso = async (req, res) => {
+  console.log(req.body)
+  try {
+    const curso = await Curso.findOne({
+      attributes: ['Codigo', 'Nombre'],
+      include: [
+        {
+          model: CursoCalificacion,
+          attributes: ['EstadoNotas', 'EstadoRecuperacion', 'EstadoAplazado'],
+          include: [
+            {
+              model: Periodo,
+              attributes: ['Estado'],
+              where: { Estado: true}
+            }
+          ]
+        }
+      ],
+      where: { Codigo: req.query.codCurso}
+    });
+
+    const registroMatricula = await sequelize.query(`select e.CodigoSunedu, m.CodigoEstudiante, m.CodigoCursoCalificacion, concat(p.Paterno,' ', p.Materno,' ', p.Nombres) as Alumno, m.Nota1, m.Nota2, m.Nota3, m.Nota4, m.NotaRecuperacion, m.NotaFinal, m.NotaAplazado, m.PorcentajeAsistencia 
+    from curso c join cursocalificacion cc
+    on c.Codigo = cc.CodigoCurso join matricula m
+    on cc.Codigo = m.CodigoCursoCalificacion join periodo pd
+    on cc.CodigoPeriodo = pd.Codigo join estudiante e
+    on m.CodigoEstudiante = e.Codigo join persona p
+    on e.CodigoPersona = p.Codigo
+    where c.Codigo = '${req.query.codCurso}' and pd.Estado = 1
+    order by Alumno ASC;`, { type: QueryTypes.SELECT });
+
+    res.json({
+      curso,
+      registroMatricula,
+    });
+  } catch (error) {
+    res.json({
+      error: error + ''
+    });
+  }
+}
+
+const updateNotas = async (req, res) => {
+  const n1 = req.body.Nota1;
+  try {
+    const matricula = await Matricula.update({
+      Nota1: req.body.Nota1,
+      Nota2: req.body.Nota2,
+      Nota3: req.body.Nota3,
+      Nota4: req.body.Nota4,
+      NotaRecuperacion: req.body.NotaRecuperacion,
+      NotaAplazado: req.body.NotaAplazado,
+      NotaFinal: req.body.NotaFinal,
+    },
+      {
+        where: {
+          CodigoEstudiante: req.body.CodigoEstudiante,
+          CodigoCursoCalificacion: req.body.CodigoCursoCalificacion
+        }
+      })
+    res.json({
+      Matricula: matricula,
+      Estado: "Actualizado con éxito",
+    });
+  } catch (error) {
+    res.json({
+      Estado: 'Error' + error
+    })
+  }
+}
+
 module.exports = {
   getMatricula,
   crearMatricula,
   actualizarMatricula,
   eliminarMatricula,
-  buscarEstudiante
+  buscarEstudiante,
+  getMatriculaByCurso,
+  updateNotas
 };

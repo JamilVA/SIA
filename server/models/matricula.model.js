@@ -16,6 +16,12 @@ const Matricula = sequelize.define("Matricula", {
   FechaMatricula: DataTypes.DATE,
   PorcentajeAsistencia: DataTypes.DECIMAL,
   Habilitado: DataTypes.BOOLEAN,
+  Nota1: DataTypes.FLOAT,
+  Nota2: DataTypes.FLOAT,
+  Nota3: DataTypes.FLOAT,
+  Nota4: DataTypes.FLOAT,
+  NotaRecuperacion: DataTypes.FLOAT,
+  NotaAplazado: DataTypes.FLOAT,
   NotaFinal: DataTypes.INTEGER,
   Observacion: DataTypes.STRING(45),
 });

@@ -5,6 +5,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import axios from 'axios';
+import Link from 'next/link';
 
 const Page = () => {
 
@@ -31,9 +32,8 @@ const Page = () => {
         await axios.post("http://127.0.0.1:3001/api/curso/cursosdp", data).then(response => {
             console.log(response.data);
             setCursos(response.data.cursos)
-            
-        })
-            .catch(error => {
+
+        }).catch(error => {
                 console.log("Error en carga de pagos: ", error);
                 toast.current?.show({
                     severity: 'error',
@@ -47,8 +47,8 @@ const Page = () => {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <>
-                <Button rounded severity="warning" className="mr-2 py-1">Ver</Button>
-                <Button rounded severity="success" className="mr-2 py-1">Calificar</Button>
+                <Link href="/docente/cursos/sesiones"><Button rounded severity="warning" className="mr-2 py-1">Ver</Button></Link>
+                <Link href={`/docente/cursos/calificaciones?codigo=${rowData.CodCurso}`}><Button rounded severity="success" className="mr-2 py-1">Calificar</Button></Link>
             </>
         );
     };
@@ -81,8 +81,8 @@ const Page = () => {
                         responsiveLayout="scroll"
                     >
                         <Column field="CodCurso" header="COD" />
-                        <Column field="Nombre" header="Curso"/>
-                        <Column field="Carrera" header="Carrera"/>
+                        <Column field="Nombre" header="Curso" />
+                        <Column field="Carrera" header="Carrera" />
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '15rem' }}></Column>
                     </DataTable>
                 </div>
