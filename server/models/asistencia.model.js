@@ -2,13 +2,16 @@ const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/database");
 
 const Asistencia = sequelize.define('Asistencia', {
-    Codigo: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+    CodigoSesion: {
+        type: DataTypes.CHAR(12),
+        primaryKey: true
     },
-    Tipo: DataTypes.BOOLEAN,
-    Fecha: DataTypes.DATE,
+    CodigoEstudiante: {
+        type: DataTypes.INTEGER,
+        primaryKey: true
+    },
+    Estado: DataTypes.BOOLEAN,
+    Fecha: DataTypes.DATEONLY,
     Hora: DataTypes.TIME
 })
 

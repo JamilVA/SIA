@@ -7,10 +7,10 @@ import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import React, { useEffect, useRef, useState } from 'react';
-import { ProductService } from '../../../../demo/service/ProductService';
-import { Demo } from '../../../../types/types';
 import axios from 'axios';
 import { classNames } from 'primereact/utils';
+import { ProgressBar } from 'primereact/progressbar';
+import { Checkbox } from 'primereact/checkbox';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function AsistenciasPage() {
@@ -18,29 +18,18 @@ export default function AsistenciasPage() {
     let codigoSesion = '1014P3203252'
     let codigoCursoCalificacion = 'M1103252'
 
-    let emptyProduct: Demo.Product = {
-        id: '',
-        name: '',
-        image: '',
-        description: '',
-        category: '',
-        price: 0,
-        quantity: 0,
-        rating: 0,
-        inventoryStatus: 'INSTOCK'
-    };
-
-    const [products, setProducts] = useState(null);
     const [estudiantes, setEstudiantes] = useState<Array<any>>([])
-    const [product, setProduct] = useState<Demo.Product>(emptyProduct);
-    const [selectedProducts, setSelectedProducts] = useState(null);
     const [globalFilter, setGlobalFilter] = useState('');
+    const [loading, setLoading] = useState(false)
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
 
     const fetchMatriculados = async () => {
         await axios.get('http://localhost:3001/api/curso-calificacion/matriculados', {
-            params: { codigoCursoCalificacion: codigoCursoCalificacion }
+            params: {
+                codigoCursoCalificacion: codigoCursoCalificacion,
+                codigoSesion: codigoSesion
+            }
         })
             .then(response => {
                 setEstudiantes(response.data.matriculados)
@@ -59,21 +48,113 @@ export default function AsistenciasPage() {
         fetchMatriculados()
     }, []);
 
+    const marcarAsistencia = async (rowData: any) => {
+        const codEstudiante = rowData.Estudiante.Codigo
+        await axios.post('http://localhost:3001/api/asistencia/marcar', {
+            codigoSesion: codigoSesion,
+            codigoEstudiante: codEstudiante
+        }).
+            then(response => {
+                fetchMatriculados()
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: response.data.message,
+                    life: 3000
+                })
+            })
+            .catch(error => {
+                console.error(error)
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error al marcar la asistencia',
+                    life: 3000
+                })
+            })
+    }
 
-    const saveProduct = () => {
+    const desmarcarAsistencia = async (rowData: any) => {
+        const codEstudiante = rowData.Estudiante.Codigo
+        await axios.delete('http://localhost:3001/api/asistencia/desmarcar', {
+            params: {
+                codigoSesion: codigoSesion,
+                codigoEstudiante: codEstudiante
+            }
+        })
+            .then(response => {
+                fetchMatriculados()
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: response.data.message,
+                    life: 3000
+                })
+            })
+            .catch(error => {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error al desmarcar la asistencia',
+                    life: 3000
+                })
+            })
+    }
 
-    };
+    const marcarIngreso =async () => {
+        await axios.post('http://localhost:3001/api/sesion/marcar-ingreso', {}, {
+            params: {
+                codigoSesion: codigoSesion
+            }
+        })
+        .then(response => {
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: response.data.message,
+                life: 3000
+            })
+        })
+        .catch(error => {
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: error.response.data.message,
+                life: 3000
+            })
+        })
+    }
 
-    const editProduct = (product: Demo.Product) => {
-        setProduct({ ...product });
-
+    const marcarSalida =async () => {
+        await axios.post('http://localhost:3001/api/sesion/marcar-salida', {}, {
+            params: {
+                codigoSesion: codigoSesion
+            }
+        })
+        .then(response => {
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: response.data.message,
+                life: 3000
+            })
+        })
+        .catch(error => {
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: error.response.data.message,
+                life: 3000
+            })
+        })
     }
 
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    <Button label="Resgistrar todos" icon="pi pi-plus" severity="success" className=" mr-2" />
+                    <Button label="Marcar mi ingreso" size='small' icon="pi pi-clock" onClick={marcarIngreso} severity="success" className=" mr-2" />
+                    <Button label="Marcar mi salida" size='small' icon="pi pi-clock" onClick={marcarSalida} severity="warning" className=" mr-2" />
                 </div>
             </React.Fragment>
         );
@@ -83,29 +164,34 @@ export default function AsistenciasPage() {
     const nameBodyTemplate = (rowData: any) => {
         return (
             <>
-                <span className="p-column-title">Name</span> 
-                {rowData.Estudiante.Persona.Nombres + ' ' + rowData.Estudiante.Persona.Paterno + ' ' + rowData.Estudiante.Persona.Materno}
+                <span className="p-column-title">Name</span>
+                {rowData.Estudiante.Persona.Paterno + ' ' + rowData.Estudiante.Persona.Materno + ', ' + rowData.Estudiante.Persona.Nombres}
             </>
         );
     };
 
-    const asistenciaBodyTemplate = (rowData: any) => {
+    const asistenciasBodyTemplate = (rowData: any) => {
         return (
             <>
-                <span className="p-column-title">Category</span>
-                <span>{rowData.PorcentajeAsistencia} %</span>
+                <ProgressBar value={rowData.PorcentajeAsistencia} ></ProgressBar>
             </>
         );
     };
 
-    const statusBodyTemplate = (rowData: any) => {
+    const habilitadoBodyTemplate = (rowData: any) => {
         return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Habilitado, 'text-red-500 pi-times-circle': !rowData.Habilitado })}></i>;
     };
 
-    const actionBodyTemplate = (rowData: Demo.Product) => {
+    const asistenciaBodyTemplate = (rowData: any) => {
+        let asistencia = rowData.Estudiante.Asistencia[0]
+        return <Checkbox checked={asistencia === undefined ? false : asistencia.Estado}></Checkbox>
+    };
+
+    const actionBodyTemplate = (rowData: any) => {
         return (
             <>
-                <Button icon="pi pi-check" label='Marcar' size='small' severity="success" className="mr-2 px-2 py-1" onClick={() => editProduct(rowData)} />
+                <Button icon="pi pi-check" label='Marcar' size='small' severity="success" className="mr-2 px-2 py-1" onClick={() => marcarAsistencia(rowData)} />
+                <Button icon="pi pi-times" label='Desmarcar' size='small' severity="warning" className="mr-2 px-2 py-1" onClick={() => desmarcarAsistencia(rowData)} />
             </>
         );
     };
@@ -120,6 +206,8 @@ export default function AsistenciasPage() {
         </div>
     );
 
+    const footer = `${estudiantes ? estudiantes.length : 0} estudiantes matriculados`;
+
     return (
         <div className="grid crud-demo">
             <div className="col-12">
@@ -129,19 +217,21 @@ export default function AsistenciasPage() {
 
                     <DataTable
                         ref={dt}
-                        value={estudiantes}
-                        selection={selectedProducts}
-                        onSelectionChange={(e) => setSelectedProducts(e.value as any)}
-                        dataKey="id"
+                        value={estudiantes}                     
+                        dataKey="Estudiante.Codigo"
                         className="datatable-responsive"
                         globalFilter={globalFilter}
                         emptyMessage="No se han encontrado estudiantes"
                         header={header}
+                        footer={footer}
+                        sortField='Estudiante.Persona.Paterno'
+                        sortOrder={1}
                     >
-                        <Column field="Estudiante.Codigo" header="Código" headerStyle={{ minWidth: '5rem' }}></Column>
-                        <Column field="Nombres" header="Estudiante" body={nameBodyTemplate} headerStyle={{ minWidth: '15rem' }}></Column>
-                        <Column field="category" header="Asistencias" body={asistenciaBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
-                        <Column field="Matriculas.Habilitado" header="Estado" body={statusBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="Estudiante.Codigo" header="Código" hidden headerStyle={{ minWidth: '5rem' }}></Column>
+                        <Column field="Estudiante.Persona.Paterno" header="Estudiante" body={nameBodyTemplate} headerStyle={{ minWidth: '15rem' }}></Column>
+                        <Column field="Asistencias" header="Asistencias" body={asistenciasBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
+                        <Column field="Matriculas.Habilitado" align='center' header="Habilitado" body={habilitadoBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="Asistencia.Estado" align='center' header="Asistencia" body={asistenciaBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
 

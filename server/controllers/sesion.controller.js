@@ -113,10 +113,35 @@ const eliminarSesion = async (req, res) => {
   }
 };
 
+const marcarIngresoDocente = async (req, res) => {
+  try {
+    await Sesion.update({ EntradaDocente: new Date() }, {
+      where: { Codigo: req.query.codigoSesion }
+    })
+    res.json({message: 'Ingreso del docente marcada correctamente'})
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({message: 'Error al marcar el ingreso del docente'})
+  }
+}
+
+const marcarSalidaDocente = async (req, res) => {
+  try {
+    await Sesion.update({ SalidaDocente: new Date() }, {
+      where: { Codigo: req.query.codigoSesion }
+    })
+    res.json({message: 'Ingreso del docente marcada correctamente'})
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({message: 'Error al marcar la salida del docente'})
+  }
+}
 
 module.exports ={
     getSesiones,
     crearSesion,
     actualizarSesion,
-    eliminarSesion
+    eliminarSesion,
+    marcarIngresoDocente,
+    marcarSalidaDocente
 }
