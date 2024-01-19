@@ -11,52 +11,55 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
-import { Calendar } from 'primereact/calendar';
 
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
 
 export default function ActividadesPage() {
-    const searchParamas = useSearchParams();
-    const codigoSesion = searchParamas.get('codigo');
+    const searchParams = useSearchParams();
+    const codigoSesion = searchParams.get('codigo');
 
-    console.log('Codigo Recibido:', codigoSesion);
-    
-    let emptyActividad = {
+    let recursoVacio = {
         Codigo: 0,
         Titulo: '',
-        RutaRecursoGuia: '',
-        FechaApertura: new Date().toISOString(),
-        FechaCierre: new Date().toISOString(),
+        Ruta: '',
+        Tipo: '',
         CodigoSesion: codigoSesion
     };
 
-    const [actividades, setActividades] = useState<Array<any>>([]);
-    const [actividadDialog, setActividadDialog] = useState(false);
-    const [deleteActividadDialog, setDeleteActividadDialog] = useState(false);
-    const [actividad, setActividad] = useState(emptyActividad);
+    const sesionVacia = {
+        Codigo: '',
+        Numero: '',
+        Descripcion: '',
+        CodigoSemanaAcademica: ''
+    };
+
+    const [recursos, setRecursos] = useState<(typeof recursoVacio)[]>([]);
+    const [recursoDialog, setRecursoDialog] = useState(false);
+    const [deleteRecursoDialog, setDeleteRecursoDialog] = useState(false);
+    const [recurso, setRecurso] = useState(recursoVacio);
+    const [archivo, setArchivo] = useState<FileUploadFilesEvent | null>(null);
+    const [sesion, setSesion] = useState(sesionVacia);
     const [submitted, setSubmitted] = useState(false);
     const [modificar, setModificar] = useState(false);
     const toast = useRef<Toast>(null);
-    const dt = useRef<DataTable<any>>(null);
 
     const fetchActividades = async () => {
-        await axios
-            .get('http://localhost:3001/api/actividad', {
+        try {
+            const response = await axios.get('http://localhost:3001/api/recursoAcademico', {
                 params: { codigoSesion: codigoSesion }
-            })
-            .then((response) => {
-                setActividades(response.data.actividades);
-            })
-            .catch((error) => {
-                console.error(error);
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message,
-                    life: 3000
-                });
             });
+            setRecursos(response.data.recursosAcademicos);
+            setSesion(response.data.sesion);
+        } catch (error) {
+            console.error(error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al cargar los Recursos de la Sesión',
+                life: 3000
+            });
+        }
     };
 
     useEffect(() => {
@@ -64,177 +67,202 @@ export default function ActividadesPage() {
     }, []);
 
     const openNew = () => {
-        setActividad(emptyActividad);
+        setRecurso(recursoVacio);
         setSubmitted(false);
-        setActividadDialog(true);
+        setRecursoDialog(true);
         setModificar(false);
     };
 
     const hideDialog = () => {
         setSubmitted(false);
-        setActividadDialog(false);
+        setRecursoDialog(false);
     };
 
     const hideDeleteProductDialog = () => {
-        setDeleteActividadDialog(false);
+        setDeleteRecursoDialog(false);
     };
 
     const saveActividad = async () => {
         setSubmitted(true);
 
-        if (actividad.Titulo.length === 0) {
+        if (recurso.Titulo.length === 0) {
             return;
         }
-        setActividadDialog(false);
+        setRecursoDialog(false);
 
         if (!modificar) {
-            crearActividad();
+            crearRecurso();
         } else {
-            modificarActividad(actividad);
+            modificarRecurso(recurso);
+            subirArchivo(recurso)
         }
 
-        setActividad(emptyActividad);
+        setRecurso(recursoVacio);
     };
 
-    const crearActividad = async () => {
-        await axios
-            .post('http://localhost:3001/api/actividad', actividad)
-            .then((response) => {
-                let _actividades = actividades;
-                _actividades.push(response.data.actividad);
-                setActividades(_actividades);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                console.error(error);
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message,
-                    life: 3000
-                });
+    const crearRecurso = async () => {
+        try {
+            const response = await axios.post('http://localhost:3001/api/recursoAcademico', recurso);
+            let _recursos = [...recursos];
+            _recursos.push(response.data.recursoAcademico);
+            subirArchivo(response.data.recursoAcademico)
+            setRecursos(_recursos);
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Successful',
+                detail: response.data.message,
+                life: 3000
             });
-    };
-
-    const modificarActividad = async (actividad: any) => {
-        await axios
-            .put('http://localhost:3001/api/actividad', actividad)
-            .then((response) => {
-                let _actividades = actividades.map((value) => {
-                    if (value.Codigo === actividad.Codigo) {
-                        return actividad;
-                    }
-                    return value;
-                });
-                setActividades(_actividades);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                console.error(error);
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message,
-                    life: 3000
-                });
+            fetchActividades();
+        } catch (error) {
+            console.error(error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo crear el Recurso Académico',
+                life: 3000
             });
+        }
     };
 
-    const editActividad = (actividad: any) => {
-        setActividad({ ...actividad });
-        setActividadDialog(true);
+    const modificarRecurso = async (recurso: any) => {
+        try {
+            const response = await axios.put('http://localhost:3001/api/recursoAcademico', recurso);
+            let _recursos = recursos.map((value) => (value.Codigo === recurso.Codigo ? recurso : value));
+            setRecursos(_recursos);
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Successful',
+                detail: response.data.message,
+                life: 3000
+            });
+            fetchActividades();
+        } catch (error) {
+            console.error(error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo modificar el Recurso Académico',
+                life: 3000
+            });
+        }
+    };
+
+    const editRecurso = (recurso: typeof recursoVacio) => {
+        setRecurso({ ...recurso });
+        setRecursoDialog(true);
         setModificar(true);
     };
 
-    const confirmDeleteActividad = (actividad: any) => {
-        setActividad(actividad);
-        setDeleteActividadDialog(true);
+    const confirmDeleteRecurso = (recurso: typeof recursoVacio) => {
+        setRecurso(recurso);
+        setDeleteRecursoDialog(true);
     };
 
-    const deleteActividad = async () => {
-        setDeleteActividadDialog(false);
-        await axios
-            .delete('http://localhost:3001/api/actividad', {
-                params: { codigo: actividad.Codigo }
-            })
-            .then((response) => {
-                let _actividades = actividades.filter((val) => val.Codigo !== actividad.Codigo);
-                setActividades(_actividades);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message,
-                    life: 3000
-                });
+    const deleteRecurso = async () => {
+        setDeleteRecursoDialog(false);
+        try {
+            await axios.delete('http://localhost:3001/api/recursoAcademico', {
+                params: { codigo: recurso.Codigo }
             });
-        setActividad(emptyActividad);
+            let _recursos = recursos.filter((val) => val.Codigo !== recurso.Codigo);
+            setRecursos(_recursos);
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Successful',
+                detail: 'Recurso eliminado exitosamente',
+                life: 3000
+            });
+            fetchActividades();
+        } catch (error) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo eliminar el Recurso',
+                life: 3000
+            });
+        }
+        setRecurso(recursoVacio);
     };
 
-    const handleUpload = async (event: FileUploadFilesEvent, rowData: any) => {
-        const file = event.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-        await axios
-            .post('http://localhost:3001/api/files/upload', formData)
-            .then((response) => {
+    const subirArchivo =  async (recurso: typeof recursoVacio) => {
+
+        try {
+            const file = archivo!.files[0];
+            const tipoArchivo = file.name.split('.')[1];
+            const formData = new FormData();
+            formData.append('file', file);
+            console.log('Archivo Recibido:', file.name);
+            console.log('Tipo de Archivo:', file.name.split('.')[1]);
+
+            await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
                 console.log(response.data.path);
-                let _actividad = { ...rowData, RutaRecursoGuia: response.data.filename };
+                let _recurso = { ...recurso, Ruta: response.data.filename, Tipo: tipoArchivo};
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
-                modificarActividad(_actividad);
-                setActividad(emptyActividad);
-            })
-            .catch((error) => {
-                console.error(error);
-                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Error de petición' });
+                modificarRecurso(_recurso);
+                setRecurso(recursoVacio);
+                setArchivo(null);
             });
-    };
-
-    const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
-        const val = (e.target && e.target.value) || '';
-        let _actividad = { ...actividad, Titulo: val };
-
-        setActividad(_actividad);
-    };
-
-    const onCalendarChange = (value: any, name: string) => {
-        let fecha = value;
-        switch (name) {
-            case 'apertura':
-                setActividad({ ...actividad, FechaApertura: fecha });
-                break;
-            case 'cierre':
-                setActividad({ ...actividad, FechaCierre: fecha });
-                break;
+        } catch (error) {
+            console.error('Error en la carga del archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de carga de archivo',
+                life: 3000
+            });
         }
     };
 
-    const formatDate = (value: Date) => {
-        return value.toLocaleDateString('es-PE', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
+
+    const descargarArchivo = async (ruta: string) => {
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download',{
+                params:{ fileName: ruta }
+            });
+
+            console.log(response)
+    
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    
+            // Crear un objeto URL del blob
+            const url = window.URL.createObjectURL(blob);
+    
+            // Crear un enlace temporal
+            const link = document.createElement('a');
+            link.href = url;
+    
+            // Establecer el nombre del archivo
+            link.download = ruta;
+    
+            // Simular un clic en el enlace para iniciar la descarga
+            document.body.appendChild(link);
+            link.click();
+    
+            // Limpiar el enlace después de la descarga
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al descargar el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de descarga de archivo',
+                life: 3000
+            });
+        }
+    };
+
+    const handleUpload = (event: FileUploadFilesEvent, rowData: typeof recursoVacio) =>{
+        setArchivo(event)
+        setRecurso(rowData)
+    }
+
+    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = (e.target && e.target.value) || '';
+        let _recursos = { ...recurso, Titulo: val };
+
+        setRecurso(_recursos);
     };
 
     const leftToolbarTemplate = () => {
@@ -247,112 +275,103 @@ export default function ActividadesPage() {
         );
     };
 
-    const fileBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <FileUpload chooseOptions={{ icon: 'pi pi-upload', iconOnly: true, className: 'p-2' }} mode="basic" accept=".pdf" maxFileSize={5000000} customUpload uploadHandler={(e) => handleUpload(e, rowData)} />
-            </>
-        );
-    };
-
-    const aperturaBodyTemplate = (rowData: any) => {
-        return <span>{formatDate(new Date(rowData.FechaApertura))}</span>;
-    };
-
-    const cierreBodyTemplate = (rowData: any) => {
-        return <span>{formatDate(new Date(rowData.FechaCierre))}</span>;
-    };
-
-    const actionBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editActividad(rowData)} />
-                <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteActividad(rowData)} />
-            </>
-        );
-    };
-
-    const header = (
-        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Actividades de la sesión</h5>
-            {/* <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Search..." />
-            </span> */}
-        </div>
-    );
-
     const productDialogFooter = (
         <>
             <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
             <Button label="Save" icon="pi pi-check" text onClick={saveActividad} />
         </>
     );
+
     const deleteProductDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideDeleteProductDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={deleteActividad} />
+            <Button label="Yes" icon="pi pi-check" text onClick={deleteRecurso} />
         </>
     );
-
-    const itemTemplate = (actividad: any) => {
-        return (
-            <div className="col-12">
-                <div className="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4">
-                    <img className="w-6 sm:w-16rem xl:w-8rem block xl:block mx-auto border-round" src="/images/pdf.png" alt="Archivo guía" />
-                    <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
-                        <div className="flex flex-column align-items-center sm:align-items-start gap-3">
-                            <div className="text-2xl font-bold text-900">{actividad.Titulo}</div>
-                            <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo guía" mode="basic" accept=".pdf" maxFileSize={5000000} customUpload uploadHandler={(e) => handleUpload(e, actividad)} />
-                        </div>
-                        <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
-                            <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editActividad(actividad)} />
-                            <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteActividad(actividad)} />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
 
     return (
         <div className="card">
             <Toast ref={toast} />
+
+            <h3 className="text-primary">Sesion: {sesion.Descripcion}</h3>
+            <h5>Recursos Académicos</h5>
             <Toolbar className="mb-4" start={leftToolbarTemplate}></Toolbar>
 
-            <DataView value={actividades} itemTemplate={itemTemplate} />
+            {recursos.map((recurso, index) => (
+                <div key={index} className="col-12">
+                    <div className="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4">
+                        <img className="w-6 sm:w-16rem xl:w-8rem block xl:block mx-auto border-round" src={`/images/${getIconPath(recurso.Tipo)}.png`} alt="Recurso Académico" />
+                        <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
+                            <div className="flex flex-column align-items-center sm:align-items-start gap-3">
+                                <div className="text-2xl font-bold text-900">{recurso.Titulo}</div>
+                                <small>{` (Archivo tipo ${recurso.Tipo} )`}</small>
+                                <Button icon="pi pi-download" label='Descargar' severity="success"  className="mr-2" onClick={() => descargarArchivo(recurso.Ruta)} />
 
-            <Dialog visible={actividadDialog} style={{ width: '450px' }} header="Detalles de la tarea" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
+                            </div>
+                            <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
+                                <Button icon="pi pi-pencil" rounded severity="warning" className="mr-2" onClick={() => editRecurso(recurso)} />
+                                <Button icon="pi pi-trash" rounded severity="danger" onClick={() => confirmDeleteRecurso(recurso)} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+
+            <Dialog visible={recursoDialog} style={{ width: '450px' }} header="Detalles del recurso" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
                 <div className="field">
                     <label htmlFor="name">Título</label>
                     <InputText
                         id="name"
-                        value={actividad.Titulo}
-                        onChange={(e) => onInputChange(e, 'titulo')}
+                        value={recurso.Titulo}
+                        onChange={(e) => onInputChange(e)}
                         required
                         autoFocus
                         maxLength={100}
                         className={classNames({
-                            'p-invalid': submitted && !actividad.Titulo
+                            'p-invalid': submitted && !recurso.Titulo
                         })}
                     />
-                    {submitted && !actividad.Titulo && <small className="p-invalid">Name is required.</small>}
+                    {submitted && !recurso.Titulo && <small className="p-invalid">Título es requerido.</small>}
                 </div>
                 <div className="field">
-                    <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" mode="basic" accept=".pdf" maxFileSize={5000000} customUpload uploadHandler={(e) => handleUpload(e, actividad)} />
+                    <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" mode="basic" maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e, recurso)} />
                 </div>
             </Dialog>
 
-            <Dialog visible={deleteActividadDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
+            <Dialog visible={deleteRecursoDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
                 <div className="flex align-items-center justify-content-center">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {actividad && (
+                    {recurso && (
                         <span>
-                            ¿Seguro de que desea eliminar <b>{actividad.Titulo}</b>?
+                            ¿Seguro de que desea eliminar <b>{recurso.Titulo}</b>?
                         </span>
                     )}
                 </div>
             </Dialog>
         </div>
     );
+
+    function getIconPath(extension: string) {
+        switch (extension.toLowerCase()) {
+            case 'pdf':
+                return 'pdf';
+            case 'doc':
+            case 'docx':
+                return 'word';
+            case 'ppt':
+                return 'ppt';
+            case 'xls':
+            case 'xlsx':
+                return 'excel';
+            case 'mp4':
+                return 'video';
+            case 'png':
+            case 'jpg':
+            case 'jpeg':
+                return 'imagen';
+            // Agrega más casos para otros tipos de archivos...
+            default:
+                return 'archivo'; // Icono por defecto para tipos desconocidos
+        }
+    }
 }

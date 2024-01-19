@@ -34,8 +34,6 @@ export default function ActividadesPage() {
     };
 
     const [actividades, setActividades] = useState<Array<any>>([]);
-    const [actividadDialog, setActividadDialog] = useState(false);
-    const [deleteActividadDialog, setDeleteActividadDialog] = useState(false);
     const [actividad, setActividad] = useState(emptyActividad);
     const [submitted, setSubmitted] = useState(false);
     const [modificar, setModificar] = useState(false);
@@ -65,21 +63,6 @@ export default function ActividadesPage() {
         fetchActividades();
     }, []);
 
-    const openNew = () => {
-        setActividad(emptyActividad);
-        setSubmitted(false);
-        setActividadDialog(true);
-        setModificar(false);
-    };
-
-    const hideDialog = () => {
-        setSubmitted(false);
-        setActividadDialog(false);
-    };
-
-    const hideDeleteProductDialog = () => {
-        setDeleteActividadDialog(false);
-    };
 
     const saveActividad = async () => {
         setSubmitted(true);
@@ -87,7 +70,6 @@ export default function ActividadesPage() {
         if (actividad.Titulo.length === 0) {
             return;
         }
-        setActividadDialog(false);
 
         if (!modificar) {
             crearActividad();
@@ -152,44 +134,6 @@ export default function ActividadesPage() {
             });
     };
 
-    const editActividad = (actividad: any) => {
-        setActividad({ ...actividad });
-        setActividadDialog(true);
-        setModificar(true);
-    };
-
-    const confirmDeleteActividad = (actividad: any) => {
-        setActividad(actividad);
-        setDeleteActividadDialog(true);
-    };
-
-    const deleteActividad = async () => {
-        setDeleteActividadDialog(false);
-        await axios
-            .delete('http://localhost:3001/api/actividad', {
-                params: { codigo: actividad.Codigo }
-            })
-            .then((response) => {
-                let _actividades = actividades.filter((val) => val.Codigo !== actividad.Codigo);
-                setActividades(_actividades);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message,
-                    life: 3000
-                });
-            });
-        setActividad(emptyActividad);
-    };
-
     const handleUpload = async (event: FileUploadFilesEvent, rowData: any) => {
         const file = event.files[0];
         const formData = new FormData();
@@ -209,25 +153,43 @@ export default function ActividadesPage() {
             });
     };
 
-    const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
-        const val = (e.target && e.target.value) || '';
-        let _actividad = { ...actividad, Titulo: val };
+    const descargarArchivo = async (ruta: string) => {
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download',{
+                params:{ fileName: ruta }
+            });
 
-        setActividad(_actividad);
-    };
-
-    const onCalendarChange = (value: any, name: string) => {
-        let fecha = value;
-        switch (name) {
-            case 'apertura':
-                setActividad({ ...actividad, FechaApertura: fecha });
-                break;
-            case 'cierre':
-                setActividad({ ...actividad, FechaCierre: fecha });
-                break;
+            console.log(response)
+    
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    
+            // Crear un objeto URL del blob
+            const url = window.URL.createObjectURL(blob);
+    
+            // Crear un enlace temporal
+            const link = document.createElement('a');
+            link.href = url;
+    
+            // Establecer el nombre del archivo
+            link.download = ruta;
+    
+            // Simular un clic en el enlace para iniciar la descarga
+            document.body.appendChild(link);
+            link.click();
+    
+            // Limpiar el enlace después de la descarga
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al descargar el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de descarga de archivo',
+                life: 3000
+            });
         }
     };
-
     const formatDate = (value: Date) => {
         return value.toLocaleDateString('es-PE', {
             day: '2-digit',
@@ -239,63 +201,7 @@ export default function ActividadesPage() {
         });
     };
 
-    const leftToolbarTemplate = () => {
-        return (
-            <React.Fragment>
-                <div className="my-2">
-                    <Button label="New" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
-                </div>
-            </React.Fragment>
-        );
-    };
 
-    const fileBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <FileUpload chooseOptions={{ icon: 'pi pi-upload', iconOnly: true, className: 'p-2' }} mode="basic" accept=".pdf" maxFileSize={5000000} customUpload uploadHandler={(e) => handleUpload(e, rowData)} />
-            </>
-        );
-    };
-
-    const aperturaBodyTemplate = (rowData: any) => {
-        return <span>{formatDate(new Date(rowData.FechaApertura))}</span>;
-    };
-
-    const cierreBodyTemplate = (rowData: any) => {
-        return <span>{formatDate(new Date(rowData.FechaCierre))}</span>;
-    };
-
-    const actionBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editActividad(rowData)} />
-                <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteActividad(rowData)} />
-            </>
-        );
-    };
-
-    const header = (
-        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Actividades de la sesión</h5>
-            {/* <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Search..." />
-            </span> */}
-        </div>
-    );
-
-    const productDialogFooter = (
-        <>
-            <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={saveActividad} />
-        </>
-    );
-    const deleteProductDialogFooter = (
-        <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeleteProductDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={deleteActividad} />
-        </>
-    );
 
     const itemTemplate = (actividad: any) => {
         return (
@@ -303,12 +209,10 @@ export default function ActividadesPage() {
                 <div className="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4">
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
                         <div className="flex flex-column align-items-center sm:align-items-start gap-3">
-                            <div className="text-2xl font-bold text-900">{actividad.Titulo}</div>
-                            <div className="card">
-                                <FileUpload name="demo[]" url={'/api/upload'} multiple accept="image/*" maxFileSize={1000000} uploadHandler={(e) => handleUpload(e, actividad)} emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
-                            </div>
-
+                            <h3 className="font-bold text-primary">{actividad.Titulo}</h3>
+                            <Button icon="pi pi-download" label='Descargar archivo guía' severity="success"  className="mr-2" onClick={() => descargarArchivo(actividad.RutaRecursoGuia)} />
                             <div className="flex align-items-center gap-3">
+                                
                                 <span className="flex align-items-center gap-2">
                                     <i className="pi pi-clock mr-2"></i>
                                     <span className="font-semibold">
@@ -321,15 +225,11 @@ export default function ActividadesPage() {
                                     </span>
                                 </span>
                             </div>
-                            <FileUpload
-                                chooseOptions={{ icon: 'pi pi-download', className: 'p-2' }}
-                                chooseLabel="Descargar archivo guía"
-                                mode="basic"
-                                accept=".pdf"
-                                maxFileSize={5000000}
-                                customUpload
-                                uploadHandler={(e) => handleUpload(e, actividad)}
-                            />
+                            <div className="card">
+                                <h6>Subir Actividad:</h6>
+                                <FileUpload name="demo[]" url={'/api/upload'} multiple accept="image/*" maxFileSize={1000000} uploadHandler={(e) => handleUpload(e, actividad)} emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -341,61 +241,7 @@ export default function ActividadesPage() {
         <div className="card">
             <Toast ref={toast} />
             <h3>Lista de Actividades</h3>
-
             <DataView value={actividades} itemTemplate={itemTemplate} />
-
-            <Dialog visible={actividadDialog} style={{ width: '450px' }} header="Detalles de la tarea" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
-                <div className="field">
-                    <label htmlFor="name">Título</label>
-                    <InputText
-                        id="name"
-                        value={actividad.Titulo}
-                        onChange={(e) => onInputChange(e, 'titulo')}
-                        required
-                        autoFocus
-                        maxLength={100}
-                        className={classNames({
-                            'p-invalid': submitted && !actividad.Titulo
-                        })}
-                    />
-                    {submitted && !actividad.Titulo && <small className="p-invalid">Name is required.</small>}
-                </div>
-                <div className="field">
-                    <label htmlFor="fecha-apertura">Fecha de apertura</label>
-                    <Calendar
-                        id="fecha-apertura"
-                        value={new Date(actividad.FechaApertura)}
-                        onChange={(e) => {
-                            onCalendarChange(e.value, 'apertura');
-                        }}
-                        showTime
-                        hourFormat="12"
-                    />
-                </div>
-                <div className="field">
-                    <label htmlFor="fecha-cierre">Fecha de cierre</label>
-                    <Calendar
-                        id="fecha-cierre"
-                        value={new Date(actividad.FechaCierre)}
-                        onChange={(e) => {
-                            onCalendarChange(e.value, 'cierre');
-                        }}
-                        showTime
-                        hourFormat="12"
-                    />
-                </div>
-            </Dialog>
-
-            <Dialog visible={deleteActividadDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
-                <div className="flex align-items-center justify-content-center">
-                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    {actividad && (
-                        <span>
-                            ¿Seguro de que desea eliminar <b>{actividad.Titulo}</b>?
-                        </span>
-                    )}
-                </div>
-            </Dialog>
         </div>
     );
 }

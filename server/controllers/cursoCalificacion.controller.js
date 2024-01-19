@@ -358,7 +358,7 @@ const getMatriculados = async (req, res) => {
     try {
         const matriculados = await Matricula.findAll({
             where: { CodigoCursoCalificacion: req.query.codigoCursoCalificacion },
-            attributes: { exclude: ['FechaMatricula', 'NotaFinal', 'Observacion'] },
+            attributes: { exclude: ['FechaMatricula', 'NotaFinal', 'Observacion','Nota1','Nota2','Nota3','Nota4','NotaRecuperacion','NotaAplazado'] },           
             include: [
                 {
                     model: Estudiante,
@@ -380,7 +380,7 @@ const getMatriculados = async (req, res) => {
         res.json({ matriculados })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ message: 'Error al obtener la lista de matriculados' })
+        res.status(500).json({ message: 'Error al obtener la lista de matriculados',error })
     }
 }
 
