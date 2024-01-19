@@ -1,28 +1,77 @@
-const { Sequelize } = require("../config/database");
+const { Sequelize } = require("sequelize");
+
+const Curso = require("../models/curso.model");
 const CursoCalificacion = require("../models/cursoCalificacion.model");
-
-const UnidadAcemica = require("../models/unidadAcademica.model");
-const SemanaAcademica = require("../models/unidadAcademica.model");
+const UnidadAcademica = require("../models/unidadAcademica.model");
+const SemanaAcademica = require("../models/semanaAcademica.model");
 const Sesion = require("../models/sesion.model");
+const Asistencia = require("../models/asistencia.model");
 
-CursoCalificacion.hasMany(UnidadAcemica, {
+Curso.hasMany(CursoCalificacion, { foreignKey: "CodigoCurso" });
+CursoCalificacion.belongsTo(Curso, { foreignKey: "CodigoCurso" });
+
+CursoCalificacion.hasMany(UnidadAcademica, {
   foreignKey: "CodigoCursoCalificacion",
 });
-UnidadAcemica.belongsTo(CursoCalificacion, {
+UnidadAcademica.belongsTo(CursoCalificacion, {
   foreignKey: "CodigoCursoCalificacion",
 });
 
-UnidadAcemica.hasMany(SemanaAcademica, { foreignKey: "CodugoUnidadAcademica" });
-SemanaAcademica.belongsTo(UnidadAcemica, {
+UnidadAcademica.hasMany(SemanaAcademica, {
+  foreignKey: "CodigoUnidadAcademica",
+});
+SemanaAcademica.belongsTo(UnidadAcademica, {
   foreignKey: "CodigoUnidadAcademica",
 });
 
 SemanaAcademica.hasMany(Sesion, { foreignKey: "CodigoSemanaAcademica" });
 Sesion.belongsTo(SemanaAcademica, { foreignKey: "CodigoSemanaAcademica" });
 
-const getSesiones = async (res, req) => {
+Sesion.hasMany(Asistencia, { foreignKey: "CodigoSesion" });
+Asistencia.belongsTo(Sesion, { foreignKey: "CodigoSesion" });
+
+const getSesionesDocente = async (req, res) => {
   try {
     const { CodigoCursoCalificacion } = req.query;
+
+    const curso = await CursoCalificacion.findOne({
+      attributes: {
+        exclude: [
+          "EstadoAplazado",
+          "EstadoRecuperacion",
+          "EstadoNotas",
+          "CodigoDocente",
+        ],
+      },
+      include: [
+        {
+          model: Curso,
+          attributes: [
+            "Codigo",
+            "Nombre",
+            "Creditos",
+            "Nivel",
+            "Semestre",
+            "HorasTeoria",
+            "HorasPractica",
+          ],
+        },
+      ],
+      where: { Codigo: CodigoCursoCalificacion },
+    });
+
+    const unidades = await UnidadAcademica.findAll({
+      where: {
+        CodigoCursoCalificacion: CodigoCursoCalificacion,
+      },
+    });
+
+    const semanas = await SemanaAcademica.findAll({
+      where: {
+        CodigoUnidadAcademica: unidades.map((unidad) => unidad.Codigo),
+      },
+    });
+
     const sesiones = await Sesion.findAll({
       attributes: {
         exclude: ["HoraInicio", "HoraFin", "EntradaDocente", "SalidaDocente"],
@@ -34,6 +83,76 @@ const getSesiones = async (res, req) => {
 
     res.json({
       ok: true,
+      curso,
+      unidades,
+      semanas,
+      sesiones,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Ha ocurrido un error al procesar la solicitud" });
+  }
+};
+
+const getSesionesEstudiante = async (req, res) => {
+  try {
+    const { CodigoCursoCalificacion } = req.query;
+
+    const curso = await CursoCalificacion.findOne({
+      attributes: {
+        exclude: [
+          "EstadoAplazado",
+          "EstadoRecuperacion",
+          "EstadoNotas",
+          "CodigoDocente",
+        ],
+      },
+      include: [
+        {
+          model: Curso,
+          attributes: [
+            "Codigo",
+            "Nombre",
+            "Creditos",
+            "Nivel",
+            "Semestre",
+            "HorasTeoria",
+            "HorasPractica",
+          ],
+        },
+      ],
+      where: { Codigo: CodigoCursoCalificacion },
+    });
+
+    const unidades = await UnidadAcademica.findAll({
+      where: {
+        CodigoCursoCalificacion: CodigoCursoCalificacion,
+      },
+    });
+
+    const semanas = await SemanaAcademica.findAll({
+      where: {
+        CodigoUnidadAcademica: unidades.map((unidad) => unidad.Codigo),
+      },
+    });
+
+    const sesiones = await Sesion.findAll({
+      attributes: {
+        exclude: ["HoraInicio", "HoraFin", "EntradaDocente", "SalidaDocente"],
+      },
+      where: Sequelize.literal(
+        `RIGHT(Sesion.Codigo, 8) = '${CodigoCursoCalificacion}'`
+      ),
+
+    });
+
+    res.json({
+      ok: true,
+      curso,
+      unidades,
+      semanas,
       sesiones,
     });
   } catch (error) {
@@ -47,14 +166,15 @@ const getSesiones = async (res, req) => {
 const crearSesion = async (req, res) => {
   try {
     const sesion = await Sesion.create({
-      Codigo: req.body.codigoSesion,
-      Numero: req.body.numero,
+      Codigo: req.body.codigo,
+      Numero: parseInt(req.body.numero),
       Descripcion: req.body.descripcion,
-      EstadoAsistencia: req.body.estadoAsistencia,
-      LinkClaseVirtual: req.body.linkClaseVirtual,
-      Fecha: req.body.fecha,
-      HoraInicio: req.body.horaInicio,
-      HoraFin: req.body.horaFin,
+      EstadoAsistencia: true,
+      CodigoSemanaAcademica: req.body.codigoSemanaAcademica,
+      // LinkClaseVirtual: req.body.linkClaseVirtual,
+      // Fecha: req.body.fecha,
+      // HoraInicio: req.body.horaInicio,
+      // HoraFin: req.body.horaFin,
     });
 
     res.json({
@@ -115,33 +235,40 @@ const eliminarSesion = async (req, res) => {
 
 const marcarIngresoDocente = async (req, res) => {
   try {
-    await Sesion.update({ EntradaDocente: new Date() }, {
-      where: { Codigo: req.query.codigoSesion }
-    })
-    res.json({message: 'Ingreso del docente marcada correctamente'})
+    await Sesion.update(
+      { EntradaDocente: new Date() },
+      {
+        where: { Codigo: req.query.codigoSesion },
+      }
+    );
+    res.json({ message: "Ingreso del docente marcada correctamente" });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({message: 'Error al marcar el ingreso del docente'})
+    console.error(error);
+    res.status(500).json({ message: "Error al marcar el ingreso del docente" });
   }
-}
+};
 
 const marcarSalidaDocente = async (req, res) => {
   try {
-    await Sesion.update({ SalidaDocente: new Date() }, {
-      where: { Codigo: req.query.codigoSesion }
-    })
-    res.json({message: 'Ingreso del docente marcada correctamente'})
+    await Sesion.update(
+      { SalidaDocente: new Date() },
+      {
+        where: { Codigo: req.query.codigoSesion },
+      }
+    );
+    res.json({ message: "Ingreso del docente marcada correctamente" });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({message: 'Error al marcar la salida del docente'})
+    console.error(error);
+    res.status(500).json({ message: "Error al marcar la salida del docente" });
   }
-}
+};
 
-module.exports ={
-    getSesiones,
-    crearSesion,
-    actualizarSesion,
-    eliminarSesion,
-    marcarIngresoDocente,
-    marcarSalidaDocente
-}
+module.exports = {
+  getSesionesDocente,
+  getSesionesEstudiante,
+  crearSesion,
+  actualizarSesion,
+  eliminarSesion,
+  marcarIngresoDocente,
+  marcarSalidaDocente,
+};

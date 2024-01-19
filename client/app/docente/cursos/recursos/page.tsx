@@ -16,14 +16,12 @@ import { Calendar } from 'primereact/calendar';
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
 
-/* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function ActividadesPage() {
-
     const searchParamas = useSearchParams();
     const codigoSesion = searchParamas.get('codigo');
 
     console.log('Codigo Recibido:', codigoSesion);
-
+    
     let emptyActividad = {
         Codigo: 0,
         Titulo: '',
@@ -38,37 +36,38 @@ export default function ActividadesPage() {
     const [deleteActividadDialog, setDeleteActividadDialog] = useState(false);
     const [actividad, setActividad] = useState(emptyActividad);
     const [submitted, setSubmitted] = useState(false);
-    const [modificar, setModificar] = useState(false)
+    const [modificar, setModificar] = useState(false);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
 
     const fetchActividades = async () => {
-        await axios.get('http://localhost:3001/api/actividad', {
-            params: { codigoSesion: codigoSesion }
-        })
-            .then(response => {
-                setActividades(response.data.actividades)
+        await axios
+            .get('http://localhost:3001/api/actividad', {
+                params: { codigoSesion: codigoSesion }
             })
-            .catch(error => {
-                console.error(error)
+            .then((response) => {
+                setActividades(response.data.actividades);
+            })
+            .catch((error) => {
+                console.error(error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
                     detail: error.message,
                     life: 3000
                 });
-            })
-    }
+            });
+    };
 
     useEffect(() => {
-        fetchActividades()
+        fetchActividades();
     }, []);
 
     const openNew = () => {
         setActividad(emptyActividad);
         setSubmitted(false);
         setActividadDialog(true);
-        setModificar(false)
+        setModificar(false);
     };
 
     const hideDialog = () => {
@@ -84,25 +83,26 @@ export default function ActividadesPage() {
         setSubmitted(true);
 
         if (actividad.Titulo.length === 0) {
-            return
+            return;
         }
         setActividadDialog(false);
 
         if (!modificar) {
-            crearActividad()
+            crearActividad();
         } else {
-            modificarActividad(actividad)
+            modificarActividad(actividad);
         }
 
         setActividad(emptyActividad);
     };
 
     const crearActividad = async () => {
-        await axios.post('http://localhost:3001/api/actividad', actividad)
-            .then(response => {
-                let _actividades = actividades
-                _actividades.push(response.data.actividad)
-                setActividades(_actividades)
+        await axios
+            .post('http://localhost:3001/api/actividad', actividad)
+            .then((response) => {
+                let _actividades = actividades;
+                _actividades.push(response.data.actividad);
+                setActividades(_actividades);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Successful',
@@ -110,27 +110,28 @@ export default function ActividadesPage() {
                     life: 3000
                 });
             })
-            .catch(error => {
-                console.error(error)
+            .catch((error) => {
+                console.error(error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
                     detail: error.message,
                     life: 3000
                 });
-            })
-    }
+            });
+    };
 
     const modificarActividad = async (actividad: any) => {
-        await axios.put('http://localhost:3001/api/actividad', actividad)
-            .then(response => {
-                let _actividades = actividades.map(value => {
+        await axios
+            .put('http://localhost:3001/api/actividad', actividad)
+            .then((response) => {
+                let _actividades = actividades.map((value) => {
                     if (value.Codigo === actividad.Codigo) {
-                        return actividad
+                        return actividad;
                     }
-                    return value
-                })
-                setActividades(_actividades)
+                    return value;
+                });
+                setActividades(_actividades);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Successful',
@@ -138,21 +139,21 @@ export default function ActividadesPage() {
                     life: 3000
                 });
             })
-            .catch(error => {
-                console.error(error)
+            .catch((error) => {
+                console.error(error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
                     detail: error.message,
                     life: 3000
                 });
-            })
-    }
+            });
+    };
 
     const editActividad = (actividad: any) => {
         setActividad({ ...actividad });
         setActividadDialog(true);
-        setModificar(true)
+        setModificar(true);
     };
 
     const confirmDeleteActividad = (actividad: any) => {
@@ -162,11 +163,12 @@ export default function ActividadesPage() {
 
     const deleteActividad = async () => {
         setDeleteActividadDialog(false);
-        await axios.delete('http://localhost:3001/api/actividad', {
-            params: { codigo: actividad.Codigo }
-        })
-            .then(response => {
-                let _actividades = actividades.filter(val => val.Codigo !== actividad.Codigo);
+        await axios
+            .delete('http://localhost:3001/api/actividad', {
+                params: { codigo: actividad.Codigo }
+            })
+            .then((response) => {
+                let _actividades = actividades.filter((val) => val.Codigo !== actividad.Codigo);
                 setActividades(_actividades);
                 toast.current?.show({
                     severity: 'success',
@@ -175,35 +177,35 @@ export default function ActividadesPage() {
                     life: 3000
                 });
             })
-            .catch(error => {
+            .catch((error) => {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
                     detail: error.message,
                     life: 3000
                 });
-            })
+            });
         setActividad(emptyActividad);
     };
 
     const handleUpload = async (event: FileUploadFilesEvent, rowData: any) => {
-        const file = event.files[0]
-        const formData = new FormData()
-        formData.append('file', file)
-        await axios.post('http://localhost:3001/api/files/upload', formData)
-            .then(response => {
-                console.log(response.data.path)
-                let _actividad = { ...rowData, RutaRecursoGuia: response.data.filename }
+        const file = event.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        await axios
+            .post('http://localhost:3001/api/files/upload', formData)
+            .then((response) => {
+                console.log(response.data.path);
+                let _actividad = { ...rowData, RutaRecursoGuia: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
-                modificarActividad(_actividad)
-                setActividad(emptyActividad)
+                modificarActividad(_actividad);
+                setActividad(emptyActividad);
             })
-            .catch(error => {
-                console.error(error)
+            .catch((error) => {
+                console.error(error);
                 toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Error de petición' });
-            })
-
-    }
+            });
+    };
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
         const val = (e.target && e.target.value) || '';
@@ -213,16 +215,16 @@ export default function ActividadesPage() {
     };
 
     const onCalendarChange = (value: any, name: string) => {
-        let fecha = value
+        let fecha = value;
         switch (name) {
             case 'apertura':
-                setActividad({ ...actividad, FechaApertura: fecha })
+                setActividad({ ...actividad, FechaApertura: fecha });
                 break;
             case 'cierre':
-                setActividad({ ...actividad, FechaCierre: fecha })
+                setActividad({ ...actividad, FechaCierre: fecha });
                 break;
         }
-    }
+    };
 
     const formatDate = (value: Date) => {
         return value.toLocaleDateString('es-PE', {
@@ -233,7 +235,7 @@ export default function ActividadesPage() {
             minute: '2-digit',
             hour12: true
         });
-    }
+    };
 
     const leftToolbarTemplate = () => {
         return (
@@ -248,25 +250,18 @@ export default function ActividadesPage() {
     const fileBodyTemplate = (rowData: any) => {
         return (
             <>
-                <FileUpload
-                    chooseOptions={{ icon: 'pi pi-upload', iconOnly: true, className: 'p-2' }}
-                    mode="basic"
-                    accept=".pdf"
-                    maxFileSize={5000000}
-                    customUpload
-                    uploadHandler={(e) => handleUpload(e, rowData)}
-                />
+                <FileUpload chooseOptions={{ icon: 'pi pi-upload', iconOnly: true, className: 'p-2' }} mode="basic" accept=".pdf" maxFileSize={5000000} customUpload uploadHandler={(e) => handleUpload(e, rowData)} />
             </>
         );
     };
 
     const aperturaBodyTemplate = (rowData: any) => {
-        return <span>{formatDate(new Date(rowData.FechaApertura))}</span>
-    }
+        return <span>{formatDate(new Date(rowData.FechaApertura))}</span>;
+    };
 
     const cierreBodyTemplate = (rowData: any) => {
-        return <span>{formatDate(new Date(rowData.FechaCierre))}</span>
-    }
+        return <span>{formatDate(new Date(rowData.FechaCierre))}</span>;
+    };
 
     const actionBodyTemplate = (rowData: any) => {
         return (
@@ -304,26 +299,11 @@ export default function ActividadesPage() {
         return (
             <div className="col-12">
                 <div className="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4">
-                    <img className="w-6 sm:w-16rem xl:w-8rem block xl:block mx-auto border-round" src="/images/pdf.png" alt='Archivo guía' />
+                    <img className="w-6 sm:w-16rem xl:w-8rem block xl:block mx-auto border-round" src="/images/pdf.png" alt="Archivo guía" />
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
                         <div className="flex flex-column align-items-center sm:align-items-start gap-3">
                             <div className="text-2xl font-bold text-900">{actividad.Titulo}</div>
-                            <div className="flex align-items-center gap-3">
-                                <span className="flex align-items-center gap-2">
-                                    <i className="pi pi-clock mr-2"></i>
-                                    <span className="font-semibold"><strong>Apertura: </strong>{formatDate(new Date(actividad.FechaApertura))}</span>
-                                    <span className="font-semibold"><strong>Cierre: </strong>{formatDate(new Date(actividad.FechaCierre))}</span>
-                                </span>
-                            </div>
-                            <FileUpload
-                                chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
-                                chooseLabel='Subir archivo guía'
-                                mode="basic"
-                                accept=".pdf"
-                                maxFileSize={5000000}
-                                customUpload
-                                uploadHandler={(e) => handleUpload(e, actividad)}
-                            />
+                            <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo guía" mode="basic" accept=".pdf" maxFileSize={5000000} customUpload uploadHandler={(e) => handleUpload(e, actividad)} />
                         </div>
                         <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
                             <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editActividad(actividad)} />
@@ -336,7 +316,6 @@ export default function ActividadesPage() {
     };
 
     return (
-
         <div className="card">
             <Toast ref={toast} />
             <Toolbar className="mb-4" start={leftToolbarTemplate}></Toolbar>
@@ -360,12 +339,7 @@ export default function ActividadesPage() {
                     {submitted && !actividad.Titulo && <small className="p-invalid">Name is required.</small>}
                 </div>
                 <div className="field">
-                    <label htmlFor="fecha-apertura">Fecha de apertura</label>
-                    <Calendar id="fecha-apertura" value={new Date(actividad.FechaApertura)} onChange={(e) => { onCalendarChange(e.value, 'apertura') }} showTime hourFormat="12" />
-                </div>
-                <div className="field">
-                    <label htmlFor="fecha-cierre">Fecha de cierre</label>
-                    <Calendar id="fecha-cierre" value={new Date(actividad.FechaCierre)} onChange={(e) => { onCalendarChange(e.value, 'cierre') }} showTime hourFormat="12" />
+                    <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" mode="basic" accept=".pdf" maxFileSize={5000000} customUpload uploadHandler={(e) => handleUpload(e, actividad)} />
                 </div>
             </Dialog>
 
@@ -381,5 +355,4 @@ export default function ActividadesPage() {
             </Dialog>
         </div>
     );
-};
-
+}

@@ -12,11 +12,18 @@ import { classNames } from 'primereact/utils';
 import { ProgressBar } from 'primereact/progressbar';
 import { Checkbox } from 'primereact/checkbox';
 
+import { useSearchParams } from 'next/navigation';
+
+
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function AsistenciasPage() {
 
-    let codigoSesion = '1014P3203252'
-    let codigoCursoCalificacion = 'M1103252'
+    const searchParamas = useSearchParams();
+    const codigoSesion = searchParamas.get('codigo');
+    const codigoCursoCalificacion = codigoSesion?.slice(-8)
+
+    console.log('Codigo Recibido:', codigoSesion);
+    console.log('Codigo Curso:', codigoCursoCalificacion);
 
     const [estudiantes, setEstudiantes] = useState<Array<any>>([])
     const [globalFilter, setGlobalFilter] = useState('');

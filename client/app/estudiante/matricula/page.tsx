@@ -15,8 +15,8 @@ import { Message } from 'primereact/message';
 
 export default function Matricula() {
     const usuario = {
-        Email: 'darlyn@email.com',
-        CodigoSunedu: 'MU75500598'
+        Email: 'jamilvasquez21@gmail.com',
+        CodigoSunedu: 'PI72763399'
     };
 
     const estudianteVacio = {
@@ -80,7 +80,6 @@ export default function Matricula() {
     };
 
     const [matriculaDialog, setMatriculaDialog] = useState(false);
-    const [pagosDialog, setPagosDialog] = useState(false);
     const [deleteMatriculaDialog, setDeleteMatriculaDialog] = useState(false);
     const [matriculaHabilitada, setMatriculaHabilitada] = useState(false);
 
@@ -236,10 +235,6 @@ export default function Matricula() {
             });
     };
 
-    const hidePagosDialog = () => {
-        setPagosDialog(false);
-    };
-
     const hideMatriculaDialog = () => {
         setMatriculaDialog(false);
     };
@@ -251,10 +246,6 @@ export default function Matricula() {
     const newMatricula = (curso: any) => {
         setCursoCalificaion(curso);
         setMatriculaDialog(true);
-    };
-
-    const openDialogPagos = () => {
-        setPagosDialog(true);
     };
 
     const confirmDeleteMatricula = (curso: any) => {
@@ -374,14 +365,6 @@ export default function Matricula() {
             <React.Fragment>
                 <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteMatriculaDialog} />
                 <Button label="Si" icon="pi pi-check" severity="danger" onClick={() => eliminarMatricula(cursoCalificacion)} />
-            </React.Fragment>
-        );
-    };
-
-    const pagosDialogFooter = () => {
-        return (
-            <React.Fragment>
-                <Button label="Cerrar" icon="pi pi-check" severity="danger" onClick={() => hidePagosDialog()} />
             </React.Fragment>
         );
     };
