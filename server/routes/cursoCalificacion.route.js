@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { getCursosCalificacion, crearCursoCalificacion, habilitarIngresos, deshabilitarIngresos, eliminarCursoCalificacion, asignarDocente, habilitarIngreso, deshabilitarIngreso, getMatriculados } = require("../controllers/cursoCalificacion.controller");
+const { getCursosCalificacion, crearCursoCalificacion, habilitarIngresos, deshabilitarIngresos, eliminarCursoCalificacion, asignarDocente, habilitarIngreso, deshabilitarIngreso, getMatriculados, contarSesiones } = require("../controllers/cursoCalificacion.controller");
 
 const router = Router()
 
@@ -20,5 +20,7 @@ router.delete('/eliminar', eliminarCursoCalificacion)
 router.put('/asignar-docente', asignarDocente)
 
 router.get('/matriculados', getMatriculados)
+
+router.get('/sesiones', contarSesiones)
 
 module.exports = router

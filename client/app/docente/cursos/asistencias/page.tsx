@@ -15,8 +15,8 @@ import { Checkbox } from 'primereact/checkbox';
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function AsistenciasPage() {
 
-    let codigoSesion = '1014P3203252'
-    let codigoCursoCalificacion = 'M1103252'
+    let codigoSesion = '2014P3203252'
+    let codigoCursoCalificacion = 'P3203252'
 
     const [estudiantes, setEstudiantes] = useState<Array<any>>([])
     const [globalFilter, setGlobalFilter] = useState('');
@@ -52,7 +52,8 @@ export default function AsistenciasPage() {
         const codEstudiante = rowData.Estudiante.Codigo
         await axios.post('http://localhost:3001/api/asistencia/marcar', {
             codigoSesion: codigoSesion,
-            codigoEstudiante: codEstudiante
+            codigoEstudiante: codEstudiante,
+            codigoCurso: codigoCursoCalificacion
         }).
             then(response => {
                 fetchMatriculados()
@@ -79,7 +80,8 @@ export default function AsistenciasPage() {
         await axios.delete('http://localhost:3001/api/asistencia/desmarcar', {
             params: {
                 codigoSesion: codigoSesion,
-                codigoEstudiante: codEstudiante
+                codigoEstudiante: codEstudiante,
+                codigoCurso: codigoCursoCalificacion
             }
         })
             .then(response => {

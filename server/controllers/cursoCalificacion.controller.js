@@ -247,7 +247,7 @@ const getMatriculados = async (req, res) => {
     try {
         const matriculados = await Matricula.findAll({
             where: { CodigoCursoCalificacion: req.query.codigoCursoCalificacion },
-            attributes: { exclude: ['FechaMatricula', 'NotaFinal', 'Observacion'] },           
+            attributes: { exclude: ['FechaMatricula', 'NotaFinal', 'Observacion'] },
             include: [
                 {
                     model: Estudiante,
@@ -257,13 +257,13 @@ const getMatriculados = async (req, res) => {
                         },
                         {
                             model: Asistencia,
-                            where: { CodigoSesion:  req.query.codigoSesion},
+                            where: { CodigoSesion: req.query.codigoSesion },
                             limit: 1
                         }
                     ]
                 }
             ]
-             
+
         })
 
         res.json({ matriculados })
@@ -274,7 +274,22 @@ const getMatriculados = async (req, res) => {
 }
 
 const contarSesiones = async (req, res) => {
-    
+    try {
+        const codigoCurso = req.query.codigoCurso
+        const QUERY = "select count(*) as `sesiones` " +
+            "from cursocalificacion as c " +
+            "inner join unidadacademica as u " +
+            "on c.Codigo = u.CodigoCursoCalificacion and c.Codigo like ? " +
+            "inner join semanaacademica as sa " +
+            "on u.Codigo = sa.CodigoUnidadAcademica " +
+            "inner join sesion as s " +
+            "on sa.Codigo = s.CodigoSemanaAcademica"
+        const [results, metadata] = await sequelize.query(QUERY, { replacements: [codigoCurso] })
+        res.json(metadata[0])
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error al obtener la cantidad de sesiones' })
+    }
 }
 
 module.exports = {
@@ -286,5 +301,6 @@ module.exports = {
     asignarDocente,
     habilitarIngreso,
     deshabilitarIngreso,
-    getMatriculados
+    getMatriculados,
+    contarSesiones
 }
