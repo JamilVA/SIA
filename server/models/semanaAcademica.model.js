@@ -3,10 +3,10 @@ const { sequelize } = require("../config/database");
 
 const SemanaAcademica = sequelize.define('SemanaAcademica', {
     Codigo: {
-        type: DataTypes.STRING(9),
+        type: DataTypes.STRING(11),
         primaryKey: true
     },
-    Denominacion: DataTypes.STRING(45)
+    Descripcion: DataTypes.STRING(45)
 })
 
 module.exports = SemanaAcademica

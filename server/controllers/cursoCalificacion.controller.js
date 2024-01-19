@@ -2,13 +2,14 @@ const { sequelize } = require('../config/database')
 const Curso = require('../models/curso.model')
 const CursoCalificacion = require('../models/cursoCalificacion.model')
 const Docente = require('../models/docente.model')
+const Estudiante = require('../models/estudiante.model')
+const Matricula = require('../models/matricula.model')
 const Periodo = require('../models/periodo.model')
 const Persona = require('../models/persona.model')
 const UnidadAcemica = require('../models/unidadAcademica.model')
-const Estudiante = require('../models/estudiante.model')
-const Matricula = require('../models/matricula.model')
-const Asistencia = require('../models/asistencia.model')
-const Sesion = require('../models/sesion.model')
+const SemanaAcademica = require('../models/semanaAcademica.model')
+const Asistencia = require("../models/asistencia.model");
+
 
 CursoCalificacion.belongsTo(Curso, { foreignKey: 'CodigoCurso' })
 Curso.hasOne(CursoCalificacion, { foreignKey: 'CodigoCurso' })
@@ -19,8 +20,17 @@ CursoCalificacion.belongsTo(Periodo, { foreignKey: 'CodigoPeriodo' })
 Docente.hasMany(CursoCalificacion, { foreignKey: 'CodigoDocente' })
 CursoCalificacion.belongsTo(Docente, { foreignKey: 'CodigoDocente' })
 
+CursoCalificacion.hasMany(Matricula, { foreignKey: 'CodigoCursoCalificacion' })
+Matricula.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
+
+Estudiante.hasMany(Matricula, { foreignKey: 'CodigoEstudiante' })
+Matricula.belongsTo(Estudiante, { foreignKey: 'CodigoEstudiante' })
+
 CursoCalificacion.hasMany(UnidadAcemica, { foreignKey: 'CodigoCursoCalificacion' })
 UnidadAcemica.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
+
+UnidadAcemica.hasMany(SemanaAcademica, { foreignKey: 'CodigoUnidadAcademica' })
+SemanaAcademica.belongsTo(UnidadAcemica, { foreignKey: 'CodigoUnidadAcademica' })
 
 const getCursosCalificacion = async (req, res) => {
     try {
@@ -49,21 +59,122 @@ const getCursosCalificacion = async (req, res) => {
     }
 }
 
-const crearCursoCalificacion = async (req, res) => {
+const getCursosEstudiante = async (req, res) => {
+    try {
+
+        const { CodigoEstudiante } = req.query;
+
+        const cursosCalificacion = await CursoCalificacion.findAll({
+            include: [
+                {
+                    model: Periodo,
+                    attributes: ['Codigo', 'Denominacion', 'Estado'],
+                    where: { 'Estado': true }
+                },
+                {
+                    model: Curso,
+                    attributes: ['Codigo','Nombre'] ,
+                },
+                {
+                    model: Matricula,
+                    attributes: ['CodigoCursoCalificacion', 'CodigoEstudiante'],
+                    where: {CodigoEstudiante}
+                }
+            ],
+        })
+        res.json({
+            ok: true,
+            cursosCalificacion
+          });    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Ha ocurrido un error al procesar la solicitud' })
+    }
+}
+
+const crearCursoCalificacion = async (req,res) => {
     try {
         await sequelize.transaction(async (t) => {
             const cursoCalificacion = await CursoCalificacion.create(req.body, { transaction: t })
-            await UnidadAcemica.bulkCreate(unidades(cursoCalificacion.Codigo), { transaction: t })
+
+            await UnidadAcemica.bulkCreate(unidades(cursoCalificacion.Codigo), { transaction: t });
+
+            const unidadesGeneradas = unidades(cursoCalificacion.Codigo);
+
+            let semanaGlobalIndex = 1;
+
+            for (let unidad of unidadesGeneradas) {
+                const totalSemanas = (unidad.Codigo.charAt(0) === '4') ? 6 : 4;
+            
+                for (let semanaIndex = 1; semanaIndex <= totalSemanas; semanaIndex++) {
+                    const codigoSemana = `${semanaGlobalIndex.toString().padStart(2, '0')}${unidad.Codigo}`;
+                    const descripcionSemana = `Semana ${semanaGlobalIndex.toString().padStart(2, '0')}`;
+            
+                    await SemanaAcademica.create({
+                        Codigo: codigoSemana,
+                        Descripcion: descripcionSemana,
+                        CodigoUnidadAcademica: unidad.Codigo
+                    }, { transaction: t });
+            
+                    semanaGlobalIndex++;
+                }
+            }
+            
+
             return res.json({
                 mensaje: 'Curso a calificar creado',
                 cursoCalificacion
-            })
-        })
+            });
+        });
     } catch (error) {
-        console.log(error)
+        console.log(error);
         res.status(500).json({ error: 'Ha ocurrido un error al habilitar el curso' })
     }
-}
+};
+
+
+const editarCursoCalificacion = async (req, res) => {
+    try {
+      const curso = await CursoCalificacion.update(
+        {
+          Competencia: req.body.competencia,
+          Capacidad: req.body.capacidad,
+          RutaSyllabus: req.body.rutaSyllabus,
+          RutaNormas: req.body.rutaNormas,
+          RutaPresentacionCurso: req.body.rutaPresentacionCurso,
+          RutaPresentacionDocente: req.body.rutaPresentacionDocente,
+        },
+        {
+          where: {
+            Codigo: req.body.codigo,
+          },
+        }
+      );
+      res.json({
+        Estado: "Actualizado con éxito",
+        curso,
+      });
+    } catch (error) {
+      res.json({
+        Estado: "Error al Actualizar, " + error,
+      });
+    }
+  };
+
+// const crearCursoCalificacion = async (req, res) => {
+//     try {
+//         await sequelize.transaction(async (t) => {
+//             const cursoCalificacion = await CursoCalificacion.create(req.body, { transaction: t })
+//             await UnidadAcemica.bulkCreate(unidades(cursoCalificacion.Codigo), { transaction: t })
+//             return res.json({
+//                 mensaje: 'Curso a calificar creado',
+//                 cursoCalificacion
+//             })
+//         })
+//     } catch (error) {
+//         console.log(error)
+//         res.status(500).json({ error: 'Ha ocurrido un error al habilitar el curso' })
+//     }
+// }
 
 const unidades = (codigo) => {
     let unidades = [
@@ -294,7 +405,9 @@ const contarSesiones = async (req, res) => {
 
 module.exports = {
     getCursosCalificacion,
+    getCursosEstudiante,
     crearCursoCalificacion,
+    editarCursoCalificacion,
     habilitarIngresos,
     deshabilitarIngresos,
     eliminarCursoCalificacion,

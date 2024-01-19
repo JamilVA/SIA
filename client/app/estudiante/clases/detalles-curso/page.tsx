@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useRef, use } from 'react';
 import axios from 'axios';
 
+import { TabView, TabPanel } from 'primereact/tabview';
+
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
@@ -9,6 +11,7 @@ import { classNames } from 'primereact/utils';
 
 import 'primeflex/primeflex.css';
 
+import { Tooltip } from 'primereact/tooltip';
 import { Toast } from 'primereact/toast';
 import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
@@ -89,7 +92,7 @@ export default function Curso() {
 
     const cargarDatos = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/sesion/docente', {
+            const { data } = await axios.get('http://localhost:3001/api/sesion/estudiante', {
                 params: {
                     CodigoCursoCalificacion: codigoCurso
                 }
@@ -247,25 +250,38 @@ export default function Curso() {
     const numeroBodyTemplate = (rowData: any) => {
         return rowData.Numero;
     };
+
     const sesionBodyTemplate = (rowData: any) => {
         return rowData.Descripcion;
     };
+
+    const estadoBodyTemplate = (rowData: any) => {
+        console.log('Rowdata Para Estado:', rowData);
+        const icono = (
+            <span className={`icono-${rowData.Estado}`}>
+                <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Estado, 'text-red-500 pi-times-circle': !rowData.Estado })}></i>
+            </span>
+        );
+
+        return (
+            <>
+                {icono}
+                <Tooltip target={`.icono-${rowData.Estado}`}>
+                    <span>Asistencia</span>
+                </Tooltip>
+            </>
+        );
+    };
+
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
-                <Link href={`/docente/cursos/recursos?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Recursos" icon="pi pi-upload" className="p-button-help p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} text />
+                <Link href={`/estudiante/clases/detalles-curso/recursos?codigo=${rowData.Codigo}`}>
+                    <Button tooltip="Recursos" icon="pi pi-file" className="p-button-help p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} text />
                 </Link>
-
-                <Link href={`/docente/cursos/actividades?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} text />
+                <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}`}>
+                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success p-button-sm mr-5" style={{ padding: '0.75em', fontSize: '0.75em' }} text />
                 </Link>
-
-                <Link href={`/docente/cursos/asistencias?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Asistencia" icon="pi pi-list" className="p-button-info p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} />
-                </Link>
-
-                <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm mr-3" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => editSesion(rowData)} />
             </React.Fragment>
         );
     };
@@ -296,9 +312,9 @@ export default function Curso() {
                 <DataTable ref={dt} value={filtrarSesiones(sesiones, rowData.Codigo)} header={headerSemana(rowData)} dataKey="Codigo">
                     <Column headerStyle={{ display: 'none' }} body={numeroBodyTemplate} style={{ minWidth: '1rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} body={sesionBodyTemplate} style={{ minWidth: '14rem' }}></Column>
-                    <Column className={classNames({ 'text-right': true })} headerStyle={{ display: 'none' }} body={actionBodyTemplate} style={{ minWidth: '8rem', paddingRight: '1rem' }}></Column>
+                    <Column headerStyle={{ display: 'none' }} body={estadoBodyTemplate} style={{ minWidth: '14rem' }}></Column>
+                    <Column headerStyle={{ display: 'none' }} className={classNames({ 'text-right': true })} body={actionBodyTemplate} style={{ minWidth: '8rem', paddingRight: '1rem' }}></Column>
                 </DataTable>
-                <Button tooltip="Nueva Sesion" icon="pi pi-plus" className="p-button-success p-button-sm m-2" style={{ padding: '0.75em' }} onClick={() => openNew(rowData)} outlined />
             </React.Fragment>
         );
     };
@@ -354,9 +370,16 @@ export default function Curso() {
             <div className="col-9 m-0">
                 <div>
                     <Card title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
-                    <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
-                        <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                    </DataTable>
+                    <TabView>
+                        <TabPanel header="Sesiones" leftIcon="pi pi-list mr-2">
+                            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
+                                <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                            </DataTable>
+                        </TabPanel>
+                        <TabPanel header="Calificaciones" leftIcon="pi pi-check-square mr-2">
+                            <h4>Calificaciones</h4>
+                        </TabPanel>
+                    </TabView>
                 </div>
             </div>
             <Dialog visible={sesionDialog} style={{ width: '40rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos de la sesión" modal className="p-fluid" footer={sesionDialogFooter} onHide={hideSesionDialog}>
@@ -454,13 +477,13 @@ export default function Curso() {
                         <label htmlFor="competencia" className="font-bold">
                             Competencia
                         </label>
-                        <InputTextarea id="competencia" value={cursoCalificacion.Competencia || ''} onChange={(e) => onInputCursoChange(e, 'Competencia')} />
+                        <InputTextarea id="competencia" value={(cursoCalificacion && cursoCalificacion.Competencia) || ''} onChange={(e) => onInputCursoChange(e, 'Competencia')} />
                     </div>
                     <div className="field col">
                         <label htmlFor="capacidad" className="font-bold">
                             Capacidad
                         </label>
-                        <InputTextarea id="capacidad" value={cursoCalificacion.Capacidad || ''} onChange={(e) => onInputCursoChange(e, 'Capacidad')} />
+                        <InputTextarea id="capacidad" value={(cursoCalificacion && cursoCalificacion.Capacidad) || ''} onChange={(e) => onInputCursoChange(e, 'Capacidad')} />
                     </div>
                 </div>
             </Dialog>

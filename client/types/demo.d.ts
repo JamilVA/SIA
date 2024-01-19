@@ -159,6 +159,22 @@ declare namespace Demo {
         CodigoJefeDepatamento: number;
     }
 
+    type RegistroMatricula = {
+        CodigoSunedu: string,
+        CodigoEstudiante: number,
+        CodigoCursoCalificacion: string,
+        Alumno: string,
+        Nota1: number | null,
+        Nota2: number | null,
+        Nota3: number | null,
+        Nota4: number | null,
+        NotaRecuperacion: number | null,
+        NotaAplazado: number | null,
+        NotaFinal: number,
+        PorcentajeAsistencia: number,
+        [key: string]: string | string[] | number | boolean | undefined | null;
+    }
+
     //ProductService
     type Product = {
         id?: string;
