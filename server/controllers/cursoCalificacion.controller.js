@@ -1,36 +1,5 @@
 const { sequelize } = require('../config/database')
-const Curso = require('../models/curso.model')
-const CursoCalificacion = require('../models/cursoCalificacion.model')
-const Docente = require('../models/docente.model')
-const Estudiante = require('../models/estudiante.model')
-const Matricula = require('../models/matricula.model')
-const Periodo = require('../models/periodo.model')
-const Persona = require('../models/persona.model')
-const UnidadAcemica = require('../models/unidadAcademica.model')
-const SemanaAcademica = require('../models/semanaAcademica.model')
-const Asistencia = require("../models/asistencia.model");
-
-
-CursoCalificacion.belongsTo(Curso, { foreignKey: 'CodigoCurso' })
-Curso.hasOne(CursoCalificacion, { foreignKey: 'CodigoCurso' })
-
-Periodo.hasMany(CursoCalificacion, { foreignKey: 'CodigoPeriodo' })
-CursoCalificacion.belongsTo(Periodo, { foreignKey: 'CodigoPeriodo' })
-
-Docente.hasMany(CursoCalificacion, { foreignKey: 'CodigoDocente' })
-CursoCalificacion.belongsTo(Docente, { foreignKey: 'CodigoDocente' })
-
-CursoCalificacion.hasMany(Matricula, { foreignKey: 'CodigoCursoCalificacion' })
-Matricula.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
-
-Estudiante.hasMany(Matricula, { foreignKey: 'CodigoEstudiante' })
-Matricula.belongsTo(Estudiante, { foreignKey: 'CodigoEstudiante' })
-
-CursoCalificacion.hasMany(UnidadAcemica, { foreignKey: 'CodigoCursoCalificacion' })
-UnidadAcemica.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
-
-UnidadAcemica.hasMany(SemanaAcademica, { foreignKey: 'CodigoUnidadAcademica' })
-SemanaAcademica.belongsTo(UnidadAcemica, { foreignKey: 'CodigoUnidadAcademica' })
+const { Curso, CursoCalificacion, Docente, Estudiante, Matricula, Periodo, Persona, UnidadAcemica, SemanaAcademica, Asistencia } = require('../config/relations')
 
 const getCursosCalificacion = async (req, res) => {
     try {
@@ -73,25 +42,26 @@ const getCursosEstudiante = async (req, res) => {
                 },
                 {
                     model: Curso,
-                    attributes: ['Codigo','Nombre'] ,
+                    attributes: ['Codigo', 'Nombre'],
                 },
                 {
                     model: Matricula,
                     attributes: ['CodigoCursoCalificacion', 'CodigoEstudiante'],
-                    where: {CodigoEstudiante}
+                    where: { CodigoEstudiante }
                 }
             ],
         })
         res.json({
             ok: true,
             cursosCalificacion
-          });    } catch (error) {
+        });
+    } catch (error) {
         console.error(error)
         res.status(500).json({ error: 'Ha ocurrido un error al procesar la solicitud' })
     }
 }
 
-const crearCursoCalificacion = async (req,res) => {
+const crearCursoCalificacion = async (req, res) => {
     try {
         await sequelize.transaction(async (t) => {
             const cursoCalificacion = await CursoCalificacion.create(req.body, { transaction: t })
@@ -104,21 +74,21 @@ const crearCursoCalificacion = async (req,res) => {
 
             for (let unidad of unidadesGeneradas) {
                 const totalSemanas = (unidad.Codigo.charAt(0) === '4') ? 6 : 4;
-            
+
                 for (let semanaIndex = 1; semanaIndex <= totalSemanas; semanaIndex++) {
                     const codigoSemana = `${semanaGlobalIndex.toString().padStart(2, '0')}${unidad.Codigo}`;
                     const descripcionSemana = `Semana ${semanaGlobalIndex.toString().padStart(2, '0')}`;
-            
+
                     await SemanaAcademica.create({
                         Codigo: codigoSemana,
                         Descripcion: descripcionSemana,
                         CodigoUnidadAcademica: unidad.Codigo
                     }, { transaction: t });
-            
+
                     semanaGlobalIndex++;
                 }
             }
-            
+
 
             return res.json({
                 mensaje: 'Curso a calificar creado',
@@ -134,31 +104,31 @@ const crearCursoCalificacion = async (req,res) => {
 
 const editarCursoCalificacion = async (req, res) => {
     try {
-      const curso = await CursoCalificacion.update(
-        {
-          Competencia: req.body.competencia,
-          Capacidad: req.body.capacidad,
-          RutaSyllabus: req.body.rutaSyllabus,
-          RutaNormas: req.body.rutaNormas,
-          RutaPresentacionCurso: req.body.rutaPresentacionCurso,
-          RutaPresentacionDocente: req.body.rutaPresentacionDocente,
-        },
-        {
-          where: {
-            Codigo: req.body.codigo,
-          },
-        }
-      );
-      res.json({
-        Estado: "Actualizado con éxito",
-        curso,
-      });
+        const curso = await CursoCalificacion.update(
+            {
+                Competencia: req.body.competencia,
+                Capacidad: req.body.capacidad,
+                RutaSyllabus: req.body.rutaSyllabus,
+                RutaNormas: req.body.rutaNormas,
+                RutaPresentacionCurso: req.body.rutaPresentacionCurso,
+                RutaPresentacionDocente: req.body.rutaPresentacionDocente,
+            },
+            {
+                where: {
+                    Codigo: req.body.codigo,
+                },
+            }
+        );
+        res.json({
+            Estado: "Actualizado con éxito",
+            curso,
+        });
     } catch (error) {
-      res.json({
-        Estado: "Error al Actualizar, " + error,
-      });
+        res.json({
+            Estado: "Error al Actualizar, " + error,
+        });
     }
-  };
+};
 
 // const crearCursoCalificacion = async (req, res) => {
 //     try {
@@ -358,7 +328,7 @@ const getMatriculados = async (req, res) => {
     try {
         const matriculados = await Matricula.findAll({
             where: { CodigoCursoCalificacion: req.query.codigoCursoCalificacion },
-            attributes: { exclude: ['FechaMatricula', 'NotaFinal', 'Observacion','Nota1','Nota2','Nota3','Nota4','NotaRecuperacion','NotaAplazado'] },           
+            attributes: { exclude: ['FechaMatricula', 'NotaFinal', 'Observacion', 'Nota1', 'Nota2', 'Nota3', 'Nota4', 'NotaRecuperacion', 'NotaAplazado'] },
             include: [
                 {
                     model: Estudiante,
@@ -380,7 +350,7 @@ const getMatriculados = async (req, res) => {
         res.json({ matriculados })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ message: 'Error al obtener la lista de matriculados',error })
+        res.status(500).json({ message: 'Error al obtener la lista de matriculados', error })
     }
 }
 

@@ -1,8 +1,4 @@
-const Actividad = require("../models/actividad.model")
-const Sesion = require("../models/sesion.model")
-
-Sesion.hasMany(Actividad, { foreignKey: 'CodigoSesion' })
-Actividad.belongsTo(Sesion, { foreignKey: 'CodigoSesion' })
+const { Actividad } = require("../config/relations")
 
 const getActividades = async (req, res) => {
     try {

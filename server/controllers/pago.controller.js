@@ -1,18 +1,5 @@
 const { response } = require("express");
-const ConceptoPago = require("../models/conceptoPago.model");
-const Pago = require("../models/pago.model");
-const Estudiante = require("../models/estudiante.model");
-const { json } = require("sequelize");
-const Persona = require("../models/persona.model");
-
-ConceptoPago.hasMany(Pago, { foreignKey: "CodigoConceptoPago" });
-Pago.belongsTo(ConceptoPago, { foreignKey: "CodigoConceptoPago" });
-
-Estudiante.hasMany(Pago, { foreignKey: "CodigoEstudiante" });
-Pago.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" });
-
-Persona.hasOne(Estudiante, { foreignKey: "CodigoPersona" });
-Estudiante.belongsTo(Persona, { foreignKey: "CodigoPersona" });
+const {ConceptoPago, Pago, Estudiante, Persona} = require("../config/relations");
 
 const getConceptos = async (req, res = response) => {
   try {

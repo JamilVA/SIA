@@ -1,14 +1,5 @@
-const Asistencia = require("../models/asistencia.model")
-const Estudiante = require("../models/estudiante.model")
-const Sesion = require("../models/sesion.model")
+const {Asistencia, Matricula} = require("../config/relations")
 const { sequelize } = require("../config/database");
-const Matricula = require("../models/matricula.model");
-
-Estudiante.hasMany(Asistencia, {foreignKey: 'CodigoEstudiante'})
-Asistencia.belongsTo(Estudiante, {foreignKey: 'CodigoEstudiante'})
-
-Sesion.hasMany(Asistencia, {foreignKey: 'CodigoSesion'})
-Asistencia.belongsTo(Sesion, {foreignKey: 'CodigoSesion'})
 
 const generarAsistencias = async (req, res) => {
     try {
