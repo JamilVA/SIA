@@ -14,11 +14,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Calendar } from 'primereact/calendar';
 
 import axios from 'axios';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function ActividadesPage() {
 
-    let codigoSesion = '1014P3203252'
+    const searchParamas = useSearchParams();
+    const codigoSesion = searchParamas.get('codigo');
+
+    console.log('Codigo Recibido:', codigoSesion);
 
     let emptyActividad = {
         Codigo: 0,
@@ -241,54 +246,13 @@ export default function ActividadesPage() {
         );
     };
 
-    const fileBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <FileUpload
-                    chooseOptions={{ icon: 'pi pi-upload', iconOnly: true, className: 'p-2' }}
-                    mode="basic"
-                    accept=".pdf"
-                    maxFileSize={5000000}
-                    customUpload
-                    uploadHandler={(e) => handleUpload(e, rowData)}
-                />
-            </>
-        );
-    };
-
-    const aperturaBodyTemplate = (rowData: any) => {
-        return <span>{formatDate(new Date(rowData.FechaApertura))}</span>
-    }
-
-    const cierreBodyTemplate = (rowData: any) => {
-        return <span>{formatDate(new Date(rowData.FechaCierre))}</span>
-    }
-
-    const actionBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editActividad(rowData)} />
-                <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteActividad(rowData)} />
-            </>
-        );
-    };
-
-    const header = (
-        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Actividades de la sesión</h5>
-            {/* <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Search..." />
-            </span> */}
-        </div>
-    );
-
     const productDialogFooter = (
         <>
             <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
             <Button label="Save" icon="pi pi-check" text onClick={saveActividad} />
         </>
     );
+
     const deleteProductDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideDeleteProductDialog} />
@@ -322,8 +286,11 @@ export default function ActividadesPage() {
                             />
                         </div>
                         <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
-                            <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editActividad(actividad)} />
+                            <Button icon="pi pi-pencil" rounded severity="success" onClick={() => editActividad(actividad)} />
                             <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteActividad(actividad)} />
+                            <Link href={`/docente/cursos/actividades/calificar?codigoActividad=${actividad.Codigo}`}>
+                                <Button className='px-2 py-1' rounded severity="info" tooltip="">Calificar</Button>
+                            </Link>
                         </div>
                     </div>
                 </div>

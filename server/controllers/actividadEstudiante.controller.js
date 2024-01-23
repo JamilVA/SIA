@@ -1,4 +1,8 @@
-const {Actividad, Sesion, ActividadEstudiante, Estudiante} = require("../config/relations")
+const Actividad = require("../models/actividad.model")
+const Sesion = require("../models/sesion.model")
+
+Sesion.hasMany(Actividad, { foreignKey: 'CodigoSesion' })
+Actividad.belongsTo(Sesion, { foreignKey: 'CodigoSesion' })
 
 const getActividades = async (req, res) => {
     try {
@@ -65,30 +69,11 @@ const eliminarActividad = async (req, res) => {
     }
 }
 
-const calificarActividad = async (req, res) => {
-    try {
-        await ActividadEstudiante.update({
-            Nota: req.body.Nota,
-            Observacion: req.body.Observacion
-        }, {
-            where: { 
-                CodigoActividad: req.body.CodigoActividad,
-                CodigoEstudiante: req.body.CodigoEstudiante
-            }
-        })
-        res.json({ message: 'Actividad calificada correctamente' })
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: 'Error al guardar la calificación de la actividad' })
-    }
-}
-
 module.exports = {
     getActividades,
     crearActividad,
     actualizarActividad,
     eliminarActividad,
-    actualizarRutaRecursoGuia,
-    calificarActividad
+    actualizarRutaRecursoGuia
 }
 

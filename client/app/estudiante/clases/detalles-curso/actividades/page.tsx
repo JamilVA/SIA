@@ -1,0 +1,247 @@
+/* eslint-disable @next/next/no-img-element */
+'use client';
+import { Button } from 'primereact/button';
+import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
+import { Dialog } from 'primereact/dialog';
+import { DataView } from 'primereact/dataview';
+import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
+import { InputText } from 'primereact/inputtext';
+import { Toast } from 'primereact/toast';
+import { Toolbar } from 'primereact/toolbar';
+import { classNames } from 'primereact/utils';
+import React, { useEffect, useRef, useState } from 'react';
+import { Calendar } from 'primereact/calendar';
+
+import { useSearchParams } from 'next/navigation';
+
+import axios from 'axios';
+
+/* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
+export default function ActividadesPage() {
+    const searchParamas = useSearchParams();
+    const codigoSesion = searchParamas.get('codigo');
+
+    console.log('Codigo Recibido:', codigoSesion);
+
+    let emptyActividad = {
+        Codigo: 0,
+        Titulo: '',
+        RutaRecursoGuia: '',
+        FechaApertura: new Date().toISOString(),
+        FechaCierre: new Date().toISOString(),
+        CodigoSesion: codigoSesion
+    };
+
+    const [actividades, setActividades] = useState<Array<any>>([]);
+    const [actividad, setActividad] = useState(emptyActividad);
+    const [submitted, setSubmitted] = useState(false);
+    const [modificar, setModificar] = useState(false);
+    const toast = useRef<Toast>(null);
+    const dt = useRef<DataTable<any>>(null);
+
+    const fetchActividades = async () => {
+        await axios
+            .get('http://localhost:3001/api/actividad', {
+                params: { codigoSesion: codigoSesion }
+            })
+            .then((response) => {
+                setActividades(response.data.actividades);
+            })
+            .catch((error) => {
+                console.error(error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.message,
+                    life: 3000
+                });
+            });
+    };
+
+    useEffect(() => {
+        fetchActividades();
+    }, []);
+
+
+    const saveActividad = async () => {
+        setSubmitted(true);
+
+        if (actividad.Titulo.length === 0) {
+            return;
+        }
+
+        if (!modificar) {
+            crearActividad();
+        } else {
+            modificarActividad(actividad);
+        }
+
+        setActividad(emptyActividad);
+    };
+
+    const crearActividad = async () => {
+        await axios
+            .post('http://localhost:3001/api/actividad', actividad)
+            .then((response) => {
+                let _actividades = actividades;
+                _actividades.push(response.data.actividad);
+                setActividades(_actividades);
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Successful',
+                    detail: response.data.message,
+                    life: 3000
+                });
+            })
+            .catch((error) => {
+                console.error(error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.message,
+                    life: 3000
+                });
+            });
+    };
+
+    const modificarActividad = async (actividad: any) => {
+        await axios
+            .put('http://localhost:3001/api/actividad', actividad)
+            .then((response) => {
+                let _actividades = actividades.map((value) => {
+                    if (value.Codigo === actividad.Codigo) {
+                        return actividad;
+                    }
+                    return value;
+                });
+                setActividades(_actividades);
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Successful',
+                    detail: response.data.message,
+                    life: 3000
+                });
+            })
+            .catch((error) => {
+                console.error(error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.message,
+                    life: 3000
+                });
+            });
+    };
+
+    const handleUpload = async (event: FileUploadFilesEvent, rowData: any) => {
+        const file = event.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        await axios
+            .post('http://localhost:3001/api/files/upload', formData)
+            .then((response) => {
+                console.log(response.data.path);
+                let _actividad = { ...rowData, RutaRecursoGuia: response.data.filename };
+                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
+                modificarActividad(_actividad);
+                setActividad(emptyActividad);
+            })
+            .catch((error) => {
+                console.error(error);
+                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Error de petición' });
+            });
+    };
+
+    const descargarArchivo = async (ruta: string) => {
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download',{
+                params:{ fileName: ruta }
+            });
+
+            console.log(response)
+    
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    
+            // Crear un objeto URL del blob
+            const url = window.URL.createObjectURL(blob);
+    
+            // Crear un enlace temporal
+            const link = document.createElement('a');
+            link.href = url;
+    
+            // Establecer el nombre del archivo
+            link.download = ruta;
+    
+            // Simular un clic en el enlace para iniciar la descarga
+            document.body.appendChild(link);
+            link.click();
+    
+            // Limpiar el enlace después de la descarga
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al descargar el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de descarga de archivo',
+                life: 3000
+            });
+        }
+    };
+    const formatDate = (value: Date) => {
+        return value.toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    };
+
+
+
+    const itemTemplate = (actividad: any) => {
+        return (
+            <div className="col-12">
+                <div className="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4">
+                    <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
+                        <div className="flex flex-column align-items-center sm:align-items-start gap-3">
+                            <h3 className="font-bold text-primary">{actividad.Titulo}</h3>
+                            <Button icon="pi pi-download" label='Descargar archivo guía' severity="success"  className="mr-2" onClick={() => descargarArchivo(actividad.RutaRecursoGuia)} />
+                            <div className="flex align-items-center gap-3">
+                                
+                                <span className="flex align-items-center gap-2">
+                                    <i className="pi pi-clock mr-2"></i>
+                                    <span className="font-semibold">
+                                        <strong>Apertura: </strong>
+                                        {formatDate(new Date(actividad.FechaApertura))}
+                                    </span>
+                                    <span className="font-semibold">
+                                        <strong>Cierre: </strong>
+                                        {formatDate(new Date(actividad.FechaCierre))}
+                                    </span>
+                                </span>
+                            </div>
+                            <div className="card">
+                                <h6>Subir Actividad:</h6>
+                                <FileUpload name="demo[]" url={'/api/upload'} multiple accept="image/*" maxFileSize={1000000} uploadHandler={(e) => handleUpload(e, actividad)} emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="card">
+            <Toast ref={toast} />
+            <h3>Lista de Actividades</h3>
+            <DataView value={actividades} itemTemplate={itemTemplate} />
+        </div>
+    );
+}
