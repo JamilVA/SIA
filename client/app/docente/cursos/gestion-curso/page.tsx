@@ -80,6 +80,7 @@ export default function Curso() {
     const [unidades, setUnidades] = useState<(typeof unidadVacia)[]>([]);
 
     const [submitted, setSubmitted] = useState(false);
+    const [modified, setModified] = useState(false);
     const [sesionDialog, setSesionDialog] = useState(false);
     const [cursoCDialog, setCursoCDialog] = useState(false);
 
@@ -108,22 +109,35 @@ export default function Curso() {
 
     const saveSesion = () => {
         let _sesion = { ...sesion };
-        console.log('Sesion recibida para crear', _sesion);
 
-        axios
-            .post('http://localhost:3001/api/sesion', {
-                codigo: _sesion.Codigo,
-                numero: _sesion.Numero,
-                descripcion: _sesion.Descripcion,
-                codigoSemanaAcademica: _sesion.CodigoSemanaAcademica
-            })
-            .then((response) => {
-                console.log(response.data);
-                toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion creada con éxito', life: 3000 });
-                cargarDatos();
-            });
-        setSesionDialog(false);
-        setSesion(sesionVacia);
+        if (modified) {
+            axios
+                .put('http://localhost:3001/api/sesion', {
+                    codigo: _sesion.Codigo,
+                    descripcion: _sesion.Descripcion,
+                })
+                .then((response) => {
+                    console.log(response.data);
+                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion modificada con éxito', life: 3000 });
+                    cargarDatos();
+                });
+            setSesionDialog(false);
+            setSesion(sesionVacia);
+        } else {
+            axios
+                .post('http://localhost:3001/api/sesion', {
+                    codigo: _sesion.Codigo,
+                    numero: _sesion.Numero,
+                    descripcion: _sesion.Descripcion,
+                    codigoSemanaAcademica: _sesion.CodigoSemanaAcademica
+                })
+                .then((response) => {
+                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion creada con éxito', life: 3000 });
+                    cargarDatos();
+                });
+            setSesionDialog(false);
+            setSesion(sesionVacia);
+        }
     };
 
     const saveCurso = () => {
@@ -157,7 +171,7 @@ export default function Curso() {
         } else {
             let _sesion = sesionVacia;
             _sesion[`Codigo`] = cantidadSesionesSemana + 1 + rowData.Codigo;
-            _sesion[`Numero`] = String(cantidadSesionesSemana + 1 + (parseInt(rowData.Codigo.slice(0, 2)) - 1) * 20);
+            _sesion[`Numero`] = String(cantidadSesionesSemana + 1 + (parseInt(rowData.Codigo.slice(0, 2)) - 1) * 2);
             _sesion[`CodigoSemanaAcademica`] = rowData.Codigo;
             setSesion(_sesion);
             console.log('Sesion:', _sesion);
@@ -176,6 +190,7 @@ export default function Curso() {
         };
 
         setSesion(tempSesion);
+        setModified(true)
         setSesionDialog(true);
     };
 

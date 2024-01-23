@@ -61,7 +61,7 @@ const Page = () => {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <>
-                <Link href={`/estudiante/clases/detalles-curso?codigo=${rowData.Codigo}`}>
+                <Link href={`/estudiante/clases/detalles-curso?codigoS=${rowData.Codigo}&codigoE=${usuario.Codigo}`}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">
                         Ver
                     </Button>

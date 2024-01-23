@@ -31,19 +31,27 @@ const subir = async (req, res) => {
 }
 
 const descargar = async (req, res) => {
-    const filePath = join(__dirname, '../uploads/', req.query.fileName)
+    const fileName = req.query.fileName;
+
+    if (!fileName) {
+        return res.status(400).json({ message: 'El nombre del archivo no está especificado en la consulta.' });
+    }
+
+    const filePath = join(__dirname, '../uploads/', fileName);
+
     try {
-        console.log(filePath)
+        console.log(filePath);
         if (fs.existsSync(filePath)) {
-            res.download(filePath)
+            res.download(filePath, fileName);
         } else {
-            res.json({ message: 'El archivo no existe' })
+            res.json({ message: 'El archivo no existe' });
         }
     } catch (error) {
-        console.error(error)
-        res.status(500).json({ message: 'Error en el servidor' })
+        console.error(error);
+        res.status(500).json({ message: 'Error en el servidor' });
     }
-}
+};
+
 
 module.exports = { subir, descargar }
 

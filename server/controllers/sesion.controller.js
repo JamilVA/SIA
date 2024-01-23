@@ -33,6 +33,9 @@ Sesion.belongsTo(SemanaAcademica, { foreignKey: "CodigoSemanaAcademica" });
 Sesion.hasMany(Asistencia, { foreignKey: "CodigoSesion" });
 Asistencia.belongsTo(Sesion, { foreignKey: "CodigoSesion" });
 
+Estudiante.hasMany(Asistencia, { foreignKey: "CodigoEstudiante" });
+Asistencia.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" });
+
 const getSesionesDocente = async (req, res) => {
   try {
     const { CodigoCursoCalificacion } = req.query;
@@ -101,7 +104,7 @@ const getSesionesDocente = async (req, res) => {
 
 const getSesionesEstudiante = async (req, res) => {
   try {
-    const { CodigoCursoCalificacion } = req.query;
+    const { CodigoCursoCalificacion, CodigoEstudiante } = req.query;
 
     const curso = await CursoCalificacion.findOne({
       attributes: {
@@ -148,6 +151,16 @@ const getSesionesEstudiante = async (req, res) => {
       where: Sequelize.literal(
         `RIGHT(Sesion.Codigo, 8) = '${CodigoCursoCalificacion}'`
       ),
+      include: [
+        {
+          model: Asistencia,
+          attributes: ['Estado'],
+          where: {
+            CodigoEstudiante: CodigoEstudiante,
+          },
+          required: false, // Hacer la inclusión como un LEFT JOIN
+        },
+      ],
 
     });
 
@@ -193,9 +206,8 @@ const crearSesion = async (req, res) => {
 
 const actualizarSesion = async (req, res) => {
   try {
-    const sesion = await Sesion.create(
+    const sesion = await Sesion.update(
       {
-        Numero: req.body.numero,
         Descripcion: req.body.descripcion,
         EstadoAsistencia: req.body.estadoAsistencia,
         LinkClaseVirtual: req.body.linkClaseVirtual,
@@ -204,7 +216,7 @@ const actualizarSesion = async (req, res) => {
         HoraFin: req.body.horaFin,
       },
       {
-        where: { Codigo: req.body.codigoSesion },
+        where: { Codigo: req.body.codigo},
       }
     );
 

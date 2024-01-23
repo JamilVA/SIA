@@ -6,12 +6,19 @@ RecursoAcademico.belongsTo(Sesion, { foreignKey: 'CodigoSesion' })
 
 const getRecursosAcademicos = async (req, res) => {
     try {
-        const recursoAcademicos = await RecursoAcademico.findAll({
+        const recursosAcademicos = await RecursoAcademico.findAll({
+            include:{model:Sesion},
             where: {
                 CodigoSesion: req.query.codigoSesion
             }
         })
-        res.json({ recursoAcademicos })
+
+        const sesion = await Sesion.findOne({
+            where: {
+                Codigo: req.query.codigoSesion
+            }
+        })
+        res.json({ recursosAcademicos,sesion})
     } catch (error) {
         console.error(error)
         res.status(500).json({ error: 'Error al cargar la lista de recursos académicos' })
@@ -33,9 +40,9 @@ const crearRecursoAcademico = async (req, res) => {
 
 const actualizarRecursoAcademico = async (req, res) => {
     try {
-        let newData = req.body
-        await RecursoAcademico.update(newData, {
-            where: { Codigo: newData.Codigo }
+        let recursoAcademico = req.body
+        await RecursoAcademico.update(recursoAcademico, {
+            where: { Codigo: recursoAcademico.Codigo }
         })
         res.json({message: 'Recurso Académico actualizado correctamente'})
     } catch (error) {
