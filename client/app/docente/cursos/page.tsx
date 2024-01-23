@@ -52,13 +52,9 @@ const Page = () => {
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">Ver</Button>
                 </Link>
 
-
-                <Button rounded severity="info" className="mr-2">
-                    Calificar
-                </Button>
-
-                <Button icon="pi pi-clock" rounded severity="warning" tooltip='Gestionar horario' className="mr-2"/>
-
+                <Link href={`/docente/cursos/calificaciones?codigo=${rowData.CodCurso}`}>
+                    <Button icon="" rounded severity="info" tooltip="" className="mr-2">Calificar</Button>
+                </Link>
             </>
         );
     };
