@@ -1,5 +1,4 @@
-const { response } = require('express')
-const Periodo = require('../models/periodo.model')
+const { Periodo } = require('../config/relations')
 
 const getPeriodo = async (req, res) => {
     try {
@@ -50,12 +49,12 @@ const editarPeriodo = async (req, res) => {
         const periodo = await Periodo.findByPk(req.body.codigo)
 
         periodo.Denominacion = req.body.denominacion,
-        periodo.FechaInicio = req.body.fechaInicio,
-        periodo.FechaFin = req.body.fechaFin,
-        periodo.InicioMatricula = req.body.inicioMatricula,
-        periodo.FinMatricula = req.body.finMatricula,
+            periodo.FechaInicio = req.body.fechaInicio,
+            periodo.FechaFin = req.body.fechaFin,
+            periodo.InicioMatricula = req.body.inicioMatricula,
+            periodo.FinMatricula = req.body.finMatricula,
 
-        await periodo.save()
+            await periodo.save()
 
         res.json({
             message: "Datos del periodo académico editados exitosamente",
@@ -63,7 +62,7 @@ const editarPeriodo = async (req, res) => {
         })
     } catch (error) {
         console.error(error)
-        res.status(500).json({error: 'Error al editar los datos del perido académico'})
+        res.status(500).json({ error: 'Error al editar los datos del perido académico' })
     }
 }
 
@@ -81,12 +80,12 @@ const eliminarPeriodo = async (req, res) => {
         })
         .catch(error => {
             console.log(error)
-            res.status(500).json({error: 'Ha ocurrido un error al eliminar el perido académico'})
+            res.status(500).json({ error: 'Ha ocurrido un error al eliminar el perido académico' })
         })
 }
 
 const finalizarPeriodo = async (req, res) => {
-    try {       
+    try {
         await Periodo.update({
             Estado: false
         }, {
