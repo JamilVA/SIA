@@ -1,25 +1,37 @@
-const { Actividad } = require("../config/relations")
+const Actividad = require("../models/actividad.model")
+const Matricula = require("../models/matricula.model")
+const ActividadEstudiante = require("../models/actividadEstudiante.model")
 
-const getActividades = async (req, res) => {
+Actividad.hasMany(ActividadEstudiante, { foreignKey: 'CodigoActividad' })
+ActividadEstudiante.belongsTo(Actividad, { foreignKey: 'CodigoActividad' })
+
+Matricula.hasMany(ActividadEstudiante, { foreignKey: 'CodigoEstudiante' })
+ActividadEstudiante.belongsTo(Matricula, { foreignKey: 'CodigoEstudiante' })
+
+const getRecursoSubido = async (req, res) => {
     try {
-        const actividades = await Actividad.findAll({
+        console.log(req.query)
+        const actividadEstudiante = await ActividadEstudiante.findOne({
             where: {
-                CodigoSesion: req.query.codigoSesion
-            }
+                CodigoEstudiante: req.query.codigoEstudiante,
+                CodigoActividad: req.query.codigoActividad,
+            },
+            attributes: {exclude:['id']}
+            
         })
-        res.json({ actividades })
+        res.json({ actividadEstudiante })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ error: 'Error al cargar la lista de actividades' })
+        res.status(500).json({ error: 'Error al cargar el recurso subido' })
     }
 }
 
-const crearActividad = async (req, res) => {
+const crearActividadEstudiante = async (req, res) => {
     try {
-        const actividad = await Actividad.create(req.body)
+        const actividad = await ActividadEstudiante.create(req.body)
         res.json({ 
             actividad: actividad,
-            message: 'Actividad creada correctamente' 
+            message: 'ActividadEstudiante creada correctamente' 
         })
     } catch (error) {
         console.error(error)
@@ -27,13 +39,13 @@ const crearActividad = async (req, res) => {
     }
 }
 
-const actualizarActividad = async (req, res) => {
+const actualizarActividadEstudiante = async (req, res) => {
     try {
         let newData = req.body
-        await Actividad.update(newData, {
+        await ActividadEstudiante.update(newData, {
             where: { Codigo: newData.Codigo }
         })
-        res.json({message: 'Actividad actualizada correctamente'})
+        res.json({message: 'ActividadEstudiante actualizada correctamente'})
     } catch (error) {
         console.error(error)
         res.status(500).json({error: 'Error al actualizar la actividad'})
@@ -43,7 +55,7 @@ const actualizarActividad = async (req, res) => {
 const actualizarRutaRecursoGuia = async (req, res) => {
     try {
         let path = req.body.ruta
-        await Actividad.update({RutaRecursoGuia: path}, {
+        await ActividadEstudiante.update({RutaRecursoGuia: path}, {
             where: { Codigo: req.query.codigo }
         })
         res.json({message: 'Ruta de archivo actualizada correctamente'})
@@ -53,12 +65,12 @@ const actualizarRutaRecursoGuia = async (req, res) => {
     }
 }
 
-const eliminarActividad = async (req, res) => {
+const eliminarActividadEstudiante = async (req, res) => {
     try {
-        await Actividad.destroy({
+        await ActividadEstudiante.destroy({
             where: { Codigo: req.query.codigo }
         })
-        res.json({message: 'Actividad eliminada correctamente'})
+        res.json({message: 'ActividadEstudiante eliminada correctamente'})
     } catch (error) {
         console.error(error)
         res.status(500).json({error: 'Error al eliminar la actividad'})
@@ -66,10 +78,10 @@ const eliminarActividad = async (req, res) => {
 }
 
 module.exports = {
-    getActividades,
-    crearActividad,
-    actualizarActividad,
-    eliminarActividad,
+    getRecursoSubido,
+    crearActividadEstudiante,
+    actualizarActividadEstudiante,
+    eliminarActividadEstudiante,
     actualizarRutaRecursoGuia
 }
 

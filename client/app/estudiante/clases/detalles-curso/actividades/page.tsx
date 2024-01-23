@@ -24,6 +24,12 @@ export default function ActividadesPage() {
 
     console.log('Codigo Recibido:', codigoSesion);
 
+    const actividadEstudianteVacio = {
+        Nota: 0,
+        Observacion:'',
+        RutaTarea:''
+    }
+
     let emptyActividad = {
         Codigo: 0,
         Titulo: '',
@@ -33,8 +39,10 @@ export default function ActividadesPage() {
         CodigoSesion: codigoSesion
     };
 
-    const [actividades, setActividades] = useState<Array<any>>([]);
-    const [actividad, setActividad] = useState(emptyActividad);
+    const [actividades, setActividades] = useState<(typeof emptyActividad)[]>([]);
+    const [actividadEstudiante, setActividadEstudiante] = useState(actividadEstudianteVacio);
+    const [archivo, setArchivo] = useState<FileUploadFilesEvent | null>(null);
+
     const [submitted, setSubmitted] = useState(false);
     const [modificar, setModificar] = useState(false);
     const toast = useRef<Toast>(null);
@@ -42,10 +50,14 @@ export default function ActividadesPage() {
 
     const fetchActividades = async () => {
         await axios
-            .get('http://localhost:3001/api/actividad', {
-                params: { codigoSesion: codigoSesion }
+            .get('http://localhost:3001/api/actividad/estudiante', {
+                params: { 
+                    codigoSesion: codigoSesion ,
+                    codigoEstudiante: 11 ,
+                }
             })
             .then((response) => {
+                console.log(response);
                 setActividades(response.data.actividades);
             })
             .catch((error) => {
@@ -57,101 +69,47 @@ export default function ActividadesPage() {
                     life: 3000
                 });
             });
+
+
+    };
+
+    const obtenerActividadEstudiante = async () => {
+        for (const actividad of actividades) {
+            console.log('Hola')
+            try {
+                console.log('Hola') 
+                const holiholi = await axios.get('http://localhost:3001/api/actividadEstudiante', {
+                    params: {
+                        codigoActividad: actividad.Codigo,
+                        codigoEstudiante: 11
+                    }
+                });
+                console.log('Recurso:', holiholi);  
+
+            } catch (error) {
+                console.error(error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se a cargado el archivo correctamente',
+                    life: 3000
+                });
+            }
+        }
     };
 
     useEffect(() => {
         fetchActividades();
+        obtenerActividadEstudiante();
+
     }, []);
 
+    
 
-    const saveActividad = async () => {
-        setSubmitted(true);
-
-        if (actividad.Titulo.length === 0) {
-            return;
-        }
-
-        if (!modificar) {
-            crearActividad();
-        } else {
-            modificarActividad(actividad);
-        }
-
-        setActividad(emptyActividad);
-    };
-
-    const crearActividad = async () => {
-        await axios
-            .post('http://localhost:3001/api/actividad', actividad)
-            .then((response) => {
-                let _actividades = actividades;
-                _actividades.push(response.data.actividad);
-                setActividades(_actividades);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                console.error(error);
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message,
-                    life: 3000
-                });
-            });
-    };
-
-    const modificarActividad = async (actividad: any) => {
-        await axios
-            .put('http://localhost:3001/api/actividad', actividad)
-            .then((response) => {
-                let _actividades = actividades.map((value) => {
-                    if (value.Codigo === actividad.Codigo) {
-                        return actividad;
-                    }
-                    return value;
-                });
-                setActividades(_actividades);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                console.error(error);
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message,
-                    life: 3000
-                });
-            });
-    };
-
-    const handleUpload = async (event: FileUploadFilesEvent, rowData: any) => {
-        const file = event.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-        await axios
-            .post('http://localhost:3001/api/files/upload', formData)
-            .then((response) => {
-                console.log(response.data.path);
-                let _actividad = { ...rowData, RutaRecursoGuia: response.data.filename };
-                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
-                modificarActividad(_actividad);
-                setActividad(emptyActividad);
-            })
-            .catch((error) => {
-                console.error(error);
-                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Error de petición' });
-            });
-    };
+    const handleUpload = (event: FileUploadFilesEvent, rowData: typeof actividadEstudianteVacio) =>{
+        setArchivo(event)
+        setActividadEstudiante(rowData)
+    }
 
     const descargarArchivo = async (ruta: string) => {
         try {
@@ -190,6 +148,8 @@ export default function ActividadesPage() {
             });
         }
     };
+
+
     const formatDate = (value: Date) => {
         return value.toLocaleDateString('es-PE', {
             day: '2-digit',
@@ -201,8 +161,6 @@ export default function ActividadesPage() {
         });
     };
 
-
-
     const itemTemplate = (actividad: any) => {
         return (
             <div className="col-12">
@@ -210,9 +168,8 @@ export default function ActividadesPage() {
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
                         <div className="flex flex-column align-items-center sm:align-items-start gap-3">
                             <h3 className="font-bold text-primary">{actividad.Titulo}</h3>
-                            <Button icon="pi pi-download" label='Descargar archivo guía' severity="success"  className="mr-2" onClick={() => descargarArchivo(actividad.RutaRecursoGuia)} />
+                            <Button icon="pi pi-download" label="Descargar archivo guía" severity="success" className="mr-2" onClick={() => descargarArchivo(actividad.RutaRecursoGuia)} />
                             <div className="flex align-items-center gap-3">
-                                
                                 <span className="flex align-items-center gap-2">
                                     <i className="pi pi-clock mr-2"></i>
                                     <span className="font-semibold">
@@ -227,9 +184,16 @@ export default function ActividadesPage() {
                             </div>
                             <div className="card">
                                 <h6>Subir Actividad:</h6>
-                                <FileUpload name="demo[]" url={'/api/upload'} multiple accept="image/*" maxFileSize={1000000} uploadHandler={(e) => handleUpload(e, actividad)} emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
+                                <FileUpload
+                                    name="demo[]"
+                                    url={'/api/upload'}
+                                    multiple
+                                    accept="image/*"
+                                    maxFileSize={1000000}
+                                    uploadHandler={(e) => handleUpload(e, actividad)}
+                                    emptyTemplate={<p className="m-0">Arrastra y suelta archivos aquí para subirlos.</p>}
+                                />
                             </div>
-
                         </div>
                     </div>
                 </div>
