@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { buscarHorario, crearHorario, eliminarHorario, editarHorario } = require('../controllers/horario.controller');
+const { buscarHorario, crearHorario, eliminarHorario, editarHorario, getHorariosGenerales } = require('../controllers/horario.controller');
 
 const router = Router()
 
@@ -10,5 +10,7 @@ router.post('/', crearHorario)
 router.delete('/', eliminarHorario)
 
 router.put('/', editarHorario)
+
+router.get('/generales', getHorariosGenerales)
 
 module.exports = router

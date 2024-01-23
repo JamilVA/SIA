@@ -181,7 +181,7 @@ const page = () => {
                         value={registroMatricula}
                         dataKey="CodigoSunedu"
                         className="datatable-responsive"
-                        emptyMessage="No courses found."
+                        emptyMessage="Sin estudiantes."
                         responsiveLayout="scroll"
                     >
                         <Column field="CodigoSunedu" header="COD SUNEDU" />
