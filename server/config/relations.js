@@ -9,10 +9,15 @@ const Docente = require('../models/docente.model')
 const Matricula = require('../models/matricula.model')
 const Periodo = require('../models/periodo.model')
 const Persona = require('../models/persona.model')
-const UnidadAcemica = require('../models/unidadAcademica.model')
+const UnidadAcademica = require('../models/unidadAcademica.model')
 const SemanaAcademica = require('../models/semanaAcademica.model')
 const ConceptoPago = require("../models/conceptoPago.model");
 const Pago = require("../models/pago.model");
+const CarreraProfesional = require("../models/carreraProfesional.model");
+const Usuario = require('../models/usuario.model')
+const NivelUsuario = require('../models/nivelUsuario.model')
+const JefeDepartamento = require('../models/jefeDepartamento.model')
+const RecursoAcademico = require('../models/recursoAcademico.model')
 
 ConceptoPago.hasMany(Pago, { foreignKey: "CodigoConceptoPago" });
 Pago.belongsTo(ConceptoPago, { foreignKey: "CodigoConceptoPago" });
@@ -41,9 +46,6 @@ ActividadEstudiante.belongsTo(Estudiante, { foreignKey: 'CodigoEstudiante' })
 CursoCalificacion.belongsTo(Curso, { foreignKey: 'CodigoCurso' })
 Curso.hasOne(CursoCalificacion, { foreignKey: 'CodigoCurso' })
 
-Periodo.hasMany(CursoCalificacion, { foreignKey: 'CodigoPeriodo' })
-CursoCalificacion.belongsTo(Periodo, { foreignKey: 'CodigoPeriodo' })
-
 Docente.hasMany(CursoCalificacion, { foreignKey: 'CodigoDocente' })
 CursoCalificacion.belongsTo(Docente, { foreignKey: 'CodigoDocente' })
 
@@ -53,11 +55,59 @@ Matricula.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' }
 Estudiante.hasMany(Matricula, { foreignKey: 'CodigoEstudiante' })
 Matricula.belongsTo(Estudiante, { foreignKey: 'CodigoEstudiante' })
 
-CursoCalificacion.hasMany(UnidadAcemica, { foreignKey: 'CodigoCursoCalificacion' })
-UnidadAcemica.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
+CursoCalificacion.hasMany(UnidadAcademica, { foreignKey: 'CodigoCursoCalificacion' })
+UnidadAcademica.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
 
-UnidadAcemica.hasMany(SemanaAcademica, { foreignKey: 'CodigoUnidadAcademica' })
-SemanaAcademica.belongsTo(UnidadAcemica, { foreignKey: 'CodigoUnidadAcademica' })
+UnidadAcademica.hasMany(SemanaAcademica, { foreignKey: 'CodigoUnidadAcademica' })
+SemanaAcademica.belongsTo(UnidadAcademica, { foreignKey: 'CodigoUnidadAcademica' })
+
+CarreraProfesional.hasMany(Curso, { foreignKey: 'CodigoCarreraProfesional' })
+Curso.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' })
+
+Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
+Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
+
+Persona.hasOne(Docente, { foreignKey: "CodigoPersona" });
+Docente.belongsTo(Persona, { foreignKey: "CodigoPersona" });
+
+NivelUsuario.hasMany(Usuario, { foreignKey: "CodigoNivelUsuario" });
+Usuario.belongsTo(NivelUsuario, { foreignKey: "CodigoNivelUsuario" });
+
+JefeDepartamento.belongsTo(Persona, { foreignKey: "CodigoPersona" });
+Persona.hasOne(JefeDepartamento, { foreignKey: "CodigoPersona" });
+
+CarreraProfesional.hasMany(Curso, { foreignKey: 'CodigoCarreraProfesional' });
+Curso.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' });
+
+Periodo.hasMany(CursoCalificacion, { foreignKey: 'CodigoPeriodo' })
+CursoCalificacion.belongsTo(Periodo, { foreignKey: 'CodigoPeriodo' })
+
+CursoCalificacion.hasMany(Matricula, { foreignKey: "CodigoCursoCalificacion" })
+Matricula.belongsTo(CursoCalificacion, { foreignKey: "CodigoCursoCalificacion" })
+
+Estudiante.hasMany(Matricula, { foreignKey: "CodigoEstudiante" })
+Matricula.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" })
+
+Sesion.hasMany(RecursoAcademico, { foreignKey: 'CodigoSesion' })
+RecursoAcademico.belongsTo(Sesion, { foreignKey: 'CodigoSesion' })
+
+Curso.hasMany(CursoCalificacion, { foreignKey: "CodigoCurso" });
+CursoCalificacion.belongsTo(Curso, { foreignKey: "CodigoCurso" });
+
+CursoCalificacion.hasMany(UnidadAcademica, {foreignKey: "CodigoCursoCalificacion"});
+UnidadAcademica.belongsTo(CursoCalificacion, {foreignKey: "CodigoCursoCalificacion"});
+
+UnidadAcademica.hasMany(SemanaAcademica, {foreignKey: "CodigoUnidadAcademica"});
+SemanaAcademica.belongsTo(UnidadAcademica, {foreignKey: "CodigoUnidadAcademica"});
+
+SemanaAcademica.hasMany(Sesion, { foreignKey: "CodigoSemanaAcademica" });
+Sesion.belongsTo(SemanaAcademica, { foreignKey: "CodigoSemanaAcademica" });
+
+Sesion.hasMany(Asistencia, { foreignKey: "CodigoSesion" });
+Asistencia.belongsTo(Sesion, { foreignKey: "CodigoSesion" });
+
+Estudiante.hasMany(Asistencia, { foreignKey: "CodigoEstudiante" });
+Asistencia.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" });
 
 module.exports = {
     Actividad,
@@ -71,8 +121,11 @@ module.exports = {
     Matricula,
     Periodo,
     Persona,
-    UnidadAcemica,
+    UnidadAcademica,
     SemanaAcademica,
     Pago,
-    ConceptoPago
+    ConceptoPago,
+    CarreraProfesional,
+    JefeDepartamento,
+    RecursoAcademico,
 }

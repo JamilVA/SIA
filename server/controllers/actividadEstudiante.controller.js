@@ -1,12 +1,4 @@
-const Actividad = require("../models/actividad.model")
-const Matricula = require("../models/matricula.model")
-const ActividadEstudiante = require("../models/actividadEstudiante.model")
-
-Actividad.hasMany(ActividadEstudiante, { foreignKey: 'CodigoActividad' })
-ActividadEstudiante.belongsTo(Actividad, { foreignKey: 'CodigoActividad' })
-
-Matricula.hasMany(ActividadEstudiante, { foreignKey: 'CodigoEstudiante' })
-ActividadEstudiante.belongsTo(Matricula, { foreignKey: 'CodigoEstudiante' })
+const {Actividad, ActividadEstudiante, Estudiante} = require("../config/relations")
 
 const getRecursoSubido = async (req, res) => {
     try {

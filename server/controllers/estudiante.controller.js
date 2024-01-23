@@ -1,24 +1,6 @@
-const Estudiante = require("../models/estudiante.model");
-const Persona = require("../models/persona.model");
-const Usuario = require('../models/usuario.model')
-const NivelUsuario = require('../models/nivelUsuario.model')
-const CarreraProfesional = require("../models/carreraProfesional.model");
+const {Estudiante, Persona, Usuario, CarreraProfesional} = require("../config/relations")
 
-const { sequelize } = require("../config/database");
-const { QueryTypes, json } = require("sequelize");
 const bcrypt = require('bcryptjs');
-
-NivelUsuario.hasMany(Usuario, { foreignKey: "CodigoNivelUsuario" });
-Usuario.belongsTo(NivelUsuario, { foreignKey: "CodigoNivelUsuario" });
-
-Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
-Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-
-Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
-Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-
-Persona.hasOne(Estudiante, { foreignKey: "CodigoPersona" });
-Estudiante.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 
 Estudiante.belongsTo(CarreraProfesional, {
   foreignKey: "CodigoCarreraProfesional",

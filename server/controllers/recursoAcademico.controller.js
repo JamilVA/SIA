@@ -1,8 +1,4 @@
-const RecursoAcademico = require("../models/recursoAcademico.model")
-const Sesion = require("../models/sesion.model")
-
-Sesion.hasMany(RecursoAcademico, { foreignKey: 'CodigoSesion' })
-RecursoAcademico.belongsTo(Sesion, { foreignKey: 'CodigoSesion' })
+const {RecursoAcademico, Sesion} = require("../config/relations")
 
 const getRecursosAcademicos = async (req, res) => {
     try {

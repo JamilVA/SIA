@@ -1,16 +1,4 @@
-const Docente = require("../models/docente.model");
-const Persona = require("../models/persona.model");
-const Usuario = require("../models/usuario.model");
-const NivelUsuario = require("../models/nivelUsuario.model");
-
-NivelUsuario.hasMany(Usuario, { foreignKey: "CodigoNivelUsuario" });
-Usuario.belongsTo(NivelUsuario, { foreignKey: "CodigoNivelUsuario" });
-
-Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
-Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-
-Persona.hasOne(Docente, { foreignKey: "CodigoPersona" });
-Docente.belongsTo(Persona, { foreignKey: "CodigoPersona" });
+const {Docente, Persona, Usuario, Persona} = require("../config/relations")
 
 const getDocente = async (req, res) => {
   const docentes = await Docente.findAll({
