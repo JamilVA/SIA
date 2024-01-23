@@ -72,7 +72,7 @@ const desmarcarAsistencia = async (req, res) => {
                 CodigoEstudiante: req.query.codigoEstudiante
             }
         })
-        await consolidarAsistencia(req.body.codigoCurso, req.body.codigoEstudiante) 
+        await consolidarAsistencia(req.query.codigoCurso, req.query.codigoEstudiante)
         res.json({ message: 'Asistencia desmarcada correctamente' })
     } catch (error) {
         console.error(error)
@@ -90,7 +90,7 @@ const consolidarAsistencia = async (codigoCurso, codigoEstudiante) => {
         const porcentaje = asistencias.asistencias / data.sesiones * 100
         await Matricula.update({
             PorcentajeAsistencia: porcentaje,
-            Habilitado: porcentaje < 75 ? true : false
+            Habilitado: porcentaje < 75 ? false : true
         }, {
             where: { 
                 CodigoCursoCalificacion: codigoCurso,

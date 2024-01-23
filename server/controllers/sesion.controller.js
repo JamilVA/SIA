@@ -6,6 +6,9 @@ const UnidadAcademica = require("../models/unidadAcademica.model");
 const SemanaAcademica = require("../models/semanaAcademica.model");
 const Sesion = require("../models/sesion.model");
 const Asistencia = require("../models/asistencia.model");
+const ActividadEstudiante = require("../models/actividadEstudiante.model");
+const Estudiante = require("../models/estudiante.model");
+const Persona = require("../models/persona.model")
 
 Curso.hasMany(CursoCalificacion, { foreignKey: "CodigoCurso" });
 CursoCalificacion.belongsTo(Curso, { foreignKey: "CodigoCurso" });
@@ -263,6 +266,22 @@ const marcarSalidaDocente = async (req, res) => {
   }
 };
 
+const getActividadesCalificar = async (req, res) => {
+  try {
+    const actividades = await ActividadEstudiante.findAll({
+      where: {CodigoActividad: req.query.codigoActividad},
+      include: {
+        model: Estudiante,
+        include: Persona
+      }
+    })
+    res.json({ actividades: actividades });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener las actividades de la sesión" });
+  }
+}
+
 module.exports = {
   getSesionesDocente,
   getSesionesEstudiante,
@@ -271,4 +290,5 @@ module.exports = {
   eliminarSesion,
   marcarIngresoDocente,
   marcarSalidaDocente,
+  getActividadesCalificar
 };
