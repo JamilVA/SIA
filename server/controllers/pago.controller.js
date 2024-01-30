@@ -1,14 +1,10 @@
 const { response } = require("express");
-const {ConceptoPago, Pago, Estudiante, Persona} = require("../config/relations");
+const { ConceptoPago, Pago, Estudiante, Persona } = require("../config/relations");
 
 const getConceptos = async (req, res = response) => {
   try {
     const conceptos = await ConceptoPago.findAll();
-
-    res.json({
-      ok: true,
-      conceptos,
-    });
+    res.json({ conceptos });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error en la carga de conceptos de pago" });
@@ -40,16 +36,16 @@ const getPagosEstudiante = async (req, res) => {
           model: Estudiante,
           include: [
             {
-                model:Persona,
-                where:{Email}
+              model: Persona,
+              where: { Email }
             }
           ]
-        },{
-            model: ConceptoPago
+        }, {
+          model: ConceptoPago
         }
       ],
-      where:{EstadoPago : 'R'},
-      attributes :{exclude:['Fecha','NumeroComprobante']}
+      where: { EstadoPago: 'R' },
+      attributes: { exclude: ['Fecha', 'NumeroComprobante'] }
     });
 
     res.json({
@@ -62,22 +58,22 @@ const getPagosEstudiante = async (req, res) => {
 };
 
 const getPagosByStudent = async (req, res) => {
-    try {
-        const pagos = await Pago.findAll({
-            include: [{ all: true }],
-            where: {
-                CodigoEstudiante: req.body.codigo,
-            }
-        })
+  try {
+    const pagos = await Pago.findAll({
+      include: [{ all: true }],
+      where: {
+        CodigoEstudiante: req.body.codigo,
+      }
+    })
 
-        res.json({
-            ok: true,
-            pagos
-        })
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: 'Error en la carga de datos' })
-    }
+    res.json({
+      ok: true,
+      pagos
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Error en la carga de datos' })
+  }
 }
 
 async function numeroComprobante() {
@@ -107,54 +103,38 @@ async function numeroComprobante() {
 
 const crearPago = async (req, res) => {
   try {
-    const numeroComprob = (await numeroComprobante()).toString();
+    //const numeroComprob = (await numeroComprobante()).toString();
+    const data = req.body
     const pago = await Pago.create({
       Codigo: null,
-      NumeroComprobante: numeroComprob,
-      EstadoPago: "R",
-      Fecha: Date.now(),
-      CodigoEstudiante: req.body.CodigoEstudiante,
-      CodigoConceptoPago: req.body.CodigoConceptoPago,
-            CodigoConceptoPago: req.body.CodigoConceptoPago,
+      NroTransaccion: data.NroTransaccion,
+      Fecha: new Date(),
+      EstadoPago: "R",    
+      CodigoEstudiante: data.CodigoEstudiante,
+      CodigoConceptoPago: data.CodigoConceptoPago,
     });
 
     res.json({
-      mensaje: "El pago se ha registrado correctamente",
+      message: "El pago se ha registrado correctamente",
       pago,
     });
   } catch (error) {
     console.log("Ha ocurrido un error", error);
-    res
-      .status(500)
-      .json({ error: "Ha ocurrido un error al registrar el pago" });
+    if (error.name = "SequelizeUniqueConstraintError") {
+      return res.status(500).json({ error: "El número de transacción proporcionado ya ha sido registrado" });
+    }
+    return res.status(500).json({ error: "Ha ocurrido un error al registrar el pago" });
   }
 };
 
 const anularPago = async (req, res) => {
-    try {
-        let pago = await Pago.findByPk(req.body.codigo)
-
-        pago.EstadoPago = "A"
-
-        pago.save()
-
-        res.json({
-            mensaje: 'El pago ha sido anulado',
-            pago
-        })
-    } catch (error) {
-        console.log("Ha ocurrido un error", error)
-    }
-  try {
-    let pago = await Pago.findByPk(req.body.codigo);
-
-    pago.EstadoPago = "A";
-
-    pago.save();
+  try {   
+    await Pago.update({ EstadoPago: 'A' }, {
+      where: { Codigo: req.body.codigo }
+    })
 
     res.json({
-      mensaje: "El pago ha sido anulado",
-      pago,
+      message: "El pago ha sido anulado correctamente",
     });
   } catch (error) {
     console.log(error);
@@ -168,5 +148,5 @@ module.exports = {
   crearPago,
   anularPago,
   getConceptos,
-    getPagosByStudent,
+  getPagosByStudent,
 };
