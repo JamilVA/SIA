@@ -16,17 +16,21 @@ const getPeriodo = async (req, res) => {
     }
 }
 
-const crearPeriodo = async (req, res) => {
+const generarCodigo = (denominacion) => {
+    let semestre = denominacion.substring(5)   
+    if (semestre !== "0") {
+        semestre = semestre.length === 1 ? "1" : "2"
+    }
+    return denominacion.substring(2, 4).concat(semestre)
+}
 
+const crearPeriodo = async (req, res) => {
     try {
+        const data = req.body
         const periodo = await Periodo.create({
-            Codigo: req.body.codigo,
-            Denominacion: req.body.denominacion,
-            FechaInicio: req.body.fechaInicio,
-            FechaFin: req.body.fechaFin,
-            InicioMatricula: req.body.inicioMatricula,
-            FinMatricula: req.body.finMatricula,
-            Estado: 1
+            ...data,
+            Codigo: generarCodigo(data.Denominacion),
+            Estado: true
         })
 
         res.json({
@@ -36,7 +40,7 @@ const crearPeriodo = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        res.json({
+        res.status(500).json({
             error: 'Error al crear el periodo académico'
         })
     }
@@ -46,19 +50,12 @@ const crearPeriodo = async (req, res) => {
 const editarPeriodo = async (req, res) => {
 
     try {
-        const periodo = await Periodo.findByPk(req.body.codigo)
+        const newData = req.body
 
-        periodo.Denominacion = req.body.denominacion,
-            periodo.FechaInicio = req.body.fechaInicio,
-            periodo.FechaFin = req.body.fechaFin,
-            periodo.InicioMatricula = req.body.inicioMatricula,
-            periodo.FinMatricula = req.body.finMatricula,
-
-            await periodo.save()
+        await Periodo.update( newData, { where: { Codigo: newData.Codigo } })
 
         res.json({
-            message: "Datos del periodo académico editados exitosamente",
-            periodo
+            message: "Datos del periodo académico editados exitosamente",          
         })
     } catch (error) {
         console.error(error)
