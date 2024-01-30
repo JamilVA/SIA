@@ -15,7 +15,7 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function RegistrarPagoPage () {
+export default function RegistrarPagoPage() {
 
     const pagoVacio = {
         Codigo: 0,
@@ -145,7 +145,6 @@ export default function RegistrarPagoPage () {
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Import" className="mr-2 inline-block" />
                 <Button label="Export" icon="pi pi-upload" severity="help" onClick={exportCSV} />
             </React.Fragment>
         );
@@ -219,7 +218,7 @@ export default function RegistrarPagoPage () {
             EstadoPago: {
                 operator: FilterOperator.OR,
                 constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-            },       
+            },
         });
         setGlobalFilterValue('');
     };
@@ -268,13 +267,12 @@ export default function RegistrarPagoPage () {
             <h2>Gestión de Pagos</h2>
             <div>
                 <Toast ref={toast} />
-                <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
+                <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
 
                 <DataTable
+                    ref={dt}
                     value={pagos}
-                    paginator
-                    className="p-datatable-gridlines"
-                    showGridlines
+                    paginator                  
                     rows={10}
                     dataKey="Codigo"
                     filters={filters}
