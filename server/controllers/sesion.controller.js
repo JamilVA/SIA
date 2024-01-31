@@ -1,6 +1,6 @@
 const { Sequelize } = require("sequelize");
 
-const {Curso, CursoCalificacion, UnidadAcademica, SemanaAcademica, Sesion, Asistencia, ActividadEstudiante, Estudiante, Persona} = require("../config/relations")
+const {Curso, CursoCalificacion, UnidadAcademica, SemanaAcademica, Sesion, Asistencia, ActividadEstudiante, Estudiante, Persona, Horario, Periodo} = require("../config/relations")
 
 const getSesionesDocente = async (req, res) => {
   try {
@@ -28,6 +28,15 @@ const getSesionesDocente = async (req, res) => {
             "HorasPractica",
           ],
         },
+        {
+          model: Horario,
+        },
+        {
+          model: Periodo,
+          attributes: [
+            "FechaInicio",
+          ],
+        },
       ],
       where: { Codigo: CodigoCursoCalificacion },
     });
@@ -46,7 +55,7 @@ const getSesionesDocente = async (req, res) => {
 
     const sesiones = await Sesion.findAll({
       attributes: {
-        exclude: ["HoraInicio", "HoraFin", "EntradaDocente", "SalidaDocente"],
+        exclude: ["EntradaDocente", "SalidaDocente"],
       },
       where: Sequelize.literal(
         `RIGHT(Codigo, 8) = '${CodigoCursoCalificacion}'`
@@ -112,7 +121,7 @@ const getSesionesEstudiante = async (req, res) => {
 
     const sesiones = await Sesion.findAll({
       attributes: {
-        exclude: ["HoraInicio", "HoraFin", "EntradaDocente", "SalidaDocente"],
+        exclude: ["EntradaDocente", "SalidaDocente"],
       },
       where: Sequelize.literal(
         `RIGHT(Sesion.Codigo, 8) = '${CodigoCursoCalificacion}'`
@@ -152,10 +161,10 @@ const crearSesion = async (req, res) => {
       Descripcion: req.body.descripcion,
       EstadoAsistencia: true,
       CodigoSemanaAcademica: req.body.codigoSemanaAcademica,
-      // LinkClaseVirtual: req.body.linkClaseVirtual,
-      // Fecha: req.body.fecha,
-      // HoraInicio: req.body.horaInicio,
-      // HoraFin: req.body.horaFin,
+      LinkClaseVirtual: req.body.linkClaseVirtual,
+      Fecha: req.body.fecha,
+      HoraInicio: req.body.horaInicio,
+      HoraFin: req.body.horaFin,
     });
 
     res.json({
@@ -261,6 +270,38 @@ const getActividadesCalificar = async (req, res) => {
   }
 };
 
+
+const deshabilitarAsistencia = async (req, res) => {
+  try {
+      let message
+      await Sesion.update({ EstadoAsistencia: false }, {
+          where: { Codigo: req.query.codigo }
+      })
+
+      res.json({ message: message });
+
+  } catch (error) {
+      console.error(error)
+      res.status(500).json({ error: 'Ha ocurrido un error' })
+  }
+}
+
+const habilitarAsistencia = async (req, res) => {
+  try {
+      let message
+
+      await Sesion.update({ EstadoAsistencia: true }, {
+        where: { Codigo: req.query.codigo }
+      })
+
+      res.json({ message: message });
+
+  } catch (error) {
+      console.error(error)
+      res.status(500).json({ error: 'Ha ocurrido un error' })
+  }
+}
+
 module.exports = {
   getSesionesDocente,
   getSesionesEstudiante,
@@ -270,4 +311,6 @@ module.exports = {
   marcarIngresoDocente,
   marcarSalidaDocente,
   getActividadesCalificar,
+  habilitarAsistencia,
+  deshabilitarAsistencia
 };

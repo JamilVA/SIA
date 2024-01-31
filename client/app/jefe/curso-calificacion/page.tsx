@@ -595,8 +595,11 @@ export default function CursoCalificacionPage() {
     const actionBodyTemplate = (rowData: Sia.CursoCalificacion) => {
         return (
             <>
+                <Link href={`/jefe/curso-calificacion/gestion-curso?codigo=${rowData.Codigo}`}>
+                    <Button icon="pi pi-eye" rounded severity="info" tooltip='Inspeccionar' />
+                </Link>
                 <Link href={`/jefe/curso-calificacion/gestion-horario?codigo=${rowData.Codigo}`}>
-                    <Button icon="pi pi-clock" rounded severity="success" tooltip='Gestionar horario' />
+                    <Button icon="pi pi-clock" rounded severity="success" className='ml-2' tooltip='Gestionar horario' />
                 </Link>
                 <Button icon="pi pi-trash" rounded severity="warning" className='ml-2' onClick={() => confirmDeleteCursoCalificacion(rowData)} />
             </>

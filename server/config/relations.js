@@ -18,6 +18,7 @@ const Usuario = require('../models/usuario.model')
 const NivelUsuario = require('../models/nivelUsuario.model')
 const JefeDepartamento = require('../models/jefeDepartamento.model')
 const RecursoAcademico = require('../models/recursoAcademico.model')
+const Horario = require('../models/horario.model')
 
 ConceptoPago.hasMany(Pago, { foreignKey: "CodigoConceptoPago" });
 Pago.belongsTo(ConceptoPago, { foreignKey: "CodigoConceptoPago" });
@@ -109,6 +110,9 @@ Asistencia.belongsTo(Sesion, { foreignKey: "CodigoSesion" });
 Estudiante.hasMany(Asistencia, { foreignKey: "CodigoEstudiante" });
 Asistencia.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" });
 
+CursoCalificacion.hasMany(Horario, { foreignKey: 'CodigoCursoCalificacion' })
+Horario.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
+
 module.exports = {
     Actividad,
     Sesion,
@@ -117,6 +121,7 @@ module.exports = {
     Asistencia,
     Curso,
     CursoCalificacion,
+    Horario,
     Docente,
     Matricula,
     Periodo,
@@ -128,4 +133,5 @@ module.exports = {
     CarreraProfesional,
     JefeDepartamento,
     RecursoAcademico,
+    Usuario,
 }
