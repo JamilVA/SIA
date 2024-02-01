@@ -40,12 +40,11 @@ const descargar = async (req, res) => {
     const filePath = join(__dirname, '../uploads/', fileName);
 
     try {
-        console.log(filePath);
-        if (fs.existsSync(filePath)) {
-            res.download(filePath, fileName);
-        } else {
-            res.json({ message: 'El archivo no existe' });
-        }
+        //console.log(filePath);
+        if (!fs.existsSync(filePath)) {
+            res.status(404).json({ message: 'El archivo no existe' });      
+        } 
+        res.sendFile(filePath)
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error en el servidor' });
