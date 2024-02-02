@@ -28,9 +28,9 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Timeline } from 'primereact/timeline';
 
 export default function Curso() {
-    const searchParamas = useSearchParams();
-    const codigoCurso = searchParamas.get('codigoS');
-    const codigoEstudiante = searchParamas.get('codigoE');
+    const searchParams = useSearchParams();
+    const codigoCurso = searchParams.get('codigoS');
+    const codigoEstudiante = searchParams.get('codigoE');
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
@@ -59,9 +59,13 @@ export default function Curso() {
 
     const sesionVacia = {
         Codigo: '',
+        CodigoSemanaAcademica: '',
         Numero: '0',
         Descripcion: '',
-        CodigoSemanaAcademica: '',
+        LinkClaseVirtual: '',
+        Fecha: new Date,
+        HoraInicio: '',
+        HoraFin: '',
     };
 
     const semanaVacia = {
@@ -166,6 +170,17 @@ export default function Curso() {
         return rowData.Descripcion;
     };
 
+    const fechaBodyTemplate = (rowData: any) => {
+        if (rowData.Fecha) {
+            const fecha = new Date(rowData.Fecha + 'T00:00:00');
+            return fecha.toLocaleDateString("es-ES", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "2-digit",
+            }).toUpperCase() + ' ' + rowData.HoraInicio.slice(0, 5);
+        }
+    };
+
     const estadoBodyTemplate = (rowData: any) => {
         console.log('Rowdata para Asitencia', rowData)
         if (rowData.Asistencia && rowData.Asistencia.length > 0) {
@@ -207,10 +222,10 @@ export default function Curso() {
         return (
             <React.Fragment>
                 <Link href={`/estudiante/clases/detalles-curso/recursos?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" />
+                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1"/>
                 </Link>
-                <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success mr-5" />
+                <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}&codigoE=${codigoEstudiante}`}>
+                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success mr-5"  />
                 </Link>
             </React.Fragment>
         );
@@ -242,7 +257,8 @@ export default function Curso() {
                 <DataTable ref={dt} value={filtrarSesiones(sesiones, rowData.Codigo)} header={headerSemana(rowData)} dataKey="Codigo">
                     <Column headerStyle={{ display: 'none' }} body={numeroBodyTemplate} style={{ minWidth: '1rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} body={sesionBodyTemplate} style={{ minWidth: '14rem' }}></Column>
-                    <Column headerStyle={{ display: 'none' }} body={estadoBodyTemplate} style={{ minWidth: '14rem' }}></Column>
+                    <Column headerStyle={{ display: 'none' }} body={fechaBodyTemplate} style={{ minWidth: '8rem' }}></Column>
+                    <Column headerStyle={{ display: 'none' }} body={estadoBodyTemplate} style={{ minWidth: '2rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} className={classNames({ 'text-right': true })} body={actionBodyTemplate} style={{ minWidth: '8rem', paddingRight: '1rem' }}></Column>
                 </DataTable>
             </React.Fragment>

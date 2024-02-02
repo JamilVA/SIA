@@ -1,50 +1,62 @@
-const { Actividad } = require("../config/relations")
+const {Actividad, ActividadEstudiante, Estudiante} = require("../config/relations")
 
-const getActividades = async (req, res) => {
+const getRecursoSubido = async (req, res) => {
     try {
-        const actividades = await Actividad.findAll({
+        console.log(req.query)
+        const actividadEstudiante = await ActividadEstudiante.findOne({
             where: {
-                CodigoSesion: req.query.codigoSesion
-            }
+                CodigoEstudiante: req.query.codigoEstudiante,
+                CodigoActividad: req.query.codigoActividad,
+            },
+            attributes: {exclude:['id']}
+            
         })
-        res.json({ actividades })
+        res.json({ actividadEstudiante })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ error: 'Error al cargar la lista de actividades' })
+        res.status(500).json({ error: 'Error al cargar el recurso subido' })
     }
 }
 
-const crearActividad = async (req, res) => {
+const crearActividadEstudiante = async (req, res) => {
+    console.error(req.body)
     try {
-        const actividad = await Actividad.create(req.body)
+        const actividadEstudiante = await ActividadEstudiante.create(req.body)
         res.json({ 
-            actividad: actividad,
-            message: 'Actividad creada correctamente' 
+            actividad: actividadEstudiante,
+            message: 'Tarea subida correctamente' 
         })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ error: 'Error al crear la actividad' })
+        res.status(500).json({ error: 'Error al subir la tarea' })
     }
 }
 
-const actualizarActividad = async (req, res) => {
+const actualizarActividadEstudiante = async (req, res) => {
     try {
         let newData = req.body
-        await Actividad.update(newData, {
-            where: { Codigo: newData.Codigo }
+        await ActividadEstudiante.update(newData, {
+            where: {
+                CodigoEstudiante: newData.codigoEstudiante,
+                CodigoActividad: newData.codigoActividad,
+            },
         })
-        res.json({message: 'Actividad actualizada correctamente'})
+        res.json({message: 'Tarea actualizada correctamente'})
     } catch (error) {
         console.error(error)
-        res.status(500).json({error: 'Error al actualizar la actividad'})
+        res.status(500).json({error: 'Error al actualizar la tarea'})
     }
 }
 
-const actualizarRutaRecursoGuia = async (req, res) => {
+const actualizarRutaTarea = async (req, res) => {
     try {
-        let path = req.body.ruta
-        await Actividad.update({RutaRecursoGuia: path}, {
-            where: { Codigo: req.query.codigo }
+        console.error('1Ruta:',req.body)
+        let path = req.body.RutaTarea
+        await ActividadEstudiante.update({RutaTarea: path}, {
+            where: {
+                CodigoEstudiante: req.body.CodigoEstudiante,
+                CodigoActividad: req.body.CodigoActividad,
+            },
         })
         res.json({message: 'Ruta de archivo actualizada correctamente'})
     } catch (error) {
@@ -53,23 +65,24 @@ const actualizarRutaRecursoGuia = async (req, res) => {
     }
 }
 
-const eliminarActividad = async (req, res) => {
+
+const eliminarActividadEstudiante = async (req, res) => {
     try {
-        await Actividad.destroy({
+        await ActividadEstudiante.destroy({
             where: { Codigo: req.query.codigo }
         })
-        res.json({message: 'Actividad eliminada correctamente'})
+        res.json({message: 'Tarea eliminada correctamente'})
     } catch (error) {
         console.error(error)
-        res.status(500).json({error: 'Error al eliminar la actividad'})
+        res.status(500).json({error: 'Error al eliminar la tarea'})
     }
 }
 
 module.exports = {
-    getActividades,
-    crearActividad,
-    actualizarActividad,
-    eliminarActividad,
-    actualizarRutaRecursoGuia
+    getRecursoSubido,
+    crearActividadEstudiante,
+    actualizarActividadEstudiante,
+    eliminarActividadEstudiante,
+    actualizarRutaTarea
 }
 

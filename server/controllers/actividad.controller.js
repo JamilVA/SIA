@@ -14,6 +14,25 @@ const getActividades = async (req, res) => {
     }
 }
 
+const getActividadesEstudiante = async (req, res) => {
+    try {
+        const actividades = await Actividad.findAll({
+            where: {
+                CodigoSesion: req.query.codigoSesion
+            },
+            include:{
+                model:ActividadEstudiante,
+                where:{CodigoEstudiante:req.query.codigoEstudiante},
+                required: false,
+            },
+        })
+        res.json({ actividades })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error al cargar la lista de actividades' })
+    }
+}
+
 const crearActividad = async (req, res) => {
     try {
         const actividad = await Actividad.create(req.body)
@@ -85,6 +104,7 @@ const calificarActividad = async (req, res) => {
 
 module.exports = {
     getActividades,
+    getActividadesEstudiante,
     crearActividad,
     actualizarActividad,
     eliminarActividad,

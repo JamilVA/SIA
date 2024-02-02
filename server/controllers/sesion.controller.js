@@ -1,40 +1,6 @@
 const { Sequelize } = require("sequelize");
 
-const Curso = require("../models/curso.model");
-const CursoCalificacion = require("../models/cursoCalificacion.model");
-const UnidadAcademica = require("../models/unidadAcademica.model");
-const SemanaAcademica = require("../models/semanaAcademica.model");
-const Sesion = require("../models/sesion.model");
-const Asistencia = require("../models/asistencia.model");
-const ActividadEstudiante = require("../models/actividadEstudiante.model");
-const Estudiante = require("../models/estudiante.model");
-const Persona = require("../models/persona.model")
-
-Curso.hasMany(CursoCalificacion, { foreignKey: "CodigoCurso" });
-CursoCalificacion.belongsTo(Curso, { foreignKey: "CodigoCurso" });
-
-CursoCalificacion.hasMany(UnidadAcademica, {
-  foreignKey: "CodigoCursoCalificacion",
-});
-UnidadAcademica.belongsTo(CursoCalificacion, {
-  foreignKey: "CodigoCursoCalificacion",
-});
-
-UnidadAcademica.hasMany(SemanaAcademica, {
-  foreignKey: "CodigoUnidadAcademica",
-});
-SemanaAcademica.belongsTo(UnidadAcademica, {
-  foreignKey: "CodigoUnidadAcademica",
-});
-
-SemanaAcademica.hasMany(Sesion, { foreignKey: "CodigoSemanaAcademica" });
-Sesion.belongsTo(SemanaAcademica, { foreignKey: "CodigoSemanaAcademica" });
-
-Sesion.hasMany(Asistencia, { foreignKey: "CodigoSesion" });
-Asistencia.belongsTo(Sesion, { foreignKey: "CodigoSesion" });
-
-Estudiante.hasMany(Asistencia, { foreignKey: "CodigoEstudiante" });
-Asistencia.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" });
+const {Curso, CursoCalificacion, UnidadAcademica, SemanaAcademica, Sesion, Asistencia, ActividadEstudiante, Estudiante, Persona, Horario, Periodo} = require("../config/relations")
 
 const getSesionesDocente = async (req, res) => {
   try {
@@ -62,6 +28,15 @@ const getSesionesDocente = async (req, res) => {
             "HorasPractica",
           ],
         },
+        {
+          model: Horario,
+        },
+        {
+          model: Periodo,
+          attributes: [
+            "FechaInicio",
+          ],
+        },
       ],
       where: { Codigo: CodigoCursoCalificacion },
     });
@@ -80,7 +55,7 @@ const getSesionesDocente = async (req, res) => {
 
     const sesiones = await Sesion.findAll({
       attributes: {
-        exclude: ["HoraInicio", "HoraFin", "EntradaDocente", "SalidaDocente"],
+        exclude: ["EntradaDocente", "SalidaDocente"],
       },
       where: Sequelize.literal(
         `RIGHT(Codigo, 8) = '${CodigoCursoCalificacion}'`
@@ -146,7 +121,7 @@ const getSesionesEstudiante = async (req, res) => {
 
     const sesiones = await Sesion.findAll({
       attributes: {
-        exclude: ["HoraInicio", "HoraFin", "EntradaDocente", "SalidaDocente"],
+        exclude: ["EntradaDocente", "SalidaDocente"],
       },
       where: Sequelize.literal(
         `RIGHT(Sesion.Codigo, 8) = '${CodigoCursoCalificacion}'`
@@ -154,14 +129,13 @@ const getSesionesEstudiante = async (req, res) => {
       include: [
         {
           model: Asistencia,
-          attributes: ['Estado'],
+          attributes: ["Estado"],
           where: {
             CodigoEstudiante: CodigoEstudiante,
           },
           required: false, // Hacer la inclusión como un LEFT JOIN
         },
       ],
-
     });
 
     res.json({
@@ -187,10 +161,10 @@ const crearSesion = async (req, res) => {
       Descripcion: req.body.descripcion,
       EstadoAsistencia: true,
       CodigoSemanaAcademica: req.body.codigoSemanaAcademica,
-      // LinkClaseVirtual: req.body.linkClaseVirtual,
-      // Fecha: req.body.fecha,
-      // HoraInicio: req.body.horaInicio,
-      // HoraFin: req.body.horaFin,
+      LinkClaseVirtual: req.body.linkClaseVirtual,
+      Fecha: req.body.fecha,
+      HoraInicio: req.body.horaInicio,
+      HoraFin: req.body.horaFin,
     });
 
     res.json({
@@ -216,7 +190,7 @@ const actualizarSesion = async (req, res) => {
         HoraFin: req.body.horaFin,
       },
       {
-        where: { Codigo: req.body.codigo},
+        where: { Codigo: req.body.codigo },
       }
     );
 
@@ -281,16 +255,50 @@ const marcarSalidaDocente = async (req, res) => {
 const getActividadesCalificar = async (req, res) => {
   try {
     const actividades = await ActividadEstudiante.findAll({
-      where: {CodigoActividad: req.query.codigoActividad},
+      where: { CodigoActividad: req.query.codigoActividad },
       include: {
         model: Estudiante,
-        include: Persona
-      }
-    })
+        include: Persona,
+      },
+    });
     res.json({ actividades: actividades });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error al obtener las actividades de la sesión" });
+    res
+      .status(500)
+      .json({ message: "Error al obtener las actividades de la sesión" });
+  }
+};
+
+
+const deshabilitarAsistencia = async (req, res) => {
+  try {
+      let message
+      await Sesion.update({ EstadoAsistencia: false }, {
+          where: { Codigo: req.query.codigo }
+      })
+
+      res.json({ message: message });
+
+  } catch (error) {
+      console.error(error)
+      res.status(500).json({ error: 'Ha ocurrido un error' })
+  }
+}
+
+const habilitarAsistencia = async (req, res) => {
+  try {
+      let message
+
+      await Sesion.update({ EstadoAsistencia: true }, {
+        where: { Codigo: req.query.codigo }
+      })
+
+      res.json({ message: message });
+
+  } catch (error) {
+      console.error(error)
+      res.status(500).json({ error: 'Ha ocurrido un error' })
   }
 }
 
@@ -302,5 +310,7 @@ module.exports = {
   eliminarSesion,
   marcarIngresoDocente,
   marcarSalidaDocente,
-  getActividadesCalificar
+  getActividadesCalificar,
+  habilitarAsistencia,
+  deshabilitarAsistencia
 };

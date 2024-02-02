@@ -1,16 +1,4 @@
-const Docente = require("../models/docente.model");
-const Persona = require("../models/persona.model");
-const Usuario = require("../models/usuario.model");
-const NivelUsuario = require("../models/nivelUsuario.model");
-
-NivelUsuario.hasMany(Usuario, { foreignKey: "CodigoNivelUsuario" });
-Usuario.belongsTo(NivelUsuario, { foreignKey: "CodigoNivelUsuario" });
-
-Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
-Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-
-Persona.hasOne(Docente, { foreignKey: "CodigoPersona" });
-Docente.belongsTo(Persona, { foreignKey: "CodigoPersona" });
+const {Docente, Persona, Usuario} = require("../config/relations")
 
 const getDocente = async (req, res) => {
   const docentes = await Docente.findAll({
@@ -21,6 +9,28 @@ const getDocente = async (req, res) => {
   res.json({
     ok: true,
     docentes,
+  });
+};
+
+const getPerfilDocente = async (req, res) => {
+  const { CodigoDocente } = req.query;
+
+  const docente = await Docente.findOne({
+    attributes: {
+      exclude: ["CondicionLaboral", "Estado"],
+    },
+    include: [
+      {
+        model: Persona,
+        attributes: ["Nombres",'Paterno','Materno','Email','RutaFoto','DNI'],
+      },
+    ],
+    where:{Codigo:CodigoDocente}
+  });
+
+  res.json({
+    ok: true,
+    docente,
   });
 };
 
@@ -50,6 +60,8 @@ const crearDocente = async (req, res) => {
       Estado: true,
       CodigoPersona: persona.Codigo,
       CodigoNivelUsuario: 3,
+      Password:'',
+      Email:''
     });
 
     res.json({
@@ -59,6 +71,7 @@ const crearDocente = async (req, res) => {
       usuario,
     });
   } catch (error) {
+    console.error(error)
     res.json({
       Estado: "Error al guardar, " + error,
     });
@@ -109,8 +122,34 @@ const actualizarDocente = async (req, res) => {
   }
 };
 
+const actualizarFoto = async (req, res) => {
+  try {
+    const persona = await Persona.update(
+      {
+        RutaFoto: req.body.rutaFoto,
+      },
+      {
+        where: {
+          Codigo: req.body.codigoPersona,
+        },
+      }
+    );
+
+    res.json({
+      Estado: "Actualizado con éxito",
+      persona,
+    });
+  } catch (error) {
+    res.json({
+      Estado: "Error al Actualizar, " + error,
+    });
+  }
+};
+
 module.exports = {
   getDocente,
+  getPerfilDocente,
   crearDocente,
   actualizarDocente,
+  actualizarFoto
 };

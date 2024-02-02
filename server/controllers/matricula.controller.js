@@ -1,27 +1,7 @@
-const Curso = require("../models/curso.model");
-const CursoCalificacion = require("../models/cursoCalificacion.model");
-const Estudiante = require("../models/estudiante.model");
-const Matricula = require("../models/matricula.model");
-const Periodo = require("../models/periodo.model");
-const Persona = require("../models/persona.model");
-const CarreraProfesional = require("../models/carreraProfesional.model");
+const {Curso, CursoCalificacion, Estudiante, Matricula, Periodo, Persona, CarreraProfesional} = require("../config/relations")
+
 const { sequelize } = require("../config/database");
 const { QueryTypes } = require("sequelize");
-
-CarreraProfesional.hasMany(Curso, { foreignKey: 'CodigoCarreraProfesional' })
-Curso.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' })
-
-Curso.hasMany(CursoCalificacion, { foreignKey: 'CodigoCurso' })
-CursoCalificacion.belongsTo(Curso, { foreignKey: 'CodigoCurso' })
-
-Periodo.hasMany(CursoCalificacion, { foreignKey: 'CodigoPeriodo' })
-CursoCalificacion.belongsTo(Periodo, { foreignKey: 'CodigoPeriodo' })
-
-CursoCalificacion.hasMany(Matricula, { foreignKey: "CodigoCursoCalificacion" })
-Matricula.belongsTo(CursoCalificacion, { foreignKey: "CodigoCursoCalificacion" })
-
-Estudiante.hasMany(Matricula, { foreignKey: "CodigoEstudiante" })
-Matricula.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" })
 
 const getMatricula = async (req, res) => {
   try {

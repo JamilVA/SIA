@@ -7,8 +7,9 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 
 import { Toast } from 'primereact/toast';
+import { Image } from 'primereact/image';
 import { Button } from 'primereact/button';
-import { FileUpload } from 'primereact/fileupload';
+import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
 import { Toolbar } from 'primereact/toolbar';
 import { RadioButton } from 'primereact/radiobutton';
 import { Dialog } from 'primereact/dialog';
@@ -29,14 +30,14 @@ export default function DocentesDemo() {
         materno: string;
         nombres: string;
         rutaFoto: string;
-        codigoPersona: null | string;
+        codigoPersona: string;
         fechaNacimiento: string | Date;
         sexo: string;
         DNI: string;
         email: string;
     } = {
         codigo: null,
-        codigoPersona: null,
+        codigoPersona: '',
         condicionLaboral: '',
         estado: true,
         paterno: '',
@@ -52,6 +53,7 @@ export default function DocentesDemo() {
     const [docenteDialog, setDocenteDialog] = useState(false);
     const [cambioDNI, setCambioDNI] = useState(false);
     const [cambioEmail, setCambioEmail] = useState(false);
+    const [cambioImagen, setCambioImagen] = useState(false);
     const [deleteDocenteDialog, setDeleteDocenteDialog] = useState(false);
     const [advertencia, setAdvertencia] = useState({ activo: false, mensaje: '' });
     const [docente, setDocente] = useState(emptyDocente);
@@ -60,6 +62,9 @@ export default function DocentesDemo() {
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
+
+    const [imagenURL, setImagenURL] = useState<string | null>(null);
+    const [archivo, setArchivo] = useState<FileUploadFilesEvent | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -76,7 +81,7 @@ export default function DocentesDemo() {
 
             // Establecer los docentes en el estado
             setDocentes(docentesConNombreCompleto);
-
+            console.log(result.data);
         } catch (e) {
             console.log(e);
         }
@@ -84,8 +89,8 @@ export default function DocentesDemo() {
 
     const openNew = () => {
         setDocente(emptyDocente);
-        setCambioEmail(false)
-        setCambioDNI(false)
+        setCambioEmail(false);
+        setCambioDNI(false);
         setSubmitted(false);
         setDocenteDialog(true);
     };
@@ -93,14 +98,15 @@ export default function DocentesDemo() {
     const hideDialog = () => {
         setSubmitted(false);
         setDocenteDialog(false);
-        setCambioEmail(false)
-        setCambioDNI(false)
+        setCambioEmail(false);
+        setCambioDNI(false);
+        setImagenURL(null)
     };
 
     const hideDeleteDocenteDialog = () => {
         setDeleteDocenteDialog(false);
-        setCambioEmail(false)
-        setCambioDNI(false)
+        setCambioEmail(false);
+        setCambioDNI(false);
     };
 
     const saveDocente = () => {
@@ -121,11 +127,11 @@ export default function DocentesDemo() {
                             fechaNacimiento: _docente.fechaNacimiento,
                             DNI: _docente.DNI,
                             rutaFoto: _docente.rutaFoto,
-
                             condicionLaboral: _docente.condicionLaboral
                         })
                         .then((response) => {
                             console.log(response.data);
+                            subirArchivo(response.data.docente.CodigoPersona);
                             toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente creado con éxito', life: 3000 });
                             fetchData();
                         });
@@ -152,6 +158,9 @@ export default function DocentesDemo() {
                     })
                     .then((response) => {
                         console.log(response);
+                        if(cambioImagen){
+                            subirArchivo(_docente.codigoPersona);
+                        }
                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente actualizado con éxito', life: 3000 });
                         fetchData();
                     });
@@ -168,8 +177,6 @@ export default function DocentesDemo() {
         const emailExists = docentes.some((doc: any) => {
             return doc.Persona.Email === email;
         });
-
-        console.log('Email:', emailExists);
 
         if (emailExists) {
             setAdvertencia({ activo: true, mensaje: 'Este correo ya está registrado. Por favor, ingresa otro.' });
@@ -201,11 +208,8 @@ export default function DocentesDemo() {
             return doc.Persona.DNI === DNI;
         });
 
-        console.log('dniExists:', dniExists);
-
         if (dniExists) {
             setAdvertencia({ activo: true, mensaje: 'Este DNI ya está registrado. Por favor, ingresa otro.' });
-            console.log('El DNI ya existe');
             return false;
         }
 
@@ -234,8 +238,9 @@ export default function DocentesDemo() {
             email: docente.Persona.Email
         };
 
+        obtenerArchivo(docente.Persona.RutaFoto);
         setDocente(tempDocente);
-        console.log(docente);
+        console.log('D', tempDocente);
         setDocenteDialog(true);
     };
 
@@ -245,7 +250,6 @@ export default function DocentesDemo() {
     };
 
     const deleteDocente = (rowData: any) => {
-        console.log(rowData.Codigo);
         const _estado = rowData.Estado ? false : true;
         axios
             .put('http://localhost:3001/api/docente', {
@@ -261,6 +265,59 @@ export default function DocentesDemo() {
             });
     };
 
+    const modificarRuta = async (codigo:string, ruta:string) => {
+        console.log('Docente Recibido:', codigo);
+        try {
+            axios
+                .put('http://localhost:3001/api/docente/actualizar-foto', {
+                    codigoPersona: codigo,
+                    rutaFoto: ruta
+                })
+                .then((response) => {
+                    console.log('Ruta Actualizada', response);
+                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente actualizado con éxito', life: 3000 });
+                    fetchData();
+                });
+            setDocente(emptyDocente);
+        } catch (error) {
+            console.error(error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo modificar el Recurso Académico',
+                life: 3000
+            });
+        }
+    };
+
+    const subirArchivo = async (codigo:string) => {
+        console.log('Docente recibido para ruta',docente)
+        try {
+            console.log('Archivo Recibido:', archivo);
+            const file = archivo!.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            console.log('Archivo Recibido:', file.name);
+
+            await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
+                console.log(response.data.path);
+                let _docente = { ...docente, rutaFoto: response.data.filename };
+                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
+                modificarRuta(codigo,response.data.filename);
+                setArchivo(null);
+                setCambioImagen(false);
+            });
+        } catch (error) {
+            console.error('Error en la carga del archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de carga de archivo',
+                life: 3000
+            });
+        }
+    };
+
     const exportCSV = () => {
         dt.current!.exportCSV();
     };
@@ -271,7 +328,6 @@ export default function DocentesDemo() {
         _docente['condicionLaboral'] = e.value;
 
         setDocente(_docente);
-        console.log(docente);
     };
 
     const onSexoChange = (e: any) => {
@@ -279,12 +335,11 @@ export default function DocentesDemo() {
 
         _docente['sexo'] = e.value;
         setDocente(_docente);
-        console.log(docente);
     };
 
-    const onFileSelect = (e: any) => {
-        // Aquí se puede manejar el archivo seleccionado
-        console.log(e.files);
+    const handleUpload = (event: FileUploadFilesEvent) => {
+        setCambioImagen(true);
+        setArchivo(event);
     };
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, name: keyof typeof emptyDocente) => {
@@ -293,20 +348,15 @@ export default function DocentesDemo() {
 
         _docente[`${name}`] = val;
 
-        if(name == "DNI"){
-            setCambioDNI(true)
-            console.log("DNI Cambio: "+cambioDNI)
-            console.log(cambioDNI)
+        if (name == 'DNI') {
+            setCambioDNI(true);
         }
 
-        if(name == "email"){
-            setCambioEmail(true)
-            console.log("Email Cambio: "+cambioEmail)
-            console.log(cambioEmail)
+        if (name == 'email') {
+            setCambioEmail(true);
         }
 
         setDocente(_docente);
-        console.log(docente);
     };
 
     const onCalendarChange = (e: CalendarChangeEvent) => {
@@ -314,7 +364,6 @@ export default function DocentesDemo() {
         let _docente = { ...docente };
         _docente['fechaNacimiento'] = selectedDate;
         setDocente(_docente);
-        console.log(docente);
     };
 
     const leftToolbarTemplate = () => {
@@ -335,9 +384,6 @@ export default function DocentesDemo() {
         );
     };
 
-    const codigoBodyTemplate = (rowData: any) => {
-        return rowData.Codigo;
-    };
     const nombreBodyTemplate = (rowData: any) => {
         return rowData.Persona.Nombres + ' ' + rowData.Persona.Paterno + ' ' + rowData.Persona.Materno;
     };
@@ -364,6 +410,31 @@ export default function DocentesDemo() {
                 <Button icon="pi pi-power-off" rounded outlined severity={rowData.Estado ? 'danger' : 'info'} onClick={() => confirmDeleteDocente(rowData)} />
             </React.Fragment>
         );
+    };
+
+    const obtenerArchivo = async (ruta: string) => {
+        if(ruta === ''){
+            return
+        }
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download', {
+                params: { fileName: ruta },
+                responseType: 'arraybuffer',  // Especificar el tipo de respuesta como 'arraybuffer'
+            });
+
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+            const url = window.URL.createObjectURL(blob);
+
+            setImagenURL(url);
+        } catch (error) {
+            console.error('Error al obtener el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de carga de archivo',
+                life: 3000,
+            });
+        }
     };
 
     const header = (
@@ -431,7 +502,26 @@ export default function DocentesDemo() {
                     <label htmlFor="imagen" className="font-bold">
                         Foto
                     </label>
-                    <FileUpload name="foto" url="/api/upload" accept="image/*" chooseLabel="Cargar Imagen" uploadLabel="Confirmar" cancelLabel="Cancelar" className="p-mb-3" maxFileSize={5 * 1024 * 1024} customUpload uploadHandler={onFileSelect} />
+                    {/* Modifica el evento onUpload para utilizar la nueva función handleFileUpload */}
+                    <br />
+                    {/* Renderizar la imagen si hay una URL */}
+                    {imagenURL && (
+                        <div className="field">
+                            <Image src={imagenURL} zoomSrc={imagenURL} alt="Foto Docente" width="80" height="80" preview/>
+                        </div>
+                    )}
+                    <FileUpload
+                        name="foto"
+                        // url={'/uploads/'+docente.rutaFoto}
+                        accept="image/*"
+                        chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
+                        chooseLabel="Cargar imagen"
+                        mode="basic"
+                        maxFileSize={5000000}
+                        auto
+                        customUpload={true}
+                        uploadHandler={(e) => handleUpload(e)}
+                    />
                 </div>
 
                 <div className="field">

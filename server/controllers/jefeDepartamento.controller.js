@@ -1,19 +1,4 @@
-const CarreraProfesional = require("../models/carreraProfesional.model")
-
-const JefeDepartamento = require("../models/jefeDepartamento.model");
-const Persona = require("../models/persona.model");
-
-const Usuario = require("../models/usuario.model");
-const NivelUsuario = require("../models/nivelUsuario.model");
-
-NivelUsuario.hasMany(Usuario, { foreignKey: "CodigoNivelUsuario" });
-Usuario.belongsTo(NivelUsuario, { foreignKey: "CodigoNivelUsuario" });
-
-Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
-Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-
-JefeDepartamento.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-Persona.hasOne(JefeDepartamento, { foreignKey: "CodigoPersona" });
+const {CarreraProfesional, JefeDepartamento, Persona, Usuario, NivelUsuario} = require("../config/relations")
 
 const getJefeDepartamento = async (req, res) => {
   const jefesDepartamento = await JefeDepartamento.findAll({

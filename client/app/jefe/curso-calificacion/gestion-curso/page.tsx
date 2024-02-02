@@ -12,10 +12,12 @@ import { classNames } from 'primereact/utils';
 import 'primeflex/primeflex.css';
 
 import { Toast } from 'primereact/toast';
+import { Calendar } from 'primereact/calendar';
 import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
+import { InputSwitch } from 'primereact/inputswitch';
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -24,6 +26,7 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { CalendarChangeEvent } from 'primereact/calendar';
 
 export default function Curso() {
     const searchParamas = useSearchParams();
@@ -60,9 +63,10 @@ export default function Curso() {
         Numero: '0',
         Descripcion: '',
         LinkClaseVirtual: '',
-        Fecha:new Date,
+        Fecha: new Date(),
         HoraInicio: '',
         HoraFin: '',
+        EstadoAsistencia: 0
     };
 
     const semanaVacia = {
@@ -88,7 +92,10 @@ export default function Curso() {
 
     const [cursoCalificacion, setCursoCalificaion] = useState(cursoCVacio);
     const [curso, setCurso] = useState(cursoVacio);
-    const [sesion, setSesion] = useState(sesionVacia);
+    const [sesion, setSesion] = useState({
+        ...sesionVacia,
+        Fecha: new Date()
+    });
     const [sesiones, setSesiones] = useState<(typeof sesionVacia)[]>([]);
     const [semana, setSemana] = useState(sesionVacia);
     const [semanas, setSemanas] = useState<(typeof semanaVacia)[]>([]);
@@ -101,7 +108,6 @@ export default function Curso() {
     const [cursoCDialog, setCursoCDialog] = useState(false);
 
     const [fechaInicioClases, setFechaInicioClases] = useState<Date>();
-
 
     useEffect(() => {
         cargarDatos();
@@ -125,7 +131,7 @@ export default function Curso() {
             setUnidades(unidades);
             setSemanas(semanas);
             setSesiones(sesiones);
-            console.log(sesiones);
+            console.log(data);
         } catch (e) {
             console.error(e);
         }
@@ -142,7 +148,7 @@ export default function Curso() {
                     linkClaseVirtual: _sesion.LinkClaseVirtual,
                     fecha: _sesion.Fecha,
                     horaInicio: _sesion.HoraInicio,
-                    horaFin: _sesion.HoraFin,
+                    horaFin: _sesion.HoraFin
                 })
                 .then((response) => {
                     console.log(response.data);
@@ -161,7 +167,7 @@ export default function Curso() {
                     linkClaseVirtual: _sesion.LinkClaseVirtual,
                     fecha: _sesion.Fecha,
                     horaInicio: _sesion.HoraInicio,
-                    horaFin: _sesion.HoraFin,
+                    horaFin: _sesion.HoraFin
                 })
                 .then((response) => {
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion creada con éxito', life: 3000 });
@@ -174,8 +180,6 @@ export default function Curso() {
 
     const saveCurso = () => {
         let _cursoCalificacion = { ...cursoCalificacion };
-        console.log('Curso recibida para editar', _cursoCalificacion);
-
         axios
             .put('http://localhost:3001/api/curso-calificacion', {
                 codigo: _cursoCalificacion.Codigo,
@@ -198,7 +202,6 @@ export default function Curso() {
     const openNew = (rowData: any) => {
         console.log('Rowdada', rowData);
         console.log('Horarios', horarios);
-
 
         const cantidadSesionesSemana = sesiones.filter((s) => s.CodigoSemanaAcademica == rowData.Codigo).length;
         if (cantidadSesionesSemana == 2) {
@@ -226,9 +229,10 @@ export default function Curso() {
             Descripcion: sesion.Descripcion,
             LinkClaseVirtual: sesion.LinkClaseVirtual,
             Numero: sesion.Numero,
-            Fecha: sesion.Fecha,
+            Fecha: new Date(sesion.Fecha + 'T00:00:00'),
             HoraInicio: sesion.HoraInicio,
             HoraFin: sesion.HoraFin,
+            EstadoAsistencia: sesion.EstadoAsistencia
         };
 
         setSesion(tempSesion);
@@ -251,41 +255,29 @@ export default function Curso() {
         setCursoCDialog(true);
     };
 
-    const calcularFecha = (dia:string, numeroSemana:number) => {      
-
+    const calcularFecha = (dia: string, numeroSemana: number) => {
         const primerDiaSemanaInicio = startOfWeek(fechaInicioClases, { weekStartsOn: 0 }); // 0 para el domingo, 1 para el lunes, etc.
-    
-      // Mapear los días de la semana a sus índices
-      const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-      const indiceDia = diasSemana.indexOf(dia);
-    
-      // Calcular la fecha basándonos en el número de semanas
-      const fechaCalculada = addWeeks(primerDiaSemanaInicio, (numeroSemana - 1)); // Restamos 1 porque la primera semana es la semana de inicio
-    
-      // Obtener la fecha específica para el día de la semana
-      const fechaFinal = new Date(fechaCalculada);
-      fechaFinal.setDate(fechaCalculada.getDate() + (indiceDia - fechaCalculada.getDay() + 7) % 7);
-    
-      // Formatear la fecha como "dd de mes del año"
-      const formatoFecha = fechaFinal.toLocaleDateString("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
-    
-      console.log(`Fecha para ${dia} de la semana ${numeroSemana}: ${formatoFecha}`);
-      return(fechaFinal)
-    };
-    
-    const onInputSesionChange = (e: React.ChangeEvent<HTMLInputElement>, name: keyof typeof sesionVacia) => {
-        const val = (e.target && e.target.value) || '';
-        let _sesion = { ...sesion };
-        if(name==='Fecha'){
-            return;
-        }else{
-            _sesion[name] = val;
-        }
-        setSesion(_sesion);
+
+        // Mapear los días de la semana a sus índices
+        const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        const indiceDia = diasSemana.indexOf(dia);
+
+        // Calcular la fecha basándonos en el número de semanas
+        const fechaCalculada = addWeeks(primerDiaSemanaInicio, numeroSemana - 1); // Restamos 1 porque la primera semana es la semana de inicio
+
+        // Obtener la fecha específica para el día de la semana
+        const fechaFinal = new Date(fechaCalculada);
+        fechaFinal.setDate(fechaCalculada.getDate() + ((indiceDia - fechaCalculada.getDay() + 7) % 7));
+
+        // Formatear la fecha como "dd de mes del año"
+        const formatoFecha = fechaFinal.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        console.log(`Fecha para ${dia} de la semana ${numeroSemana}: ${formatoFecha}`);
+        return fechaFinal;
     };
 
     const onInputCursoChange = (e: React.ChangeEvent<HTMLTextAreaElement>, name: keyof typeof cursoCVacio) => {
@@ -307,6 +299,87 @@ export default function Curso() {
     const hideCursoCDialog = () => {
         setSubmitted(false);
         setCursoCDialog(false);
+    };
+
+    const deshabilitarAsistencia = async (codigo: string) => {
+        await axios
+            .put(
+                'http://localhost:3001/api/sesion/deshabilitar-asistencia',
+                {},
+                {
+                    params: {
+                        codigo: codigo
+                    }
+                }
+            )
+            .then((response) => {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Asistencia Deshabilitada',
+                    detail: response.data.message,
+                    life: 3000
+                });
+                cargarDatos();
+            })
+            .catch((error) => {
+                console.error(error.data);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Operacion fallida',
+                    detail: error.message,
+                    life: 3000
+                });
+            });
+        setSesion(sesionVacia);
+    };
+    const habilitarAsistencia = async (codigo: string) => {
+        await axios
+            .put(
+                'http://localhost:3001/api/sesion/habilitar-asistencia',
+                {},
+                {
+                    params: {
+                        codigo: codigo
+                    }
+                }
+            )
+            .then((response) => {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Asistencia Habilitada',
+                    detail: response.data.message,
+                    life: 3000
+                });
+                cargarDatos();
+            })
+            .catch((error) => {
+                console.error(error.data);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Operacion fallida',
+                    detail: error.message,
+                    life: 3000
+                });
+            });
+        setSesion(sesionVacia);
+    };
+
+    const handleClick = async (sesion: typeof sesionVacia) => {
+        if (!!sesion.EstadoAsistencia === true) {
+            await deshabilitarAsistencia(sesion.Codigo);
+        } else {
+            await habilitarAsistencia(sesion.Codigo);
+        }
+    };
+
+    const onCalendarChange = (e: CalendarChangeEvent) => {
+        const selectedDate = e.value as Date;
+
+        let _sesion = { ...sesion };
+        _sesion.Fecha = selectedDate;
+
+        setSesion(_sesion);
+        console.log(_sesion);
     };
 
     const sesionDialogFooter = (
@@ -340,30 +413,25 @@ export default function Curso() {
     const fechaBodyTemplate = (rowData: any) => {
         if (rowData.Fecha) {
             const fecha = new Date(rowData.Fecha + 'T00:00:00');
-            return fecha.toLocaleDateString("es-ES", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "2-digit",
-            }).toUpperCase() + ' ' + rowData.HoraInicio.slice(0, 5);
+            return (
+                fecha
+                    .toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: '2-digit'
+                    })
+                    .toUpperCase() +
+                ' ' +
+                rowData.HoraInicio.slice(0, 5)
+            );
         }
     };
-    
+
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
-                <Link href={`/docente/cursos/recursos?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }}  />
-                </Link>
-
-                <Link href={`/docente/cursos/actividades?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }}  />
-                </Link>
-
-                <Link href={`/docente/cursos/asistencias?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Asistencia" icon="pi pi-list" className="p-button-info p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} />
-                </Link>
-
-                <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm mr-3" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => editSesion(rowData)} />
+                <InputSwitch tooltip={rowData.EstadoAsistencia ? 'Deshabilitar asistencia' : 'Habilitar asistencia'} checked={!!rowData.EstadoAsistencia} onChange={() => handleClick(rowData)} />
+                <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm ml-5 mr-8" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => editSesion(rowData)} />
             </React.Fragment>
         );
     };
@@ -395,7 +463,7 @@ export default function Curso() {
                     <Column headerStyle={{ display: 'none' }} body={numeroBodyTemplate} style={{ minWidth: '1rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} body={sesionBodyTemplate} style={{ minWidth: '14rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} body={fechaBodyTemplate} style={{ minWidth: '8rem' }}></Column>
-                    <Column className={classNames({ 'text-right': true })} headerStyle={{ display: 'none' }} body={actionBodyTemplate} style={{ minWidth: '8rem', paddingRight: '1rem' }}></Column>
+                    <Column className={classNames({ 'text-right': true })} headerStyle={{ display: 'none' }} body={actionBodyTemplate} style={{ minWidth: '5rem', paddingRight: '1rem' }}></Column>
                 </DataTable>
                 <Button tooltip="Nueva Sesion" icon="pi pi-plus" className="p-button-success p-button-sm m-2" style={{ padding: '0.75em' }} onClick={() => openNew(rowData)} outlined />
             </React.Fragment>
@@ -412,13 +480,6 @@ export default function Curso() {
         );
     };
 
-    const header = <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" />;
-    const footer = (
-        <>
-            <Button label="Save" icon="pi pi-check" />
-            <Button label="Cancel" severity="secondary" icon="pi pi-times" style={{ marginLeft: '0.5em' }} />
-        </>
-    );
     const title = (curso: typeof cursoVacio) => {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -431,55 +492,19 @@ export default function Curso() {
     };
 
     return (
-        <div className="grid">
+        <div>
             <Toast ref={toast} />
-            <div className="col-3 m-0">
-                <div className="card">
-                    <div className="text-center">
-                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQION7iLAgrmjNpsU01XdpcD7fU-ZnfaLfEWestMmrvQQ&s" />
-                        <h5 style={{ color: 'var(--surface-700)' }}>MALPICA RODRIGUEZ MANUEL ENRIQUE</h5>
-                    </div>
-                    <div className="mt-4">
-                        <p>
-                            <b>Email: </b>mmalpica@gmail.com
-                        </p>
-                        <p>
-                            <b>DNI: </b>40936598
-                        </p>
-                    </div>
-                </div>
-                <div className="card"></div>
-            </div>
-            <div className="col-9 m-0">
-                <div>
-                    <Card title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
-                    <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
-                        <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                    </DataTable>
-                </div>
-            </div>
+            <Card title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
+            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
+                <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+            </DataTable>
             <Dialog visible={sesionDialog} style={{ width: '40rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos de la sesión" modal className="p-fluid" footer={sesionDialogFooter} onHide={hideSesionDialog}>
-                {/* <div className="field">
-                    <label htmlFor="imagen" className="font-bold">
-                        Foto
+                <div className="field col">
+                    <label htmlFor="fecha" className="font-bold">
+                        Fecha de la sesión
                     </label>
-                    <FileUpload name="foto" url="/api/upload" accept="image/*" chooseLabel="Cargar Imagen" uploadLabel="Confirmar" cancelLabel="Cancelar" className="p-mb-3" maxFileSize={5 * 1024 * 1024} customUpload uploadHandler={onFileSelect} />
-                </div> */}
-
-                <div className="field">
-                    <label htmlFor="nombres" className="font-bold">
-                        Nombre de la sesión
-                    </label>
-                    <InputText id="nombres" value={sesion.Descripcion} onChange={(e) => onInputSesionChange(e, 'Descripcion')} required autoFocus maxLength={100} className={classNames({ 'p-invalid': submitted && !sesion.Descripcion })} />
-                    {submitted && !sesion.Descripcion && <small className="p-error">Ingrese el nombre de la sesión.</small>}
-                </div>
-
-                <div className="field">
-                    <label htmlFor="linkClaseVirtual" className="font-bold">
-                        Enlace para clase virtual
-                    </label>
-                    <InputText id="linkClaseVirtual" value={sesion.LinkClaseVirtual} onChange={(e) => onInputSesionChange(e, 'LinkClaseVirtual')} required autoFocus maxLength={100} className={classNames({ 'p-invalid': submitted && !sesion.LinkClaseVirtual })} />
-                    {submitted && !sesion.LinkClaseVirtual && <small className="p-error">Ingrese el nombre de la sesión.</small>}
+                    <Calendar id="fecha" value={sesion.Fecha} onChange={(e) => onCalendarChange(e)} showIcon required className={classNames({ 'p-invalid': submitted && !sesion.Fecha })} />
+                    {submitted && !sesion.Fecha && <small className="p-error">Ingrese la Fecha.</small>}
                 </div>
             </Dialog>
             <Dialog visible={cursoCDialog} style={{ width: '60rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos del curso" modal className="p-fluid" footer={cursoCDialogFooter} onHide={hideCursoCDialog}>

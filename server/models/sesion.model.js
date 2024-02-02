@@ -7,9 +7,9 @@ const Sesion = sequelize.define('Sesion', {
         primaryKey: true
     },
     Numero: DataTypes.INTEGER,
-    Descripcion: DataTypes.STRING(45),
+    Descripcion: DataTypes.STRING(100),
     EstadoAsistencia: DataTypes.TINYINT,
-    LinkClaseVirtual: DataTypes.STRING(50),
+    LinkClaseVirtual: DataTypes.STRING(60),
     Fecha: DataTypes.DATEONLY,
     HoraInicio: DataTypes.TIME,
     HoraFin: DataTypes.TIME,

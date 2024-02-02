@@ -257,7 +257,7 @@ export default function ActividadesPage() {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    <Button label="New" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
+                    <Button label="Nuevo recurso" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
                 </div>
             </React.Fragment>
         );
