@@ -9,7 +9,8 @@ const sequelize = new Sequelize(process.env.CONEX, {
     define: {
         freezeTableName: true, //Esta opción evita que se busquen las tablas en plural
         timestamps: false //Esta opción evita las columnas createdAt y updatedAt      
-    }
+    },
+    timezone: '-05:00'
 });
 
 const dbConnection = async () => {
