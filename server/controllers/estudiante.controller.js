@@ -2,7 +2,8 @@ const Estudiante = require("../models/estudiante.model");
 const Persona = require("../models/persona.model");
 const Usuario = require('../models/usuario.model')
 const NivelUsuario = require('../models/nivelUsuario.model')
-const CarreraProfesional = require("../models/carreraProfesional.model");
+const CarreraProfesional = require("../models/carreraProfesional.model")
+const { Matricula } = require("../config/relations")
 
 const { sequelize } = require("../config/database");
 const { QueryTypes, json } = require("sequelize");
@@ -161,9 +162,28 @@ const buscarEstudiante = async (req, res) => {
   }
 };
 
+const getNotas = async (req, res) => {
+  try {
+    const matricula = await Matricula.findOne({
+      where: {
+        CodigoCursoCalificacion: req.query.codigoCurso,
+        CodigoEstudiante: req.query.codigoEstudiante
+      }
+    })
+    if (!matricula) {
+      return res.status(404).json({ message: 'Las notas no se han encontrado' })
+    }
+    res.json({ matricula: matricula })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Error al obtener las notas' })
+  }
+}
+
 module.exports = {
   getEstudiante,
   crearEstudiante,
   actualizarEstudiante,
-  buscarEstudiante
+  buscarEstudiante,
+  getNotas
 };

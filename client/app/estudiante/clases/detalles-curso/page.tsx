@@ -25,6 +25,7 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Timeline } from 'primereact/timeline';
 
 export default function Curso() {
     const searchParamas = useSearchParams();
@@ -75,6 +76,20 @@ export default function Curso() {
         CodigoCursoCalificacion: ''
     };
 
+    const matriculaVacia = {
+        CodigoCursoCalificacion: '',
+        CodigoEstudiante: '',
+        FechaMatricula: '',
+        Habilitado: false,
+        Nota1: 0,
+        Nota2: 0,
+        Nota3: 0,
+        Nota4: 0,
+        NotaRecuperacion: 0,
+        NotaAplazado: 0,
+        NotaFinal: 0
+    };
+
     const [cursoCalificacion, setCursoCalificaion] = useState(cursoCVacio);
     const [curso, setCurso] = useState(cursoVacio);
     const [sesion, setSesion] = useState(sesionVacia);
@@ -86,9 +101,11 @@ export default function Curso() {
     const [submitted, setSubmitted] = useState(false);
     const [sesionDialog, setSesionDialog] = useState(false);
     const [cursoCDialog, setCursoCDialog] = useState(false);
+    const [matricula, setMatricula] = useState(matriculaVacia)
 
     useEffect(() => {
         cargarDatos();
+        cargarNotas();
     }, []);
 
     const cargarDatos = async () => {
@@ -111,6 +128,27 @@ export default function Curso() {
         }
     };
 
+    const cargarNotas = async () => {
+        await axios.get('http://localhost:3001/api/estudiante/notas', {
+            params: {
+                codigoCurso: codigoCurso,
+                codigoEstudiante: codigoEstudiante
+            }
+        })
+            .then(response => {
+                let matricula = response.data.matricula
+                setMatricula(matricula)
+            })
+            .catch(error => {
+                console.error(error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.response ? error.response.data.message : error.message,
+                    life: 3000
+                });
+            })
+    }
 
     const filtrarSemanas = (Semanas: (typeof semanaVacia)[], Codigo: string) => {
         return Semanas.filter((s) => s.CodigoUnidadAcademica === Codigo);
@@ -129,15 +167,15 @@ export default function Curso() {
     };
 
     const estadoBodyTemplate = (rowData: any) => {
-        console.log('Rowdata para Asitencia',rowData)
-        if(rowData.Asistencia && rowData.Asistencia.length > 0){
+        console.log('Rowdata para Asitencia', rowData)
+        if (rowData.Asistencia && rowData.Asistencia.length > 0) {
             console.log('Rowdata Para Estado:', rowData.Asistencia[0].Estado);
             const icono = (
                 <span className={`icono-${rowData.Asistencia[0].Estado}`}>
-                    <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Asistencia[0].Estado, 'text-red-500 pi-times-circle': !rowData.Asistencia[0].Estado})}></i>
+                    <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Asistencia[0].Estado, 'text-red-500 pi-times-circle': !rowData.Asistencia[0].Estado })}></i>
                 </span>
             );
-    
+
             return (
                 <>
                     {icono}
@@ -146,13 +184,13 @@ export default function Curso() {
                     </Tooltip>
                 </>
             );
-        }else{
+        } else {
             const icono = (
                 <span className={`icono-x`}>
                     <i className={classNames('pi', 'text-red-500 pi-times-circle')}></i>
                 </span>
             );
-    
+
             return (
                 <>
                     {icono}
@@ -169,10 +207,10 @@ export default function Curso() {
         return (
             <React.Fragment>
                 <Link href={`/estudiante/clases/detalles-curso/recursos?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1"   />
+                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" />
                 </Link>
                 <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success mr-5"  />
+                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success mr-5" />
                 </Link>
             </React.Fragment>
         );
@@ -261,7 +299,90 @@ export default function Curso() {
                             </DataTable>
                         </TabPanel>
                         <TabPanel header="Calificaciones" leftIcon="pi pi-check-square mr-2">
-                            <h4>Calificaciones</h4>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        NOTA 1: <span style={matricula.Nota1 < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.Nota1}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        NOTA 2: <span style={matricula.Nota2 < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.Nota2}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        NOTA 3: <span style={matricula.Nota3 < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.Nota3}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        NOTA 4: <span style={matricula.Nota4 < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.Nota4}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        RECUPERACIÓN: <span style={matricula.NotaRecuperacion < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.NotaRecuperacion}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        APLAZADO: <span style={matricula.NotaAplazado < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.NotaAplazado}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        NOTA FINAL: <span style={matricula.NotaFinal < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.NotaFinal}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </TabPanel>
                     </TabView>
                 </div>
