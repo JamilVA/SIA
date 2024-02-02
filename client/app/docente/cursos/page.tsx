@@ -16,7 +16,7 @@ const Page = () => {
     };
 
     const docenteVacio = {
-        Codigo: 0,
+        Codigo: 1,
         Persona:{
             Paterno:'',
             Materno:'',
@@ -38,7 +38,7 @@ const Page = () => {
     const dt = useRef<DataTable<any>>(null);
 
     const d = {
-        CodDocente: 37
+        CodDocente: 1
     };
 
     useEffect(() => {
