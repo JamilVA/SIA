@@ -23,8 +23,6 @@ export default function ActividadesPage() {
     const searchParamas = useSearchParams();
     const codigoSesion = searchParamas.get('codigo');
 
-    console.log('Codigo Recibido:', codigoSesion);
-
     let emptyActividad = {
         Codigo: 0,
         Titulo: '',
@@ -206,6 +204,32 @@ export default function ActividadesPage() {
 
     }
 
+    const descargarArchivo = async (ruta: string) => {
+        await axios.get('http://localhost:3001/api/files/download', {
+            params: { fileName: ruta },
+            responseType: 'arraybuffer'
+        })
+            .then(response => {
+                //console.log(response); 
+                const file = new File([response.data], ruta);
+                const url = URL.createObjectURL(file);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = file.name;
+                link.click();
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                //console.error(error.response);           
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error en la descarga',
+                    detail: error.response ? "El archivo no existe" : error.message,
+                    life: 3000
+                })
+            })
+    }
+
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
         const val = (e.target && e.target.value) || '';
         let _actividad = { ...actividad, Titulo: val };
@@ -275,15 +299,28 @@ export default function ActividadesPage() {
                                     <span className="font-semibold"><strong>Cierre: </strong>{formatDate(new Date(actividad.FechaCierre))}</span>
                                 </span>
                             </div>
-                            <FileUpload
-                                chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
-                                chooseLabel='Subir archivo guía'
-                                mode="basic"
-                                accept=".pdf"
-                                maxFileSize={5000000}
-                                customUpload
-                                uploadHandler={(e) => handleUpload(e, actividad)}
-                            />
+                            <div className='flex flex-row align-items-end'>
+                                <div className='mr-2'>
+                                    <FileUpload
+                                        chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
+                                        chooseLabel='Subir archivo guía'
+                                        mode="basic"
+                                        accept=".pdf"
+                                        maxFileSize={5000000}
+                                        customUpload
+                                        uploadHandler={(e) => handleUpload(e, actividad)}
+                                    />
+                                </div>
+                                <div>
+                                    {actividad.RutaRecursoGuia && <Button className='p-1 border-none'
+                                        size='small'
+                                        style={{ backgroundColor: 'green' }}
+                                        label="Mi archivo registrado"
+                                        icon="pi pi-download"
+                                        onClick={() => descargarArchivo(actividad.RutaRecursoGuia)}
+                                    />}
+                                </div>
+                            </div>
                         </div>
                         <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
                             <Button icon="pi pi-pencil" rounded severity="success" onClick={() => editActividad(actividad)} />
