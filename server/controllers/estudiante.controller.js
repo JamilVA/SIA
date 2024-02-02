@@ -1,4 +1,4 @@
-const {Estudiante, Persona, Usuario, CarreraProfesional} = require("../config/relations")
+const {Estudiante, Persona, Usuario, CarreraProfesional, Matricula} = require("../config/relations")
 
 const bcrypt = require('bcryptjs');
 

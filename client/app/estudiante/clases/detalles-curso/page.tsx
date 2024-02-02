@@ -148,7 +148,7 @@ export default function Curso() {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
-                    detail: error.response ? error.response.data.message : error.message,
+                    detail: error.response ? error.response.data.error : error.message,
                     life: 3000
                 });
             })
