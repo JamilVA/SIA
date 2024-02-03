@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const { startOfWeek, addWeeks, format } = require('date-fns');
 
+import { TabView, TabPanel } from 'primereact/tabview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
@@ -60,9 +61,9 @@ export default function Curso() {
         Numero: '0',
         Descripcion: '',
         LinkClaseVirtual: '',
-        Fecha:new Date,
+        Fecha: new Date(),
         HoraInicio: '',
-        HoraFin: '',
+        HoraFin: ''
     };
 
     const semanaVacia = {
@@ -101,7 +102,6 @@ export default function Curso() {
     const [cursoCDialog, setCursoCDialog] = useState(false);
 
     const [fechaInicioClases, setFechaInicioClases] = useState<Date>();
-
 
     useEffect(() => {
         cargarDatos();
@@ -142,7 +142,7 @@ export default function Curso() {
                     linkClaseVirtual: _sesion.LinkClaseVirtual,
                     fecha: _sesion.Fecha,
                     horaInicio: _sesion.HoraInicio,
-                    horaFin: _sesion.HoraFin,
+                    horaFin: _sesion.HoraFin
                 })
                 .then((response) => {
                     console.log(response.data);
@@ -161,7 +161,7 @@ export default function Curso() {
                     linkClaseVirtual: _sesion.LinkClaseVirtual,
                     fecha: _sesion.Fecha,
                     horaInicio: _sesion.HoraInicio,
-                    horaFin: _sesion.HoraFin,
+                    horaFin: _sesion.HoraFin
                 })
                 .then((response) => {
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion creada con éxito', life: 3000 });
@@ -199,7 +199,6 @@ export default function Curso() {
         console.log('Rowdada', rowData);
         console.log('Horarios', horarios);
 
-
         const cantidadSesionesSemana = sesiones.filter((s) => s.CodigoSemanaAcademica == rowData.Codigo).length;
         if (cantidadSesionesSemana == 2) {
             toast.current!.show({ severity: 'error', summary: 'Advertencia', detail: 'El límite de sesiones por semana es de 2', life: 3000 });
@@ -228,7 +227,7 @@ export default function Curso() {
             Numero: sesion.Numero,
             Fecha: sesion.Fecha,
             HoraInicio: sesion.HoraInicio,
-            HoraFin: sesion.HoraFin,
+            HoraFin: sesion.HoraFin
         };
 
         setSesion(tempSesion);
@@ -251,38 +250,76 @@ export default function Curso() {
         setCursoCDialog(true);
     };
 
-    const calcularFecha = (dia:string, numeroSemana:number) => {      
-
+    const calcularFecha = (dia: string, numeroSemana: number) => {
         const primerDiaSemanaInicio = startOfWeek(fechaInicioClases, { weekStartsOn: 0 }); // 0 para el domingo, 1 para el lunes, etc.
-    
-      // Mapear los días de la semana a sus índices
-      const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-      const indiceDia = diasSemana.indexOf(dia);
-    
-      // Calcular la fecha basándonos en el número de semanas
-      const fechaCalculada = addWeeks(primerDiaSemanaInicio, (numeroSemana - 1)); // Restamos 1 porque la primera semana es la semana de inicio
-    
-      // Obtener la fecha específica para el día de la semana
-      const fechaFinal = new Date(fechaCalculada);
-      fechaFinal.setDate(fechaCalculada.getDate() + (indiceDia - fechaCalculada.getDay() + 7) % 7);
-    
-      // Formatear la fecha como "dd de mes del año"
-      const formatoFecha = fechaFinal.toLocaleDateString("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
-    
-      console.log(`Fecha para ${dia} de la semana ${numeroSemana}: ${formatoFecha}`);
-      return(fechaFinal)
+
+        // Mapear los días de la semana a sus índices
+        const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        const indiceDia = diasSemana.indexOf(dia);
+
+        // Calcular la fecha basándonos en el número de semanas
+        const fechaCalculada = addWeeks(primerDiaSemanaInicio, numeroSemana - 1); // Restamos 1 porque la primera semana es la semana de inicio
+
+        // Obtener la fecha específica para el día de la semana
+        const fechaFinal = new Date(fechaCalculada);
+        fechaFinal.setDate(fechaCalculada.getDate() + ((indiceDia - fechaCalculada.getDay() + 7) % 7));
+
+        // Formatear la fecha como "dd de mes del año"
+        const formatoFecha = fechaFinal.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        console.log(`Fecha para ${dia} de la semana ${numeroSemana}: ${formatoFecha}`);
+        return fechaFinal;
     };
+
     
+    const descargarArchivo = async (ruta: string) => {
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download',{
+                params:{ fileName: ruta }
+            });
+
+            console.log(response)
+    
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    
+            // Crear un objeto URL del blob
+            const url = window.URL.createObjectURL(blob);
+    
+            // Crear un enlace temporal
+            const link = document.createElement('a');
+            link.href = url;
+    
+            // Establecer el nombre del archivo
+            link.download = ruta;
+    
+            // Simular un clic en el enlace para iniciar la descarga
+            document.body.appendChild(link);
+            link.click();
+    
+            // Limpiar el enlace después de la descarga
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al descargar el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de descarga de archivo',
+                life: 3000
+            });
+        }
+    };
+
     const onInputSesionChange = (e: React.ChangeEvent<HTMLInputElement>, name: keyof typeof sesionVacia) => {
         const val = (e.target && e.target.value) || '';
         let _sesion = { ...sesion };
-        if(name==='Fecha'){
+        if (name === 'Fecha') {
             return;
-        }else{
+        } else {
             _sesion[name] = val;
         }
         setSesion(_sesion);
@@ -340,23 +377,29 @@ export default function Curso() {
     const fechaBodyTemplate = (rowData: any) => {
         if (rowData.Fecha) {
             const fecha = new Date(rowData.Fecha + 'T00:00:00');
-            return fecha.toLocaleDateString("es-ES", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "2-digit",
-            }).toUpperCase() + ' ' + rowData.HoraInicio.slice(0, 5);
+            return (
+                fecha
+                    .toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: '2-digit'
+                    })
+                    .toUpperCase() +
+                ' ' +
+                rowData.HoraInicio.slice(0, 5)
+            );
         }
     };
-    
+
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
                 <Link href={`/docente/cursos/recursos?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }}  />
+                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} />
                 </Link>
 
                 <Link href={`/docente/cursos/actividades?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }}  />
+                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} />
                 </Link>
 
                 <Link href={`/docente/cursos/asistencias?codigo=${rowData.Codigo}`}>
@@ -412,13 +455,8 @@ export default function Curso() {
         );
     };
 
-    const header = <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" />;
-    const footer = (
-        <>
-            <Button label="Save" icon="pi pi-check" />
-            <Button label="Cancel" severity="secondary" icon="pi pi-times" style={{ marginLeft: '0.5em' }} />
-        </>
-    );
+    const header = <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" height={300} style={{ objectFit: 'cover' }} />;
+
     const title = (curso: typeof cursoVacio) => {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -433,7 +471,7 @@ export default function Curso() {
     return (
         <div className="grid">
             <Toast ref={toast} />
-            <div className="col-3 m-0">
+            <div className="d-none d-lg-block d-xl-none col-3 m-0">
                 <div className="card">
                     <div className="text-center">
                         <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQION7iLAgrmjNpsU01XdpcD7fU-ZnfaLfEWestMmrvQQ&s" />
@@ -448,14 +486,123 @@ export default function Curso() {
                         </p>
                     </div>
                 </div>
-                <div className="card"></div>
             </div>
             <div className="col-9 m-0">
                 <div>
-                    <Card title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
-                    <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
-                        <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                    </DataTable>
+                    <Card
+                        title={title(curso)}
+                        header={header}
+                        subTitle={'Codigo (' + curso.Codigo + ')'}
+                        style={{
+                            border: 'none',
+                            borderRadius: 0,
+                            boxShadow: 'none'
+                        }}
+                    ></Card>
+
+                    <TabView>
+                        <TabPanel header="Datos del curso" leftIcon="pi pi-info-circle mr-2">
+                            <div className="p-fluid">
+                                <div className="field">
+                                    {/* <InputText id="Nombre" value={curso.Nombre + ' (' + curso.Codigo + ')'} disabled /> */}
+                                    <div className="text-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bold' }}>
+                                            {curso.Nombre}
+                                        </span>
+                                        <span className="text-primary"> ({curso.Codigo})</span>
+                                        <br />
+                                        <small className="text-muted">PINTURA</small>
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="nivel" className="font-bold">
+                                            Año
+                                        </label>
+                                        <InputText id="nivel" value={curso.Nivel.toString()} disabled />
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="semestre" className="font-bold">
+                                            Semestre
+                                        </label>
+                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="horasTeoria" className="font-bold">
+                                            Horas Teoria
+                                        </label>
+                                        <InputText id="horasTeoria" value={curso.HorasTeoria.toString()} disabled />
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="horasPractica" className="font-bold">
+                                            Horas Práctica
+                                        </label>
+                                        <InputText id="horasPractica" value={curso.HorasPractica.toString()} disabled />
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="semestre" className="font-bold">
+                                            Créditos
+                                        </label>
+                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="rutaSyllabus" className="font-bold">
+                                            Syllabus
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}}  />
+                                        </div>                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="rutaNormas" className="font-bold">
+                                            Normas de convivencia
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}} />
+                                        </div>                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="rutaPresentacionCurso" className="font-bold">
+                                            Presentación del curso
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}} />
+                                        </div>                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="rutaPresentacionDocente" className="font-bold">
+                                            Presentación del docente
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="competencia" className="font-bold">
+                                            Competencia
+                                        </label>
+                                        <InputTextarea id="competencia" value={cursoCalificacion.Competencia || ''} disabled />
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="capacidad" className="font-bold">
+                                            Capacidad
+                                        </label>
+                                        <InputTextarea id="capacidad" value={cursoCalificacion.Capacidad || ''} disabled />
+                                    </div>
+                                </div>
+                            </div>
+                        </TabPanel>
+                        <TabPanel header="Sesiones" leftIcon="pi pi-list mr-2">
+                            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
+                                <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                            </DataTable>
+                        </TabPanel>
+                    </TabView>
                 </div>
             </div>
             <Dialog visible={sesionDialog} style={{ width: '40rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos de la sesión" modal className="p-fluid" footer={sesionDialogFooter} onHide={hideSesionDialog}>
@@ -478,7 +625,15 @@ export default function Curso() {
                     <label htmlFor="linkClaseVirtual" className="font-bold">
                         Enlace para clase virtual
                     </label>
-                    <InputText id="linkClaseVirtual" value={sesion.LinkClaseVirtual} onChange={(e) => onInputSesionChange(e, 'LinkClaseVirtual')} required autoFocus maxLength={100} className={classNames({ 'p-invalid': submitted && !sesion.LinkClaseVirtual })} />
+                    <InputText
+                        id="linkClaseVirtual"
+                        value={sesion.LinkClaseVirtual}
+                        onChange={(e) => onInputSesionChange(e, 'LinkClaseVirtual')}
+                        required
+                        autoFocus
+                        maxLength={100}
+                        className={classNames({ 'p-invalid': submitted && !sesion.LinkClaseVirtual })}
+                    />
                     {submitted && !sesion.LinkClaseVirtual && <small className="p-error">Ingrese el nombre de la sesión.</small>}
                 </div>
             </Dialog>

@@ -63,9 +63,9 @@ export default function Curso() {
         Numero: '0',
         Descripcion: '',
         LinkClaseVirtual: '',
-        Fecha: new Date,
+        Fecha: new Date(),
         HoraInicio: '',
-        HoraFin: '',
+        HoraFin: ''
     };
 
     const semanaVacia = {
@@ -117,7 +117,7 @@ export default function Curso() {
             const { data } = await axios.get('http://localhost:3001/api/sesion/estudiante', {
                 params: {
                     CodigoCursoCalificacion: codigoCurso,
-                    CodigoEstudiante: codigoEstudiante,
+                    CodigoEstudiante: codigoEstudiante
                 }
             });
 
@@ -132,6 +132,44 @@ export default function Curso() {
         }
     };
 
+    
+    const descargarArchivo = async (ruta: string) => {
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download',{
+                params:{ fileName: ruta }
+            });
+
+            console.log(response)
+    
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    
+            // Crear un objeto URL del blob
+            const url = window.URL.createObjectURL(blob);
+    
+            // Crear un enlace temporal
+            const link = document.createElement('a');
+            link.href = url;
+    
+            // Establecer el nombre del archivo
+            link.download = ruta;
+    
+            // Simular un clic en el enlace para iniciar la descarga
+            document.body.appendChild(link);
+            link.click();
+    
+            // Limpiar el enlace después de la descarga
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al descargar el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de descarga de archivo',
+                life: 3000
+            });
+        }
+    };
     const cargarNotas = async () => {
         await axios.get('http://localhost:3001/api/estudiante/notas', {
             params: {
@@ -173,16 +211,22 @@ export default function Curso() {
     const fechaBodyTemplate = (rowData: any) => {
         if (rowData.Fecha) {
             const fecha = new Date(rowData.Fecha + 'T00:00:00');
-            return fecha.toLocaleDateString("es-ES", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "2-digit",
-            }).toUpperCase() + ' ' + rowData.HoraInicio.slice(0, 5);
+            return (
+                fecha
+                    .toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: '2-digit'
+                    })
+                    .toUpperCase() +
+                ' ' +
+                rowData.HoraInicio.slice(0, 5)
+            );
         }
     };
 
     const estadoBodyTemplate = (rowData: any) => {
-        console.log('Rowdata para Asitencia', rowData)
+        console.log('Rowdata para Asitencia', rowData);
         if (rowData.Asistencia && rowData.Asistencia.length > 0) {
             console.log('Rowdata Para Estado:', rowData.Asistencia[0].Estado);
             const icono = (
@@ -215,17 +259,16 @@ export default function Curso() {
                 </>
             );
         }
-
     };
 
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
                 <Link href={`/estudiante/clases/detalles-curso/recursos?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1"/>
+                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" />
                 </Link>
                 <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}&codigoE=${codigoEstudiante}`}>
-                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success mr-5"  />
+                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success mr-5" />
                 </Link>
             </React.Fragment>
         );
@@ -275,12 +318,12 @@ export default function Curso() {
         );
     };
 
+    const header = <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" height={300} style={{ objectFit: 'cover' }} />;
+
     const title = (curso: typeof cursoVacio) => {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-                <h4>
-                    {curso.Nombre}
-                </h4>
+                <h4>{curso.Nombre}</h4>
             </div>
         );
     };
@@ -288,7 +331,7 @@ export default function Curso() {
     return (
         <div className="grid">
             <Toast ref={toast} />
-            <div className="col-3 m-0">
+            <div className="col-12 md:col-3">
                 <div className="card">
                     <div className="text-center">
                         <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="/images/usuario.png" />
@@ -305,10 +348,109 @@ export default function Curso() {
                 </div>
                 <div className="card"></div>
             </div>
-            <div className="col-9 m-0">
+            <div className="col-12 md:col-9">
                 <div>
-                    <Card title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
+                    <Card header={header} title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
                     <TabView>
+                        <TabPanel header="Datos del curso" leftIcon="pi pi-info-circle mr-2">
+                            <div className="p-fluid">
+                                <div className="field">
+                                    {/* <InputText id="Nombre" value={curso.Nombre + ' (' + curso.Codigo + ')'} disabled /> */}
+                                    <div className="text-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bold' }}>
+                                            {curso.Nombre}
+                                        </span>
+                                        <span className="text-primary"> ({curso.Codigo})</span>
+                                        <br />
+                                        <small className="text-muted">PINTURA</small>
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="nivel" className="font-bold">
+                                            Año
+                                        </label>
+                                        <InputText id="nivel" value={curso.Nivel.toString()} disabled />
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="semestre" className="font-bold">
+                                            Semestre
+                                        </label>
+                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="horasTeoria" className="font-bold">
+                                            Horas Teoria
+                                        </label>
+                                        <InputText id="horasTeoria" value={curso.HorasTeoria.toString()} disabled />
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="horasPractica" className="font-bold">
+                                            Horas Práctica
+                                        </label>
+                                        <InputText id="horasPractica" value={curso.HorasPractica.toString()} disabled />
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="semestre" className="font-bold">
+                                            Créditos
+                                        </label>
+                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="rutaSyllabus" className="font-bold">
+                                            Syllabus
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>{' '}
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="rutaNormas" className="font-bold">
+                                            Normas de convivencia
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>{' '}
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="rutaPresentacionCurso" className="font-bold">
+                                            Presentación del curso
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>{' '}
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="rutaPresentacionDocente" className="font-bold">
+                                            Presentación del docente
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="competencia" className="font-bold">
+                                            Competencia
+                                        </label>
+                                        <InputTextarea id="competencia" value={cursoCalificacion.Competencia || ''} disabled/>
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="capacidad" className="font-bold">
+                                            Capacidad
+                                        </label>
+                                        <InputTextarea id="capacidad" value={cursoCalificacion.Capacidad || ''} disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                        </TabPanel>
                         <TabPanel header="Sesiones" leftIcon="pi pi-list mr-2">
                             <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
                                 <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
