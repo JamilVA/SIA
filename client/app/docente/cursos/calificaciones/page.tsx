@@ -4,7 +4,7 @@ import { Toast } from 'primereact/toast';
 import { useSearchParams } from 'next/navigation';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
-import { InputNumber } from 'primereact/inputnumber';
+import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import axios from 'axios';
 import { Button } from 'primereact/button';
@@ -17,10 +17,25 @@ const page = () => {
         Codigo: '',
         Nombre: '',
         CursoCalificacion: {
+            Codigo: '',
             EstadoNotas: false,
             EstadoRecuperacion: false,
             EstadoAplazado: false,
+            Periodo: {
+                Codigo: ''
+            }
+        },
+        CarreraProfesional: {
+            Codigo: 0
         }
+    }
+
+    const emptyActa = {
+        Codigo: '',
+        FechaGeneracion: '',
+        CodigoCursoCalificacion: '',
+        CodigoPeriodo: '',
+        CodigoCarrera: 0
     }
 
     const emptyRegistroMatricula = {
@@ -39,28 +54,52 @@ const page = () => {
     }
 
     const searchParamas = useSearchParams();
-    const codigoCurso = searchParamas.get('codigo')
+    const [actaDialog, setActaDialog] = useState(false);
+    const codigoCursoCal = searchParamas.get('codigo')
     const [curso, setCurso] = useState(emptyCurso);
     const [registroMatricula, setRegistroMatricula] = useState();
     const [notasEstudiante, setNotasEstudiante] = useState<Demo.RegistroMatricula>(emptyRegistroMatricula);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     let arrayNotas: number[] = [];
+    const acta = emptyActa;
+    const [actas, setActas] = useState<Demo.Acta[]>([]);
 
     useEffect(() => {
         fetchData();
+        fetchActas();
     }, []);
 
     const fetchData = async () => {
         await axios.get('http://127.0.0.1:3001/api/matricula/getMatriculaByCurso', {
             params: {
-                codCurso: codigoCurso,
+                codCurso: codigoCursoCal,
             }
         }).then(response => {
             setCurso(response.data.curso);
             setRegistroMatricula(response.data.registroMatricula);
-            //console.log(response.data);
+            console.log(response.data);
             // setCursos(response.data.cursos)
+
+        }).catch(error => {
+            console.log("Error en carga de datos: ", error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error en la carga de datos',
+                life: 3000
+            });
+        })
+    }
+
+    const fetchActas = async () => {
+        await axios.get('http://127.0.0.1:3001/api/acta', {
+            params: {
+                CodCursoCal: codigoCursoCal
+            }
+        }).then(response => {
+            setActas(response.data.actas);
+            console.log(response.data);
 
         }).catch(error => {
             console.log("Error en carga de datos: ", error);
@@ -75,6 +114,12 @@ const page = () => {
 
     const apiSaveNotes = async () => {
         const result = await axios.put('http://127.0.0.1:3001/api/matricula/updateNotas', notasEstudiante)
+        fetchData();
+        console.log(result);
+    }
+
+    const apiSaveActa = async (data: object) => {
+        const result = await axios.post('http://127.0.0.1:3001/api/acta', data)
         fetchData();
         console.log(result);
     }
@@ -120,10 +165,41 @@ const page = () => {
             notasEstudiante['NotaFinal'] = 11;
         }
 
-        console.log(arrayNotas)
+        if (data.NotaRecuperacion == null || notasEstudiante.NotaAplazado != null) {
+            if (data.PorcentajeAsistencia < 75 && (notasEstudiante.NotaRecuperacion != null || notasEstudiante.NotaFinal != null)) {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No cumple con el mínimo porcentaje de asistencia',
+                    life: 3000
+                });
+            } else {
+                apiSaveNotes()
+                setNotasEstudiante(emptyRegistroMatricula);
+            }
+        }
+        console.log(data)
+    }
 
-        apiSaveNotes()
-        setNotasEstudiante(emptyRegistroMatricula);
+    const middCodigoActa = (n: number) => {
+        let c = '';
+        if (n < 10)
+            c = '0' + n;
+        else {
+            c = n.toString()
+        }
+
+        return c;
+    }
+
+    const saveActa = () => {
+        acta['CodigoPeriodo'] = curso.CursoCalificacion.Periodo.Codigo;
+        acta['CodigoCarrera'] = curso.CarreraProfesional.Codigo;
+        acta['Codigo'] = String(curso.CursoCalificacion.Periodo.Codigo) + String(middCodigoActa(curso.CarreraProfesional.Codigo));
+        acta['FechaGeneracion'] = new Date().toLocaleDateString();
+        acta['CodigoCursoCalificacion'] = curso.CursoCalificacion.Codigo;
+        apiSaveActa(acta);
+        setActaDialog(false);
     }
 
     const actionNFTemplate = (rowData: Demo.RegistroMatricula) => {
@@ -165,7 +241,36 @@ const page = () => {
     }
 
     const actionSaveTemplate = (rowData: any) => {
-        return <i className='pi pi-save' style={{ cursor: 'pointer' }} onClick={() => saveNotes(rowData)}></i>
+        if (actas.length == 0) {
+            return <i className='pi pi-save' style={{ cursor: 'pointer' }} onClick={() => saveNotes(rowData)}></i>
+        } else {
+            return <i className='pi pi-save' style={{ color: '#D4D4D4' }}></i>
+        }
+    }
+
+    const openActaDialog = () => {
+        setActaDialog(true);
+    };
+
+    const hideActaDialog = () => {
+        setActaDialog(false);
+    };
+
+    const actaDialogFooter = (
+        <>
+            <Button label="No" outlined icon="pi pi-times" onClick={hideActaDialog} />
+            <Button label="Si" icon="pi pi-check" onClick={saveActa} />
+        </>
+    );
+
+    const headerTable = () => {
+        if (actas.length == 0) {
+            return (
+                <Button onClick={openActaDialog} style={{ height: '30px', marginBlock: '10px', marginTop: '0px' }}>Generar acta</Button>
+            )
+        } else {
+            return <div style={{ height: '30px', marginBlock: '10px', marginTop: '0px', padding: '5px', border: '1px solid red' }}> <b style={{ color: 'red' }}>ACTA GENERADA</b> </div>
+        }
     }
 
     return (
@@ -175,6 +280,9 @@ const page = () => {
             </div>
             <div className='col-12'>
                 <div className='card'>
+                    <div style={{ display: 'flex', justifyContent: 'end' }}>
+                        {headerTable()}
+                    </div>
                     <Toast ref={toast} />
                     <DataTable
                         ref={dt}
@@ -196,6 +304,17 @@ const page = () => {
                         <Column body={actionSaveTemplate} />
                         <Column field="PorcentajeAsistencia" body={percentBodyTemplate} header="% Asistencia" />
                     </DataTable>
+
+                    <Dialog visible={actaDialog} style={{ width: '400px' }} header="Confirmar" modal footer={actaDialogFooter} onHide={hideActaDialog}>
+                        <div className="flex align-items-center justify-content-center">
+                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                            {(
+                                <span style={{ textAlign: 'justify', width: '20rem' }}>
+                                    <b>Estás seguro de generar el acta?</b> Ten en cuenta que luego de genrarlo, no podrás editar ningun registro de calificaciones de este curso.
+                                </span>
+                            )}
+                        </div>
+                    </Dialog>
                 </div>
             </div>
         </div>

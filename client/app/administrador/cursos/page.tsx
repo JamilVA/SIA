@@ -386,25 +386,6 @@ const Page = () => {
                                 ></Dropdown>
                             </div>
                             <div className="field col">
-                                <label htmlFor="Tipo">Tipo</label>
-                                <Dropdown
-                                    value={curso.Tipo}
-                                    options={tipos}
-                                    optionLabel="name"
-                                    optionValue="value"
-                                    name="Nivel"
-                                    onChange={(e) => {
-                                        onDropdownChange(e, 'Tipo');
-                                    }}
-                                    placeholder="Seleccione el Tipo"
-                                    id="Tipo"
-                                    required
-                                    className={classNames({ 'p-invalid': submitted && !curso.Tipo })}
-                                />
-                            </div>
-                        </div>
-                        <div className="formgrid grid">
-                            <div className="field col">
                                 <label htmlFor="Nivel">Nivel</label>
                                 <Dropdown
                                     value={curso.Nivel}
@@ -421,6 +402,8 @@ const Page = () => {
                                     className={classNames({ 'p-invalid': submitted && !curso.Nivel })}
                                 />
                             </div>
+                        </div>
+                        <div className="formgrid grid">
                             <div className="field col">
                                 <label htmlFor="Semestre">Semestre</label>
                                 <Dropdown

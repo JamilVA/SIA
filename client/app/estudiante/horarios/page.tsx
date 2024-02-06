@@ -7,6 +7,7 @@ import { Toast } from 'primereact/toast';
 import axios from 'axios';
 import Link from 'next/link';
 import { Dropdown } from 'primereact/dropdown';
+import { classNames } from 'primereact/utils';
 
 const page = () => {
 
@@ -18,7 +19,9 @@ const page = () => {
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
-    const [horarios, setHorarios] = useState();
+    const [horarios, setHorarios] = useState([]);
+    const [horarioE, setHorarioE] = useState([]);
+    const [i, setI] = useState(0);
     const [nivel, setNivel] = useState(0);
     const [ciclo, setCiclo] = useState();
     const [paramsHG, setParamsHG] = useState(paramsHorarioG);
@@ -44,22 +47,43 @@ const page = () => {
     const [ciclos, setCiclos] = useState(arrayCiclos);
 
     useEffect(() => {
-        fetchHorarios(paramsHG)
+        fetchHorariosG();
+        fetchHorarioE()
     }, []);
 
-    const fetchHorarios = async (params:object) => {
+    const fetchHorariosG = async () => {
         await axios.get("http://127.0.0.1:3001/api/horario/generales", {
-            params:{
+            params: {
                 CodCarrera: paramsHG.CodCarrera,
                 Nivel: paramsHG.Nivel,
                 Semestre: paramsHG.Semestre
             }
         }).then(response => {
             console.log(response.data);
-            setHorarios(response.data.horarios)
+            setHorarios(response.data.horarios);
 
         }).catch(error => {
             console.log("Error en carga de horarios: ", error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error en la carga de datos',
+                life: 3000
+            });
+        })
+    }
+
+    const fetchHorarioE = async () => {
+        await axios.get("http://127.0.0.1:3001/api/horario/estudiante", {
+            params: {
+                CodEstudiante: 19,
+            }
+        }).then(response => {
+            console.log(response.data);
+            setHorarioE(response.data.horario)
+
+        }).catch(error => {
+            console.log("Error en la carga de horario: ", error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -93,8 +117,8 @@ const page = () => {
         const val = (e.target && e.target.value) || '';
         setCiclo(val);
         paramsHG['Semestre'] = val;
-        fetchHorarios(paramsHG);
-        console.log(paramsHG)
+        fetchHorariosG();
+        setI(0);
     }
 
     const bodyCiclos = () => {
@@ -120,6 +144,22 @@ const page = () => {
         }
     }
 
+    const setHorarioEstudiante = () => {
+        setI(1);
+        console.log(i)
+        console.log(horarioE)
+    }
+
+    const headerTable = () => {
+        if (horarioE?.length > 0) {
+            return (
+                <div style={{ display: 'flex', justifyContent: 'end' }}>
+                    <Button onClick={setHorarioEstudiante} style={{ height: '30px', marginBlock: '10px' }}>Ver mi horario</Button>
+                </div>
+            )
+        }
+    }
+
     const actionHoraTemplate = (rowData: any) => {
         let horaIni = rowData.HoraInicio.substring(0, 5);
         let horaFin = rowData.HoraFin.substring(0, 5);
@@ -135,10 +175,10 @@ const page = () => {
             <div className='col-12'>
                 <h5 className='m-1 mt-4'>HORARIOS - CICLO</h5>
             </div>
-            <div className='col-3'>
+            <div className='col-12 md:col-3'>
                 <div className='card'>
                     <div className="grid">
-                        <label className='col-12' htmlFor="Tipo">Nivel</label>
+                        <label className='col-12' htmlFor="Nivel">Nivel</label>
                         <Dropdown
                             value={nivel}
                             options={niveles}
@@ -149,19 +189,20 @@ const page = () => {
                                 onDropdownChange(e);
                             }}
                             placeholder="Seleccione..."
-                            id="Tipo"
+                            id="Nivel"
                             className='w-full'
                         />
                     </div>
                     {bodyCiclos()}
                 </div>
             </div>
-            <div className="col-9">
+            <div className="col-12 md:col-9">
                 <div className='card'>
                     <Toast ref={toast} />
+                    {headerTable()}
                     <DataTable
                         ref={dt}
-                        value={horarios}
+                        value={i == 0 ? horarios : horarioE}
                         dataKey="CodigoHorario"
                         className="datatable-responsive"
                         emptyMessage="No se encontraron registros"

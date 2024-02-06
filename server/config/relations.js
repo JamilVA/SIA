@@ -13,6 +13,7 @@ const UnidadAcemica = require('../models/unidadAcademica.model')
 const SemanaAcademica = require('../models/semanaAcademica.model')
 const ConceptoPago = require("../models/conceptoPago.model");
 const Pago = require("../models/pago.model");
+const Acta = require("../models/acta.model");
 
 ConceptoPago.hasMany(Pago, { foreignKey: "CodigoConceptoPago" });
 Pago.belongsTo(ConceptoPago, { foreignKey: "CodigoConceptoPago" });
@@ -59,6 +60,9 @@ UnidadAcemica.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacio
 UnidadAcemica.hasMany(SemanaAcademica, { foreignKey: 'CodigoUnidadAcademica' })
 SemanaAcademica.belongsTo(UnidadAcemica, { foreignKey: 'CodigoUnidadAcademica' })
 
+CursoCalificacion.hasOne(Acta, {foreignKey: 'CodigoCursoCalificacion'})
+Acta.belongsTo(CursoCalificacion, {foreignKey: 'CodigoCursoCalificacion'})
+
 module.exports = {
     Actividad,
     Sesion,
@@ -74,5 +78,6 @@ module.exports = {
     UnidadAcemica,
     SemanaAcademica,
     Pago,
-    ConceptoPago
+    ConceptoPago, 
+    Acta
 }

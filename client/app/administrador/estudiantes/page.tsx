@@ -3,7 +3,6 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
-import { FileUpload } from 'primereact/fileupload';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
@@ -14,8 +13,9 @@ import axios from 'axios'
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
 import { RadioButton } from 'primereact/radiobutton';
+import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
 
-export default function Page ()  {
+export default function Page() {
 
     let emptyEstudiante: Demo.Student = {
         Codigo: '',
@@ -23,7 +23,7 @@ export default function Page ()  {
         Materno: '',
         Nombres: '',
         Estado: true,
-        RutaFoto: '/ruta',
+        RutaFoto: '',
         FechaNacimiento: '',
         Sexo: '',
         DNI: '',
@@ -32,11 +32,15 @@ export default function Page ()  {
         CreditosLlevados: 0,
         CreditosAprobados: 0,
         CodigoCarreraProfesional: 0,
-        CodigoPersona: 0
+        CodigoPersona: 0,
+        Direccion: null,
+        EmailPersonal: null,
+        Celular: null,
     };
 
     const [estudiantes, setestudiantes] = useState(null);
     const [estudianteDialog, setEstudianteDialog] = useState(false);
+    const [estudianteInfoDialog, setEstudianteInfoDialog] = useState(false);
     const [deleteEstudianteDialog, setDeleteEstudianteDialog] = useState(false);
     const [estudiante, setEstudiante] = useState<Demo.Student>(emptyEstudiante);
     const [submitted, setSubmitted] = useState(false);
@@ -45,6 +49,7 @@ export default function Page ()  {
     const dt = useRef<DataTable<any>>(null);
     const [state, setState] = useState('');
     const [selectedCarrera, setSelectedCarrera] = useState<number | undefined>();
+    //const [actividades, setActividades] = useState<Array<any>>([]);
 
     useEffect(() => {
         fetchData();
@@ -54,6 +59,7 @@ export default function Page ()  {
         try {
             const result = await axios("http://localhost:3001/api/estudiante");
             setestudiantes(result.data.estudiantes);
+            console.log(result.data.estudiantes)
         } catch (e) {
             toast.current?.show({
                 severity: 'error',
@@ -74,6 +80,10 @@ export default function Page ()  {
     const hideDialog = () => {
         setSubmitted(false);
         setEstudianteDialog(false);
+    };
+
+    const hideInfoDialog = () => {
+        setEstudianteInfoDialog(false);
     };
 
     const hideDeleteEstudianteDialog = () => {
@@ -147,6 +157,22 @@ export default function Page ()  {
         }
     }
 
+    const handleUpload = async (event: FileUploadFilesEvent, rowData: any) => {
+        const file = event.files[0]
+        const formData = new FormData()
+        formData.append('file', file)
+        await axios.post('http://localhost:3001/api/files/upload', formData)
+            .then(response => {
+                console.log(response.data.path)
+                estudiante.RutaFoto = response.data.filename;
+                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Foto cargada' });
+            })
+            .catch(error => {
+                console.error(error)
+                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Error de petición' });
+            })
+    }
+
     const crearSunedu = (n: number | undefined) => {
         if (n == 1) {
             return 'AV';
@@ -183,14 +209,15 @@ export default function Page ()  {
             } else {
                 _estudiante.CodigoCarreraProfesional = selectedCarrera;
                 _estudiante.CodigoSunedu = crearSunedu(selectedCarrera) + _estudiante.DNI;
-                onSubmitChange(e, _estudiante)
+                onSubmitChange(e, _estudiante);
+
             }
             setEstudianteDialog(false);
             setEstudiante(emptyEstudiante);
         }
     };
 
-    const editEstudiante = (estudiante: Demo.Student) => {
+    const setTempEstudent = (estudiante: Demo.Student) => {
         let tempEstudiante: Demo.Student = {
             Codigo: estudiante.Codigo,
             Paterno: estudiante.Persona.Paterno,
@@ -202,17 +229,30 @@ export default function Page ()  {
             Sexo: estudiante.Persona.Sexo,
             DNI: estudiante.Persona.DNI,
             Email: estudiante.Persona.Email,
-            CodigoSunedu: estudiante.Persona.CodigoSunedu,
+            CodigoSunedu: estudiante.CodigoSunedu,
             CreditosLlevados: estudiante.CreditosLlevados,
             CreditosAprobados: estudiante.CreditosAprobados,
             CodigoCarreraProfesional: estudiante.CodigoCarreraProfesional,
             CodigoPersona: estudiante.CodigoPersona,
+            Direccion: estudiante.Persona.Direccion,
+            EmailPersonal: estudiante.Persona.EmailPersonal,
+            Celular: estudiante.Persona.Celular,
         }
+        return tempEstudiante
+    }
 
+    const editEstudiante = (estudiante: Demo.Student) => {
+        let tempEstudiante = setTempEstudent(estudiante);
         setEstudiante(tempEstudiante);
         setSelectedCarrera(tempEstudiante.CodigoCarreraProfesional);
         setEstudianteDialog(true);
     };
+
+    const infoEstudiante = (estudiante: Demo.Student) => {
+        let tempEstudiante = setTempEstudent(estudiante);
+        setEstudiante(tempEstudiante);
+        setEstudianteInfoDialog(true);
+    }
 
     const confirmDeleteEstudiante = (estudiante: Demo.Student) => {
         setEstudiante(estudiante);
@@ -298,8 +338,9 @@ export default function Page ()  {
     const actionBodyTemplate = (rowData: Demo.Student) => {
         return (
             <>
-                <Button icon="pi pi-pencil" rounded severity="warning" className="mr-2" onClick={() => editEstudiante(rowData)} />
-                <Button icon="pi pi-power-off" rounded severity="danger" onClick={() => confirmDeleteEstudiante(rowData)} />
+                <Button style={{ width: '2rem', height: '2rem' }} icon="pi pi-pencil" rounded severity="warning" className="mr-2" onClick={() => editEstudiante(rowData)} />
+                <Button style={{ width: '2rem', height: '2rem' }} rounded icon="pi pi-eye" severity="info" className="mr-2" onClick={() => infoEstudiante(rowData)} />
+                <Button style={{ width: '2rem', height: '2rem' }} icon="pi pi-power-off" rounded severity="danger" onClick={() => confirmDeleteEstudiante(rowData)} />
             </>
         );
     };
@@ -429,9 +470,25 @@ export default function Page ()  {
                         <div className="formgrid grid">
                             <div className="field col">
                                 <label htmlFor="foto">Foto</label>
-                                <FileUpload mode='basic' name="demo[]" url="/api/upload" multiple accept="image/*" maxFileSize={1000000} />
+                                <FileUpload
+                                    chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
+                                    chooseLabel='Subir imagen'
+                                    mode="basic"
+                                    accept="image/*"
+                                    maxFileSize={5000000}
+                                    customUpload
+                                    uploadHandler={(e) => handleUpload(e, estudiante)}
+                                />
                             </div>
                         </div>
+                    </Dialog>
+
+                    <Dialog visible={estudianteInfoDialog} style={{ width: '400px' }} header="Otros datos del estudiante" modal className="p-fluid" onHide={hideInfoDialog}>
+                        <p><strong>Código:</strong> {estudiante.CodigoSunedu}</p>
+                        <p><strong>Nombre:</strong> {estudiante.Nombres + ' ' + estudiante.Paterno + ' ' + estudiante.Materno}</p>
+                        <p><strong>Dirección:</strong> {estudiante.Direccion}</p>
+                        <p><strong>Email personal:</strong> {estudiante.EmailPersonal}</p>
+                        <p><strong>Celular:</strong> {estudiante.Celular}</p>
                     </Dialog>
 
                     <Dialog visible={deleteEstudianteDialog} style={{ width: '450px' }} header="Confirmar" modal footer={deleteEstudianteDialogFooter} onHide={hideDeleteEstudianteDialog}>

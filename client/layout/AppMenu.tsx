@@ -16,7 +16,7 @@ const AppMenu = () => {
             items: [
                 { label: 'PageDeLaPlantilla', icon: 'pi pi-fw pi-home', to: '/' },
                 { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
-                { label: 'Perfil', icon: 'pi pi-fw pi-user', to: '/perfil' },
+                { label: 'Perfil Estudiante', icon: 'pi pi-fw pi-user', to: '/estudiante/perfil' },
 
                 { label: 'Gestion de Estudiantes', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes' },
                 { label: 'Gestion de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
