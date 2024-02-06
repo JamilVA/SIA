@@ -10,7 +10,7 @@ export default function Ticket(props: any) {
                         <h1>ESFAP MUA</h1>
                         <p>Jr. Los Álamos 586, Cajamarca</p>
                         <p>Teléfono: (076) 364743</p>
-                        <p>Comprobante Nro: {props.numero}</p>
+                        <p>Nro. Transacción: {props.numero}</p>
                     </div>
 
                     <div className="customer-info">

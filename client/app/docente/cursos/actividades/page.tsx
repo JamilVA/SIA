@@ -23,12 +23,10 @@ export default function ActividadesPage() {
     const searchParamas = useSearchParams();
     const codigoSesion = searchParamas.get('codigo');
 
-    console.log('Codigo Recibido:', codigoSesion);
-
     let emptyActividad = {
         Codigo: 0,
         Titulo: '',
-        RutaRecursoGuia: '',
+        RutaRecursoGuia: null,
         FechaApertura: new Date().toISOString(),
         FechaCierre: new Date().toISOString(),
         CodigoSesion: codigoSesion
@@ -39,11 +37,12 @@ export default function ActividadesPage() {
     const [deleteActividadDialog, setDeleteActividadDialog] = useState(false);
     const [actividad, setActividad] = useState(emptyActividad);
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false)
     const [modificar, setModificar] = useState(false)
     const toast = useRef<Toast>(null);
-    const dt = useRef<DataTable<any>>(null);
 
     const fetchActividades = async () => {
+        setLoading(true)
         await axios.get('http://localhost:3001/api/actividad', {
             params: { codigoSesion: codigoSesion }
         })
@@ -59,6 +58,7 @@ export default function ActividadesPage() {
                     life: 3000
                 });
             })
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -100,16 +100,14 @@ export default function ActividadesPage() {
 
     const crearActividad = async () => {
         await axios.post('http://localhost:3001/api/actividad', actividad)
-            .then(response => {
-                let _actividades = actividades
-                _actividades.push(response.data.actividad)
-                setActividades(_actividades)
+            .then(response => {         
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Successful',
                     detail: response.data.message,
                     life: 3000
                 });
+                fetchActividades()
             })
             .catch(error => {
                 console.error(error)
@@ -206,6 +204,32 @@ export default function ActividadesPage() {
 
     }
 
+    const descargarArchivo = async (ruta: string) => {
+        await axios.get('http://localhost:3001/api/files/download', {
+            params: { fileName: ruta },
+            responseType: 'arraybuffer'
+        })
+            .then(response => {
+                //console.log(response); 
+                const file = new File([response.data], ruta);
+                const url = URL.createObjectURL(file);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = file.name;
+                link.click();
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                //console.error(error.response);           
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error en la descarga',
+                    detail: error.response ? "El archivo no existe" : error.message,
+                    life: 3000
+                })
+            })
+    }
+
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
         const val = (e.target && e.target.value) || '';
         let _actividad = { ...actividad, Titulo: val };
@@ -275,15 +299,28 @@ export default function ActividadesPage() {
                                     <span className="font-semibold"><strong>Cierre: </strong>{formatDate(new Date(actividad.FechaCierre))}</span>
                                 </span>
                             </div>
-                            <FileUpload
-                                chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
-                                chooseLabel='Subir archivo guía'
-                                mode="basic"
-                                accept=".pdf"
-                                maxFileSize={5000000}
-                                customUpload
-                                uploadHandler={(e) => handleUpload(e, actividad)}
-                            />
+                            <div className='flex flex-row align-items-end'>
+                                <div className='mr-2'>
+                                    <FileUpload
+                                        chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
+                                        chooseLabel='Subir archivo guía'
+                                        mode="basic"
+                                        accept=".pdf"
+                                        maxFileSize={5000000}
+                                        customUpload
+                                        uploadHandler={(e) => handleUpload(e, actividad)}
+                                    />
+                                </div>
+                                <div>
+                                    {actividad.RutaRecursoGuia && <Button className='p-1 border-none'
+                                        size='small'
+                                        style={{ backgroundColor: 'green' }}
+                                        label="Mi archivo registrado"
+                                        icon="pi pi-download"
+                                        onClick={() => descargarArchivo(actividad.RutaRecursoGuia)}
+                                    />}
+                                </div>
+                            </div>
                         </div>
                         <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
                             <Button icon="pi pi-pencil" rounded severity="success" onClick={() => editActividad(actividad)} />
@@ -304,7 +341,7 @@ export default function ActividadesPage() {
             <Toast ref={toast} />
             <Toolbar className="mb-4" start={leftToolbarTemplate}></Toolbar>
 
-            <DataView value={actividades} itemTemplate={itemTemplate} />
+            <DataView loading={loading} value={actividades} itemTemplate={itemTemplate} />
 
             <Dialog visible={actividadDialog} style={{ width: '450px' }} header="Detalles de la tarea" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
                 <div className="field">
@@ -324,11 +361,11 @@ export default function ActividadesPage() {
                 </div>
                 <div className="field">
                     <label htmlFor="fecha-apertura">Fecha de apertura</label>
-                    <Calendar id="fecha-apertura" value={new Date(actividad.FechaApertura)} onChange={(e) => { onCalendarChange(e.value, 'apertura') }} showTime hourFormat="12" />
+                    <Calendar id="fecha-apertura" value={new Date(actividad.FechaApertura)} onChange={(e) => { onCalendarChange(e.value, 'apertura') }} showTime dateFormat='dd/mm/yy' hourFormat="12" />
                 </div>
                 <div className="field">
                     <label htmlFor="fecha-cierre">Fecha de cierre</label>
-                    <Calendar id="fecha-cierre" value={new Date(actividad.FechaCierre)} onChange={(e) => { onCalendarChange(e.value, 'cierre') }} showTime hourFormat="12" />
+                    <Calendar id="fecha-cierre" value={new Date(actividad.FechaCierre)} onChange={(e) => { onCalendarChange(e.value, 'cierre') }} showTime dateFormat='dd/mm/yy' hourFormat="12" />
                 </div>
             </Dialog>
 

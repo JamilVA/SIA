@@ -32,7 +32,7 @@ export default function CursoCalificacionPage() {
         Competencia: '',
         Capacidad: '',
         CodigoDocente: null,
-        CodigoCurso: '',
+        CodigoCurso: null,
         CodigoPeriodo: '',
         Docente: null,
         Curso: null
@@ -595,8 +595,11 @@ export default function CursoCalificacionPage() {
     const actionBodyTemplate = (rowData: Sia.CursoCalificacion) => {
         return (
             <>
+                <Link href={`/jefe/curso-calificacion/gestion-curso?codigo=${rowData.Codigo}`}>
+                    <Button icon="pi pi-eye" rounded severity="info" tooltip='Inspeccionar' />
+                </Link>
                 <Link href={`/jefe/curso-calificacion/gestion-horario?codigo=${rowData.Codigo}`}>
-                    <Button icon="pi pi-clock" rounded severity="success" tooltip='Gestionar horario' />
+                    <Button icon="pi pi-clock" rounded severity="success" className='ml-2' tooltip='Gestionar horario' />
                 </Link>
                 <Button icon="pi pi-trash" rounded severity="warning" className='ml-2' onClick={() => confirmDeleteCursoCalificacion(rowData)} />
             </>
@@ -674,8 +677,7 @@ export default function CursoCalificacionPage() {
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses"
                         globalFilter={globalFilter}
                         emptyMessage="Cursos habilitados no disponibles"
-                        header={header}
-                        responsiveLayout="scroll"
+                        header={header}                     
                     >
                         <Column field="Codigo" header="Codigo" sortable headerStyle={{ minWidth: '6rem' }}></Column>
                         <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable headerStyle={{ minWidth: '6rem' }}></Column>
@@ -696,8 +698,7 @@ export default function CursoCalificacionPage() {
                                 optionLabel='Carrera'
                                 optionValue='Codigo'
                                 placeholder='Seleccione la carrera'
-                                onChange={(e) => onDropDownChange(e.value, 'carrera')}
-                                required
+                                onChange={(e) => onDropDownChange(e.value, 'carrera')}                               
                                 autoFocus
                                 showClear
                             />
@@ -711,8 +712,7 @@ export default function CursoCalificacionPage() {
                                 optionLabel='Nombre'
                                 optionValue='Codigo'
                                 placeholder='Seleccione un curso'
-                                onChange={(e) => onDropDownChange(e.value, 'curso')}
-                                required
+                                onChange={(e) => onDropDownChange(e.value, 'curso')}                              
                                 autoFocus
                                 showClear
                                 filter
@@ -722,15 +722,7 @@ export default function CursoCalificacionPage() {
                                 })}
                             />
                             {submitted && !cursoCalificacion.CodigoCurso && <small className="p-invalid">Seleccione un curso</small>}
-                        </div>
-                        {/* <div className="field">
-                            <label htmlFor="competencia">Competencia</label>
-                            <InputTextarea id="competencia" value={cursoCalificacion.Competencia} onChange={(e) => onInputChange(e, 'competencia')} required rows={3} cols={20} />
-                        </div>
-                        <div className="field">
-                            <label htmlFor="capacidad">Capacidad</label>
-                            <InputTextarea id="capacidad" value={cursoCalificacion.Capacidad} onChange={(e) => onInputChange(e, 'capacidad')} required rows={3} cols={20} />
-                        </div> */}
+                        </div>                       
                     </Dialog>
 
                     <Dialog visible={asignarDocenteDialog} style={{ width: '450px' }} header="Asignar o reasignar docente" modal className="p-fluid" footer={asignarDocenteDialogFooter} onHide={hideAsignarDocenteDialog}>

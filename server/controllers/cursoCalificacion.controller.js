@@ -4,7 +4,7 @@ const { Curso, CursoCalificacion, Docente, Estudiante, Matricula, Periodo, Perso
 const getCursosCalificacion = async (req, res) => {
     try {
         const cursosCalificacion = await CursoCalificacion.findAll({
-            attributes: { exclude: ['RutaSyllabus', 'RutaNormas', 'RutaPresentacionDocente', 'RutaPresentacionCurso'] },
+            attributes: { exclude: ['RutaSyllabus', 'RutaNormas', 'RutaPresentacionDocente', 'RutaPresentacionCurso', 'RutaImagenPortada'] },
             include: [
                 {
                     model: Periodo,
@@ -112,6 +112,7 @@ const editarCursoCalificacion = async (req, res) => {
                 RutaNormas: req.body.rutaNormas,
                 RutaPresentacionCurso: req.body.rutaPresentacionCurso,
                 RutaPresentacionDocente: req.body.rutaPresentacionDocente,
+                RutaImagenPortada: req.body.rutaImagenPortada,
             },
             {
                 where: {

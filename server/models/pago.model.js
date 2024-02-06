@@ -1,8 +1,5 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
-const ConceptoPago = require('./conceptoPago.model');
-const Periodo = require('./periodo.model');
-const Estudiante = require('./estudiante.model');
 
 const Pago = sequelize.define('Pago', {
     Codigo:{
@@ -10,7 +7,7 @@ const Pago = sequelize.define('Pago', {
         primaryKey: true,
         autoIncrement: true
     },
-    NumeroComprobante: DataTypes.STRING(10),   
+    NroTransaccion: DataTypes.STRING(15),   
     Fecha: DataTypes.DATE,
     EstadoPago: DataTypes.CHAR(1),
 })

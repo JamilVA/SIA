@@ -25,11 +25,12 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Timeline } from 'primereact/timeline';
 
 export default function Curso() {
-    const searchParamas = useSearchParams();
-    const codigoCurso = searchParamas.get('codigoS');
-    const codigoEstudiante = searchParamas.get('codigoE');
+    const searchParams = useSearchParams();
+    const codigoCurso = searchParams.get('codigoS');
+    const codigoEstudiante = searchParams.get('codigoE');
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
@@ -58,9 +59,13 @@ export default function Curso() {
 
     const sesionVacia = {
         Codigo: '',
+        CodigoSemanaAcademica: '',
         Numero: '0',
         Descripcion: '',
-        CodigoSemanaAcademica: '',
+        LinkClaseVirtual: '',
+        Fecha: new Date(),
+        HoraInicio: '',
+        HoraFin: ''
     };
 
     const semanaVacia = {
@@ -75,6 +80,20 @@ export default function Curso() {
         CodigoCursoCalificacion: ''
     };
 
+    const matriculaVacia = {
+        CodigoCursoCalificacion: '',
+        CodigoEstudiante: '',
+        FechaMatricula: '',
+        Habilitado: false,
+        Nota1: 0,
+        Nota2: 0,
+        Nota3: 0,
+        Nota4: 0,
+        NotaRecuperacion: 0,
+        NotaAplazado: 0,
+        NotaFinal: 0
+    };
+
     const [cursoCalificacion, setCursoCalificaion] = useState(cursoCVacio);
     const [curso, setCurso] = useState(cursoVacio);
     const [sesion, setSesion] = useState(sesionVacia);
@@ -86,9 +105,11 @@ export default function Curso() {
     const [submitted, setSubmitted] = useState(false);
     const [sesionDialog, setSesionDialog] = useState(false);
     const [cursoCDialog, setCursoCDialog] = useState(false);
+    const [matricula, setMatricula] = useState(matriculaVacia)
 
     useEffect(() => {
         cargarDatos();
+        cargarNotas();
     }, []);
 
     const cargarDatos = async () => {
@@ -96,7 +117,7 @@ export default function Curso() {
             const { data } = await axios.get('http://localhost:3001/api/sesion/estudiante', {
                 params: {
                     CodigoCursoCalificacion: codigoCurso,
-                    CodigoEstudiante: codigoEstudiante,
+                    CodigoEstudiante: codigoEstudiante
                 }
             });
 
@@ -111,6 +132,65 @@ export default function Curso() {
         }
     };
 
+    
+    const descargarArchivo = async (ruta: string) => {
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download',{
+                params:{ fileName: ruta }
+            });
+
+            console.log(response)
+    
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    
+            // Crear un objeto URL del blob
+            const url = window.URL.createObjectURL(blob);
+    
+            // Crear un enlace temporal
+            const link = document.createElement('a');
+            link.href = url;
+    
+            // Establecer el nombre del archivo
+            link.download = ruta;
+    
+            // Simular un clic en el enlace para iniciar la descarga
+            document.body.appendChild(link);
+            link.click();
+    
+            // Limpiar el enlace después de la descarga
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al descargar el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de descarga de archivo',
+                life: 3000
+            });
+        }
+    };
+    const cargarNotas = async () => {
+        await axios.get('http://localhost:3001/api/estudiante/notas', {
+            params: {
+                codigoCurso: codigoCurso,
+                codigoEstudiante: codigoEstudiante
+            }
+        })
+            .then(response => {
+                let matricula = response.data.matricula
+                setMatricula(matricula)
+            })
+            .catch(error => {
+                console.error(error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.response ? error.response.data.error : error.message,
+                    life: 3000
+                });
+            })
+    }
 
     const filtrarSemanas = (Semanas: (typeof semanaVacia)[], Codigo: string) => {
         return Semanas.filter((s) => s.CodigoUnidadAcademica === Codigo);
@@ -128,16 +208,33 @@ export default function Curso() {
         return rowData.Descripcion;
     };
 
+    const fechaBodyTemplate = (rowData: any) => {
+        if (rowData.Fecha) {
+            const fecha = new Date(rowData.Fecha + 'T00:00:00');
+            return (
+                fecha
+                    .toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: '2-digit'
+                    })
+                    .toUpperCase() +
+                ' ' +
+                rowData.HoraInicio.slice(0, 5)
+            );
+        }
+    };
+
     const estadoBodyTemplate = (rowData: any) => {
-        console.log('Rowdata para Asitencia',rowData)
-        if(rowData.Asistencia && rowData.Asistencia.length > 0){
+        console.log('Rowdata para Asitencia', rowData);
+        if (rowData.Asistencia && rowData.Asistencia.length > 0) {
             console.log('Rowdata Para Estado:', rowData.Asistencia[0].Estado);
             const icono = (
                 <span className={`icono-${rowData.Asistencia[0].Estado}`}>
-                    <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Asistencia[0].Estado, 'text-red-500 pi-times-circle': !rowData.Asistencia[0].Estado})}></i>
+                    <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Asistencia[0].Estado, 'text-red-500 pi-times-circle': !rowData.Asistencia[0].Estado })}></i>
                 </span>
             );
-    
+
             return (
                 <>
                     {icono}
@@ -146,13 +243,13 @@ export default function Curso() {
                     </Tooltip>
                 </>
             );
-        }else{
+        } else {
             const icono = (
                 <span className={`icono-x`}>
                     <i className={classNames('pi', 'text-red-500 pi-times-circle')}></i>
                 </span>
             );
-    
+
             return (
                 <>
                     {icono}
@@ -162,17 +259,16 @@ export default function Curso() {
                 </>
             );
         }
-
     };
 
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
                 <Link href={`/estudiante/clases/detalles-curso/recursos?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1"   />
+                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" />
                 </Link>
-                <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success mr-5"  />
+                <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}&codigoE=${codigoEstudiante}`}>
+                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success mr-5" />
                 </Link>
             </React.Fragment>
         );
@@ -204,7 +300,8 @@ export default function Curso() {
                 <DataTable ref={dt} value={filtrarSesiones(sesiones, rowData.Codigo)} header={headerSemana(rowData)} dataKey="Codigo">
                     <Column headerStyle={{ display: 'none' }} body={numeroBodyTemplate} style={{ minWidth: '1rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} body={sesionBodyTemplate} style={{ minWidth: '14rem' }}></Column>
-                    <Column headerStyle={{ display: 'none' }} body={estadoBodyTemplate} style={{ minWidth: '14rem' }}></Column>
+                    <Column headerStyle={{ display: 'none' }} body={fechaBodyTemplate} style={{ minWidth: '8rem' }}></Column>
+                    <Column headerStyle={{ display: 'none' }} body={estadoBodyTemplate} style={{ minWidth: '2rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} className={classNames({ 'text-right': true })} body={actionBodyTemplate} style={{ minWidth: '8rem', paddingRight: '1rem' }}></Column>
                 </DataTable>
             </React.Fragment>
@@ -221,12 +318,12 @@ export default function Curso() {
         );
     };
 
+    const header = <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" height={300} style={{ objectFit: 'cover' }} />;
+
     const title = (curso: typeof cursoVacio) => {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-                <h4>
-                    {curso.Nombre}
-                </h4>
+                <h4>{curso.Nombre}</h4>
             </div>
         );
     };
@@ -234,7 +331,7 @@ export default function Curso() {
     return (
         <div className="grid">
             <Toast ref={toast} />
-            <div className="col-3 m-0">
+            <div className="col-12 md:col-3">
                 <div className="card">
                     <div className="text-center">
                         <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="/images/usuario.png" />
@@ -251,17 +348,199 @@ export default function Curso() {
                 </div>
                 <div className="card"></div>
             </div>
-            <div className="col-9 m-0">
+            <div className="col-12 md:col-9">
                 <div>
-                    <Card title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
+                    <Card header={header} title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
                     <TabView>
+                        <TabPanel header="Datos del curso" leftIcon="pi pi-info-circle mr-2">
+                            <div className="p-fluid">
+                                <div className="field">
+                                    {/* <InputText id="Nombre" value={curso.Nombre + ' (' + curso.Codigo + ')'} disabled /> */}
+                                    <div className="text-center">
+                                        <span className="text-primary" style={{ fontWeight: 'bold' }}>
+                                            {curso.Nombre}
+                                        </span>
+                                        <span className="text-primary"> ({curso.Codigo})</span>
+                                        <br />
+                                        <small className="text-muted">PINTURA</small>
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="nivel" className="font-bold">
+                                            Año
+                                        </label>
+                                        <InputText id="nivel" value={curso.Nivel.toString()} disabled />
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="semestre" className="font-bold">
+                                            Semestre
+                                        </label>
+                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="horasTeoria" className="font-bold">
+                                            Horas Teoria
+                                        </label>
+                                        <InputText id="horasTeoria" value={curso.HorasTeoria.toString()} disabled />
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="horasPractica" className="font-bold">
+                                            Horas Práctica
+                                        </label>
+                                        <InputText id="horasPractica" value={curso.HorasPractica.toString()} disabled />
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="semestre" className="font-bold">
+                                            Créditos
+                                        </label>
+                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="rutaSyllabus" className="font-bold">
+                                            Syllabus
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>{' '}
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="rutaNormas" className="font-bold">
+                                            Normas de convivencia
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>{' '}
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="rutaPresentacionCurso" className="font-bold">
+                                            Presentación del curso
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>{' '}
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="rutaPresentacionDocente" className="font-bold">
+                                            Presentación del docente
+                                        </label>
+                                        <div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="formgrid grid">
+                                    <div className="field col">
+                                        <label htmlFor="competencia" className="font-bold">
+                                            Competencia
+                                        </label>
+                                        <InputTextarea id="competencia" value={cursoCalificacion.Competencia || ''} disabled/>
+                                    </div>
+                                    <div className="field col">
+                                        <label htmlFor="capacidad" className="font-bold">
+                                            Capacidad
+                                        </label>
+                                        <InputTextarea id="capacidad" value={cursoCalificacion.Capacidad || ''} disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                        </TabPanel>
                         <TabPanel header="Sesiones" leftIcon="pi pi-list mr-2">
                             <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
                                 <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                             </DataTable>
                         </TabPanel>
                         <TabPanel header="Calificaciones" leftIcon="pi pi-check-square mr-2">
-                            <h4>Calificaciones</h4>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        NOTA 1: <span style={matricula.Nota1 < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.Nota1}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        NOTA 2: <span style={matricula.Nota2 < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.Nota2}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        NOTA 3: <span style={matricula.Nota3 < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.Nota3}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        NOTA 4: <span style={matricula.Nota4 < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.Nota4}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        RECUPERACIÓN: <span style={matricula.NotaRecuperacion < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.NotaRecuperacion}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        APLAZADO: <span style={matricula.NotaAplazado < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.NotaAplazado}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        NOTA FINAL: <span style={matricula.NotaFinal < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.NotaFinal}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </TabPanel>
                     </TabView>
                 </div>

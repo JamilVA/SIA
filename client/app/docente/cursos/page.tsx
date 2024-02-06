@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
+import { Image } from 'primereact/image';
 import axios from 'axios';
 import Link from 'next/link';
 const Page = () => {
@@ -14,7 +15,25 @@ const Page = () => {
         Carrera: ''
     };
 
+    const docenteVacio = {
+        Codigo: 1,
+        Persona:{
+            Paterno:'',
+            Materno:'',
+            Nombres:'',
+            Email:'',
+            RutaFoto:'',
+            DNI:''
+        }
+    }
+
+
+
     const [cursos, setCursos] = useState([EmptyCurso]);
+    const [docente, setDocente] = useState(docenteVacio);
+
+    const [imagenURL, setImagenURL] = useState<string>('');
+
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
 
@@ -23,6 +42,7 @@ const Page = () => {
     };
 
     useEffect(() => {
+        fetchDocente(d.CodDocente);
         fetchCursos(d);
     }, []);
 
@@ -42,6 +62,55 @@ const Page = () => {
                     life: 3000
                 });
             });
+    };
+
+    const fetchDocente = async (CodigoDocente: number) => {
+        await axios
+            .get('http://127.0.0.1:3001/api/docente/perfil', {
+                params:{
+                    CodigoDocente
+                }
+            })
+            .then((response) => {
+                console.log(response.data.docente.Persona);
+                setDocente(response.data.docente)
+                obtenerArchivo(response.data.docente.Persona.RutaFoto)
+            })
+            .catch((error) => {
+                console.log('Error en carga del perfil: ', error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error en la carga del perfil docente',
+                    life: 3000
+                });
+            });
+    };
+
+    const obtenerArchivo = async (ruta: string) => {
+        if(ruta === ''){
+            console.error('Ruta recibida:',ruta)
+            return
+        }
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download', {
+                params: { fileName: ruta },
+                responseType: 'arraybuffer',  // Especificar el tipo de respuesta como 'arraybuffer'
+            });
+
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+            const url = window.URL.createObjectURL(blob);
+
+            setImagenURL(url);
+        } catch (error) {
+            console.error('Error al obtener el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de carga de archivo',
+                life: 3000,
+            });
+        }
     };
 
     const actionBodyTemplate = (rowData: any) => {
@@ -67,15 +136,17 @@ const Page = () => {
             <div className="col-12 md:col-3">
                 <div className="card shadow-1">
                     <div className="text-center">
-                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQION7iLAgrmjNpsU01XdpcD7fU-ZnfaLfEWestMmrvQQ&s" />
-                        <h5 style={{ color: 'var(--surface-700)' }}>MALPICA RODRIGUEZ MANUEL ENRIQUE</h5>
+                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src={imagenURL} />
+                        {/* <Image src={imagenURL} zoomSrc={imagenURL} alt="Foto Docente" width="80" height="80" preview/> */}
+
+                        <h5 style={{ color: 'var(--surface-700)' }}>{docente.Persona.Nombres + ' ' + docente.Persona.Paterno + ' ' + docente.Persona.Materno}</h5>
                     </div>
                     <div className="mt-4">
                         <p>
-                            <b>Email: </b>mmalpica@gmail.com
+                            <b>Email: </b>{' ' + docente.Persona.Email}
                         </p>
                         <p>
-                            <b>DNI: </b>40936598
+                            <b>DNI: </b>{docente.Persona.DNI}
                         </p>
                     </div>
                 </div>

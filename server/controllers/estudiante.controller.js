@@ -1,24 +1,6 @@
-const Estudiante = require("../models/estudiante.model");
-const Persona = require("../models/persona.model");
-const Usuario = require('../models/usuario.model')
-const NivelUsuario = require('../models/nivelUsuario.model')
-const CarreraProfesional = require("../models/carreraProfesional.model");
+const {Estudiante, Persona, Usuario, CarreraProfesional, Matricula} = require("../config/relations")
 
-const { sequelize } = require("../config/database");
-const { QueryTypes, json } = require("sequelize");
 const bcrypt = require('bcryptjs');
-
-NivelUsuario.hasMany(Usuario, { foreignKey: "CodigoNivelUsuario" });
-Usuario.belongsTo(NivelUsuario, { foreignKey: "CodigoNivelUsuario" });
-
-Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
-Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-
-Persona.hasOne(Usuario, { foreignKey: "CodigoPersona" });
-Usuario.belongsTo(Persona, { foreignKey: "CodigoPersona" });
-
-Persona.hasOne(Estudiante, { foreignKey: "CodigoPersona" });
-Estudiante.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 
 Estudiante.belongsTo(CarreraProfesional, {
   foreignKey: "CodigoCarreraProfesional",
@@ -182,10 +164,29 @@ const buscarEstudiante = async (req, res) => {
   }
 };
 
+const getNotas = async (req, res) => {
+  try {
+    const matricula = await Matricula.findOne({
+      where: {
+        CodigoCursoCalificacion: req.query.codigoCurso,
+        CodigoEstudiante: req.query.codigoEstudiante
+      }
+    })
+    if (!matricula) {
+      return res.status(404).json({ message: 'Las notas no se han encontrado' })
+    }
+    res.json({ matricula: matricula })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Error al obtener las notas' })
+  }
+}
+
 module.exports = {
   getEstudiante,
   crearEstudiante,
   actualizarEstudiante,
   buscarEstudiante,
+  getNotas,
   getEstudianteByCodPersona
 };

@@ -6,15 +6,9 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
-import { FileUpload } from 'primereact/fileupload';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
-import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
-import { Rating } from 'primereact/rating';
 import { Toast } from 'primereact/toast';
-import { Toolbar } from 'primereact/toolbar';
-import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
@@ -40,7 +34,7 @@ export default function CalificarActividadesPage() {
     };
 
     const [actividades, setActividades] = useState<Array<any>>([])
-    const [productDialog, setProductDialog] = useState(false);
+    const [calificarDialog, setCalificarDialog] = useState(false);
     const [actividad, setActividad] = useState(emptyActividad);
     const [submitted, setSubmitted] = useState(false);
     const toast = useRef<Toast>(null);
@@ -54,7 +48,7 @@ export default function CalificarActividadesPage() {
         })
             .then(response => {
                 const actividades = response.data.actividades
-                console.log(actividades)
+                //console.log(actividades)
                 setActividades(actividades)
             })
             .catch(error => {
@@ -75,15 +69,15 @@ export default function CalificarActividadesPage() {
 
     const hideDialog = () => {
         setSubmitted(false);
-        setProductDialog(false);
+        setCalificarDialog(false);
     };
 
-    const saveProduct = async () => {
+    const saveActividad = async () => {
         setSubmitted(true);
         if (!actividad.Nota) {
             return
         }
-        setProductDialog(false)
+        setCalificarDialog(false)
         await axios.put('http://localhost:3001/api/actividad/calificar', actividad)
             .then(response => {
                 let _actividades = actividades.map(value => {
@@ -102,9 +96,35 @@ export default function CalificarActividadesPage() {
         setActividad(emptyActividad)
     };
 
-    const editProduct = (actividad: any) => {
+    const descargarArchivo = async (ruta: string) => {
+        await axios.get('http://localhost:3001/api/files/download', {
+            params: { fileName: ruta },
+            responseType: 'arraybuffer' 
+        })
+            .then(response => {
+                //console.log(response); 
+                const file = new File([response.data], ruta);        
+                const url = URL.createObjectURL(file);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = file.name;            
+                link.click();
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                //console.error(error.response);           
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error en la descarga',
+                    detail: error.response ? "El archivo no existe" : error.message,
+                    life: 3000
+                })
+            })
+    };
+
+    const editActividad = (actividad: any) => {
         setActividad({ ...actividad });
-        setProductDialog(true);
+        setCalificarDialog(true);
     };
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
@@ -132,7 +152,7 @@ export default function CalificarActividadesPage() {
     const documentBodyTemplate = (rowData: any) => {
         return (
             <>
-                <Button icon="pi pi-download" rounded text label={rowData.RutaTarea} />
+                <Button icon="pi pi-download" rounded text label={rowData.RutaTarea} onClick={() => descargarArchivo(rowData.RutaTarea)} />
             </>
         );
     };
@@ -140,15 +160,15 @@ export default function CalificarActividadesPage() {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <>
-                <Button icon="pi pi-pencil" rounded severity="secondary" className="mr-2" onClick={() => editProduct(rowData)} />
+                <Button icon="pi pi-pencil" rounded severity="secondary" tooltip='Calificar' onClick={() => editActividad(rowData)} />
             </>
         );
     };
 
-    const productDialogFooter = (
+    const calificarDialogFooter = (
         <>
             <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={saveProduct} />
+            <Button label="Save" icon="pi pi-check" text onClick={saveActividad} />
         </>
     );
 
@@ -156,7 +176,6 @@ export default function CalificarActividadesPage() {
 
         <div className="card">
             <Toast ref={toast} />
-            
             <DataTable
                 ref={dt}
                 value={actividades}
@@ -170,7 +189,7 @@ export default function CalificarActividadesPage() {
                 <Column body={actionBodyTemplate} headerStyle={{ minWidth: '5rem' }}></Column>
             </DataTable>
 
-            <Dialog visible={productDialog} position='right' style={{ width: '400px' }} header="Calificar" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
+            <Dialog visible={calificarDialog} position='right' style={{ width: '400px' }} header="Calificar" modal className="p-fluid" footer={calificarDialogFooter} onHide={hideDialog}>
                 <div className="field">
                     <label htmlFor="nota">Nota</label>
                     <InputNumber id='nota' value={actividad.Nota} onValueChange={(e) => onInputNumberChange(e, 'nota')} />

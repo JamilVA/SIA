@@ -1,32 +1,32 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
+import axios from 'axios';
+import Link from 'next/link';
+import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
+import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import React, { useEffect, useRef, useState } from 'react';
-import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
-import { FilterMatchMode, FilterOperator } from 'primereact/api';
-import Link from 'next/link';
-import axios from 'axios';
 
-const Crud = () => {
+export default function RegistrarPagoPage() {
 
     const pagoVacio = {
         Codigo: 0,
-        NumeroComprobante: '',
+        NroTransaccion: '',
         Fecha: '',
         EstadoPago: '',
         Estudiante: { CodigoSunedu: '' },
-        ConceptoPago: { Denominacion: '', Monto: 0 },
+        ConceptoPago: { Codigo: 0, Denominacion: '', Monto: 0 }
     }
 
-    const conceptos = ['Matricula', 'Certificado', 'Otro'];
+    const [conceptos, setConceptos] = useState<Array<any>>([])
 
     const estados = ['r', 'a', 'u'];
 
@@ -49,7 +49,7 @@ const Crud = () => {
             .catch(error => {
                 setLoading(false);
                 setPagos([]);
-                console.log("Error en carga de pagos: ", error)
+                console.error(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -59,8 +59,25 @@ const Crud = () => {
             })
     }
 
-    useEffect(() => {     
-        fetchPagos()
+    const fetchConceptos = async () => {
+        await axios("http://localhost:3001/api/pago/conceptos")
+            .then(response => {
+                setConceptos(response.data.conceptos)
+            })
+            .catch(error => {
+                console.error(error)
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error al cargar los conceptos de pago',
+                    life: 3000
+                });
+            })
+    }
+
+    useEffect(() => {
+        fetchPagos();
+        fetchConceptos()
         initFilters();
     }, []);
 
@@ -128,7 +145,6 @@ const Crud = () => {
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Import" className="mr-2 inline-block" />
                 <Button label="Export" icon="pi pi-upload" severity="help" onClick={exportCSV} />
             </React.Fragment>
         );
@@ -151,10 +167,10 @@ const Crud = () => {
 
     const onGlobalFilterChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        let _filters1 = { ...filters };
-        (_filters1['global'] as any).value = value;
+        let _filters = { ...filters };
+        (_filters['global'] as any).value = value;
 
-        setFilters(_filters1);
+        setFilters(_filters);
         setGlobalFilterValue(value);
     };
 
@@ -196,20 +212,27 @@ const Crud = () => {
                 constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
             },
             Fecha: {
-                operator: FilterOperator.AND,
+                operator: FilterOperator.OR,
                 constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }]
             },
             EstadoPago: {
                 operator: FilterOperator.OR,
                 constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
             },
-
         });
         setGlobalFilterValue('');
     };
 
     const conceptoFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return <Dropdown value={options.value} options={conceptos} onChange={(e) => options.filterCallback(e.value, options.index)} placeholder="Concepto" className="p-column-filter" showClear />;
+        return <Dropdown
+            value={options.value}
+            options={conceptos}
+            optionLabel='Denominacion'
+            optionValue='Denominacion'
+            onChange={(e) => options.filterCallback(e.value, options.index)}
+            placeholder="Concepto"
+            className="p-column-filter"
+            showClear />;
     };
 
     const dateBodyTemplate = (rowData: any) => {
@@ -244,27 +267,25 @@ const Crud = () => {
             <h2>Gestión de Pagos</h2>
             <div>
                 <Toast ref={toast} />
-                <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
+                <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
 
                 <DataTable
+                    ref={dt}
                     value={pagos}
-                    paginator
-                    className="p-datatable-gridlines"
-                    showGridlines
+                    paginator                  
                     rows={10}
                     dataKey="Codigo"
                     filters={filters}
                     filterDisplay="menu"
                     loading={loading}
-                    responsiveLayout="scroll"
                     emptyMessage="Ningún pago encontrado"
                     header={header1}
                 >
-                    <Column field='Codigo' header="Cod." sortable style={{ minWidth: '8rem' }} />
-                    <Column field='NumeroComprobante' header="Nro. Comprobante" sortable style={{ minWidth: '12rem' }} />
-                    <Column field='Fecha' header="Fecha" body={dateBodyTemplate} showFilterMenuOptions={false} filterField="Fecha" dataType="date" style={{ minWidth: '10rem' }} filter filterElement={dateFilterTemplate} />
+                    <Column field='Codigo' header="Cod." sortable style={{ minWidth: '6rem' }} />
+                    <Column field='NroTransaccion' header="Nro. Transaccion" sortable style={{ minWidth: '12rem' }} />
+                    <Column field='Fecha' header="Fecha" body={dateBodyTemplate} showFilterMenuOptions={false} filterField="Fecha" dataType="date" style={{ minWidth: '12rem' }} filter filterElement={dateFilterTemplate} />
                     <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} showFilterMenuOptions={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '8rem' }} filter filterElement={estadoFilterTemplate} />
-                    <Column field="Estudiante.CodigoSunedu" header="Cód. Estudiante" style={{ minWidth: '12rem' }} />
+                    <Column field="Estudiante.CodigoSunedu" header="Cód. Estudiante" style={{ minWidth: '10rem' }} />
                     <Column
                         header="Concepto"
                         filterField="ConceptoPago.Denominacion"
@@ -295,5 +316,3 @@ const Crud = () => {
 
     );
 };
-
-export default Crud;

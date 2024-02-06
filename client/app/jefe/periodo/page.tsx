@@ -16,21 +16,13 @@ import React, { useEffect, useRef, useState } from 'react';
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function PeriodoPage() {
 
-    const periodoVacio: {
-        Codigo: string,
-        Denominacion: string,
-        FechaInicio: string | Date,
-        FechaFin: string | Date,
-        InicioMatricula: string | Date,
-        FinMatricula: string | Date,
-        Estado: boolean
-    } = {
+    const periodoVacio = {
         Codigo: '',
         Denominacion: '',
-        FechaInicio: '',
-        FechaFin: '',
-        InicioMatricula: '',
-        FinMatricula: '',
+        FechaInicio: null,
+        FechaFin: null,
+        InicioMatricula: null,
+        FinMatricula: null,
         Estado: true
     }
     const [periodos, setPeriodos] = useState([periodoVacio])
@@ -48,18 +40,18 @@ export default function PeriodoPage() {
     const fetchPeriodos = async () => {
         await axios.get('http://localhost:3001/api/periodo')
             .then(response => {
-                console.log(response.data.periodos)
+                //console.log(response.data.periodos)
                 setPeriodos(response.data.periodos)
                 setLoading(false)
             })
             .catch(error => {
                 setLoading(false)
                 setPeriodos([])
-                console.log("Error de carga: ", error)
+                //console.log("Error de carga: ", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Error en la carga de datos',
+                    detail: error.message,
                     life: 3000
                 });
             })
@@ -109,66 +101,37 @@ export default function PeriodoPage() {
     }
 
     const crearPeriodo = async () => {
-        
-        if (!periodoValido()) {
-            return
-        }
-
-        await axios.post('http://localhost:3001/api/periodo', {
-            codigo: periodo.Codigo,
-            denominacion: periodo.Denominacion,
-            fechaInicio: periodo.FechaInicio,
-            fechaFin: periodo.FechaFin,
-            inicioMatricula: periodo.InicioMatricula,
-            finMatricula: periodo.FinMatricula,
-            estado: periodo.Estado
-        })
+        await axios.post('http://localhost:3001/api/periodo', periodo)
             .then(response => {
-                if (response.data.error !== 'error') {
-                    console.log(response.data)
-                    const _periodo = response.data.periodo
-                    periodos.push(_periodo)
-                    setPeriodos(periodos)
+                //console.log(response.data)
+                const _periodo = response.data.periodo
 
-                    toast.current?.show({
-                        severity: 'success',
-                        summary: 'Operación exitosa',
-                        detail: 'El periodo académico ha sido registrado exitosamente',
-                        life: 3000
-                    });
-                } else {
-                    toast.current?.show({
-                        severity: 'error',
-                        summary: 'Operación fallida',
-                        detail: 'Ha ocurrido un error en el servidor',
-                        life: 3000
-                    });
-                }
+                periodos.push(_periodo)
+                setPeriodos(periodos)
 
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Operación exitosa',
+                    detail: response.data.message,
+                    life: 3000
+                });
             })
             .catch(error => {
                 console.log("Ha ocurrido un error", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Ha ocurrido un error al registrar el periodo académico',
+                    detail: error.message,
                     life: 3000
                 });
             })
 
         setPeriodo(periodoVacio)
-        
+
     }
 
     const editarPeriodo = async () => {
-        await axios.put('http://localhost:3001/api/periodo', {
-            codigo: periodo.Codigo,
-            denominacion: periodo.Denominacion,
-            fechaInicio: periodo.FechaInicio,
-            fechaFin: periodo.FechaFin,
-            inicioMatricula: periodo.InicioMatricula,
-            finMatricula: periodo.FinMatricula,
-        })
+        await axios.put('http://localhost:3001/api/periodo', periodo)
             .then(response => {
                 const _periodos = periodos.map(p => {
                     if (p.Codigo === periodo.Codigo) {
@@ -178,11 +141,11 @@ export default function PeriodoPage() {
                     }
                 });
                 setPeriodos(_periodos)
-                setPeriodo(periodoVacio)              
+                setPeriodo(periodoVacio)
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Operación exitosa',
-                    detail: 'Los datos han sido actualizados',
+                    detail: response.data.message,
                     life: 3000
                 });
             })
@@ -200,18 +163,21 @@ export default function PeriodoPage() {
 
     const savePeriodo = async () => {
         setSubmitted(true);
-        setPeriodoDialog(false)
-
         if (editar) {
             await editarPeriodo()
+            setPeriodoDialog(false)
         } else {
-            await crearPeriodo()
+            if (periodoValido()) {
+                await crearPeriodo()
+                setPeriodoDialog(false)
+            }
         }
 
     };
 
     const editPeriodo = (periodo: any) => {
-        let _periodo = { ...periodo,
+        let _periodo = {
+            ...periodo,
             FechaInicio: new Date(periodo.FechaInicio + 'T05:00:00.000Z'),
             FechaFin: new Date(periodo.FechaFin + 'T05:00:00.000Z'),
             InicioMatricula: new Date(periodo.InicioMatricula + 'T05:00:00.000Z'),
@@ -239,7 +205,7 @@ export default function PeriodoPage() {
             }
         })
             .then(response => {
-                let _periodos = periodos.filter(p =>  p.Codigo !== periodo.Codigo )
+                let _periodos = periodos.filter(p => p.Codigo !== periodo.Codigo)
                 console.log(_periodos)
                 setPeriodos(_periodos)
                 toast.current?.show({
@@ -266,7 +232,7 @@ export default function PeriodoPage() {
 
     const finalizarPeriodo = async () => {
         setFinalizarPeriodoDialog(false);
-        
+
         await axios.put('http://localhost:3001/api/periodo/finalizar', {}, {
             params: {
                 codigo: periodo.Codigo,
@@ -282,8 +248,8 @@ export default function PeriodoPage() {
                     } else {
                         return p
                     }
-                });               
-                setPeriodos(_periodos)                
+                });
+                setPeriodos(_periodos)
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Operación exitosa',
@@ -299,7 +265,7 @@ export default function PeriodoPage() {
                     detail: 'El periodo no se ha podido finalizar',
                     life: 3000
                 });
-            })        
+            })
         setPeriodo(periodoVacio);
     };
 
@@ -307,42 +273,35 @@ export default function PeriodoPage() {
         dt.current?.exportCSV();
     };
 
-    const generarCodigo = (denominacion: string) => {
-        let semestre = denominacion.substring(5).length === 1 ? 1 : 2
-        return denominacion.substring(2, 4).concat(semestre.toString())
-    }
-
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const val = (e.target && e.target.value) || '';
         let _periodo = { ...periodo };
-        _periodo.Codigo = generarCodigo(val)
-        _periodo.Denominacion = val;
+        _periodo.Denominacion = val.toUpperCase();
         setPeriodo(_periodo);
         console.log(_periodo)
     };
 
-    const onCalendarChange = (e: CalendarChangeEvent, fechaName: string) => {
-        const selectedDate = e.value as Date;
-        console.log(selectedDate)
+    const onCalendarChange = (value: any, fechaName: string) => {
+        //console.log(selectedDate)
         let _periodo = { ...periodo };
         switch (fechaName) {
             case 'inicio':
-                _periodo.FechaInicio = selectedDate;
+                _periodo.FechaInicio = value;
                 break;
             case 'fin':
-                _periodo.FechaFin = selectedDate;
+                _periodo.FechaFin = value;
                 break;
             case 'inicioMatricula':
-                _periodo.InicioMatricula = selectedDate;
+                _periodo.InicioMatricula = value;
                 break;
             case 'finMatricula':
-                _periodo.FinMatricula = selectedDate;
+                _periodo.FinMatricula = value;
                 break;
             default:
                 break;
         }
         setPeriodo(_periodo);
-        console.log(_periodo);
+        
     };
 
     const leftToolbarTemplate = () => {
@@ -358,8 +317,7 @@ export default function PeriodoPage() {
 
     const rightToolbarTemplate = () => {
         return (
-            <React.Fragment>
-                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Import" className="mr-2 inline-block" />
+            <React.Fragment>              
                 <Button label="Export" icon="pi pi-upload" severity="help" onClick={exportCSV} />
             </React.Fragment>
         );
@@ -436,23 +394,17 @@ export default function PeriodoPage() {
             <div className="col-12">
                 <div className="card">
                     <Toast ref={toast} />
-                    <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
+                    <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
 
                     <DataTable
                         ref={dt}
                         loading={loading}
                         value={periodos}
                         dataKey="Codigo"
-                        paginator
-                        rows={10}
-                        rowsPerPageOptions={[5, 10, 25]}
                         className="datatable-responsive"
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
                         globalFilter={globalFilter}
                         emptyMessage="No se encontraron periodos registrados"
                         header={header}
-                        responsiveLayout="scroll"
                     >
                         <Column field="Codigo" header="Código" sortable headerStyle={{ minWidth: '5rem' }}></Column>
                         <Column field="Denominacion" header="Denominacion" sortable headerStyle={{ minWidth: '10rem' }}></Column>
@@ -460,7 +412,7 @@ export default function PeriodoPage() {
                         <Column field='FechaFin' header="Fecha de fin" body={dateFinBodyTemplate} dataType="date" headerStyle={{ minWidth: '8rem' }} />
                         <Column field='InicioMatricula' header="Inicio matrículas" body={dateInicioMatriculaBodyTemplate} dataType="date" headerStyle={{ minWidth: '10rem' }} />
                         <Column field='FinMatricula' header="Fin matrículas" body={dateFinMatriculaBodyTemplate} dataType="date" headerStyle={{ minWidth: '10rem' }} />
-                        <Column field="Estado" header="Estado" body={statusBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
+                        <Column field="Estado" header="Estado" body={statusBodyTemplate} headerStyle={{ minWidth: '6rem' }}></Column>
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '12rem' }}></Column>
                     </DataTable>
 
@@ -474,6 +426,7 @@ export default function PeriodoPage() {
                                 required
                                 placeholder='2024-I'
                                 autoFocus
+                                maxLength={7}
                                 className={classNames({
                                     'p-invalid': submitted && !periodo.Denominacion
                                 })}
@@ -484,28 +437,28 @@ export default function PeriodoPage() {
                             <label htmlFor="fechaInicio" className="font-bold">
                                 Inicio del periodo académico
                             </label>
-                            <Calendar id="fechaInicio" value={periodo.FechaInicio} onChange={(e) => onCalendarChange(e, 'inicio')} required className={classNames({ 'p-invalid': submitted && !periodo.FechaInicio })} />
+                            <Calendar id="fechaInicio" value={periodo.FechaInicio} onChange={(e) => onCalendarChange(e.value, 'inicio')} dateFormat="dd/mm/yy" className={classNames({ 'p-invalid': submitted && !periodo.FechaInicio })} />
                             {submitted && !periodo.FechaInicio && <small className="p-error">Ingrese fecha de inicio del periodo académico</small>}
                         </div>
                         <div className="field col">
                             <label htmlFor="fechaFin" className="font-bold">
                                 Fin del periodo académico
                             </label>
-                            <Calendar id="fechaFin" value={periodo.FechaFin} onChange={(e) => onCalendarChange(e, 'fin')} required className={classNames({ 'p-invalid': submitted && !periodo.FechaFin })} />
+                            <Calendar id="fechaFin" value={periodo.FechaFin} onChange={(e) => onCalendarChange(e.value, 'fin')} dateFormat="dd/mm/yy" className={classNames({ 'p-invalid': submitted && !periodo.FechaFin })} />
                             {submitted && !periodo.FechaFin && <small className="p-error">Ingrese fecha de fin del periodo académico</small>}
                         </div>
                         <div className="field col">
                             <label htmlFor="inicioMatriculas" className="font-bold">
                                 Inicio de matrículas
                             </label>
-                            <Calendar id="inicioMatriculas" value={periodo.InicioMatricula} onChange={(e) => onCalendarChange(e, 'inicioMatricula')} required className={classNames({ 'p-invalid': submitted && !periodo.InicioMatricula })} />
+                            <Calendar id="inicioMatriculas" value={periodo.InicioMatricula} onChange={(e) => onCalendarChange(e.value, 'inicioMatricula')} dateFormat="dd/mm/yy" className={classNames({ 'p-invalid': submitted && !periodo.InicioMatricula })} />
                             {submitted && !periodo.InicioMatricula && <small className="p-error">Ingrese fecha de inicio de matrículas</small>}
                         </div>
                         <div className="field col">
                             <label htmlFor="finMatriculas" className="font-bold">
                                 Fin de matrículas
                             </label>
-                            <Calendar id="finMatriculas" value={periodo.FinMatricula} onChange={(e) => onCalendarChange(e, 'finMatricula')} required className={classNames({ 'p-invalid': submitted && !periodo.FinMatricula })} />
+                            <Calendar id="finMatriculas" value={periodo.FinMatricula} onChange={(e) => onCalendarChange(e.value, 'finMatricula')} dateFormat="dd/mm/yy" className={classNames({ 'p-invalid': submitted && !periodo.FinMatricula })} />
                             {submitted && !periodo.FinMatricula && <small className="p-error">Ingrese fecha de fin de matrículas</small>}
                         </div>
                     </Dialog>

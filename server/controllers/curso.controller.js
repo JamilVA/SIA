@@ -1,11 +1,7 @@
-const Curso = require('../models/curso.model');
-const CarreraProfesional = require('../models/carreraProfesional.model');
-const CursoCalificacion = require('../models/cursoCalificacion.model');;
+const {Curso, CursoCalificacion, CarreraProfesional} = require("../config/relations")
+
 const { sequelize } = require('../config/database');
 const { QueryTypes } = require('sequelize');
-
-CarreraProfesional.hasMany(Curso, { foreignKey: 'CodigoCarreraProfesional' })
-Curso.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' })
 
 const getCurso = async (req, res) => {
     const cursos = await Curso.findAll(

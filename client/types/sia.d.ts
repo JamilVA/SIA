@@ -46,7 +46,7 @@ export declare namespace Sia {
         RutaPresentacionCurso: string;
         RutaPresentacionDocente: string;
         CodigoDocente: null | number;
-        CodigoCurso: string;
+        CodigoCurso: string | null;
         CodigoPeriodo: string;
         Docente: Docente | null;
         Curso: Curso | null;

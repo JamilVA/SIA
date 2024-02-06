@@ -4,7 +4,6 @@ import axios from 'axios';
 
 const { startOfWeek, addWeeks, format } = require('date-fns');
 
-import { TabView, TabPanel } from 'primereact/tabview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
@@ -13,10 +12,12 @@ import { classNames } from 'primereact/utils';
 import 'primeflex/primeflex.css';
 
 import { Toast } from 'primereact/toast';
+import { Calendar } from 'primereact/calendar';
 import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
+import { InputSwitch } from 'primereact/inputswitch';
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -25,6 +26,7 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { CalendarChangeEvent } from 'primereact/calendar';
 
 export default function Curso() {
     const searchParamas = useSearchParams();
@@ -63,7 +65,8 @@ export default function Curso() {
         LinkClaseVirtual: '',
         Fecha: new Date(),
         HoraInicio: '',
-        HoraFin: ''
+        HoraFin: '',
+        EstadoAsistencia: 0
     };
 
     const semanaVacia = {
@@ -89,7 +92,10 @@ export default function Curso() {
 
     const [cursoCalificacion, setCursoCalificaion] = useState(cursoCVacio);
     const [curso, setCurso] = useState(cursoVacio);
-    const [sesion, setSesion] = useState(sesionVacia);
+    const [sesion, setSesion] = useState({
+        ...sesionVacia,
+        Fecha: new Date()
+    });
     const [sesiones, setSesiones] = useState<(typeof sesionVacia)[]>([]);
     const [semana, setSemana] = useState(sesionVacia);
     const [semanas, setSemanas] = useState<(typeof semanaVacia)[]>([]);
@@ -125,7 +131,7 @@ export default function Curso() {
             setUnidades(unidades);
             setSemanas(semanas);
             setSesiones(sesiones);
-            console.log(sesiones);
+            console.log(data);
         } catch (e) {
             console.error(e);
         }
@@ -174,8 +180,6 @@ export default function Curso() {
 
     const saveCurso = () => {
         let _cursoCalificacion = { ...cursoCalificacion };
-        console.log('Curso recibida para editar', _cursoCalificacion);
-
         axios
             .put('http://localhost:3001/api/curso-calificacion', {
                 codigo: _cursoCalificacion.Codigo,
@@ -225,9 +229,10 @@ export default function Curso() {
             Descripcion: sesion.Descripcion,
             LinkClaseVirtual: sesion.LinkClaseVirtual,
             Numero: sesion.Numero,
-            Fecha: sesion.Fecha,
+            Fecha: new Date(sesion.Fecha + 'T00:00:00'),
             HoraInicio: sesion.HoraInicio,
-            HoraFin: sesion.HoraFin
+            HoraFin: sesion.HoraFin,
+            EstadoAsistencia: sesion.EstadoAsistencia
         };
 
         setSesion(tempSesion);
@@ -275,56 +280,6 @@ export default function Curso() {
         return fechaFinal;
     };
 
-    
-    const descargarArchivo = async (ruta: string) => {
-        try {
-            const response = await axios.get('http://localhost:3001/api/files/download',{
-                params:{ fileName: ruta }
-            });
-
-            console.log(response)
-    
-            const blob = new Blob([response.data], { type: response.headers['content-type'] });
-    
-            // Crear un objeto URL del blob
-            const url = window.URL.createObjectURL(blob);
-    
-            // Crear un enlace temporal
-            const link = document.createElement('a');
-            link.href = url;
-    
-            // Establecer el nombre del archivo
-            link.download = ruta;
-    
-            // Simular un clic en el enlace para iniciar la descarga
-            document.body.appendChild(link);
-            link.click();
-    
-            // Limpiar el enlace después de la descarga
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Error al descargar el archivo:', error);
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error de descarga de archivo',
-                life: 3000
-            });
-        }
-    };
-
-    const onInputSesionChange = (e: React.ChangeEvent<HTMLInputElement>, name: keyof typeof sesionVacia) => {
-        const val = (e.target && e.target.value) || '';
-        let _sesion = { ...sesion };
-        if (name === 'Fecha') {
-            return;
-        } else {
-            _sesion[name] = val;
-        }
-        setSesion(_sesion);
-    };
-
     const onInputCursoChange = (e: React.ChangeEvent<HTMLTextAreaElement>, name: keyof typeof cursoCVacio) => {
         const val = (e.target && e.target.value) || '';
         let _cursoCalificacion = { ...cursoCalificacion };
@@ -344,6 +299,87 @@ export default function Curso() {
     const hideCursoCDialog = () => {
         setSubmitted(false);
         setCursoCDialog(false);
+    };
+
+    const deshabilitarAsistencia = async (codigo: string) => {
+        await axios
+            .put(
+                'http://localhost:3001/api/sesion/deshabilitar-asistencia',
+                {},
+                {
+                    params: {
+                        codigo: codigo
+                    }
+                }
+            )
+            .then((response) => {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Asistencia Deshabilitada',
+                    detail: response.data.message,
+                    life: 3000
+                });
+                cargarDatos();
+            })
+            .catch((error) => {
+                console.error(error.data);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Operacion fallida',
+                    detail: error.message,
+                    life: 3000
+                });
+            });
+        setSesion(sesionVacia);
+    };
+    const habilitarAsistencia = async (codigo: string) => {
+        await axios
+            .put(
+                'http://localhost:3001/api/sesion/habilitar-asistencia',
+                {},
+                {
+                    params: {
+                        codigo: codigo
+                    }
+                }
+            )
+            .then((response) => {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Asistencia Habilitada',
+                    detail: response.data.message,
+                    life: 3000
+                });
+                cargarDatos();
+            })
+            .catch((error) => {
+                console.error(error.data);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Operacion fallida',
+                    detail: error.message,
+                    life: 3000
+                });
+            });
+        setSesion(sesionVacia);
+    };
+
+    const handleClick = async (sesion: typeof sesionVacia) => {
+        if (!!sesion.EstadoAsistencia === true) {
+            await deshabilitarAsistencia(sesion.Codigo);
+        } else {
+            await habilitarAsistencia(sesion.Codigo);
+        }
+    };
+
+    const onCalendarChange = (e: CalendarChangeEvent) => {
+        const selectedDate = e.value as Date;
+
+        let _sesion = { ...sesion };
+        _sesion.Fecha = selectedDate;
+
+        setSesion(_sesion);
+        console.log(_sesion);
     };
 
     const sesionDialogFooter = (
@@ -394,19 +430,8 @@ export default function Curso() {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
-                <Link href={`/docente/cursos/recursos?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} />
-                </Link>
-
-                <Link href={`/docente/cursos/actividades?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} />
-                </Link>
-
-                <Link href={`/docente/cursos/asistencias?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Asistencia" icon="pi pi-list" className="p-button-info p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} />
-                </Link>
-
-                <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm mr-3" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => editSesion(rowData)} />
+                <InputSwitch tooltip={rowData.EstadoAsistencia ? 'Deshabilitar asistencia' : 'Habilitar asistencia'} checked={!!rowData.EstadoAsistencia} onChange={() => handleClick(rowData)} />
+                <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm ml-5 mr-8" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => editSesion(rowData)} />
             </React.Fragment>
         );
     };
@@ -438,7 +463,7 @@ export default function Curso() {
                     <Column headerStyle={{ display: 'none' }} body={numeroBodyTemplate} style={{ minWidth: '1rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} body={sesionBodyTemplate} style={{ minWidth: '14rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} body={fechaBodyTemplate} style={{ minWidth: '8rem' }}></Column>
-                    <Column className={classNames({ 'text-right': true })} headerStyle={{ display: 'none' }} body={actionBodyTemplate} style={{ minWidth: '8rem', paddingRight: '1rem' }}></Column>
+                    <Column className={classNames({ 'text-right': true })} headerStyle={{ display: 'none' }} body={actionBodyTemplate} style={{ minWidth: '5rem', paddingRight: '1rem' }}></Column>
                 </DataTable>
                 <Button tooltip="Nueva Sesion" icon="pi pi-plus" className="p-button-success p-button-sm m-2" style={{ padding: '0.75em' }} onClick={() => openNew(rowData)} outlined />
             </React.Fragment>
@@ -455,8 +480,6 @@ export default function Curso() {
         );
     };
 
-    const header = <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" height={300} style={{ objectFit: 'cover' }} />;
-
     const title = (curso: typeof cursoVacio) => {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -469,172 +492,19 @@ export default function Curso() {
     };
 
     return (
-        <div className="grid">
+        <div>
             <Toast ref={toast} />
-            <div className="d-none d-lg-block d-xl-none col-3 m-0">
-                <div className="card">
-                    <div className="text-center">
-                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQION7iLAgrmjNpsU01XdpcD7fU-ZnfaLfEWestMmrvQQ&s" />
-                        <h5 style={{ color: 'var(--surface-700)' }}>MALPICA RODRIGUEZ MANUEL ENRIQUE</h5>
-                    </div>
-                    <div className="mt-4">
-                        <p>
-                            <b>Email: </b>mmalpica@gmail.com
-                        </p>
-                        <p>
-                            <b>DNI: </b>40936598
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div className="col-9 m-0">
-                <div>
-                    <Card
-                        title={title(curso)}
-                        header={header}
-                        subTitle={'Codigo (' + curso.Codigo + ')'}
-                        style={{
-                            border: 'none',
-                            borderRadius: 0,
-                            boxShadow: 'none'
-                        }}
-                    ></Card>
-
-                    <TabView>
-                        <TabPanel header="Datos del curso" leftIcon="pi pi-info-circle mr-2">
-                            <div className="p-fluid">
-                                <div className="field">
-                                    {/* <InputText id="Nombre" value={curso.Nombre + ' (' + curso.Codigo + ')'} disabled /> */}
-                                    <div className="text-center">
-                                        <span className="text-primary" style={{ fontWeight: 'bold' }}>
-                                            {curso.Nombre}
-                                        </span>
-                                        <span className="text-primary"> ({curso.Codigo})</span>
-                                        <br />
-                                        <small className="text-muted">PINTURA</small>
-                                    </div>
-                                </div>
-                                <div className="formgrid grid">
-                                    <div className="field col">
-                                        <label htmlFor="nivel" className="font-bold">
-                                            Año
-                                        </label>
-                                        <InputText id="nivel" value={curso.Nivel.toString()} disabled />
-                                    </div>
-                                    <div className="field col">
-                                        <label htmlFor="semestre" className="font-bold">
-                                            Semestre
-                                        </label>
-                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
-                                    </div>
-                                </div>
-                                <div className="formgrid grid">
-                                    <div className="field col">
-                                        <label htmlFor="horasTeoria" className="font-bold">
-                                            Horas Teoria
-                                        </label>
-                                        <InputText id="horasTeoria" value={curso.HorasTeoria.toString()} disabled />
-                                    </div>
-                                    <div className="field col">
-                                        <label htmlFor="horasPractica" className="font-bold">
-                                            Horas Práctica
-                                        </label>
-                                        <InputText id="horasPractica" value={curso.HorasPractica.toString()} disabled />
-                                    </div>
-                                    <div className="field col">
-                                        <label htmlFor="semestre" className="font-bold">
-                                            Créditos
-                                        </label>
-                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
-                                    </div>
-                                </div>
-                                <div className="formgrid grid">
-                                    <div className="field col">
-                                        <label htmlFor="rutaSyllabus" className="font-bold">
-                                            Syllabus
-                                        </label>
-                                        <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}}  />
-                                        </div>                                    </div>
-                                    <div className="field col">
-                                        <label htmlFor="rutaNormas" className="font-bold">
-                                            Normas de convivencia
-                                        </label>
-                                        <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}} />
-                                        </div>                                    </div>
-                                </div>
-                                <div className="formgrid grid">
-                                    <div className="field col">
-                                        <label htmlFor="rutaPresentacionCurso" className="font-bold">
-                                            Presentación del curso
-                                        </label>
-                                        <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}} />
-                                        </div>                                    </div>
-                                    <div className="field col">
-                                        <label htmlFor="rutaPresentacionDocente" className="font-bold">
-                                            Presentación del docente
-                                        </label>
-                                        <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}} />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="formgrid grid">
-                                    <div className="field col">
-                                        <label htmlFor="competencia" className="font-bold">
-                                            Competencia
-                                        </label>
-                                        <InputTextarea id="competencia" value={cursoCalificacion.Competencia || ''} disabled />
-                                    </div>
-                                    <div className="field col">
-                                        <label htmlFor="capacidad" className="font-bold">
-                                            Capacidad
-                                        </label>
-                                        <InputTextarea id="capacidad" value={cursoCalificacion.Capacidad || ''} disabled />
-                                    </div>
-                                </div>
-                            </div>
-                        </TabPanel>
-                        <TabPanel header="Sesiones" leftIcon="pi pi-list mr-2">
-                            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
-                                <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                            </DataTable>
-                        </TabPanel>
-                    </TabView>
-                </div>
-            </div>
+            <Card title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
+            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
+                <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+            </DataTable>
             <Dialog visible={sesionDialog} style={{ width: '40rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos de la sesión" modal className="p-fluid" footer={sesionDialogFooter} onHide={hideSesionDialog}>
-                {/* <div className="field">
-                    <label htmlFor="imagen" className="font-bold">
-                        Foto
+                <div className="field col">
+                    <label htmlFor="fecha" className="font-bold">
+                        Fecha de la sesión
                     </label>
-                    <FileUpload name="foto" url="/api/upload" accept="image/*" chooseLabel="Cargar Imagen" uploadLabel="Confirmar" cancelLabel="Cancelar" className="p-mb-3" maxFileSize={5 * 1024 * 1024} customUpload uploadHandler={onFileSelect} />
-                </div> */}
-
-                <div className="field">
-                    <label htmlFor="nombres" className="font-bold">
-                        Nombre de la sesión
-                    </label>
-                    <InputText id="nombres" value={sesion.Descripcion} onChange={(e) => onInputSesionChange(e, 'Descripcion')} required autoFocus maxLength={100} className={classNames({ 'p-invalid': submitted && !sesion.Descripcion })} />
-                    {submitted && !sesion.Descripcion && <small className="p-error">Ingrese el nombre de la sesión.</small>}
-                </div>
-
-                <div className="field">
-                    <label htmlFor="linkClaseVirtual" className="font-bold">
-                        Enlace para clase virtual
-                    </label>
-                    <InputText
-                        id="linkClaseVirtual"
-                        value={sesion.LinkClaseVirtual}
-                        onChange={(e) => onInputSesionChange(e, 'LinkClaseVirtual')}
-                        required
-                        autoFocus
-                        maxLength={100}
-                        className={classNames({ 'p-invalid': submitted && !sesion.LinkClaseVirtual })}
-                    />
-                    {submitted && !sesion.LinkClaseVirtual && <small className="p-error">Ingrese el nombre de la sesión.</small>}
+                    <Calendar id="fecha" value={sesion.Fecha} onChange={(e) => onCalendarChange(e)} showIcon required className={classNames({ 'p-invalid': submitted && !sesion.Fecha })} />
+                    {submitted && !sesion.Fecha && <small className="p-error">Ingrese la Fecha.</small>}
                 </div>
             </Dialog>
             <Dialog visible={cursoCDialog} style={{ width: '60rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos del curso" modal className="p-fluid" footer={cursoCDialogFooter} onHide={hideCursoCDialog}>

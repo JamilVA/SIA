@@ -1,9 +1,11 @@
 const { Router } = require('express')
-const { crearActividad, getActividades, eliminarActividad, actualizarActividad, actualizarRutaRecursoGuia, calificarActividad } = require('../controllers/actividad.controller')
+const { crearActividad, getActividades, eliminarActividad, actualizarActividad, actualizarRutaRecursoGuia, calificarActividad, getActividadesEstudiante } = require('../controllers/actividad.controller')
 
 const router = Router()
 
 router.get('/', getActividades)
+
+router.get('/estudiante', getActividadesEstudiante)
 
 router.post('/', crearActividad)
 

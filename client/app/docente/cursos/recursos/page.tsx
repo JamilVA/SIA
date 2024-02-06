@@ -216,41 +216,29 @@ export default function ActividadesPage() {
 
 
     const descargarArchivo = async (ruta: string) => {
-        try {
-            const response = await axios.get('http://localhost:3001/api/files/download',{
-                params:{ fileName: ruta }
-            });
-
-            console.log(response)
-    
-            const blob = new Blob([response.data], { type: response.headers['content-type'] });
-    
-            // Crear un objeto URL del blob
-            const url = window.URL.createObjectURL(blob);
-    
-            // Crear un enlace temporal
-            const link = document.createElement('a');
-            link.href = url;
-    
-            // Establecer el nombre del archivo
-            link.download = ruta;
-    
-            // Simular un clic en el enlace para iniciar la descarga
-            document.body.appendChild(link);
-            link.click();
-    
-            // Limpiar el enlace después de la descarga
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Error al descargar el archivo:', error);
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error de descarga de archivo',
-                life: 3000
-            });
-        }
+        await axios.get('http://localhost:3001/api/files/download', {
+            params: { fileName: ruta },
+            responseType: 'arraybuffer' 
+        })
+            .then(response => {
+                //console.log(response); 
+                const file = new File([response.data], ruta);        
+                const url = URL.createObjectURL(file);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = file.name;            
+                link.click();
+                URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                //console.error(error.response);           
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error en la descarga',
+                    detail: error.response ? "El archivo no existe" : error.message,
+                    life: 3000
+                })
+            })
     };
 
     const handleUpload = (event: FileUploadFilesEvent, rowData: typeof recursoVacio) =>{
@@ -269,7 +257,7 @@ export default function ActividadesPage() {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    <Button label="New" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
+                    <Button label="Nuevo recurso" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
                 </div>
             </React.Fragment>
         );
