@@ -3,7 +3,7 @@ const { sequelize } = require("../config/database");
 
 const Acta = sequelize.define('Acta', {
     Codigo: {
-        type: DataTypes.CHAR(8),
+        type: DataTypes.CHAR(7),
         primaryKey: true
     },
     FechaGeneracion: DataTypes.DATE,
