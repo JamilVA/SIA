@@ -16,6 +16,9 @@ const Persona = sequelize.define('Persona', {
   Sexo: DataTypes.CHAR(1),
   DNI: DataTypes.CHAR(8),
   Email: DataTypes.STRING(100),
+  Direccion: DataTypes.STRING(100),
+  EmailPersonal: DataTypes.STRING(100),
+  Celular: DataTypes.CHAR(9)
 });
 
 module.exports = Persona;

@@ -145,7 +145,8 @@ const Page = () => {
                 <Link href={`/docente/cursos/gestion-curso?codigo=${rowData.CodCursoCal}`}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">Ver</Button>
                 </Link>
-                <Link href={`/docente/cursos/calificaciones?codigo=${rowData.CodCurso}`}>
+
+                <Link href={`/docente/cursos/calificaciones?codigo=${rowData.CodCursoCal}`}>
                     <Button icon="" rounded severity="info" tooltip="" className="mr-2">Calificar</Button>
                 </Link>
                 <Button label='PDF Matriculados' icon="pi pi-file-pdf" rounded text className='p-1' onClick={() => obtenerPDFMatriculados(rowData.CodCursoCal)}></Button>

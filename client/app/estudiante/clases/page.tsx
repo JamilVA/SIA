@@ -75,7 +75,7 @@ const Page = () => {
             <div className="col-12 md:col-3">
                 <div className="card shadow-1">
                     <div className="text-center">
-                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQION7iLAgrmjNpsU01XdpcD7fU-ZnfaLfEWestMmrvQQ&s" />
+                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="/images/usuario.png" />
                         <h5 style={{ color: 'var(--surface-700)' }}>JAMIL VASQUEZ ALAYO</h5>
                     </div>
                     <div className="mt-4">

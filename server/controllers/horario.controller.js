@@ -78,10 +78,45 @@ const getHorariosGenerales = async (req, res) => {
     }
 }
 
+const getHorarioByStudent = async (req, res) => {
+    try {
+        const horario = await sequelize.query(`select c.Codigo as CodigoCurso, c.Nombre, h.Codigo as CodigoHorario, h.Dia, h.HoraInicio, h.HoraFin, h.NombreAula, h.NumeroAula 
+        from horario h join cursocalificacion cc
+        on h.CodigoCursoCalificacion = cc.Codigo
+        join periodo p on cc.CodigoPeriodo = p.Codigo
+        join curso c on cc.CodigoCurso = c.Codigo
+        join matricula m on cc.Codigo = m.CodigoCursoCalificacion
+        join estudiante e on m.CodigoEstudiante = e.Codigo
+        where e.Codigo = '${req.query.CodEstudiante}' and p.Estado = 1;`, { type: QueryTypes.SELECT })
+        res.json({ horario })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error al obtener horario' })
+    }
+}
+
+const getHorarioByDocente = async (req, res) => {
+    try {
+        const horario = await sequelize.query(`select c.Codigo as CodigoCurso, c.Nombre, h.Codigo as CodigoHorario, h.Dia, h.HoraInicio, h.HoraFin, h.NombreAula, h.NumeroAula 
+        from horario h join cursocalificacion cc
+        on h.CodigoCursoCalificacion = cc.Codigo
+        join periodo p on cc.CodigoPeriodo = p.Codigo
+        join curso c on cc.CodigoCurso = c.Codigo
+        join docente d on cc.CodigoDocente = d.Codigo
+        where d.Codigo = '${req.query.CodDocente}' and p.Estado = 1;`, { type: QueryTypes.SELECT })
+        res.json({ horario })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error al obtener horario' })
+    }
+}
+
 module.exports = {
     crearHorario,
     editarHorario,
     eliminarHorario,
     buscarHorario,
-    getHorariosGenerales
+    getHorariosGenerales,
+    getHorarioByStudent,
+    getHorarioByDocente
 }

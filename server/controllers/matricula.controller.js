@@ -151,24 +151,27 @@ const actualizarMatricula = async (req, res) => {
 };
 
 const getMatriculaByCurso = async (req, res) => {
-  console.log(req.body)
   try {
     const curso = await Curso.findOne({
       attributes: ['Codigo', 'Nombre'],
       include: [
         {
           model: CursoCalificacion,
-          attributes: ['EstadoNotas', 'EstadoRecuperacion', 'EstadoAplazado'],
+          attributes: ['Codigo', 'EstadoNotas', 'EstadoRecuperacion', 'EstadoAplazado'],
+          where: { Codigo: req.query.codCurso },
           include: [
             {
               model: Periodo,
-              attributes: ['Estado'],
-              where: { Estado: true}
+              attributes: ['Codigo', 'Estado'],
+              where: { Estado: true }
             }
           ]
+        },
+        {
+          model: CarreraProfesional,
+          attributes: ['Codigo']
         }
-      ],
-      where: { Codigo: req.query.codCurso}
+      ]
     });
 
     const registroMatricula = await sequelize.query(`select e.CodigoSunedu, m.CodigoEstudiante, m.CodigoCursoCalificacion, concat(p.Paterno,' ', p.Materno,' ', p.Nombres) as Alumno, m.Nota1, m.Nota2, m.Nota3, m.Nota4, m.NotaRecuperacion, m.NotaFinal, m.NotaAplazado, m.PorcentajeAsistencia 
@@ -178,7 +181,7 @@ const getMatriculaByCurso = async (req, res) => {
     on cc.CodigoPeriodo = pd.Codigo join estudiante e
     on m.CodigoEstudiante = e.Codigo join persona p
     on e.CodigoPersona = p.Codigo
-    where c.Codigo = '${req.query.codCurso}' and pd.Estado = 1
+    where cc.Codigo = '${req.query.codCurso}' and pd.Estado = 1
     order by Alumno ASC;`, { type: QueryTypes.SELECT });
 
     res.json({

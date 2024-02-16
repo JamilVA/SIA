@@ -133,7 +133,10 @@ declare namespace Demo {
         CreditosAprobados: number;
         CodigoCarreraProfesional: number | undefined;
         CodigoPersona: number | undefined;
-        [key: string]: string | number | boolean | string [{}];
+        Direccion: stringn | null;
+        EmailPersonal: string | null,
+        Celular: string | null,
+        [key: string]: string | number | boolean | string[{}];
     }
 
     type Curso = {
@@ -173,6 +176,12 @@ declare namespace Demo {
         NotaFinal: number,
         PorcentajeAsistencia: number,
         [key: string]: string | string[] | number | boolean | undefined | null;
+    }
+
+    type Acta = {
+        Codigo: string,
+        FechaGeneracion: string,
+        CodigoCursoCalificacion: string,
     }
 
     //ProductService

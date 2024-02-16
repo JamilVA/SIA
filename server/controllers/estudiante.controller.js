@@ -17,6 +17,21 @@ const getEstudiante = async (req, res) => {
   });
 };
 
+const getEstudianteByCodPersona = async (req, res) => {
+  const estudiante = await Estudiante.findOne({
+    include: [Persona, CarreraProfesional],
+    where: {
+      CodigoPersona: req.query.CodigoPersona,
+    },
+
+  });
+
+  res.json({
+    ok: true,
+    estudiante,
+  });
+};
+
 const hash = (password) => {
   try {
     const salt = bcrypt.genSaltSync(10);
@@ -39,6 +54,9 @@ const crearEstudiante = async (req, res) => {
       Sexo: req.body.Sexo,
       DNI: req.body.DNI,
       Email: req.body.Email,
+      Direccion: req.body.Direccion,
+      EmailPersonal: req.body.EmailPersonal,
+      Celular: req.body.Celular
     });
 
     const estudiante = await Estudiante.create({
@@ -88,6 +106,9 @@ const actualizarEstudiante = async (req, res) => {
         Sexo: req.body.Sexo,
         DNI: req.body.DNI,
         Email: req.body.Email,
+        Direccion: req.body.Direccion,
+        EmailPersonal: req.body.EmailPersonal,
+        Celular: req.body.Celular
       },
       {
         where: {
@@ -166,5 +187,6 @@ module.exports = {
   crearEstudiante,
   actualizarEstudiante,
   buscarEstudiante,
-  getNotas
+  getNotas,
+  getEstudianteByCodPersona
 };

@@ -11,17 +11,18 @@ const Periodo = require('../models/periodo.model')
 const Persona = require('../models/persona.model')
 const UnidadAcademica = require('../models/unidadAcademica.model')
 const SemanaAcademica = require('../models/semanaAcademica.model')
-const ConceptoPago = require("../models/conceptoPago.model");
-const Pago = require("../models/pago.model");
-const CarreraProfesional = require("../models/carreraProfesional.model");
+const ConceptoPago = require("../models/conceptoPago.model")
+const Pago = require("../models/pago.model")
+const CarreraProfesional = require("../models/carreraProfesional.model")
 const Usuario = require('../models/usuario.model')
 const NivelUsuario = require('../models/nivelUsuario.model')
 const JefeDepartamento = require('../models/jefeDepartamento.model')
 const RecursoAcademico = require('../models/recursoAcademico.model')
 const Horario = require('../models/horario.model')
+const Acta = require("../models/acta.model")
 
-ConceptoPago.hasMany(Pago, { foreignKey: "CodigoConceptoPago" });
 Pago.belongsTo(ConceptoPago, { foreignKey: "CodigoConceptoPago" });
+ConceptoPago.hasMany(Pago, { foreignKey: "CodigoConceptoPago" });
 
 Estudiante.hasMany(Pago, { foreignKey: "CodigoEstudiante" });
 Pago.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" });
@@ -29,8 +30,8 @@ Pago.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" });
 Persona.hasOne(Estudiante, { foreignKey: "CodigoPersona" });
 Estudiante.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 
-Estudiante.hasMany(Asistencia, { foreignKey: 'CodigoEstudiante' })
-Asistencia.belongsTo(Estudiante, { foreignKey: 'CodigoEstudiante' })
+Estudiante.hasMany(Asistencia, { foreignKey: 'CodigoEstudiante' });
+Asistencia.belongsTo(Estudiante, { foreignKey: 'CodigoEstudiante' });
 
 Sesion.hasMany(Asistencia, { foreignKey: 'CodigoSesion' })
 Asistencia.belongsTo(Sesion, { foreignKey: 'CodigoSesion' })
@@ -113,6 +114,9 @@ Asistencia.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" });
 CursoCalificacion.hasMany(Horario, { foreignKey: 'CodigoCursoCalificacion' })
 Horario.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
 
+CursoCalificacion.hasOne(Acta, {foreignKey: 'CodigoCursoCalificacion'})
+Acta.belongsTo(CursoCalificacion, {foreignKey: 'CodigoCursoCalificacion'})
+
 module.exports = {
     Actividad,
     Sesion,
@@ -134,4 +138,5 @@ module.exports = {
     JefeDepartamento,
     RecursoAcademico,
     Usuario,
+    Acta
 }

@@ -14,6 +14,7 @@ const CursoCalificacion = sequelize.define('CursoCalificacion', {
     RutaNormas: DataTypes.STRING(100),
     RutaPresentacionCurso: DataTypes.STRING(100),
     RutaPresentacionDocente: DataTypes.STRING(100),
+    RutaImagenPortada: DataTypes.STRING(100),
     Competencia: DataTypes.TEXT,
     Capacidad: DataTypes.TEXT,
 })
