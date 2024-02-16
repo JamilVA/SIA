@@ -35,7 +35,7 @@ const Page = () => {
     const dt = useRef<DataTable<any>>(null);
 
     const usuario = {
-        Codigo: 5
+        Codigo: 1
     };
 
     useEffect(() => {
