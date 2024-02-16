@@ -1,4 +1,4 @@
-const {Curso, CursoCalificacion, CarreraProfesional} = require("../config/relations")
+const { Curso, CursoCalificacion, CarreraProfesional } = require("../config/relations")
 
 const { sequelize } = require('../config/database');
 const { QueryTypes } = require('sequelize');
@@ -97,13 +97,17 @@ const buscarCurso = async (req, res) => {
         res.json({ curso })
     } catch (error) {
         console.error(error)
-        res.status(500).json({error: 'Error al buscar el curso'})
+        res.status(500).json({ error: 'Error al buscar el curso' })
     }
 }
 
 const getCursosByDP = async (req, res) => {
     try {
-        const cursos = await sequelize.query(`select c.Codigo as CodCurso, cc.Codigo as CodCursoCal, c.Nombre, cp.NombreCarrera as Carrera from carreraprofesional cp join curso c on cp.Codigo = c.CodigoCarreraProfesional join cursocalificacion cc on c.Codigo = cc.CodigoCurso join periodo p on p.Codigo = cc.CodigoPeriodo join docente d on cc.CodigoDocente = d.Codigo where d.Codigo = ${req.body.CodDocente} and p.Estado = 1`, { type: QueryTypes.SELECT });
+        _codDocente = req.query.CodDocente;
+        const cursos = await sequelize.query(`select c.Codigo as CodCurso, cc.Codigo as CodCursoCal, c.Nombre, cp.NombreCarrera as Carrera 
+        from carreraprofesional cp join curso c on cp.Codigo = c.CodigoCarreraProfesional join cursocalificacion cc 
+        on c.Codigo = cc.CodigoCurso join periodo p on p.Codigo = cc.CodigoPeriodo join docente d on cc.CodigoDocente = d.Codigo 
+        where d.Codigo = ${req.query.CodDocente == undefined ? 0 : _codDocente} and p.Estado = 1`, { type: QueryTypes.SELECT });
 
         res.json({
             ok: true,

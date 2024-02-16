@@ -10,6 +10,6 @@ router.post('/', crearCurso);
 router.put('/', actualizarCurso);
 
 router.get('/buscar', buscarCurso)
-router.post('/cursosdp', getCursosByDP);
+router.get('/cursosdp', getCursosByDP);
 
 module.exports = router;

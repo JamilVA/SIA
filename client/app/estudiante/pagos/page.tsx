@@ -5,6 +5,7 @@ import { Toast } from 'primereact/toast';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import axios from 'axios';
+import { useSession } from "next-auth/react";
 
 const Page = () => {
 
@@ -17,21 +18,22 @@ const Page = () => {
         ConceptoPago: { Codigo: 0, Denominacion: '', Monto: 0 },
     }
 
+    const { data: session, status } = useSession();
     const [pagosM, setPagosM] = useState([EmptyPago]);
     const [pagosO, setPagosO] = useState([EmptyPago]);
     const dt = useRef<DataTable<any>>(null);
     const toast = useRef<Toast>(null);
 
-    const d = {
-        codigo: 4
-    }
-
     useEffect(() => {
-        fetchPagos(d);
-    }, []);
+        fetchPagos();
+    }, [status]);
 
-    const fetchPagos = async (data: object) => {
-        await axios.post("http://127.0.0.1:3001/api/pago/estudiante", data).then(response => {
+    const fetchPagos = async () => {
+        await axios.get("http://127.0.0.1:3001/api/pago/estudiante", {
+            params: {
+                codigo: session?.user.codigoPersona
+            }
+        }).then(response => {
             console.log(response.data);
             let _pagosM = response.data.pagos.filter((x: any) => x.ConceptoPago.Codigo == 1);
             let _pagosO = response.data.pagos.filter((x: any) => x.ConceptoPago.Codigo != 1);
@@ -68,7 +70,7 @@ const Page = () => {
         <div className="grid">
             <div className="col-12">
                 <div className="card">
-                        
+
                     <Fieldset legend="Matrículas" toggleable>
                         <Toast ref={toast} />
                         <DataTable

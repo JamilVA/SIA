@@ -1,5 +1,4 @@
-const {Estudiante, Persona, Usuario, CarreraProfesional, Matricula} = require("../config/relations")
-
+const { Estudiante, Persona, Usuario, CarreraProfesional, Matricula } = require("../config/relations")
 const bcrypt = require('bcryptjs');
 
 Estudiante.belongsTo(CarreraProfesional, {
@@ -18,18 +17,21 @@ const getEstudiante = async (req, res) => {
 };
 
 const getEstudianteByCodPersona = async (req, res) => {
-  const estudiante = await Estudiante.findOne({
-    include: [Persona, CarreraProfesional],
-    where: {
-      CodigoPersona: req.query.CodigoPersona,
-    },
+  try {
+    const estudiante = await Estudiante.findOne({
+      include: [Persona, CarreraProfesional],
+      where: {
+        Codigo: req.query.CodigoPersona,
+      },
+    });
 
-  });
-
-  res.json({
-    ok: true,
-    estudiante,
-  });
+    res.json({
+      ok: true,
+      estudiante,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const hash = (password) => {
@@ -53,7 +55,6 @@ const crearEstudiante = async (req, res) => {
       FechaNacimiento: req.body.FechaNacimiento,
       Sexo: req.body.Sexo,
       DNI: req.body.DNI,
-      Email: req.body.Email,
       Direccion: req.body.Direccion,
       EmailPersonal: req.body.EmailPersonal,
       Celular: req.body.Celular

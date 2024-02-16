@@ -8,6 +8,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { Dropdown } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
+import { useSession } from "next-auth/react";
 
 const page = () => {
 
@@ -17,6 +18,7 @@ const page = () => {
         Semestre: 0
     }
 
+    const { data: session, status } = useSession();
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [horarios, setHorarios] = useState([]);
@@ -49,7 +51,7 @@ const page = () => {
     useEffect(() => {
         fetchHorariosG();
         fetchHorarioE()
-    }, []);
+    }, [status]);
 
     const fetchHorariosG = async () => {
         await axios.get("http://127.0.0.1:3001/api/horario/generales", {
@@ -76,7 +78,7 @@ const page = () => {
     const fetchHorarioE = async () => {
         await axios.get("http://127.0.0.1:3001/api/horario/estudiante", {
             params: {
-                CodEstudiante: 19,
+                CodEstudiante: session?.user.codigoPersona,
             }
         }).then(response => {
             console.log(response.data);

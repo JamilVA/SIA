@@ -11,7 +11,7 @@ router.put('/', anularPago);
 
 router.get('/conceptos', getConceptos);
 
-router.post('/estudiante', getPagosByStudent);
+router.get('/estudiante', getPagosByStudent);
 
 router.get('/pagosEstudiante', getPagosEstudiante);
 

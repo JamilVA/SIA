@@ -28,7 +28,7 @@ const LoginPage = () => {
             return;
         }
 
-        router.push("/");
+        router.push("/estudiante/perfil");
     };
 
     return (
@@ -37,7 +37,7 @@ const LoginPage = () => {
             <div className="card general_container">
                 <div className="grid col-6 p-0 login_container">
                     <div className="col-6 img_container">
-                        <img style={{ objectFit: 'cover', width: '100%', height: '100%', borderRadius: '15px 0 0 15px' }} src="https://scontent.fcja2-1.fna.fbcdn.net/v/t1.6435-9/127553878_10158185914267832_1896056533531614513_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=0bb214&_nc_ohc=1ayChWf9kkYAX9Ka0Oj&_nc_ht=scontent.fcja2-1.fna&oh=00_AfAwfMLrOzxEJj3i6f4Y5qBG-p-CA0G8tQGy-j43CDo9OQ&oe=65A335B4" alt="" />
+                        <img style={{ objectFit: 'cover', width: '100%', height: '100%', borderRadius: '15px 0 0 15px' }} src="https://scontent-lim1-1.xx.fbcdn.net/v/t1.6435-9/127553878_10158185914267832_1896056533531614513_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=0bb214&_nc_ohc=MddVZBfenWsAX98I0cq&_nc_ht=scontent-lim1-1.xx&oh=00_AfC0ShyZnv8M2hMz3s-5u56iYpXdcIq2htgv_m5ZHbpxvg&oe=65F4F2B4" alt="" />
                     </div>
 
                     <div className="col-6 form_container">

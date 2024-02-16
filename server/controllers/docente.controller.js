@@ -1,4 +1,5 @@
-const {Docente, Persona, Usuario} = require("../config/relations")
+const { Docente, Persona, Usuario } = require("../config/relations");
+const bcrypt = require('bcryptjs');
 
 const getDocente = async (req, res) => {
   const docentes = await Docente.findAll({
@@ -22,16 +23,26 @@ const getPerfilDocente = async (req, res) => {
     include: [
       {
         model: Persona,
-        attributes: ["Nombres",'Paterno','Materno','Email','RutaFoto','DNI'],
+        attributes: ["Nombres", 'Paterno', 'Materno', 'Email', 'RutaFoto', 'DNI'],
       },
     ],
-    where:{Codigo:CodigoDocente}
+    where: { Codigo: CodigoDocente }
   });
 
   res.json({
     ok: true,
     docente,
   });
+};
+
+const hash = (password) => {
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const hashPassword = bcrypt.hashSync(password, salt);
+    return hashPassword;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const crearDocente = async (req, res) => {
@@ -60,8 +71,8 @@ const crearDocente = async (req, res) => {
       Estado: true,
       CodigoPersona: persona.Codigo,
       CodigoNivelUsuario: 3,
-      Password:'',
-      Email:''
+      Email: req.body.email,
+      Password: hash(req.body.DNI),
     });
 
     res.json({

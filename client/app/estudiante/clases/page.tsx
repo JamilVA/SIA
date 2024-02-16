@@ -5,7 +5,9 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import axios from 'axios';
+import Perfil from "../../templates/Perfil"
 import Link from 'next/link';
+import { useSession } from "next-auth/react";
 
 const Page = () => {
     const cursoCVacio = {
@@ -29,25 +31,22 @@ const Page = () => {
         Semestre: 0
     };
 
+    const { data: session, status } = useSession();
     const [cursos, setCursos] = useState<(typeof cursoVacio)[]>([]);
     const [cursosCalificacion, setCursosCalificaion] = useState<(typeof cursoCVacio)[]>([]);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
 
-    const usuario = {
-        Codigo: 5
-    };
-
     useEffect(() => {
-        fetchCursos(usuario.Codigo);
-    }, []);
+        fetchCursos();
+    }, [status]);
 
-    const fetchCursos = async (CodigoEstudiante: number) => {
+    const fetchCursos = async () => {
         try {
             const { data } = await axios.get('http://localhost:3001/api/curso-calificacion/cursos-estudiante', {
-                params: { CodigoEstudiante: CodigoEstudiante }
+                params: { CodigoEstudiante: session?.user.codigoPersona }
             });
-            const {cursosCalificacion} = data;
+            const { cursosCalificacion } = data;
 
             setCursosCalificaion(cursosCalificacion);
             setCursos(cursosCalificacion.Curso);
@@ -61,7 +60,7 @@ const Page = () => {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <>
-                <Link href={`/estudiante/clases/detalles-curso?codigoS=${rowData.Codigo}&codigoE=${usuario.Codigo}`}>
+                <Link href={`/estudiante/clases/detalles-curso?codigoS=${rowData.Codigo}&codigoE=${session?.user.codigoPersona}`}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">
                         Ver
                     </Button>
@@ -73,24 +72,11 @@ const Page = () => {
     return (
         <div className="grid">
             <div className="col-12 md:col-3">
-                <div className="card shadow-1">
-                    <div className="text-center">
-                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="/images/usuario.png" />
-                        <h5 style={{ color: 'var(--surface-700)' }}>JAMIL VASQUEZ ALAYO</h5>
-                    </div>
-                    <div className="mt-4">
-                        <p>
-                            <b>Email: </b>jvasqueza@gmail.com
-                        </p>
-                        <p>
-                            <b>DNI: </b>40936598
-                        </p>
-                    </div>
-                </div>
+                <Perfil></Perfil>
             </div>
             <div className="col-12 md:col-9">
                 <div className="card">
-                    <DataTable ref={dt} value={cursosCalificacion} dataKey="CodCurso" className="datatable-responsive" emptyMessage="No courses found." responsiveLayout="scroll">
+                    <DataTable ref={dt} value={cursosCalificacion} dataKey="Codigo" className="datatable-responsive" emptyMessage="No courses found." responsiveLayout="scroll">
                         <Column field="Curso.Codigo" header="Codigo" />
                         <Column field="Curso.Nombre" header="Curso" />
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '15rem' }}></Column>

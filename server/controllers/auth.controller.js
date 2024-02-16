@@ -1,4 +1,4 @@
-const Usuario = require('../models/usuario.model')
+const { JefeDepartamento, Docente, Estudiante, Persona, Usuario } = require("../config/relations");
 const bcrypt = require('bcryptjs');
 const { generateToken, generateRefreshToken } = require('../utils/tokenManager');
 
@@ -26,9 +26,21 @@ const login = async (req, res) => {
         generateRefreshToken(user.Codigo, res);
 
         const nivelUsuario = user.CodigoNivelUsuario;
-        const codigoPersona = user.CodigoPersona;
+        let codigoPersona = user.CodigoPersona;
+
+        if (nivelUsuario == 2) {
+            let _jefe = await JefeDepartamento.findOne({ where: { CodigoPersona: user.CodigoPersona } });
+            codigoPersona = _jefe.Codigo;
+        } else if (nivelUsuario == 3) {
+            let _docente = await Docente.findOne({ where: { CodigoPersona: user.CodigoPersona } });
+            codigoPersona = _docente.Codigo;
+        } else if (nivelUsuario == 4) {
+            let _estudiante = await Estudiante.findOne({ where: { CodigoPersona: user.CodigoPersona } });
+            codigoPersona = _estudiante.Codigo;
+        }
 
         res.json({ email, nivelUsuario, codigoPersona, token, expiresIn });
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Error de servidor" });
