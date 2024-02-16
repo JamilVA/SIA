@@ -7,6 +7,8 @@ import { Toast } from 'primereact/toast';
 import axios from 'axios';
 import Link from 'next/link';
 
+import { useRouter } from 'next/router';
+
 const Page = () => {
     const cursoCVacio = {
         Codigo: '',
@@ -34,8 +36,10 @@ const Page = () => {
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
 
+    const router = useRouter();
+
     const usuario = {
-        Codigo: 1
+        Codigo: 11
     };
 
     useEffect(() => {
@@ -47,7 +51,7 @@ const Page = () => {
             const { data } = await axios.get('http://localhost:3001/api/curso-calificacion/cursos-estudiante', {
                 params: { CodigoEstudiante: CodigoEstudiante }
             });
-            const {cursosCalificacion} = data;
+            const { cursosCalificacion } = data;
 
             setCursosCalificaion(cursosCalificacion);
             setCursos(cursosCalificacion.Curso);
@@ -58,14 +62,41 @@ const Page = () => {
         }
     };
 
+    const detallesCurso = (rowData: any) => {
+        const codigoS = rowData.Codigo;
+        const codigoE = usuario.Codigo;
+
+        router.push({
+            pathname: '/estudiante/clases/detalles-curso',
+            query: {
+                codigoS,
+                codigoE
+            }
+        });
+    };
+
     const actionBodyTemplate = (rowData: any) => {
         return (
             <>
-                <Link href={`/estudiante/clases/detalles-curso?codigoS=${rowData.Codigo}&codigoE=${usuario.Codigo}`}>
+                {/* <Link href={`/estudiante/clases/detalles-curso?codigoS=${rowData.Codigo}&codigoE=${usuario.Codigo}`}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">
                         Ver
                     </Button>
                 </Link>
+                <Link href={{
+                    pathname:'/estudiante/clases/detalles-curso',
+                    query: {
+                        codigoS:rowData.Codigo,
+                        codigoE:usuario.Codigo,
+                    }
+                }}>
+                    <Button icon="" rounded severity="success" tooltip="" className="mr-2">
+                        Ver
+                    </Button>
+                </Link> */}
+                <Button onClick={()=>{detallesCurso(rowData)}} icon="" rounded severity="success" tooltip="" className="mr-2">
+                    Ver
+                </Button>
             </>
         );
     };

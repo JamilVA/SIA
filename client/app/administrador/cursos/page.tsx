@@ -13,6 +13,7 @@ import { Demo } from '../../../types/types';
 import axios from 'axios';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
+import Link from 'next/link';
 
 const Page = () => {
     let emptyCurso: Demo.Curso = {
@@ -34,8 +35,10 @@ const Page = () => {
     const [carreras, setCarreras] = useState<Demo.CarreraProfesional[]>([]);
     const [prerequisitos, setPrerequisitos] = useState<Demo.Curso[]>([]);
     const [cursoDialog, setCursoDialog] = useState(false);
+    const [exportDialog, setExportDialog] = useState(false);
     const [deleteCursoDialog, setDeleteCursoDialog] = useState(false);
     const [curso, setCurso] = useState<Demo.Curso>(emptyCurso);
+    const [carrera, setCarrera] = useState();
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
@@ -98,6 +101,10 @@ const Page = () => {
 
     const hideDeleteCursoDialog = () => {
         setDeleteCursoDialog(false);
+    };
+
+    const hideExportDialog = () => {
+        setExportDialog(false);
     };
 
     const onSubmitChange = async (e: React.MouseEvent<HTMLButtonElement>, data: object) => {
@@ -274,6 +281,13 @@ const Page = () => {
         getPrerequisitos(_curso.CodigoCarreraProfesional, _curso.Nivel, _curso.Semestre);
     };
 
+    const onCarreraSelect = (e: any) => {
+        const val = (e.target && e.target.value) || '';
+        let carrera = val;
+        setCarrera(carrera);
+        console.log('Carrera', carrera);
+    };
+
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
@@ -287,7 +301,14 @@ const Page = () => {
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <Button label="Export" icon="pi pi-upload" severity="help" onClick={exportCSV} />
+                <Button
+                    label="Exportar"
+                    icon="pi pi-upload"
+                    severity="help"
+                    onClick={() => {
+                        setExportDialog(true);
+                    }}
+                />
             </React.Fragment>
         );
     };
@@ -321,6 +342,17 @@ const Page = () => {
             <Button label="Guardar" icon="pi pi-check" onClick={saveCurso} />
         </>
     );
+
+    const exportDialogFooter = (
+        <>
+            <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideExportDialog} />
+            {/* <Button label="Descargar" icon="pi pi-download" onClick={exportCSV} /> */}
+            <Link href={`http://localhost:3001/api/curso/obtenerListaCursos?c=${carrera}`}>
+                <Button label="Descargar" icon="pi pi-download"/>
+            </Link>
+        </>
+    );
+
     const deleteCursoDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteCursoDialog} />
@@ -423,8 +455,7 @@ const Page = () => {
                             </div>
                             <div className="field col">
                                 <label htmlFor="Creditos">Creditos</label>
-                                <InputNumber maxLength={2} id="Creditos" value={curso.Creditos} onValueChange={(e) => onInputNumberChange(e, 'Creditos')} required
-                                    className={classNames({ 'p-invalid': submitted && !curso.Creditos })} />
+                                <InputNumber maxLength={2} id="Creditos" value={curso.Creditos} onValueChange={(e) => onInputNumberChange(e, 'Creditos')} required className={classNames({ 'p-invalid': submitted && !curso.Creditos })} />
                             </div>
                             <div className="field col">
                                 <label htmlFor="Tipo">Tipo</label>
@@ -447,13 +478,18 @@ const Page = () => {
                         <div className="formgrid grid">
                             <div className="field col">
                                 <label htmlFor="HorasTeoria">Horas Teoria</label>
-                                <InputNumber maxLength={2} id="HorasTeoria" value={curso.HorasTeoria} onValueChange={(e) => onInputNumberChange(e, 'HorasTeoria')} required
-                                    className={classNames({ 'p-invalid': submitted && !curso.HorasTeoria })} />
+                                <InputNumber maxLength={2} id="HorasTeoria" value={curso.HorasTeoria} onValueChange={(e) => onInputNumberChange(e, 'HorasTeoria')} required className={classNames({ 'p-invalid': submitted && !curso.HorasTeoria })} />
                             </div>
                             <div className="field col">
                                 <label htmlFor="HorasPractica">Horas Practica</label>
-                                <InputNumber maxLength={2} id="HorasPractica" value={curso.HorasPractica} onValueChange={(e) => onInputNumberChange(e, 'HorasPractica')} required
-                                    className={classNames({ 'p-invalid': submitted && !curso.HorasPractica })} />
+                                <InputNumber
+                                    maxLength={2}
+                                    id="HorasPractica"
+                                    value={curso.HorasPractica}
+                                    onValueChange={(e) => onInputNumberChange(e, 'HorasPractica')}
+                                    required
+                                    className={classNames({ 'p-invalid': submitted && !curso.HorasPractica })}
+                                />
                             </div>
 
                             <div className="field col">
@@ -471,6 +507,27 @@ const Page = () => {
                                     id="Prerequisito"
                                     required
                                 />
+                            </div>
+                        </div>
+                    </Dialog>
+
+                    <Dialog visible={exportDialog} style={{ width: '350px' }} header="Exportar lista de cursos" modal className="p-fluid" footer={exportDialogFooter} onHide={hideExportDialog}>
+                        <div className="formgrid grid">
+                            <div className="field col">
+                                <label htmlFor="Carrera">Carrera</label>
+                                <Dropdown
+                                    id="carrera"
+                                    value={carrera}
+                                    onChange={(e) => {
+                                        onCarreraSelect(e);
+                                    }}
+                                    name="CodigoCarreraProfesional"
+                                    options={carreras}
+                                    optionLabel="NombreCarrera"
+                                    optionValue="Codigo"
+                                    placeholder="Selecciona"
+                                    className={classNames({ 'p-invalid': submitted && !carrera })}
+                                ></Dropdown>
                             </div>
                         </div>
                     </Dialog>

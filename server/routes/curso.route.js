@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { getCurso, crearCurso , actualizarCurso, buscarCurso, getCursosByDP} = require('../controllers/curso.controller');
+const { getCurso, crearCurso , actualizarCurso, buscarCurso, getCursosByDP, obtenerListaCursos} = require('../controllers/curso.controller');
 
 const router = Router();
 
@@ -10,6 +10,9 @@ router.post('/', crearCurso);
 router.put('/', actualizarCurso);
 
 router.get('/buscar', buscarCurso)
+
+router.get('/obtenerListaCursos', obtenerListaCursos)
+
 router.post('/cursosdp', getCursosByDP);
 
 module.exports = router;
