@@ -22,6 +22,9 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.9.1",
     "nodemon": "^3.0.1",
+    "pdfmake": "^0.2.9",
+    "pdfkit": "^0.14.0",
+    "pdfkit-construct": "^1.2.3",
     "sequelize": "^6.33.0"
   }
 }

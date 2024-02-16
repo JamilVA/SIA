@@ -7,6 +7,7 @@ import { Toast } from 'primereact/toast';
 import { useSession } from "next-auth/react";
 import axios from 'axios';
 import Link from 'next/link';
+import { Dialog } from 'primereact/dialog';
 import Perfil from "../../templates/Perfil";
 
 const Page = () => {
@@ -19,6 +20,11 @@ const Page = () => {
 
     const { data: session, status } = useSession();
     const [cursos, setCursos] = useState([EmptyCurso]);
+    const [docente, setDocente] = useState(docenteVacio);
+    const [visible, setVisible] = useState(false);
+    const [imagenURL, setImagenURL] = useState<string>('');
+    const [pdfMatriculadosURL, setPdfMatriculadosURL] = useState('')
+
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
 
@@ -59,6 +65,7 @@ const Page = () => {
                 <Link href={`/docente/cursos/calificaciones?codigo=${rowData.CodCursoCal}`}>
                     <Button icon="" rounded severity="info" tooltip="" className="mr-2">Calificar</Button>
                 </Link>
+                <Button label='PDF Matriculados' icon="pi pi-file-pdf" rounded text className='p-1' onClick={() => obtenerPDFMatriculados(rowData.CodCursoCal)}></Button>
             </>
         );
     };
@@ -73,14 +80,19 @@ const Page = () => {
             </div>
             <div className="col-12 md:col-9">
                 <div className="card">
-                    <DataTable ref={dt} value={cursos} dataKey="CodCurso" className="datatable-responsive" emptyMessage={status != 'authenticated' ? 'Cargando...' : 'No se encontraron registros'} responsiveLayout="scroll">
+                    <DataTable ref={dt} value={cursos} dataKey="CodCurso" className="datatable-responsive" emptyMessage="No courses found.">
                         <Column field="CodCurso" header="COD" />
-                        <Column field="Nombre" header="Curso" />
-                        <Column field="Carrera" header="Carrera" />
-                        <Column body={status != 'authenticated' ? '' : actionBodyTemplate} headerStyle={{ minWidth: '15rem' }}></Column>
+                        <Column field="Nombre" header="Curso" headerStyle={{ minWidth: '16rem' }} />
+                        <Column field="Carrera" header="Carrera" headerStyle={{ minWidth: '16rem' }} />
+                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
                     </DataTable>
+
                 </div>
             </div>
+            <Dialog header="Vista PDF de estudiantes matriculados" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
+                <iframe src={pdfMatriculadosURL} width="100%" height="99%"></iframe>
+                {/* <embed src={pdfMatriculadosURL} type="application/pdf" width="100%" height="99%"/> */}
+            </Dialog>
         </div>
     );
 };

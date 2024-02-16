@@ -45,6 +45,7 @@ app.use('/api/actividad', require('./routes/actividad.route'))
 app.use('/api/files', require('./routes/files.route'))
 app.use('/api/recursoAcademico', require('./routes/recursoAcademico.route'))
 app.use('/api/actividadEstudiante', require('./routes/actividadEstudiante.route'))
+app.use('/api/pdf', require('./routes/pdf.route'))
 app.use('/api/acta', require('./routes/acta.route'))
 
 //Para levantar el servidor

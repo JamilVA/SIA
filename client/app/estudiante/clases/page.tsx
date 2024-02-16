@@ -7,6 +7,8 @@ import { Toast } from 'primereact/toast';
 import axios from 'axios';
 import Perfil from "../../templates/Perfil"
 import Link from 'next/link';
+
+import { useRouter } from 'next/router';
 import { useSession } from "next-auth/react";
 
 const Page = () => {
@@ -57,6 +59,19 @@ const Page = () => {
         }
     };
 
+    const detallesCurso = (rowData: any) => {
+        const codigoS = rowData.Codigo;
+        const codigoE = usuario.Codigo;
+
+        router.push({
+            pathname: '/estudiante/clases/detalles-curso',
+            query: {
+                codigoS,
+                codigoE
+            }
+        });
+    };
+
     const actionBodyTemplate = (rowData: any) => {
         return (
             <>
@@ -65,6 +80,20 @@ const Page = () => {
                         Ver
                     </Button>
                 </Link>
+                <Link href={{
+                    pathname:'/estudiante/clases/detalles-curso',
+                    query: {
+                        codigoS:rowData.Codigo,
+                        codigoE:usuario.Codigo,
+                    }
+                }}>
+                    <Button icon="" rounded severity="success" tooltip="" className="mr-2">
+                        Ver
+                    </Button>
+                </Link> */}
+                <Button onClick={()=>{detallesCurso(rowData)}} icon="" rounded severity="success" tooltip="" className="mr-2">
+                    Ver
+                </Button>
             </>
         );
     };

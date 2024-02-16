@@ -32,7 +32,7 @@ export default function AsistenciasPage() {
     const dt = useRef<DataTable<any>>(null);
 
     const fetchMatriculados = async () => {
-        await axios.get('http://localhost:3001/api/curso-calificacion/matriculados', {
+        await axios.get('http://localhost:3001/api/curso-calificacion/asistentes', {
             params: {
                 codigoCursoCalificacion: codigoCursoCalificacion,
                 codigoSesion: codigoSesion

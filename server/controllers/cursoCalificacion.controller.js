@@ -325,7 +325,7 @@ const asignarDocente = async (req, res) => {
     }
 }
 
-const getMatriculados = async (req, res) => {
+const getAsistentes = async (req, res) => {
     try {
         const matriculados = await Matricula.findAll({
             where: { CodigoCursoCalificacion: req.query.codigoCursoCalificacion },
@@ -351,7 +351,28 @@ const getMatriculados = async (req, res) => {
         res.json({ matriculados })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ message: 'Error al obtener la lista de matriculados', error })
+        res.status(500).json({ message: 'Error al obtener la lista de asistentes' })
+    }
+}
+
+const getMatriculados = async (req, res) => {
+    try {
+        const matriculados = await Matricula.findAll({
+            where: { CodigoCursoCalificacion: req.query.codigoCursoCalificacion },
+            attributes: [],
+            include: [
+                {
+                    model: Estudiante,
+                    include: Persona                       
+                }
+            ]
+
+        })
+
+        res.json({ matriculados })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Error al obtener la lista de matriculados' })
     }
 }
 
@@ -385,6 +406,7 @@ module.exports = {
     asignarDocente,
     habilitarIngreso,
     deshabilitarIngreso,
-    getMatriculados,
-    contarSesiones
+    getAsistentes,
+    contarSesiones,
+    getMatriculados
 }

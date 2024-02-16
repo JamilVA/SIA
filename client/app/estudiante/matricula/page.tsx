@@ -15,7 +15,7 @@ import { Message } from 'primereact/message';
 
 export default function Matricula() {
     const usuario = {
-        Email: 'jamilvasquez21@gmail.com',
+        Email: 'jamilvasquez20@gmail.com',
         CodigoSunedu: 'PI72763399'
     };
 
@@ -72,11 +72,11 @@ export default function Matricula() {
     const pagoVacio = {
         Codigo: '',
         EstadoPago: '',
-        CodigoEstudiante:'',
+        CodigoEstudiante: '',
         Estudiante: {
-            Codigo:'',
-            Email:''
-        },
+            Codigo: '',
+            Email: ''
+        }
     };
 
     const [matriculaDialog, setMatriculaDialog] = useState(false);
@@ -195,8 +195,7 @@ export default function Matricula() {
         const currentDate = new Date();
 
         console.log('Inicio de Matricula', inicioMatricula), console.log('Fin de Matricula', finMatricula), console.log('Fecha Actual', currentDate);
-        setMatriculaHabilitada((currentDate >= inicioMatricula && currentDate <= finMatricula) && pagos.some(p => p.Estudiante !=null));
-        
+        setMatriculaHabilitada(currentDate >= inicioMatricula && currentDate <= finMatricula && pagos.some((p) => p.Estudiante != null));
     };
 
     const crearMatricula = async (rowData: any) => {
@@ -233,6 +232,14 @@ export default function Matricula() {
                 setDeleteMatriculaDialog(false);
                 setCursoCalificaion(cursoCVacio);
             });
+    };
+
+    const generarConstancia = async () =>{
+        try {
+            
+        } catch (error) {
+            console.error(error)
+        }
     };
 
     const hideMatriculaDialog = () => {
@@ -349,7 +356,9 @@ export default function Matricula() {
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Matrícula en el periodo {periodoActual.Denominacion}</h4>
             <div className="flex flex-wrap gap-2">
-                <Button label="Constancia de Matrícula" icon="pi pi-file-pdf" className="p-button-warning" onClick={buscarCursosMatriculados} />
+                <Link href={`http://localhost:3001/api/matricula/obtenerConstancia?c=${estudiante.Codigo}`}>
+                    <Button label="Constancia de Matrícula" icon="pi pi-file-pdf" className="p-button-warning" onClick={() => {generarConstancia()}} />
+                </Link>
             </div>
         </div>
     );
