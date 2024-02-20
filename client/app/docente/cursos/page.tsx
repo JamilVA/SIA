@@ -114,7 +114,7 @@ const Page = () => {
     };
 
     const obtenerPDFMatriculados = async (codigoCurso: string) => {
-        await axios.get('http://localhost:3001/api/pdf/pdf-test', {
+        await axios.get('http://localhost:3001/api/pdf//lista-matriculados', {
             params: { codigoCurso: codigoCurso },
             responseType: 'blob'
         })

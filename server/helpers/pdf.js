@@ -1,84 +1,32 @@
-const PDFDocument = require('pdfmake')
+const PDFDocument = require('pdfkit-construct')
 
 const generarPDF = async (data, res) => {
-    const fonts = {
-        Roboto: {
-            normal: 'utils/fonts/Montserrat-Regular.ttf',
-            bold: 'utils/fonts/Montserrat-Medium.ttf',
-            italics: 'utils/fonts/Montserrat-Italic.ttf',
-            bolditalics: 'utils/fonts/Montserrat-MediumItalic.ttf'
-        }
-    };
-
-    // Definimos el contenido del PDF
-    var docDefinition = {
-        header: function (currentPage, pageCount, pageSize) {
-            // you can apply any logic and return any valid pdfmake element
-
-            return [
-                { text: 'Este es un encabezado', alignment: (currentPage % 2) ? 'left' : 'right' },
-                { canvas: [{ type: 'rect', x: 170, y: 32, w: pageSize.width - 170, h: 40 }] }
-            ]
-        },
-        content: [
-            {
-                layout: 'lightHorizontalLines',
-                table: {
-                    // headers are automatically repeated if the table spans over multiple pages
-                    // you can declare how many rows should be treated as headers
-                    //headerRows: 1,
-                    widths: ['auto', 'auto', '*'],
-
-                    body:
-                        [
-                            ["CÓDIGO SUNEDU", "DNI", "APELLIDOS Y NOMBRES"],
-                            ...data.map((item) => [
-                                item.Estudiante.CodigoSunedu,
-                                item.Estudiante.Persona.DNI,
-                                item.Estudiante.Persona.Paterno + " " + item.Estudiante.Persona.Materno + ", " + item.Estudiante.Persona.Nombres
-                            ])
-                        ]
-                }
-            }
-        ],
-        styles: {
-            header: {
-                fontSize: 18,
-                bold: true,
-                margin: [0, 0, 0, 10]
-            },
-            subheader: {
-                fontSize: 16,
-                bold: true,
-                margin: [0, 10, 0, 5]
-            },
-            tableExample: {
-                margin: [0, 5, 0, 15]
-            },
-            tableOpacityExample: {
-                margin: [0, 5, 0, 15],
-                fillColor: 'blue',
-                fillOpacity: 0.3
-            },
-            tableHeader: {
-                bold: true,
-                fontSize: 13,
-                color: 'black'
-            }
-        },
-        defaultStyle: {
-            // alignment: 'justify'
-        }
-    };
 
     // Creamos el documento PDF
-    const doc = new PDFDocument(fonts);
-
-    const pdfDoc = doc.createPdfKitDocument(docDefinition);
-
+    const doc = new PDFDocument();
+    doc.text('Usando pdfkit')
+    doc.addTable(
+        [
+            { key: 'Estudiante.CodigoSunedu', label: 'CÓDIGO SUNEDU', align: 'left' },
+            { key: 'Estudiante.Persona.DNI', label: 'DNI', align: 'left' },
+            // {key: 'price', label: 'Price', align: 'right'},
+            // {key: 'quantity', label: 'Quantity'},
+            // {key: 'amount', label: 'Amount', align: 'right'}
+        ],
+        data, {
+        border: null,
+        width: "fill_body",
+        striped: true,
+        stripedColors: ["#f6f6f6", "#d6c4dd"],
+        cellsPadding: 10,
+        marginLeft: 45,
+        marginRight: 45,
+        headAlign: 'center'
+    });
+    //doc.render();
     // Enviamos el PDF al cliente como respuesta HTTP
-    pdfDoc.pipe(res);
-    pdfDoc.end();
+    doc.pipe(res);
+    doc.end();
 
 }
 
