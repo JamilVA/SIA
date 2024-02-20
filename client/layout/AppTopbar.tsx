@@ -5,6 +5,7 @@ import { classNames } from 'primereact/utils';
 import React, { forwardRef, useContext, useImperativeHandle, useRef } from 'react';
 import { AppTopbarRef } from '../types/types';
 import { LayoutContext } from './context/layoutcontext';
+import { signIn, signOut, useSession } from "next-auth/react";
 // import { signOut } from "next-auth/react";
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
@@ -22,7 +23,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     return (
         <div className="layout-topbar custom-topbar">
             <Link href="/" className="layout-topbar-logo">
-            <img src={`/layout/images/esfap.png`} width="75px" height='35px' alt="logo" />
+                <img src={`/layout/images/esfap.png`} width="75px" height='35px' alt="logo" />
                 <span>SIA</span>
             </Link>
 
@@ -35,6 +36,9 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             </button>
 
             <div ref={topbarmenuRef} className={classNames('layout-topbar-menu', { 'layout-topbar-menu-mobile-active': layoutState.profileSidebarVisible })}>
+                <button onClick={() => signOut()} className="p-link layout-topbar-button">
+                    <i className="pi pi-power-off"></i>
+                </button>
                 <button type="button" className="p-link layout-topbar-button">
                     <i className="pi pi-user"></i>
                     <span>Profile</span>

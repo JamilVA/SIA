@@ -1,6 +1,6 @@
 const { Router } = require('express');
 
-const {getMatricula, crearMatricula, actualizarMatricula, eliminarMatricula, buscarEstudiante, getMatriculaByCurso, updateNotas} = require('../controllers/matricula.controller')
+const {getMatricula, crearMatricula, actualizarMatricula, eliminarMatricula, buscarEstudiante, getMatriculaByCurso, updateNotas, obtenerConstancia} = require('../controllers/matricula.controller')
 
 
 const router = Router();
@@ -14,6 +14,8 @@ router.put('/', actualizarMatricula);
 router.post('/eliminar', eliminarMatricula);
 
 router.get('/buscarEstudiante', buscarEstudiante);
+
+router.get('/obtenerConstancia', obtenerConstancia);
 
 router.get('/getMatriculaByCurso', getMatriculaByCurso);
 

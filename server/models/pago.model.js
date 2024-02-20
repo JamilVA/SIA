@@ -7,7 +7,7 @@ const Pago = sequelize.define('Pago', {
         primaryKey: true,
         autoIncrement: true
     },
-    NroTransaccion: DataTypes.STRING(15),   
+    NumeroComprobante: DataTypes.STRING(7),   
     Fecha: DataTypes.DATE,
     EstadoPago: DataTypes.CHAR(1),
 })

@@ -20,9 +20,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 <link id="theme-css" href={`/themes/lara-light-indigo/theme.css`} rel="stylesheet"></link>
             </head>
             <body>
-            <PrimeReactProvider>
-                    <LayoutProvider>{children}</LayoutProvider>
-                </PrimeReactProvider>
+                <SessionAutProvider>
+                    <PrimeReactProvider>
+                        <LayoutProvider>{children}</LayoutProvider>
+                    </PrimeReactProvider>
+                </SessionAutProvider>
             </body>
         </html>
     );

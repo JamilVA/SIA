@@ -4,21 +4,24 @@ import { Toast } from 'primereact/toast';
 import { DataTable } from 'primereact/datatable';
 import axios from 'axios';
 import { Column } from 'primereact/column';
+import Perfil from "../../templates/Perfil";
+import { useSession } from "next-auth/react";
 
 const Page = () => {
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [actas, setActas] = useState(Object);
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         fetchActas();
-    }, []);
+    }, [status]);
 
     const fetchActas = async () => {
         await axios.get('http://127.0.0.1:3001/api/acta/estudiante', {
             params: {
-                CodigoEstudiante: 19,
+                CodigoEstudiante: session?.user.codigoPersona,
             }
         }).then(response => {
             setActas(response.data.actas);
@@ -45,18 +48,7 @@ const Page = () => {
                 <h5 className='m-1 mb-3'>HISTORIAL DE NOTAS</h5>
             </div>
             <div className="col-12 md:col-3">
-                <div className='card shadow-1'>
-                    <div className='text-center'>
-                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className='md:w-5 w-5 mt-1 shadow-1' src="http://academicoplus.unc.edu.pe/Estudiante/ObtenerFotoEstudiante?codigo=18110054&genero=1" />
-                        <h5 style={{ color: 'var(--surface-700)' }}>VILLANUEVA VARGAS JHAN CARLOS</h5>
-                        <h6 className='mt-0' style={{ color: 'var(--surface-500)' }}>ARTES VISUALES</h6>
-                    </div>
-                    <div className='mt-4'>
-                        <p><b>Codigo: </b>AV73414616</p>
-                        <p><b>Email: </b>jhanvillanueva@gmail.com</p>
-                        <p><b>DNI: </b>73414616</p>
-                    </div>
-                </div>
+                <Perfil></Perfil>
             </div>
             <div className='col-12 md:col-9'>
                 <div className='card'>
@@ -65,7 +57,7 @@ const Page = () => {
                         value={actas}
                         dataKey="Codigo"
                         className="datatable-responsive"
-                        emptyMessage="Sin estudiantes."
+                        emptyMessage={ status != 'authenticated'? 'Cargando...' : 'Sin datos' }
                         responsiveLayout="scroll"
                     >
                         <Column field="Codigo" header="Codigo" />

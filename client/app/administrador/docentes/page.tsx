@@ -479,7 +479,7 @@ export default function DocentesDemo() {
                 <DataTable
                     ref={dt}
                     value={docentes}
-                    dataKey="codigo"
+                    dataKey="Codigo"
                     paginator
                     rows={10}
                     rowsPerPageOptions={[5, 10, 25]}

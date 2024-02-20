@@ -6,8 +6,12 @@ import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import { useSession } from "next-auth/react";
+import Perfil from "../../templates/Perfil"
 
 const Page = () => {
+
+    const { data: session, status } = useSession();
 
     let emptyEstudiante: {
         Codigo: string,
@@ -61,19 +65,15 @@ const Page = () => {
 
     const toast = useRef<Toast>(null);
     const [estudianteDialog, setEstudianteDialog] = useState(false);
-
+    const [i, setI] = useState(0);
     const [estudiante, setEstudiante] = useState(emptyEstudiante);
     const [params, setParams] = useState(paramsUpdate);
-
-    useEffect(() => {
-        fetchData();
-    }, [])
 
     const fetchData = async () => {
         try {
             const result = await axios.get("http://localhost:3001/api/estudiante/getbycod", {
                 params: {
-                    CodigoPersona: 34
+                    CodigoPersona: session?.user.codigoPersona
                 }
             });
             setEstudiante(result.data.estudiante);
@@ -86,6 +86,11 @@ const Page = () => {
                 life: 3000
             });
         }
+    }
+
+    if (status === "authenticated" && i == 0) {
+        fetchData();
+        setI(i + 1)
     }
 
     const onUpdate = async () => {
@@ -165,17 +170,7 @@ const Page = () => {
                 <h5 className='m-1 mb-3'>PERFIL ESTUDIANTE</h5>
             </div>
             <div className="col-12 md:col-3">
-                <div className='card shadow-1'>
-                    <div className='text-center'>
-                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className='md:w-5 w-5 mt-1 shadow-1' src="http://academicoplus.unc.edu.pe/Estudiante/ObtenerFotoEstudiante?codigo=18110054&genero=1" />
-                        <h5 style={{ color: 'var(--surface-700)' }}>VILLANUEVA VARGAS JHAN CARLOS</h5>
-                        <h6 className='mt-0' style={{ color: 'var(--surface-500)' }}>ARTES VISUALES</h6>
-                    </div>
-                    <div className='mt-4'>
-                        <p><b>Codigo: </b>AV73414616</p>
-                        <p><b>Email: </b>jhanvillanueva@gmail.com</p>
-                    </div>
-                </div>
+                <Perfil></Perfil>
             </div>
             <div className='col-12 md:col-9'>
                 <div className='card'>

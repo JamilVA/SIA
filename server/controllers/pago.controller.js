@@ -59,10 +59,11 @@ const getPagosEstudiante = async (req, res) => {
 
 const getPagosByStudent = async (req, res) => {
   try {
+    const _codStudent = req.query.codigo
     const pagos = await Pago.findAll({
       include: [{ all: true }],
       where: {
-        CodigoEstudiante: req.body.codigo,
+        CodigoEstudiante: req.query.codigo == undefined ? 0 : _codStudent
       }
     })
 
