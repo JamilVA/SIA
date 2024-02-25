@@ -72,7 +72,7 @@ export default function DocentesDemo() {
 
     const fetchData = async () => {
         try {
-            const result = await axios('http://localhost:3001/api/docente');
+            const result = await axios.get('http://localhost:3001/api/docente');
 
             const docentesConNombreCompleto = result.data.docentes.map((docente: any) => ({
                 ...docente,
@@ -84,6 +84,12 @@ export default function DocentesDemo() {
             console.log(result.data);
         } catch (e) {
             console.log(e);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Operacion fallida',
+                detail: 'Ha ocurrido un error al procesar la solicitud',
+                life: 3000
+            });
         }
     };
 

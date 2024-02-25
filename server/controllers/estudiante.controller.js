@@ -38,6 +38,7 @@ const hash = (password) => {
   try {
     const salt = bcrypt.genSaltSync(10);
     const hashPassword = bcrypt.hashSync(password, salt);
+    console.log(hashPassword)
     return hashPassword;
   } catch (error) {
     console.log(error);

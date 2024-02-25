@@ -1,4 +1,8 @@
-const { Curso, CursoCalificacion, CarreraProfesional } = require("../config/relations")
+const {
+  Curso,
+  CursoCalificacion,
+  CarreraProfesional,
+} = require("../config/relations");
 
 const { sequelize } = require("../config/database");
 const { QueryTypes } = require("sequelize");
@@ -81,32 +85,39 @@ const actualizarCurso = async (req, res) => {
 };
 
 const buscarCurso = async (req, res) => {
-    try {
-        const curso = await Curso.findOne({
-            include: [{
-                model: CursoCalificacion,
-                where: {
-                    'Codigo': req.query.codigo
-                }
-            }]
-        })
-        if (!curso) {
-            return res.json({ message: 'Curso no encontrado' })
-        }
-        res.json({ curso })
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: 'Error al buscar el curso' })
+  try {
+    const curso = await Curso.findOne({
+      include: [
+        {
+          model: CursoCalificacion,
+          where: {
+            Codigo: req.query.codigo,
+          },
+        },
+      ],
+    });
+    if (!curso) {
+      return res.json({ message: "Curso no encontrado" });
     }
-}
+    res.json({ curso });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al buscar el curso" });
+  }
+};
 
 const getCursosByDP = async (req, res) => {
-    try {
-        _codDocente = req.query.CodDocente;
-        const cursos = await sequelize.query(`select c.Codigo as CodCurso, cc.Codigo as CodCursoCal, c.Nombre, cp.NombreCarrera as Carrera 
+  try {
+    _codDocente = req.query.CodDocente;
+    const cursos = await sequelize.query(
+      `select c.Codigo as CodCurso, cc.Codigo as CodCursoCal, c.Nombre, cp.NombreCarrera as Carrera 
         from carreraprofesional cp join curso c on cp.Codigo = c.CodigoCarreraProfesional join cursocalificacion cc 
         on c.Codigo = cc.CodigoCurso join periodo p on p.Codigo = cc.CodigoPeriodo join docente d on cc.CodigoDocente = d.Codigo 
-        where d.Codigo = ${req.query.CodDocente == undefined ? 0 : _codDocente} and p.Estado = 1`, { type: QueryTypes.SELECT });
+        where d.Codigo = ${
+          req.query.CodDocente == undefined ? 0 : _codDocente
+        } and p.Estado = 1`,
+      { type: QueryTypes.SELECT }
+    );
 
     res.json({
       ok: true,
@@ -186,22 +197,41 @@ const obtenerListaCursos = async (req, res) => {
 
     doc.fontSize(16).text("LISTA DE CURSOS", { align: "center", lineGap: 5 });
 
-    doc.fontSize(14).fillColor("blue").text('Especialidad: '+carreraprofesional.dataValues.NombreCarrera, {
-      align: "center",
-    });
+    doc
+      .fontSize(14)
+      .fillColor("blue")
+      .text("Especialidad: " + carreraprofesional.dataValues.NombreCarrera, {
+        align: "center",
+      });
   });
 
+  let cursos = [];
 
-  const cursos = listaCursos.map((curso) => ({
-    Codigo: curso.dataValues.Codigo,
-    Curso: curso.dataValues.Nombre,
-    Nivel: curso.dataValues.Nivel,
-    Semestre: curso.dataValues.Semestre,
-    Tipo: curso.dataValues.Tipo,
-    HorasTeoria: curso.dataValues.HorasTeoria,
-    HorasPractica: curso.dataValues.HorasPractica,
-    Prerequisito: curso.dataValues.CodigoCurso ? curso.dataValues.CodigoCurso : 'NO',
-}));
+  if (listaCursos.length > 0) {
+    cursos = listaCursos.map((curso) => ({
+      Codigo: curso.dataValues.Codigo,
+      Curso: curso.dataValues.Nombre,
+      Nivel: curso.dataValues.Nivel,
+      Semestre: curso.dataValues.Semestre,
+      Tipo: curso.dataValues.Tipo,
+      HorasTeoria: curso.dataValues.HorasTeoria,
+      HorasPractica: curso.dataValues.HorasPractica,
+      Prerequisito: curso.dataValues.CodigoCurso
+        ? curso.dataValues.CodigoCurso
+        : "NO",
+    }));
+  }else {
+    cursos= [ {
+      Codigo: '',
+      Curso: '',
+      Nivel: '',
+      Semestre: '',
+      Tipo: '',
+      HorasTeoria: '',
+      HorasPractica: '',
+      Prerequisito: '',
+    }]
+  }
 
   console.error("CCu", cursos);
 
