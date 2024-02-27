@@ -36,7 +36,7 @@ const Page = () => {
         await axios
             .get('http://127.0.0.1:3001/api/curso/cursosdp', {
                 params: {
-                    CodDocente: session?.user.codigoPersona
+                    CodDocente: 1 // session?.user.codigoPersona
                 }
             })
             .then((response) => {
@@ -55,7 +55,7 @@ const Page = () => {
     };
 
     const obtenerPDFMatriculados = async (codigoCurso: string) => {
-        await axios.get('http://localhost:3001/api/pdf/pdf-test', {
+        await axios.get('http://localhost:3001/api/pdf/lista-matriculados', {
             params: { codigoCurso: codigoCurso },
             responseType: 'blob'
         })
