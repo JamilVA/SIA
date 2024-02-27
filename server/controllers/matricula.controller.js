@@ -438,8 +438,8 @@ const obtenerConstancia = async (req, res) => {
 
   let cursos = [];
 
-  if (listaCursos.length > 0) {
-    cursos = listaCursos.map((matricula) => ({
+  if (matriculas.length > 0) {
+    cursos = matriculas.map((matricula) => ({
       Codigo: matricula.dataValues.CursoCalificacion.Curso.Codigo,
       Curso: matricula.dataValues.CursoCalificacion.Curso.Nombre,
       Nivel: matricula.dataValues.CursoCalificacion.Curso.Nivel,

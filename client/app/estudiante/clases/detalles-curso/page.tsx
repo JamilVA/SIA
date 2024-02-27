@@ -102,6 +102,7 @@ export default function Curso() {
     const [semana, setSemana] = useState(sesionVacia);
     const [semanas, setSemanas] = useState<(typeof semanaVacia)[]>([]);
     const [unidades, setUnidades] = useState<(typeof unidadVacia)[]>([]);
+    const [imagenURL, setImagenURL] = useState<string | null>(null);
 
     const [submitted, setSubmitted] = useState(false);
     const [sesionDialog, setSesionDialog] = useState(false);
@@ -127,6 +128,7 @@ export default function Curso() {
             setUnidades(unidades);
             setSemanas(semanas);
             setSesiones(sesiones);
+            obtenerArchivo(curso.RutaImagenPortada)
             console.log(data);
         } catch (e) {
             console.error(e);
@@ -193,6 +195,31 @@ export default function Curso() {
             })
     }
 
+    const obtenerArchivo = async (ruta: string) => {
+        if(ruta === ''){
+            return
+        }
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download', {
+                params: { fileName: ruta },
+                responseType: 'arraybuffer',  // Especificar el tipo de respuesta como 'arraybuffer'
+            });
+
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+            const url = window.URL.createObjectURL(blob);
+
+            setImagenURL(url);
+        } catch (error) {
+            console.error('Error al obtener el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de carga de archivo',
+                life: 3000,
+            });
+        }
+    };
+
     const filtrarSemanas = (Semanas: (typeof semanaVacia)[], Codigo: string) => {
         return Semanas.filter((s) => s.CodigoUnidadAcademica === Codigo);
     };
@@ -221,7 +248,7 @@ export default function Curso() {
                     })
                     .toUpperCase() +
                 ' ' +
-                rowData.HoraInicio?.slice(0, 5)
+                rowData?.HoraInicio.slice(0, 5)
             );
         }
     };
@@ -268,7 +295,7 @@ export default function Curso() {
                 <Link href={`/estudiante/clases/detalles-curso/recursos?codigo=${rowData.Codigo}`}>
                     <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" />
                 </Link>
-                <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}&codigoE=${codigoEstudiante}`}>
+                <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}}`}>
                     <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success mr-5" />
                 </Link>
             </React.Fragment>
@@ -319,8 +346,18 @@ export default function Curso() {
         );
     };
 
-    const header = <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" height={300} style={{ objectFit: 'cover' }} />;
-
+    const header = (
+        <>
+            <div style={{ position: 'relative', height: '300px' }}>
+                {imagenURL && (
+                    <div className="field">
+                        <img alt="Card" src={imagenURL} height={300} style={{ objectFit: 'cover' }} />
+                        {/* <Image src={imagenURL} zoomSrc={imagenURL} alt="Foto Docente" width="80" height="80" preview /> */}
+                    </div>
+                )}
+            </div>
+        </>
+    );
     const title = (curso: typeof cursoVacio) => {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
