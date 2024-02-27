@@ -30,10 +30,16 @@ const LoginPage = () => {
             return;
         }
 
-        if (session?.user.nivelUsuario == 3) {
-            router.push("/docente/cursos");
-        } else if (session?.user.nivelUsuario == 4) {
-            router.push("/estudiante/perfil");
+        switch (session?.user.nivelUsuario) {
+            case 3:
+                router.push("/docente/cursos");
+                break;
+            case 4:
+                router.push("/estudiante/perfil");
+                break;
+            case 5:
+                router.push("/tesoreria/pagos");
+                break;
         }
     };
 

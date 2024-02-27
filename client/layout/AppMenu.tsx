@@ -39,7 +39,7 @@ const AppMenu = () => {
                 { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefe/curso-calificacion' },
                 { label: 'Gestion de Horarios', icon: 'pi pi-fw pi-list', to: '/jefe/horarios' },
                 { label: 'Gestion de Matricula', icon: 'pi pi-fw pi-list', to: '/jefe/matricula' },
-                
+
 
                 { label: 'Gestion de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' },
 
@@ -70,6 +70,15 @@ const AppMenu = () => {
                 { label: 'Gestion de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/administrador/jefesDepartamento' },
                 { label: 'Gestion de Cursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
                 { label: 'Gestion de Periodo', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' }
+            ]
+        },
+    ];
+
+    const modelTesoreria: AppMenuItem[] = [
+        {
+            label: 'NAVEGACIÓN',
+            items: [
+                { label: 'Gestion de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' }
             ]
         },
     ];
@@ -125,6 +134,8 @@ const AppMenu = () => {
                 setUser(modelDocente); break;
             case 4:
                 setUser(modelStudent); break;
+            case 5:
+                setUser(modelTesoreria); break;
         }
         setI(i + 1);
     }
