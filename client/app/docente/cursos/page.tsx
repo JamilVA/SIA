@@ -98,7 +98,7 @@ const Page = () => {
     return (
         <div className="grid">
             <div className="col-12">
-                <h5 className="m-1 mb-3">CURSOS ACTIVOS</h5>
+                <h5 className="m-3 mt-4">CURSOS ACTIVOS</h5>
             </div>
             <div className="col-12 md:col-3">
                 <Perfil></Perfil>
