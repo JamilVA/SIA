@@ -107,7 +107,7 @@ export default function ActividadesPage() {
     //     setActividadEstudiante(rowData);
     // };
 
-    const onTemplateSelect = (e: FileUploadFilesEvent, actividad: typeof emptyActividad, subido:boolean) => {
+    const onTemplateSelect = (e: FileUploadFilesEvent, actividad: typeof emptyActividad, subido: boolean) => {
         let _totalSize = totalSize;
         let files = e.files;
 
@@ -117,8 +117,8 @@ export default function ActividadesPage() {
 
         setArchivo(e);
         setActividad(actividad);
-        if(subido){
-            setModificar(true)
+        if (subido) {
+            setModificar(true);
         }
         console.log(e);
 
@@ -137,8 +137,8 @@ export default function ActividadesPage() {
         toast.current!.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
     };
 
-    const crearActividarEstudiante = async (actividad:typeof emptyActividad, callback: any) => {
-        console.log('Hola',modificar);
+    const crearActividarEstudiante = async (actividad: typeof emptyActividad, callback: any) => {
+        console.log('Hola', modificar);
         if (!modificar) {
             try {
                 const response = await axios.post('http://localhost:3001/api/actividadEstudiante', {
@@ -159,13 +159,13 @@ export default function ActividadesPage() {
             } catch (error) {
                 console.error('Error:', error);
             }
-        }else{
+        } else {
             subirArchivo(actividad.Codigo);
         }
         callback();
     };
 
-    const subirArchivo = async (codigoActividad : number) => {
+    const subirArchivo = async (codigoActividad: number) => {
         try {
             console.log('Archivo Recibido:', archivo);
             const file = archivo!.files[0];
@@ -179,9 +179,8 @@ export default function ActividadesPage() {
                 modificarRuta(codigoActividad, response.data.filename);
                 setArchivo(null);
                 setActividad(emptyActividad);
-                setModificar(false)
+                setModificar(false);
                 setTotalSize(0);
-
             });
         } catch (error) {
             console.error('Error en la carga del archivo:', error);
@@ -229,29 +228,30 @@ export default function ActividadesPage() {
     };
 
     const descargarArchivo = async (ruta: string) => {
-        await axios.get('http://localhost:3001/api/files/download', {
-            params: { fileName: ruta },
-            responseType: 'arraybuffer' 
-        })
-            .then(response => {
-                //console.log(response); 
-                const file = new File([response.data], ruta);        
+        await axios
+            .get('http://localhost:3001/api/files/download', {
+                params: { fileName: ruta },
+                responseType: 'arraybuffer'
+            })
+            .then((response) => {
+                //console.log(response);
+                const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = file.name;            
+                link.download = file.name;
                 link.click();
                 URL.revokeObjectURL(url);
             })
-            .catch(error => {
-                //console.error(error.response);           
+            .catch((error) => {
+                //console.error(error.response);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',
-                    detail: error.response ? "El archivo no existe" : error.message,
+                    detail: error.response ? 'El archivo no existe' : error.message,
                     life: 3000
-                })
-            })
+                });
+            });
     };
 
     const formatDate = (value: Date) => {
@@ -264,6 +264,30 @@ export default function ActividadesPage() {
             hour12: true
         });
     };
+
+    const verificarHoraCierre = () => {
+        const horaActual = new Date();
+
+        setActividades((prevActividades) => {
+            return prevActividades.map((actividad) => {
+
+                const fechaCierre = new Date(actividad.FechaCierre);
+
+                fechaCierre.setMinutes(fechaCierre.getMinutes() - 3);
+
+                const actividadAbierta = horaActual <= fechaCierre && horaActual >= new Date(actividad.FechaApertura);
+                return { ...actividad, actividadAbierta };
+            });
+        });
+    };
+
+    // Verificar la hora de cierre cada minuto (60000 milisegundos)
+    useEffect(() => {
+        const intervalId = setInterval(verificarHoraCierre, 15000);
+
+        // Limpiar el intervalo al desmontar el componente
+        return () => clearInterval(intervalId);
+    }, []);
 
     const actividadTemplate = (actividad: any) => {
         console.log(actividad?.ActividadEstudiantes);
@@ -365,7 +389,7 @@ export default function ActividadesPage() {
                     </div>
                     <Tag value={props.formatSize} severity="warning" className="px-3 py-2" />
                     {/* <Button type="button" tooltip="Cancelar" icon="pi pi-times" className="p-button-outlined p-button-rounded p-button-danger ml-auto mr-2" onClick={() => onTemplateRemove(file, props.onRemove)} /> */}
-                    <Button icon="pi pi-upload" tooltip="Subir tarea" className="ml-auto" severity="success" outlined rounded size="small" onClick={() => crearActividarEstudiante(actividad,props.onRemove)} />
+                    <Button icon="pi pi-upload" tooltip="Subir tarea" className="ml-auto" severity="success" outlined rounded size="small" onClick={() => crearActividarEstudiante(actividad, props.onRemove)} />
                 </div>
             </div>
         );

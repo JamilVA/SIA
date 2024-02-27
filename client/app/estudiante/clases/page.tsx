@@ -8,7 +8,7 @@ import axios from 'axios';
 import Perfil from "../../templates/Perfil"
 import Link from 'next/link';
 
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useSession } from "next-auth/react";
 
 const Page = () => {
@@ -38,6 +38,7 @@ const Page = () => {
     const [cursosCalificacion, setCursosCalificaion] = useState<(typeof cursoCVacio)[]>([]);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
+    const router = useRouter();
 
     useEffect(() => {
         fetchCursos();
@@ -61,39 +62,40 @@ const Page = () => {
 
     const detallesCurso = (rowData: any) => {
         const codigoS = rowData.Codigo;
-        const codigoE = usuario.Codigo;
+        const codigoE = 11;
 
-        router.push({
-            pathname: '/estudiante/clases/detalles-curso',
-            query: {
-                codigoS,
-                codigoE
-            }
-        });
+        // router.push({
+        //     pathname: '/estudiante/clases/detalles-curso',
+        //     query: {
+        //         codigoS,
+        //         codigoE
+        //     }
+        // });
+        router.push(`/estudiante/clases/detalles-curso?${codigoS}&${codigoE}`)
     };
 
     const actionBodyTemplate = (rowData: any) => {
         return (
             <>
-                <Link href={`/estudiante/clases/detalles-curso?codigoS=${rowData.Codigo}&codigoE=${session?.user.codigoPersona}`}>
+                {/* <Link href={`/estudiante/clases/detalles-curso?codigoS=${rowData.Codigo}&codigoE=${session?.user.codigoPersona}`}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">
                         Ver
                     </Button>
-                </Link>
+                </Link> */}
                 <Link href={{
                     pathname:'/estudiante/clases/detalles-curso',
                     query: {
                         codigoS:rowData.Codigo,
-                        codigoE:usuario.Codigo,
+                        codigoE:11,
                     }
                 }}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">
                         Ver
                     </Button>
-                </Link> */}
-                <Button onClick={()=>{detallesCurso(rowData)}} icon="" rounded severity="success" tooltip="" className="mr-2">
+                </Link> 
+                {/* <Button onClick={()=>{detallesCurso(rowData)}} icon="" rounded severity="success" tooltip="" className="mr-2">
                     Ver
-                </Button>
+                </Button> */}
             </>
         );
     };
