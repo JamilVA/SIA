@@ -13,8 +13,9 @@ import { classNames } from 'primereact/utils';
 import 'primeflex/primeflex.css';
 
 import { Toast } from 'primereact/toast';
-import { FileUpload } from 'primereact/fileupload';
+import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
+import { SpeedDial } from 'primereact/speeddial';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 
@@ -32,10 +33,10 @@ export default function Curso() {
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
-    const [globalFilter, setGlobalFilter] = useState('');
 
     const cursoCVacio = {
         Codigo: '',
+        RutaImagenPortada: '',
         RutaSyllabus: '',
         RutaNormas: '',
         RutaPresentacionCurso: '',
@@ -100,6 +101,9 @@ export default function Curso() {
     const [modified, setModified] = useState(false);
     const [sesionDialog, setSesionDialog] = useState(false);
     const [cursoCDialog, setCursoCDialog] = useState(false);
+    const [imagenDialog, setImagenDialog] = useState(false);
+    const [imagen, setImagen] = useState<FileUploadFilesEvent | null>(null);
+    const [imagenURL, setImagenURL] = useState<string | null>(null);
 
     const [fechaInicioClases, setFechaInicioClases] = useState<Date>();
 
@@ -125,7 +129,7 @@ export default function Curso() {
             setUnidades(unidades);
             setSemanas(semanas);
             setSesiones(sesiones);
-            console.log(sesiones);
+            obtenerArchivo(curso.RutaImagenPortada)
         } catch (e) {
             console.error(e);
         }
@@ -169,6 +173,31 @@ export default function Curso() {
                 });
             setSesionDialog(false);
             setSesion(sesionVacia);
+        }
+    };
+
+    const obtenerArchivo = async (ruta: string) => {
+        if(ruta === ''){
+            return
+        }
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download', {
+                params: { fileName: ruta },
+                responseType: 'arraybuffer',  // Especificar el tipo de respuesta como 'arraybuffer'
+            });
+
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+            const url = window.URL.createObjectURL(blob);
+
+            setImagenURL(url);
+        } catch (error) {
+            console.error('Error al obtener el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de carga de archivo',
+                life: 3000,
+            });
         }
     };
 
@@ -238,6 +267,7 @@ export default function Curso() {
     const editCurso = (curso: typeof cursoCVacio) => {
         const tempCursoC = {
             Codigo: curso.Codigo,
+            RutaImagenPortada: curso.RutaImagenPortada,
             RutaSyllabus: curso.RutaSyllabus,
             RutaNormas: curso.RutaNormas,
             RutaPresentacionCurso: curso.RutaPresentacionCurso,
@@ -275,31 +305,30 @@ export default function Curso() {
         return fechaFinal;
     };
 
-    
     const descargarArchivo = async (ruta: string) => {
         try {
-            const response = await axios.get('http://localhost:3001/api/files/download',{
-                params:{ fileName: ruta }
+            const response = await axios.get('http://localhost:3001/api/files/download', {
+                params: { fileName: ruta }
             });
 
-            console.log(response)
-    
+            console.log(response);
+
             const blob = new Blob([response.data], { type: response.headers['content-type'] });
-    
+
             // Crear un objeto URL del blob
             const url = window.URL.createObjectURL(blob);
-    
+
             // Crear un enlace temporal
             const link = document.createElement('a');
             link.href = url;
-    
+
             // Establecer el nombre del archivo
             link.download = ruta;
-    
+
             // Simular un clic en el enlace para iniciar la descarga
             document.body.appendChild(link);
             link.click();
-    
+
             // Limpiar el enlace después de la descarga
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
@@ -346,10 +375,63 @@ export default function Curso() {
         setCursoCDialog(false);
     };
 
+    const hideImagenDialog = () => {
+        setImagenDialog(false);
+    };
+
+    const cambiarImagen = async () => {
+        try {
+            const file = imagen!.files[0];
+            const tipoArchivo = file.name.split('.')[1];
+            const formData = new FormData();
+            formData.append('file', file);
+            console.log('Archivo Recibido:', file.name);
+            console.log('Tipo de Archivo:', file.name.split('.')[1]);
+
+            await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
+                console.log(response.data.path);
+                let _curso = { ...cursoCalificacion, RutaImagenPortada: response.data.filename, Tipo: tipoArchivo };
+                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
+                axios
+                    .put('http://localhost:3001/api/curso-calificacion', {
+                        codigo: _curso.Codigo,
+                        rutaImagenPortada: _curso.RutaImagenPortada
+                    })
+                    .then((response) => {
+                        console.log(response);
+                        toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Imagen actualizada con éxito', life: 3000 });
+                        cargarDatos();
+                    });
+                setImagen(null);
+                hideImagenDialog();
+            });
+        } catch (error) {
+            console.error('Error en la carga del archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de carga de archivo',
+                life: 3000
+            });
+        }
+    };
+
+    const handleUpload = (event: FileUploadFilesEvent) => {
+        console.log(event);
+        setImagen(event);
+    };
+
     const sesionDialogFooter = (
         <React.Fragment>
             <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideSesionDialog} />
             <Button label="Guardar" icon="pi pi-check" onClick={saveSesion} />
+        </React.Fragment>
+    );
+
+    const imagenDialogFooter = (
+        <React.Fragment>
+            <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideImagenDialog} />
+            <Button label="Guardar" icon="pi pi-check" onClick={cambiarImagen} />
         </React.Fragment>
     );
 
@@ -455,14 +537,25 @@ export default function Curso() {
         );
     };
 
-    const header = <img alt="Card" src="https://primefaces.org/cdn/primereact/images/usercard.png" height={300} style={{ objectFit: 'cover' }} />;
-
+    const header = (
+        <>
+            <div style={{ position: 'relative', height: '300px' }}>
+                <Button icon="pi pi-image" outlined tooltip="Cambiar imagen de fondo" severity='secondary' style={{ position: 'absolute', top: '10px', left: '10px', zIndex: '1' }} onClick={() => setImagenDialog(true)} />
+                {imagenURL && (
+                    <div className="field">
+                        <img alt="Card" src={imagenURL} height={300} style={{ objectFit: 'cover' }} />
+                        {/* <Image src={imagenURL} zoomSrc={imagenURL} alt="Foto Docente" width="80" height="80" preview /> */}
+                    </div>
+                )}
+            </div>
+        </>
+    );
     const title = (curso: typeof cursoVacio) => {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
                 <h4>
                     {curso.Nombre}
-                    <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm ml-3 pb-1" style={{ padding: '0.75em' }} onClick={() => editCurso(cursoCalificacion)} text />
+                    <Button tooltip="Editar datos del curso" icon="pi pi-pencil" className="p-button-warning p-button-sm ml-3 pb-1" style={{ padding: '0.75em' }} onClick={() => editCurso(cursoCalificacion)} text />
                 </h4>
             </div>
         );
@@ -554,15 +647,17 @@ export default function Curso() {
                                             Syllabus
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}}  />
-                                        </div>                                    </div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>{' '}
+                                    </div>
                                     <div className="field col">
                                         <label htmlFor="rutaNormas" className="font-bold">
                                             Normas de convivencia
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}} />
-                                        </div>                                    </div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>{' '}
+                                    </div>
                                 </div>
                                 <div className="formgrid grid">
                                     <div className="field col">
@@ -570,14 +665,15 @@ export default function Curso() {
                                             Presentación del curso
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}} />
-                                        </div>                                    </div>
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                        </div>{' '}
+                                    </div>
                                     <div className="field col">
                                         <label htmlFor="rutaPresentacionDocente" className="font-bold">
                                             Presentación del docente
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{width:'150px'}} />
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
                                         </div>
                                     </div>
                                 </div>
@@ -606,13 +702,6 @@ export default function Curso() {
                 </div>
             </div>
             <Dialog visible={sesionDialog} style={{ width: '40rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos de la sesión" modal className="p-fluid" footer={sesionDialogFooter} onHide={hideSesionDialog}>
-                {/* <div className="field">
-                    <label htmlFor="imagen" className="font-bold">
-                        Foto
-                    </label>
-                    <FileUpload name="foto" url="/api/upload" accept="image/*" chooseLabel="Cargar Imagen" uploadLabel="Confirmar" cancelLabel="Cancelar" className="p-mb-3" maxFileSize={5 * 1024 * 1024} customUpload uploadHandler={onFileSelect} />
-                </div> */}
-
                 <div className="field">
                     <label htmlFor="nombres" className="font-bold">
                         Nombre de la sesión
@@ -635,6 +724,11 @@ export default function Curso() {
                         className={classNames({ 'p-invalid': submitted && !sesion.LinkClaseVirtual })}
                     />
                     {submitted && !sesion.LinkClaseVirtual && <small className="p-error">Ingrese el nombre de la sesión.</small>}
+                </div>
+            </Dialog>
+            <Dialog visible={imagenDialog} style={{ width: '40rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Imagen de fondo" modal className="p-fluid" footer={imagenDialogFooter} onHide={hideImagenDialog}>
+                <div className="field">
+                    <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" accept="image/*" maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e)} />
                 </div>
             </Dialog>
             <Dialog visible={cursoCDialog} style={{ width: '60rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos del curso" modal className="p-fluid" footer={cursoCDialogFooter} onHide={hideCursoCDialog}>

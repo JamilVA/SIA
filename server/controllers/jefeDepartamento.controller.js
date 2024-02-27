@@ -1,8 +1,16 @@
-const {CarreraProfesional, JefeDepartamento, Persona, Usuario, NivelUsuario} = require("../config/relations")
+const {CarreraProfesional, JefeDepartamento, Persona, Usuario} = require("../config/relations")
 
 const getJefeDepartamento = async (req, res) => {
   const jefesDepartamento = await JefeDepartamento.findAll({
-    include: Persona,
+    include: [
+      {
+        model: Persona,
+        attributes: {
+          exclude: ["Direccion", "Celular", 'EmailPersonal'],
+        },
+      }
+    ]
+    
   });
 
   res.json({
@@ -122,9 +130,40 @@ const asignarCarreraProfesional = async (req, res) => {
   }
 };
 
+const asignarDocente = async (req, res) => {
+  try {
+    const usuario = await Usuario.update({
+      CodigoNivelUsuario: 2
+    },{
+      where: {
+          CodigoPersona: req.body.Codigo,
+      },
+    });
+
+    const jefeDepartamento = await JefeDepartamento.create({
+      Codigo: null,
+      Departamento: req.body.Departamento,
+      FechaAlta: new Date(),
+      Estado: true,
+      CodigoPersona: req.body.Codigo,
+    });
+
+    res.json({
+      Estado: "Guardado con éxito",
+      jefeDepartamento,
+      usuario
+    });
+  } catch (error) {
+    res.json({
+      Estado: "Error al guardar, " + error,
+    });
+  }
+};
+
 module.exports = {
   getJefeDepartamento,
   crearJefeDepartamento,
   actualizarJefeDepartamento,
-  asignarCarreraProfesional
+  asignarCarreraProfesional,
+  asignarDocente
 };

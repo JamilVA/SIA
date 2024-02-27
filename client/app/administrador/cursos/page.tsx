@@ -413,7 +413,7 @@ const Page = () => {
                                     options={carreras}
                                     optionLabel="NombreCarrera"
                                     optionValue="Codigo"
-                                    placeholder="Selecciona"
+                                    placeholder="Seleccione"
                                     className={classNames({ 'p-invalid': submitted && !curso.CodigoCarreraProfesional })}
                                 ></Dropdown>
                             </div>
@@ -503,7 +503,7 @@ const Page = () => {
                                     onChange={(e) => {
                                         onDropdownChange(e, 'CodigoCurso');
                                     }}
-                                    placeholder="Selecciona"
+                                    placeholder="Seleccione"
                                     id="Prerequisito"
                                     required
                                 />
@@ -525,7 +525,7 @@ const Page = () => {
                                     options={carreras}
                                     optionLabel="NombreCarrera"
                                     optionValue="Codigo"
-                                    placeholder="Selecciona"
+                                    placeholder="Seleccione"
                                     className={classNames({ 'p-invalid': submitted && !carrera })}
                                 ></Dropdown>
                             </div>

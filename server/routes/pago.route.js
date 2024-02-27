@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const {getPagos, crearPago, anularPago, getConceptos, getPagosByStudent, getPagosEstudiante} = require('../controllers/pago.controller')
+const {getPagos, crearPago, anularPago, getConceptos, getPagosByStudent, getPagosEstudiante, obtenerPDFPagos} = require('../controllers/pago.controller')
 
 const router = Router();
 
@@ -14,5 +14,7 @@ router.get('/conceptos', getConceptos);
 router.get('/estudiante', getPagosByStudent);
 
 router.get('/pagosEstudiante', getPagosEstudiante);
+
+router.get('/listaPagos', obtenerPDFPagos);
 
 module.exports = router;

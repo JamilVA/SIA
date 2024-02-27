@@ -20,6 +20,7 @@ const Page = () => {
 
     const { data: session, status } = useSession();
     const [cursos, setCursos] = useState([EmptyCurso]);
+    //const [docente, setDocente] = useState(docenteVacio);
     const [visible, setVisible] = useState(false);
     const [imagenURL, setImagenURL] = useState<string>('');
     const [pdfMatriculadosURL, setPdfMatriculadosURL] = useState('')
@@ -35,7 +36,7 @@ const Page = () => {
         await axios
             .get('http://127.0.0.1:3001/api/curso/cursosdp', {
                 params: {
-                    CodDocente: 1
+                    CodDocente: 1 // session?.user.codigoPersona
                 }
             })
             .then((response) => {
@@ -54,7 +55,7 @@ const Page = () => {
     };
 
     const obtenerPDFMatriculados = async (codigoCurso: string) => {
-        await axios.get('http://localhost:3001/api/pdf/pdf-test', {
+        await axios.get('http://localhost:3001/api/pdf/lista-matriculados', {
             params: { codigoCurso: codigoCurso },
             responseType: 'blob'
         })
