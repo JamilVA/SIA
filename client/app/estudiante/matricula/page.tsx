@@ -1,22 +1,22 @@
 'use client';
 import React, { useState, useEffect, useRef, use } from 'react';
 import axios from 'axios';
-
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
-
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import Link from 'next/link';
+import { useSession } from "next-auth/react";
 
 import { Message } from 'primereact/message';
 
 export default function Matricula() {
+    const { data: session, status } = useSession();
+
     const usuario = {
-        Email: 'jamilvasquez20@gmail.com',
-        CodigoSunedu: 'PI72763399'
+        Email: session?.user.email,
     };
 
     const estudianteVacio = {
@@ -354,7 +354,7 @@ export default function Matricula() {
 
     const header3 = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Matrícula en el periodo {periodoActual.Denominacion}</h4>
+            <h4 className="m-0">Matrícula en el periodo {periodoActual?.Denominacion}</h4>
             <div className="flex flex-wrap gap-2">
                 <Link href={`http://localhost:3001/api/matricula/obtenerConstancia?c=${estudiante.Codigo}`}>
                     <Button label="Constancia de Matrícula" icon="pi pi-file-pdf" className="p-button-warning" onClick={() => {generarConstancia()}} />

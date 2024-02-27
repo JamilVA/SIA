@@ -70,8 +70,6 @@ const AppMenu = () => {
                 { label: 'Matrícula', icon: 'pi pi-fw pi-list', to: '/estudiante/matricula' },
                 { label: 'Pagos', icon: 'pi pi-fw pi-money-bill', to: '/estudiante/pagos' },
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
-                { label: 'Gestion de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/administrador/jefesDepartamento' },
-
             ]
         },
     ];
@@ -120,7 +118,7 @@ const AppMenu = () => {
     return (
         <MenuProvider>
             <ul className="layout-menu">
-                {model.map((item, i) => {
+                {user.map((item, i) => {
                     return !item?.seperator ? <AppMenuitem item={item} root={true} index={i} key={item.label} /> : <li className="menu-separator"></li>;
                 })}
             </ul>
