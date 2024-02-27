@@ -86,7 +86,7 @@ const Page = () => {
                     pathname:'/estudiante/clases/detalles-curso',
                     query: {
                         codigoS:rowData.Codigo,
-                        codigoE:11,
+                        codigoE:1,
                     }
                 }}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">
