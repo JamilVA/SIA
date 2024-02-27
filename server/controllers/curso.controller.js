@@ -114,7 +114,7 @@ const getCursosByDP = async (req, res) => {
         from carreraprofesional cp join curso c on cp.Codigo = c.CodigoCarreraProfesional join cursocalificacion cc 
         on c.Codigo = cc.CodigoCurso join periodo p on p.Codigo = cc.CodigoPeriodo join docente d on cc.CodigoDocente = d.Codigo 
         where d.Codigo = ${
-          req.query.CodDocente == undefined ? 37 : _codDocente
+          req.query.CodDocente == undefined ? 0 : _codDocente
         } and p.Estado = 1`,
       { type: QueryTypes.SELECT }
     );

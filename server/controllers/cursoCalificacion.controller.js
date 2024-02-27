@@ -31,8 +31,7 @@ const getCursosCalificacion = async (req, res) => {
 const getCursosEstudiante = async (req, res) => {
     try {
 
-        // const { CodigoEstudiante } = req.query;
-        const CodigoEstudiante = 1;
+        const { CodigoEstudiante } = req.query;
 
         const cursosCalificacion = await CursoCalificacion.findAll({
             include: [
@@ -364,7 +363,7 @@ const getMatriculados = async (req, res) => {
             include: [
                 {
                     model: Estudiante,
-                    include: Persona                       
+                    include: Persona
                 }
             ]
 
