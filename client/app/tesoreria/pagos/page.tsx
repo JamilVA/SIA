@@ -13,6 +13,7 @@ import { FileUpload } from 'primereact/fileupload';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
+import { Nullable } from "primereact/ts-helpers";
 import React, { useEffect, useRef, useState } from 'react';
 
 export default function RegistrarPagoPage() {
@@ -33,9 +34,14 @@ export default function RegistrarPagoPage() {
     const [pagos, setPagos] = useState([pagoVacio])
     const [anularPagoDialog, setAnularPagoDialog] = useState(false);
     const [codigoAnular, setCodigoAnular] = useState(0);
+    const [concepto, setConcepto] = useState();
+    const [anio, setAnio] = useState('');
     const [filters, setFilters] = useState<DataTableFilterMeta>({});
     const [loading, setLoading] = useState(true);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
+
+    const [exportDialog, setExportDialog] = useState(false);
+
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
 
@@ -145,7 +151,7 @@ export default function RegistrarPagoPage() {
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <Button label="Export" icon="pi pi-upload" severity="help" onClick={exportCSV} />
+                <Button label="Exportar" icon="pi pi-upload" severity="help" onClick={() => setExportDialog(true)} />
             </React.Fragment>
         );
     };
@@ -261,6 +267,30 @@ export default function RegistrarPagoPage() {
 
     const header1 = renderHeader1();
 
+    const onConceptoSelect = (e: any) => {
+        const val = (e.target && e.target.value) || '';
+        let concepto = val;
+        setConcepto(concepto);
+        console.log('Carrera', concepto);
+    };
+
+    const hideExportDialog = () => {
+        setExportDialog(false);
+    };
+
+    const currentYear = new Date().getFullYear();
+
+    const exportDialogFooter = (
+        
+        <>
+            <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideExportDialog} />
+            {/* <Button label="Descargar" icon="pi pi-download" onClick={exportCSV} /> */}
+            <Link href={`http://localhost:3001/api/pago/listaPagos?c=${concepto}&a=${anio ? anio : currentYear}`}>
+                <Button label="Descargar" icon="pi pi-download"/>
+            </Link>
+        </>
+    );
+
     return (
 
         <div className="col-12">
@@ -310,6 +340,32 @@ export default function RegistrarPagoPage() {
 
                     </div>
                 </Dialog>
+
+                <Dialog visible={exportDialog} style={{ width: '350px' }} header="Exportar lista de pagos" modal className="p-fluid" footer={exportDialogFooter} onHide={hideExportDialog}>
+                        <div className="formgrid grid">
+                            <div className="field col">
+                                <label htmlFor="concepto">Concepto de Pago:</label>
+                                <Dropdown
+                                    id="concepto"
+                                    value={concepto}
+                                    onChange={(e) => {
+                                        onConceptoSelect(e);
+                                    }}
+                                    name="CodigoConceptoPago"
+                                    options={conceptos}
+                                    optionLabel="Denominacion"
+                                    optionValue="Codigo"
+                                    placeholder="Seleccione"
+                                ></Dropdown>
+                            </div>
+                        </div>
+                        <div className="formgrid grid">
+                            <div className="field col">
+                                <label htmlFor="anio">Año de Pago:</label>
+                                <Calendar value={anio} onChange={(e) => setAnio((new Date(e.value as string)).getFullYear().toString())}  view="year" dateFormat="yy" />
+                            </div>
+                        </div>
+                    </Dialog>
 
             </div>
         </div>

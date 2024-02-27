@@ -31,7 +31,8 @@ const getCursosCalificacion = async (req, res) => {
 const getCursosEstudiante = async (req, res) => {
     try {
 
-        const { CodigoEstudiante } = req.query;
+        // const { CodigoEstudiante } = req.query;
+        const CodigoEstudiante = 11;
 
         const cursosCalificacion = await CursoCalificacion.findAll({
             include: [
