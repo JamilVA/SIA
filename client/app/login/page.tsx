@@ -5,13 +5,15 @@ import { useState } from "react";
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
-import '../../styles/login.css'
+import '../../styles/login.css';
+import { useSession } from "next-auth/react";
 
 const LoginPage = () => {
     const [errors, setErrors] = useState<string[]>([]);
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const router = useRouter();
+    const { data: session, status } = useSession();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -28,7 +30,11 @@ const LoginPage = () => {
             return;
         }
 
-        router.push("/estudiante/perfil");
+        if (session?.user.nivelUsuario == 3) {
+            router.push("/docente/cursos");
+        } else if (session?.user.nivelUsuario == 4) {
+            router.push("/estudiante/perfil");
+        }
     };
 
     return (

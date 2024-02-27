@@ -20,7 +20,6 @@ const Page = () => {
 
     const { data: session, status } = useSession();
     const [cursos, setCursos] = useState([EmptyCurso]);
-    const [docente, setDocente] = useState(docenteVacio);
     const [visible, setVisible] = useState(false);
     const [imagenURL, setImagenURL] = useState<string>('');
     const [pdfMatriculadosURL, setPdfMatriculadosURL] = useState('')
@@ -36,7 +35,7 @@ const Page = () => {
         await axios
             .get('http://127.0.0.1:3001/api/curso/cursosdp', {
                 params: {
-                    CodDocente: session?.user.codigoPersona
+                    CodDocente: 1
                 }
             })
             .then((response) => {
@@ -53,6 +52,31 @@ const Page = () => {
                 });
             });
     };
+
+    const obtenerPDFMatriculados = async (codigoCurso: string) => {
+        await axios.get('http://localhost:3001/api/pdf/pdf-test', {
+            params: { codigoCurso: codigoCurso },
+            responseType: 'blob'
+        })
+            .then(response => {
+                console.log(response);
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                console.log(url);
+                setPdfMatriculadosURL(url);
+                setVisible(true)
+                //URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                //console.error(error.response);           
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error en la descarga',
+                    detail: error.response ? "Error al generar el pdf" : error.message,
+                    life: 3000
+                })
+            })
+    }
 
     const actionBodyTemplate = (rowData: any) => {
         return (
@@ -73,7 +97,7 @@ const Page = () => {
     return (
         <div className="grid">
             <div className="col-12">
-                <h5 className="m-1 mb-3">CURSOS ACTIVOS</h5>
+                <h5 className="m-3 mt-4">CURSOS ACTIVOS</h5>
             </div>
             <div className="col-12 md:col-3">
                 <Perfil></Perfil>

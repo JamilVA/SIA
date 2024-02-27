@@ -1,5 +1,8 @@
+const { sequelize } = require("../config/database");
+const { QueryTypes } = require("sequelize");
 const { Estudiante, Persona, Usuario, CarreraProfesional, Matricula } = require("../config/relations")
 const bcrypt = require('bcryptjs');
+const PDF = require("pdfkit-construct");
 
 Estudiante.belongsTo(CarreraProfesional, {
   foreignKey: "CodigoCarreraProfesional",
@@ -7,12 +10,28 @@ Estudiante.belongsTo(CarreraProfesional, {
 
 const getEstudiante = async (req, res) => {
   const estudiantes = await Estudiante.findAll({
-    include: [Persona, CarreraProfesional],
+    include: [
+      {
+        model: Persona,
+        include: [
+          {
+            model: Usuario,
+            attributes: ['Email']
+          }
+        ]
+      },
+      {
+        model: CarreraProfesional
+      }
+    ],
   });
+
+  const carreras = await CarreraProfesional.findAll();
 
   res.json({
     ok: true,
     estudiantes,
+    carreras
   });
 };
 
@@ -97,7 +116,7 @@ const crearEstudiante = async (req, res) => {
 
 const actualizarEstudiante = async (req, res) => {
   try {
-    const persona = await Persona.update(
+    await Persona.update(
       {
         Paterno: req.body.Paterno,
         Materno: req.body.Materno,
@@ -133,6 +152,14 @@ const actualizarEstudiante = async (req, res) => {
         },
       }
     );
+
+    const persona = await Persona.findOne(
+      {
+        where: {
+          Codigo: req.body.CodigoPersona,
+        }
+      }
+    )
 
     res.json({
       Estado: "Actualizado con éxito",
@@ -183,11 +210,144 @@ const getNotas = async (req, res) => {
   }
 }
 
+function addHorizontalRule(doc, spaceFromEdge = 0, linesAboveAndBelow = 0.5) {
+  doc.moveDown(linesAboveAndBelow);
+
+  doc.moveTo(0 + spaceFromEdge, doc.y)
+    .lineTo(doc.page.width - spaceFromEdge, doc.y)
+    .stroke();
+
+  doc.moveDown(linesAboveAndBelow);
+  
+  return doc
+}
+
+const obtenerListaEstudiantes = async (req, res) => {
+  const carreraprofesional = await CarreraProfesional.findOne({
+    attributes: ["NombreCarrera"],
+    where: { Codigo: req.query.c },
+  });
+
+  const listaEstudiantes = await sequelize.query(`select e.CodigoSunedu, p.DNI, e.AnioIngreso, concat(p.Paterno,' ',p.Materno,' ',p.Nombres) as Nombres,
+  u.Email, p.FechaNacimiento, p.Sexo, p.EmailPersonal, p.Direccion, p.Celular, e.Estado 
+  from usuario u join persona p
+  on u.CodigoPersona = p.Codigo
+  join estudiante e on p.Codigo = e.CodigoPersona
+  where e.CodigoCarreraProfesional = '${req.query.c}'
+  order by AnioIngreso ASC, Paterno ASC;`, { type: QueryTypes.SELECT });
+
+  console.log("CCursos:", listaEstudiantes);
+
+  const doc = new PDF({
+    size: "A4",
+    layout: "landscape",
+    margins: { top: 20, left: 10, right: 10, bottom: 20 },
+    //bufferPages: true,
+  });
+
+  //addHorizontalRule(doc, 50, 1);
+
+  const filename = `ListaEstudiantes${carreraprofesional.dataValues.NombreCarrera}.pdf`;
+
+  const stream = res.writeHead(200, {
+    "Content-Type": "application/pdf",
+    "Content-disposition": `attachment;filename=${filename}`,
+  });
+
+  doc.on("data", (data) => {
+    stream.write(data);
+  });
+
+  doc.on("end", () => {
+    stream.end();
+  });
+
+  // set the header to render in every page
+  doc.setDocumentHeader({ height: "15%" }, () => {
+    // Agregar el logo con un tamaño más pequeño
+    doc.image("uploads/logoE.png", 40, 22, { width: 70 });
+
+    // Agregar el nombre de la institución y el nombre del director
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(11)
+
+      .text("ESCUELA SUPERIOR DE FORMACIÓN ARTÍSTICA PÚBLICA", {
+        align: "center",
+        lineGap: 10,
+      });
+    doc
+      .fontSize(12)
+      .text("MARIO URTEAGA ALVADADO", { align: "center", lineGap: 10 });
+
+    doc
+      .moveTo(50, 75)
+      .lineTo(doc.page.width - 50, 75)
+      .lineWidth(1.5)
+      .stroke("#000000");
+
+    doc.moveDown(2);
+
+    doc.fontSize(16).text("LISTA DE ESTUDIANTES", { align: "center", lineGap: 5 });
+
+    doc.fontSize(14).fillColor("blue").text('Especialidad: ' + carreraprofesional.dataValues.NombreCarrera, {
+      align: "center",
+    });
+  });
+
+
+  const estudiantes = listaEstudiantes.map((estudiante) => ({
+    CodigoSunedu: estudiante.CodigoSunedu,
+    DNI: estudiante.DNI,
+    AnioIngreso: estudiante.AnioIngreso,
+    Nombres: estudiante.Nombres,
+    Email: estudiante.Email,
+    FechaNacimiento: estudiante.FechaNacimiento,
+    Sexo: estudiante.Sexo,
+    EmailPersonal: estudiante.EmailPersonal,
+    Direccion: estudiante.Direccion,
+    Celular: estudiante.Celular,
+    Estado: estudiante.dataValues ? 'ACTIVO' : 'NO ACTIVO',
+  }));
+
+  doc.addTable(
+    [
+      { key: "CodigoSunedu", label: "Cod. SUNEDU", align: "left" },
+      { key: "DNI", label: "DNI", align: "left" },
+      { key: "AnioIngreso", label: "Anio ingreso", align: "left" },
+      { key: "Nombres", label: "Apellidos y Nombres", align: "left" },
+      { key: "Email", label: "Email", align: "left" },
+      { key: "Sexo", label: "Sexo", align: "left" },
+      { key: "EmailPersonal", label: "EmailPersonal", align: "left" },
+      /*{ key: "Direccion", label: "Dirección", align: "left" },
+      { key: "Celular", label: "Celular", align: "left" },
+      { key: "Estado", label: "Estado", align: "left" },*/
+    ],
+    estudiantes,
+    {
+      border: { size: 0.1, color: "#cdcdcd" },
+      width: "fill_body",
+      cellsPadding: 10,
+      marginLeft: 45,
+      marginRight: 45,
+      headColor: "#ffffff",
+      headAlign: "left",
+      headBackground: "#002479",
+      headHeight: 20,
+      cellsPadding: 5,
+    }
+  );
+
+  doc.render();
+  doc.end();
+};
+
 module.exports = {
   getEstudiante,
   crearEstudiante,
   actualizarEstudiante,
   buscarEstudiante,
   getNotas,
-  getEstudianteByCodPersona
+  getEstudianteByCodPersona,
+  obtenerListaEstudiantes
 };

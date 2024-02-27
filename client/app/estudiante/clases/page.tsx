@@ -7,7 +7,6 @@ import { Toast } from 'primereact/toast';
 import axios from 'axios';
 import Perfil from "../../templates/Perfil"
 import Link from 'next/link';
-
 import { useRouter } from 'next/router';
 import { useSession } from "next-auth/react";
 
@@ -38,6 +37,7 @@ const Page = () => {
     const [cursosCalificacion, setCursosCalificaion] = useState<(typeof cursoCVacio)[]>([]);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
+    //const router = useRouter();
 
     useEffect(() => {
         fetchCursos();
@@ -61,7 +61,7 @@ const Page = () => {
 
     const detallesCurso = (rowData: any) => {
         const codigoS = rowData.Codigo;
-        const codigoE = usuario.Codigo;
+        const codigoE = session?.user.codigoPersona;
 
         router.push({
             pathname: '/estudiante/clases/detalles-curso',
@@ -75,7 +75,7 @@ const Page = () => {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <>
-                <Link href={`/estudiante/clases/detalles-curso?codigoS=${rowData.Codigo}&codigoE=${session?.user.codigoPersona}`}>
+                {/*<Link href={`/estudiante/clases/detalles-curso?codigoS=${rowData.Codigo}&codigoE=${session?.user.codigoPersona}`}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">
                         Ver
                     </Button>
@@ -100,6 +100,9 @@ const Page = () => {
 
     return (
         <div className="grid">
+            <div className='col-12'>
+                <h5 className='m-3 mt-4'>SESIONES DE CLASE</h5>
+            </div>
             <div className="col-12 md:col-3">
                 <Perfil></Perfil>
             </div>

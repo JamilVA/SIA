@@ -68,9 +68,11 @@ const Page = () => {
 
     return (
         <div className="grid">
+            <div className='col-12'>
+                <h5 className='m-3 mt-4'>INFORMACIÓN DE PAGOS</h5>
+            </div>
             <div className="col-12">
                 <div className="card">
-
                     <Fieldset legend="Matrículas" toggleable>
                         <Toast ref={toast} />
                         <DataTable

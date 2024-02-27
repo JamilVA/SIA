@@ -65,9 +65,12 @@ const Page = () => {
 
     const toast = useRef<Toast>(null);
     const [estudianteDialog, setEstudianteDialog] = useState(false);
-    const [i, setI] = useState(0);
     const [estudiante, setEstudiante] = useState(emptyEstudiante);
     const [params, setParams] = useState(paramsUpdate);
+
+    useEffect(() => {
+        fetchData();
+    }, [status]);
 
     const fetchData = async () => {
         try {
@@ -86,11 +89,6 @@ const Page = () => {
                 life: 3000
             });
         }
-    }
-
-    if (status === "authenticated" && i == 0) {
-        fetchData();
-        setI(i + 1)
     }
 
     const onUpdate = async () => {
@@ -167,7 +165,7 @@ const Page = () => {
         <div className="grid">
             <Toast ref={toast} />
             <div className="col-12">
-                <h5 className='m-1 mb-3'>PERFIL ESTUDIANTE</h5>
+                <h5 className='m-3 mt-4'>PERFIL DE ESTUDIANTE</h5>
             </div>
             <div className="col-12 md:col-3">
                 <Perfil></Perfil>

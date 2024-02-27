@@ -14,6 +14,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
 import { RadioButton } from 'primereact/radiobutton';
 import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
+import { Image } from 'primereact/image';
+import Link from 'next/link';
 
 export default function Page() {
 
@@ -48,7 +50,12 @@ export default function Page() {
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [state, setState] = useState('');
-    const [selectedCarrera, setSelectedCarrera] = useState<number | undefined>();
+    const [imagenURL, setImagenURL] = useState<string | null>(null);
+    const [archivo, setArchivo] = useState<FileUploadFilesEvent | null>(null);
+    const [carreras, setCarreras] = useState<Demo.CarreraProfesional[]>([]);
+    const [exportDialog, setExportDialog] = useState(false);
+    const [carrera, setCarrera] = useState();
+
     //const [actividades, setActividades] = useState<Array<any>>([]);
 
     useEffect(() => {
@@ -59,7 +66,7 @@ export default function Page() {
         try {
             const result = await axios("http://localhost:3001/api/estudiante");
             setestudiantes(result.data.estudiantes);
-            console.log(result.data.estudiantes)
+            setCarreras(result.data.carreras);
         } catch (e) {
             toast.current?.show({
                 severity: 'error',
@@ -72,7 +79,6 @@ export default function Page() {
 
     const openNew = () => {
         setEstudiante(emptyEstudiante);
-        setSelectedCarrera(undefined);
         setSubmitted(false);
         setEstudianteDialog(true);
     };
@@ -80,6 +86,7 @@ export default function Page() {
     const hideDialog = () => {
         setSubmitted(false);
         setEstudianteDialog(false);
+        setImagenURL(null);
     };
 
     const hideInfoDialog = () => {
@@ -97,6 +104,7 @@ export default function Page() {
             const result = await axios.post("http://127.0.0.1:3001/api/estudiante", data);
             console.log(result);
             response = result.data.Estado;
+            subirFoto(result.data.estudiante.CodigoPersona);
             fetchData();
 
             if (response == "Error") {
@@ -126,13 +134,15 @@ export default function Page() {
 
     const onUpdate = async (e: React.MouseEvent<HTMLButtonElement>, data: object) => {
         e.preventDefault();
-        var response = '';
+        var _response = '';
         try {
-            const result = await axios.put("http://127.0.0.1:3001/api/estudiante", data);
-            response = result.data.Estado;
-            fetchData();
+            await axios.put("http://127.0.0.1:3001/api/estudiante", data).then((response) => {
+                _response = response.data.Estado;
+                subirFoto(response.data.persona.Codigo);
+                fetchData();
+            });
 
-            if (response == "Error") {
+            if (_response == "Error") {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -157,21 +167,43 @@ export default function Page() {
         }
     }
 
-    const handleUpload = async (event: FileUploadFilesEvent, rowData: any) => {
-        const file = event.files[0]
-        const formData = new FormData()
-        formData.append('file', file)
-        await axios.post('http://localhost:3001/api/files/upload', formData)
-            .then(response => {
-                console.log(response.data.path)
-                estudiante.RutaFoto = response.data.filename;
-                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Foto cargada' });
-            })
-            .catch(error => {
-                console.error(error)
-                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Error de petición' });
-            })
+    const subirFoto = async (codigo: number) => {
+        if (archivo != null) {
+            const file = archivo!.files[0]
+            const formData = new FormData()
+            formData.append('file', file)
+            await axios.post('http://localhost:3001/api/files/upload', formData)
+                .then(response => {
+                    console.log(response.data.path)
+                    estudiante.RutaFoto = response.data.filename;
+                    modificarRuta(codigo, response.data.filename);
+                    setArchivo(null);
+                })
+                .catch(error => {
+                    console.error(error)
+                })
+        }
     }
+
+    const modificarRuta = async (codigo: number, ruta: string) => {
+        console.log('Docente Recibido:', codigo);
+        try {
+            axios
+                .put('http://localhost:3001/api/docente/actualizar-foto', {
+                    codigoPersona: codigo,
+                    rutaFoto: ruta
+                }).then((response) => {
+                    fetchData();
+                })
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleUpload = (event: FileUploadFilesEvent) => {
+        setArchivo(event);
+        //console.log(event.files)
+    };
 
     const crearSunedu = (n: number | undefined) => {
         if (n == 1) {
@@ -191,7 +223,7 @@ export default function Page() {
 
     const verifyInputs = () => {
         if (estudiante.Paterno.trim() && estudiante.DNI.trim() && isNumeric(estudiante.DNI) && estudiante.DNI.length == 8 && estudiante.Nombres.trim() && estudiante.FechaNacimiento != ''
-            && selectedCarrera != undefined && estudiante.Email!.trim() && estudiante.Sexo.trim()) {
+            && estudiante.CodigoCarreraProfesional != undefined && estudiante.Email!.trim() && estudiante.Sexo.trim()) {
             return true
         } else {
             return false
@@ -203,17 +235,39 @@ export default function Page() {
         if (verifyInputs()) {
             let _estudiante = { ...estudiante };
             if (estudiante.Codigo != '') {
-                _estudiante.CodigoCarreraProfesional = selectedCarrera;
-                _estudiante.CodigoSunedu = crearSunedu(selectedCarrera) + _estudiante.DNI;
+                _estudiante.CodigoSunedu = crearSunedu(_estudiante.CodigoCarreraProfesional) + _estudiante.DNI;
                 onUpdate(e, _estudiante)
             } else {
-                _estudiante.CodigoCarreraProfesional = selectedCarrera;
-                _estudiante.CodigoSunedu = crearSunedu(selectedCarrera) + _estudiante.DNI;
+                _estudiante.CodigoSunedu = crearSunedu(_estudiante.CodigoCarreraProfesional) + _estudiante.DNI;
                 onSubmitChange(e, _estudiante);
-
             }
             setEstudianteDialog(false);
             setEstudiante(emptyEstudiante);
+        }
+    };
+
+    const obtenerArchivo = async (ruta: string) => {
+        if (ruta === '') {
+            return
+        }
+        try {
+            const response = await axios.get('http://localhost:3001/api/files/download', {
+                params: { fileName: ruta },
+                responseType: 'arraybuffer',  // Especificar el tipo de respuesta como 'arraybuffer'
+            })
+
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+            const url = window.URL.createObjectURL(blob);
+
+            setImagenURL(url);
+        } catch (error) {
+            console.error('Error al obtener el archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de carga de archivo',
+                life: 3000,
+            });
         }
     };
 
@@ -224,11 +278,11 @@ export default function Page() {
             Materno: estudiante.Persona.Materno,
             Nombres: estudiante.Persona.Nombres,
             Estado: estudiante.Estado,
-            RutaFoto: estudiante.RutaFoto,
+            RutaFoto: estudiante.Persona.RutaFoto,
             FechaNacimiento: new Date(estudiante.Persona.FechaNacimiento),
             Sexo: estudiante.Persona.Sexo,
             DNI: estudiante.Persona.DNI,
-            Email: estudiante.Persona.Email,
+            Email: estudiante.Persona.Usuario.Email,
             CodigoSunedu: estudiante.CodigoSunedu,
             CreditosLlevados: estudiante.CreditosLlevados,
             CreditosAprobados: estudiante.CreditosAprobados,
@@ -244,8 +298,9 @@ export default function Page() {
     const editEstudiante = (estudiante: Demo.Student) => {
         let tempEstudiante = setTempEstudent(estudiante);
         setEstudiante(tempEstudiante);
-        setSelectedCarrera(tempEstudiante.CodigoCarreraProfesional);
         setEstudianteDialog(true);
+        console.log(estudiante);
+        obtenerArchivo(estudiante.Persona.RutaFoto);
     };
 
     const infoEstudiante = (estudiante: Demo.Student) => {
@@ -313,6 +368,25 @@ export default function Page() {
         setEstudiante(_estudiante);
     };
 
+    const onDropdownChange = (e: any, name: keyof typeof emptyEstudiante) => {
+        const val = (e.target && e.target.value) || '';
+        let _estudiante = { ...estudiante };
+        _estudiante[`${name}`] = val;
+        setEstudiante(_estudiante);
+    };
+
+    const onCarreraSelect = (e: any) => {
+        const val = (e.target && e.target.value) || '';
+        let carrera = val;
+        setCarrera(carrera);
+        console.log('Carrera', carrera);
+    };
+
+    const hideExportDialog = () => {
+        setExportDialog(false);
+        setCarrera(undefined);
+    };
+
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
@@ -326,7 +400,7 @@ export default function Page() {
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <Button label="Export" icon="pi pi-upload" severity="help" onClick={exportCSV} />
+                <Button label="Exportar" icon="pi pi-upload" severity="help" onClick={() => setExportDialog(true)} />
             </React.Fragment>
         );
     };
@@ -368,16 +442,15 @@ export default function Page() {
         </>
     );
 
-    const carreras = [
-        { name: 'Artes visuales', value: 1 },
-        { name: 'Música', value: 2 },
-        { name: 'Pintura', value: 3 },
-        { name: 'Escultura', value: 4 },
-    ]
-
-    const onSelectCarrera = (e: number) => {
-        setSelectedCarrera(e);
-    }
+    const exportDialogFooter = (
+        <>
+            <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideExportDialog} />
+            {/* <Button label="Descargar" icon="pi pi-download" onClick={exportCSV} /> */}
+            <Link href={`http://localhost:3001/api/estudiante/obtenerListaEstudiantes?c=${carrera}`}>
+                <Button label="Descargar" icon="pi pi-download" onClick={hideExportDialog} />
+            </Link>
+        </>
+    );
 
     return (
         <div className="grid crud-demo">
@@ -412,6 +485,25 @@ export default function Page() {
                     </DataTable>
 
                     <Dialog visible={estudianteDialog} style={{ width: '650px' }} header="Detalles de estudiante" modal className="p-fluid" footer={estudianteDialogFooter} onHide={hideDialog}>
+                        <div className="formgrid grid">
+                            <div className="field col">
+                                <label htmlFor="foto">Foto</label>
+                                {imagenURL && (
+                                    <div className="field">
+                                        <Image src={imagenURL} zoomSrc={imagenURL} alt="Foto Docente" width="80" height="80" preview />
+                                    </div>
+                                )}
+                                <FileUpload
+                                    chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
+                                    chooseLabel='Subir imagen'
+                                    mode="basic"
+                                    accept="image/*"
+                                    maxFileSize={5000000}
+                                    customUpload
+                                    onSelect={(e) => handleUpload(e)}
+                                />
+                            </div>
+                        </div>
                         <div className='formgrid grid'>
                             <div className="field col">
                                 <label htmlFor="DNI">DNI</label>
@@ -437,8 +529,19 @@ export default function Page() {
                             </div>
                             <div className="field col">
                                 <label htmlFor="carrera">Carrera</label>
-                                <Dropdown id="carrera" value={selectedCarrera} onChange={(e) => onSelectCarrera(e.value)} options={carreras} optionLabel="name" placeholder="Selecciona"
-                                    className={classNames({ 'p-invalid': submitted && !selectedCarrera })}></Dropdown>
+                                <Dropdown
+                                    id="Carrera"
+                                    value={estudiante.CodigoCarreraProfesional}
+                                    onChange={(e) => {
+                                        onDropdownChange(e, 'CodigoCarreraProfesional');
+                                    }}
+                                    name="CodigoCarreraProfesional"
+                                    options={carreras}
+                                    optionLabel="NombreCarrera"
+                                    optionValue="Codigo"
+                                    placeholder="Selecciona"
+                                    className={classNames({ 'p-invalid': submitted && !estudiante.CodigoCarreraProfesional })}
+                                ></Dropdown>
                             </div>
                             <div className='field col'>
                                 <label htmlFor="FechaNacimiento">Fecha Nacimiento</label>
@@ -467,20 +570,6 @@ export default function Page() {
                                     className={classNames({ 'p-invalid': submitted && !estudiante.Email })} />
                             </div>
                         </div>
-                        <div className="formgrid grid">
-                            <div className="field col">
-                                <label htmlFor="foto">Foto</label>
-                                <FileUpload
-                                    chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
-                                    chooseLabel='Subir imagen'
-                                    mode="basic"
-                                    accept="image/*"
-                                    maxFileSize={5000000}
-                                    customUpload
-                                    uploadHandler={(e) => handleUpload(e, estudiante)}
-                                />
-                            </div>
-                        </div>
                     </Dialog>
 
                     <Dialog visible={estudianteInfoDialog} style={{ width: '400px' }} header="Otros datos del estudiante" modal className="p-fluid" onHide={hideInfoDialog}>
@@ -499,6 +588,27 @@ export default function Page() {
                                     Estás seguro de <span>{state}</span> al estudiante?
                                 </span>
                             )}
+                        </div>
+                    </Dialog>
+
+                    <Dialog visible={exportDialog} style={{ width: '350px' }} header="Exportar lista de cursos" modal className="p-fluid" footer={exportDialogFooter} onHide={hideExportDialog}>
+                        <div className="formgrid grid">
+                            <div className="field col">
+                                <label htmlFor="Carrera">Carrera</label>
+                                <Dropdown
+                                    id="carrera"
+                                    value={carrera}
+                                    onChange={(e) => {
+                                        onCarreraSelect(e);
+                                    }}
+                                    name="CodigoCarreraProfesional"
+                                    options={carreras}
+                                    optionLabel="NombreCarrera"
+                                    optionValue="Codigo"
+                                    placeholder="Selecciona"
+                                    className={classNames({ 'p-invalid': submitted && !carrera })}
+                                ></Dropdown>
+                            </div>
                         </div>
                     </Dialog>
                 </div>
