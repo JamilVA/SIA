@@ -220,7 +220,7 @@ export default function Curso() {
                     })
                     .toUpperCase() +
                 ' ' +
-                rowData.HoraInicio.slice(0, 5)
+                rowData.HoraInicio?.slice(0, 5)
             );
         }
     };

@@ -62,7 +62,7 @@ const Page = () => {
 
     const detallesCurso = (rowData: any) => {
         const codigoS = rowData.Codigo;
-        const codigoE = 11;
+        const codigoE = 1;
 
         // router.push({
         //     pathname: '/estudiante/clases/detalles-curso',
@@ -86,7 +86,7 @@ const Page = () => {
                     pathname:'/estudiante/clases/detalles-curso',
                     query: {
                         codigoS:rowData.Codigo,
-                        codigoE:11,
+                        codigoE:1,
                     }
                 }}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">
