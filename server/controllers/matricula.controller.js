@@ -325,7 +325,7 @@ const obtenerConstancia = async (req, res) => {
   // set the header to render in every page
   doc.setDocumentHeader({ height: "29%" }, () => {
     // Agregar el logo con un tamaño más pequeño
-    doc.image("uploads/logoE.png", 40, 22, { width: 70 });
+    doc.image("public/logo-escuela.jpg", 40, 22, { width: 70 });
 
     // Agregar el nombre de la institución y el nombre del director
     doc
@@ -494,18 +494,6 @@ const obtenerConstancia = async (req, res) => {
     }
   );
 
-  // // set the footer to render in every page
-  // doc.setDocumentFooter({}, () => {
-  //   doc
-  //     .lineJoin("miter")
-  //     .rect(0, doc.footer.y, doc.page.width, doc.footer.options.heightNumber)
-  //     .fill("#c2edbe");
-
-  //   doc
-  //     .fill("#7416c8")
-  //     .fontSize(8)
-  //     .text("Hello world footer", doc.footer.x, doc.footer.y + 10);
-  // });
 
   doc.render();
 

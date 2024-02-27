@@ -228,7 +228,7 @@ const obtenerPDFPagos = async (req, res) => {
   // set the header to render in every page
   doc.setDocumentHeader({ height: "15%" }, () => {
     // Agregar el logo con un tamaño más pequeño
-    doc.image("uploads/logoE.png", 40, 22, { width: 70 });
+    doc.image("public/logo-escuela.jpg", 40, 22, { width: 70 });
 
     // Agregar el nombre de la institución y el nombre del director
     doc
