@@ -47,6 +47,7 @@ app.use('/api/recursoAcademico', require('./routes/recursoAcademico.route'))
 app.use('/api/actividadEstudiante', require('./routes/actividadEstudiante.route'))
 app.use('/api/pdf', require('./routes/pdf.route'))
 app.use('/api/acta', require('./routes/acta.route'))
+app.use('/api/usuario', require('./routes/usuario.route'))
 
 //Para levantar el servidor
 app.listen(process.env.PORT, () => {

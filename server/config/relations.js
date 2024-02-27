@@ -132,5 +132,6 @@ module.exports = {
     JefeDepartamento,
     RecursoAcademico,
     Usuario,
+    NivelUsuario,
     Acta
 }

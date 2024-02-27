@@ -64,11 +64,12 @@ const AppMenu = () => {
         {
             label: 'NAVEGACIÓN',
             items: [
+                { label: 'Gestion de Usuarios', icon: 'pi pi-fw pi-user', to: '/administrador/usuarios' },
                 { label: 'Gestion de Estudiantes', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes' },
                 { label: 'Gestion de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
                 { label: 'Gestion de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/administrador/jefesDepartamento' },
                 { label: 'Gestion de Cursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
-                { label: 'Gestion de Periodo', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' },
+                { label: 'Gestion de Periodo', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' }
             ]
         },
     ];
@@ -77,7 +78,7 @@ const AppMenu = () => {
         {
             label: 'NAVEGACIÓN',
             items: [
-                { label: 'Perfil Estudiante', icon: 'pi pi-fw pi-user', to: '/estudiante/perfil' },
+                { label: 'Perfil', icon: 'pi pi-fw pi-user', to: '/estudiante/perfil' },
                 { label: 'Calificaciones', icon: 'pi pi-fw pi-check-square', to: '/estudiante/calificaciones' },
                 { label: 'Clases', icon: 'pi pi-fw pi-book', to: '/estudiante/clases' },
                 { label: 'Horarios', icon: 'pi pi-fw pi-calendar', to: '/estudiante/horarios' },
