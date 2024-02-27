@@ -82,10 +82,10 @@ const Page = () => {
             </div>
             <div className='col-12 md:col-9'>
                 <div className='card'>
-                    <Button className='p-1 border-none mb-2'
+                    <Button className='px-2 py-1 border-none mb-2'
                         size='small'
                         label="Vista PDF"
-                        icon="pi pi-download"
+                        icon="pi pi-file-pdf"
                         onClick={() => obtenerPDFHistorial()}
                     />
                     <DataTable
