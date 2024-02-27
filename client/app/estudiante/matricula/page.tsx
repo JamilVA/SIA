@@ -9,6 +9,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import Link from 'next/link';
 import { useSession } from "next-auth/react";
+import Perfil from "../../templates/Perfil";
 
 import { Message } from 'primereact/message';
 
@@ -387,8 +388,8 @@ export default function Matricula() {
 
     return (
         <div className="grid">
-            <div className="col-3">
-                <Card title={estudiante?.Persona.Nombres} subTitle={estudiante?.Persona.Paterno + ' ' + estudiante?.Persona.Materno} style={{ width: '100%' }} footer={footer} header={headerCard}></Card>
+            <div className="col-12 md:col-3">
+                <Perfil></Perfil>
             </div>
             <div className="col-9">
                 <Toast ref={toast} />
