@@ -6,6 +6,8 @@ import axios from 'axios';
 import { Column } from 'primereact/column';
 import Perfil from "../../templates/Perfil";
 import { useSession } from "next-auth/react";
+import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
 
 const Page = () => {
 
@@ -13,6 +15,9 @@ const Page = () => {
     const dt = useRef<DataTable<any>>(null);
     const [actas, setActas] = useState(Object);
     const { data: session, status } = useSession();
+
+    const [pdfHistorialURL, setPdfHistorialURL] = useState('')
+    const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         fetchActas();
@@ -38,6 +43,31 @@ const Page = () => {
         })
     }
 
+    const obtenerPDFHistorial = async () => {
+        await axios.get('http://localhost:3001/api/pdf/historial-notas', {
+            params: { codigoEstudiante: session?.user.codigoPersona },
+            responseType: 'blob'
+        })
+            .then(response => {
+                console.log(response);
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                console.log(url);
+                setPdfHistorialURL(url);
+                setVisible(true)
+                //URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                //console.error(error.response);           
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error en la descarga',
+                    detail: error.response ? "Error al generar el pdf" : error.message,
+                    life: 3000
+                })
+            })
+    }
+
     const actionNFTemplate = (rowData: any) => {
         return <p style={Number(rowData.NotaFinal) >= 11 ? { color: 'blue' } : { color: 'red' }}> {rowData.NotaFinal} </p>
     }
@@ -52,13 +82,18 @@ const Page = () => {
             </div>
             <div className='col-12 md:col-9'>
                 <div className='card'>
+                    <Button className='p-1 border-none mb-2'
+                        size='small'
+                        label="Vista PDF"
+                        icon="pi pi-download"
+                        onClick={() => obtenerPDFHistorial()}
+                    />
                     <DataTable
                         ref={dt}
                         value={actas}
                         dataKey="Codigo"
                         className="datatable-responsive"
-                        emptyMessage={ status != 'authenticated'? 'Cargando...' : 'Sin datos' }
-                        responsiveLayout="scroll"
+                        emptyMessage={status != 'authenticated' ? 'Cargando...' : 'Sin datos'}
                     >
                         <Column field="Codigo" header="Codigo" />
                         <Column field="Nombre" header="Nombre" />
@@ -70,6 +105,10 @@ const Page = () => {
                         <Column field="FechaGeneracion" header="Fecha" />
                     </DataTable>
                 </div>
+                <Dialog header="Vista PDF de historial de notas" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
+                    <iframe src={pdfHistorialURL} width="100%" height="99%"></iframe>
+                    {/* <embed src={pdfMatriculadosURL} type="application/pdf" width="100%" height="99%"/> */}
+                </Dialog>
             </div>
         </div>
     )
