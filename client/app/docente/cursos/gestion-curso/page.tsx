@@ -26,6 +26,8 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
+import Perfil from "../../../templates/Perfil";
+
 
 export default function Curso() {
     const searchParamas = useSearchParams();
@@ -564,21 +566,8 @@ export default function Curso() {
     return (
         <div className="grid">
             <Toast ref={toast} />
-            <div className="d-none d-lg-block d-xl-none col-3 m-0">
-                <div className="card">
-                    <div className="text-center">
-                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQION7iLAgrmjNpsU01XdpcD7fU-ZnfaLfEWestMmrvQQ&s" />
-                        <h5 style={{ color: 'var(--surface-700)' }}>MALPICA RODRIGUEZ MANUEL ENRIQUE</h5>
-                    </div>
-                    <div className="mt-4">
-                        <p>
-                            <b>Email: </b>mmalpica@gmail.com
-                        </p>
-                        <p>
-                            <b>DNI: </b>40936598
-                        </p>
-                    </div>
-                </div>
+            <div className="col-12 md:col-3">
+                <Perfil></Perfil>
             </div>
             <div className="col-9 m-0">
                 <div>

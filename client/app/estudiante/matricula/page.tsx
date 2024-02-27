@@ -15,10 +15,6 @@ import { Message } from 'primereact/message';
 export default function Matricula() {
     const { data: session, status } = useSession();
 
-    const usuario = {
-        Email: session?.user.email,
-    };
-
     const estudianteVacio = {
         AnioIngreso: '',
         Codigo: 0,
@@ -100,11 +96,12 @@ export default function Matricula() {
     const [globalFilter, setGlobalFilter] = useState('');
 
     useEffect(() => {
-        const cargarDatos = async (usuario: any) => {
+        console.log(session?.user)
+        const cargarDatos = async () => {
             try {
                 const { data } = await axios.get('http://localhost:3001/api/matricula', {
                     params: {
-                        Email: usuario.Email
+                        CodigoEstudiante: session?.user.codigoPersona
                     }
                 });
                 const { estudiante, matriculas, periodo, cursosCalificacion } = data;
@@ -117,11 +114,11 @@ export default function Matricula() {
                 console.error(e);
             }
         };
-        const cargarPagos = async (usuario: any) => {
+        const cargarPagos = async () => {
             try {
                 const result = await axios.get('http://localhost:3001/api/pago/pagosEstudiante', {
                     params: {
-                        Email: usuario.Email
+                        CodigoEstudiante: session?.user.codigoPersona
                     }
                 });
 
@@ -131,8 +128,8 @@ export default function Matricula() {
                 console.error(e);
             }
         };
-        cargarPagos(usuario);
-        cargarDatos(usuario);
+        cargarPagos();
+        cargarDatos();
     }, []);
 
     useEffect(() => {
@@ -140,7 +137,7 @@ export default function Matricula() {
     }, [periodoActual]);
 
     useEffect(() => {
-        if (cursosCalificacion.length > 0) {
+        if (cursosCalificacion?.length > 0) {
             const cursosMatriculados = buscarCursosMatriculados();
             setCursosMatriculados(cursosMatriculados);
 
@@ -150,7 +147,7 @@ export default function Matricula() {
     }, [cursosCalificacion, matriculas, estudiante]);
 
     const buscarCursosLlevar = (cursosMatriculados: (typeof cursoCalificacion)[]) => {
-        const ultimaMatricula = matriculas.filter((m: any) => m.CodigoCursoCalificacion.slice(-3) !== periodoActual.Codigo).pop();
+        const ultimaMatricula = matriculas.filter((m: any) => m.CodigoCursoCalificacion.slice(-3) !== periodoActual?.Codigo).pop();
 
         if (ultimaMatricula) {
             const nivelSemestreAnterior = ultimaMatricula.CodigoCursoCalificacion.slice(1, 3);
@@ -172,7 +169,7 @@ export default function Matricula() {
             return cursosDisponibles;
         } else {
             console.log('Hola, alumno nuevo');
-            const cursosAbiertos: (typeof cursoCalificacion)[] = cursosCalificacion.filter((c) => c.Curso.Nivel == 1 && c.Curso.Semestre == 1);
+            const cursosAbiertos: (typeof cursoCalificacion)[] = cursosCalificacion?.filter((c) => c.Curso.Nivel == 1 && c.Curso.Semestre == 1);
 
             console.log(cursosMatriculados);
             const cursosDisponibles = cursosAbiertos.filter((curso) => {
@@ -184,14 +181,14 @@ export default function Matricula() {
     };
 
     const buscarCursosMatriculados = () => {
-        const mA = matriculas.filter((m: any) => m.CodigoCursoCalificacion.slice(-3) === periodoActual.Codigo).map((m: any) => m.CodigoCursoCalificacion);
-        const cursosMatriculados = cursosCalificacion.filter((c: any) => mA.includes(c.Codigo));
+        const mA = matriculas.filter((m: any) => m.CodigoCursoCalificacion.slice(-3) === periodoActual?.Codigo).map((m: any) => m.CodigoCursoCalificacion);
+        const cursosMatriculados = cursosCalificacion?.filter((c: any) => mA.includes(c.Codigo));
         return cursosMatriculados;
     };
 
     const comprobarMatricula = () => {
-        const inicioMatricula = new Date(periodoActual.InicioMatricula);
-        const finMatricula = new Date(periodoActual.FinMatricula);
+        const inicioMatricula = new Date(periodoActual?.InicioMatricula);
+        const finMatricula = new Date(periodoActual?.FinMatricula);
         const currentDate = new Date();
 
         console.log('Inicio de Matricula', inicioMatricula), console.log('Fin de Matricula', finMatricula), console.log('Fecha Actual', currentDate);
@@ -202,7 +199,7 @@ export default function Matricula() {
         axios
             .post('http://localhost:3001/api/matricula', {
                 codigoCursoCalificacion: rowData.Codigo,
-                codigoEstudiante: estudiante.Codigo,
+                codigoEstudiante: estudiante?.Codigo,
                 fechaMatricula: new Date()
             })
             .then((response) => {
@@ -217,10 +214,10 @@ export default function Matricula() {
     };
 
     const eliminarMatricula = async (curso: any) => {
-        console.log('Datos recibidos para la eliminacion:', estudiante.Codigo, curso.Codigo);
+        console.log('Datos recibidos para la eliminacion:', estudiante?.Codigo, curso.Codigo);
         axios
             .post('http://localhost:3001/api/matricula/eliminar', {
-                codigoEstudiante: estudiante.Codigo,
+                codigoEstudiante: estudiante?.Codigo,
                 codigoCursoCalificacion: curso.Codigo
             })
             .then((response) => {
@@ -296,21 +293,6 @@ export default function Matricula() {
         );
     };
 
-    const codigoPagoBodyTemplate = (rowData: any) => {
-        return rowData.Codigo;
-    };
-
-    const conceptoPagoBodyTemplate = (rowData: any) => {
-        return rowData.ConceptoPago.Denominacion;
-    };
-
-    const montoPagoBodyTemplate = (rowData: any) => {
-        return rowData.ConceptoPago.Monto;
-    };
-
-    const estadoPagoBodyTemplate = (rowData: any) => {
-        return rowData.Curso.EstadoPago;
-    };
 
     const header1 = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -356,7 +338,7 @@ export default function Matricula() {
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Matrícula en el periodo {periodoActual?.Denominacion}</h4>
             <div className="flex flex-wrap gap-2">
-                <Link href={`http://localhost:3001/api/matricula/obtenerConstancia?c=${estudiante.Codigo}`}>
+                <Link href={`http://localhost:3001/api/matricula/obtenerConstancia?c=${session?.user.codigoPersona}`}>
                     <Button label="Constancia de Matrícula" icon="pi pi-file-pdf" className="p-button-warning" onClick={() => {generarConstancia()}} />
                 </Link>
             </div>
@@ -365,7 +347,7 @@ export default function Matricula() {
 
     const header4 = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Pagos del Estudiante {periodoActual.Denominacion}</h4>
+            <h4 className="m-0">Pagos del Estudiante {periodoActual?.Denominacion}</h4>
         </div>
     );
 
@@ -390,7 +372,7 @@ export default function Matricula() {
     const headerCard = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-center">
             <div className="flex flex-wrap gap-2 mt-4">
-                <Link href="/estudiante/estudiante-pagos">
+                <Link href="/estudiante/pagos">
                     <Button label="Pagos" icon="pi pi-money-bill" className="p-button-info p-button-sm" />{' '}
                 </Link>
             </div>
@@ -399,14 +381,14 @@ export default function Matricula() {
 
     const footer = (
         <span>
-            <small>Email: {estudiante.Persona.Email}</small>
+            <small>Email: {estudiante?.Persona.Email}</small>
         </span>
     );
 
     return (
         <div className="grid">
             <div className="col-3">
-                <Card title={estudiante.Persona.Nombres} subTitle={estudiante.Persona.Paterno + ' ' + estudiante.Persona.Materno} style={{ width: '100%' }} footer={footer} header={headerCard}></Card>
+                <Card title={estudiante?.Persona.Nombres} subTitle={estudiante?.Persona.Paterno + ' ' + estudiante?.Persona.Materno} style={{ width: '100%' }} footer={footer} header={headerCard}></Card>
             </div>
             <div className="col-9">
                 <Toast ref={toast} />
@@ -510,29 +492,6 @@ export default function Matricula() {
                     {cursosCalificacion && <span>¿Esta seguro de que desea agrregar la Matricula?</span>}
                 </div>
             </Dialog>
-            {/* <Dialog visible={pagosDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirmar" modal footer={pagosDialogFooter} onHide={hidePagosDialog}>
-                <div className="card">
-                    <div className="card">
-                        <DataTable
-                            ref={dt}
-                            value={pagos}
-                            dataKey="Codigo"
-                            paginator
-                            rows={5}
-                            rowsPerPageOptions={[5, 10, 25]}
-                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                            currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} pagos"
-                            globalFilter={globalFilter}
-                            header={header4}
-                        >
-                            <Column field="Codigo" header="Codigo" body={codigoPagoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                            <Column field="ConceptoPago.Denominacion" header="Conceto de Pago" body={conceptoPagoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
-                            <Column header="Monto" body={montoPagoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                            <Column header="Estado" body={estadoPagoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                        </DataTable>
-                    </div>
-                </div>
-            </Dialog> */}
         </div>
     );
 }

@@ -6,6 +6,7 @@ const {
   Periodo,
   Persona,
   CarreraProfesional,
+  Usuario,
 } = require("../config/relations");
 
 const { sequelize } = require("../config/database");
@@ -16,23 +17,25 @@ const PDF = require("pdfkit-construct");
 
 const getMatricula = async (req, res) => {
   try {
-    const { Email } = req.query;
+    const CodigoEstudiante = req.query.CodigoEstudiante;
 
     const estudiante = await Estudiante.findOne({
       include: [
         {
           model: Persona,
-          attributes: ["Nombres", "Paterno", "Materno", "Email"],
-          where: { Email },
+          attributes: ["Nombres", "Paterno", "Materno"],
         },
+
       ],
+      where: { Codigo: CodigoEstudiante }
+
     });
 
     const matriculas = await Matricula.findAll({
       attributes: {
         exclude: ["Observacion", "Habilitado", "PorcentajeAsistencia"],
       },
-      where: { CodigoEstudiante: estudiante.Codigo },
+      where: { CodigoEstudiante },
     });
 
     const cursosCalificacion = await CursoCalificacion.findAll({
@@ -432,24 +435,38 @@ const obtenerConstancia = async (req, res) => {
     });
   });
 
-  const cursos = matriculas.map((matricula) => ({
-    Codigo: matricula.dataValues.CursoCalificacion.Curso.Codigo,
-    Curso: matricula.dataValues.CursoCalificacion.Curso.Nombre,
-    Nivel: matricula.dataValues.CursoCalificacion.Curso.Nivel,
-    Semestre: matricula.dataValues.CursoCalificacion.Curso.Semestre,
-    Creditos: matricula.dataValues.CursoCalificacion.Curso.Creditos,
-    Fecha: new Date(matricula.dataValues.FechaMatricula).toLocaleDateString(
-      "es-ES",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      }
-    ),
-  }));
+
+  let cursos = [];
+
+  if (listaCursos.length > 0) {
+    cursos = listaCursos.map((matricula) => ({
+      Codigo: matricula.dataValues.CursoCalificacion.Curso.Codigo,
+      Curso: matricula.dataValues.CursoCalificacion.Curso.Nombre,
+      Nivel: matricula.dataValues.CursoCalificacion.Curso.Nivel,
+      Semestre: matricula.dataValues.CursoCalificacion.Curso.Semestre,
+      Creditos: matricula.dataValues.CursoCalificacion.Curso.Creditos,
+      Fecha: new Date(matricula.dataValues.FechaMatricula).toLocaleDateString(
+        "es-ES",
+        {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }
+      ),
+    }));
+  }else {
+    cursos= [ {
+      Codigo: '',
+      Curso: '',
+      Nivel: '',
+      Semestre: '',
+      Creditos: '',
+      Fecha: '',
+    }]
+  }
 
   console.error("CCu", cursos);
 
