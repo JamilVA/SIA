@@ -26,6 +26,7 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Timeline } from 'primereact/timeline';
+import Perfil from '../../../templates/Perfil';
 
 export default function Curso() {
     const searchParams = useSearchParams();
@@ -332,21 +333,7 @@ export default function Curso() {
         <div className="grid">
             <Toast ref={toast} />
             <div className="col-12 md:col-3">
-                <div className="card">
-                    <div className="text-center">
-                        <img style={{ borderRadius: 'var(--border-radius)' }} alt="Card" className="md:w-5 w-5 mt-1 shadow-1" src="/images/usuario.png" />
-                        <h5 style={{ color: 'var(--surface-700)' }}>JAMIL JOAO VASQUEZ ALAYO</h5>
-                    </div>
-                    <div className="mt-4">
-                        <p>
-                            <b>Email: </b>jamilvasquez@gmail.com
-                        </p>
-                        <p>
-                            <b>DNI: </b>71584962
-                        </p>
-                    </div>
-                </div>
-                <div className="card"></div>
+                <Perfil></Perfil>
             </div>
             <div className="col-12 md:col-9">
                 <div>

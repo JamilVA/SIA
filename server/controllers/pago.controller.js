@@ -63,6 +63,7 @@ const getPagosEstudiante = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ error: "Error en la carga de pagos" });
   }
 };
 

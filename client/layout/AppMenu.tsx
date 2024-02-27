@@ -25,6 +25,7 @@ const AppMenu = () => {
                 { label: 'Gestion de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
                 { label: 'Gestion de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/administrador/jefesDepartamento' },
                 { label: 'Gestion de Cursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
+                { label: 'Gestion de Periodo', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' },
 
                 { label: 'Horarios-Docente', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },
                 { label: 'Cursos-Docente', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
@@ -38,7 +39,7 @@ const AppMenu = () => {
                 { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefe/curso-calificacion' },
                 { label: 'Gestion de Horarios', icon: 'pi pi-fw pi-list', to: '/jefe/horarios' },
                 { label: 'Gestion de Matricula', icon: 'pi pi-fw pi-list', to: '/jefe/matricula' },
-                { label: 'Gestion de Periodo', icon: 'pi pi-fw pi-clock', to: '/jefe/periodo' },
+                
 
                 { label: 'Gestion de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' },
 
@@ -58,6 +59,19 @@ const AppMenu = () => {
     ];
 
     const [user, setUser] = useState(initModel);
+
+    const modelAdmin: AppMenuItem[] = [
+        {
+            label: 'NAVEGACIÓN',
+            items: [
+                { label: 'Gestion de Estudiantes', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes' },
+                { label: 'Gestion de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
+                { label: 'Gestion de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/administrador/jefesDepartamento' },
+                { label: 'Gestion de Cursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
+                { label: 'Gestion de Periodo', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' },
+            ]
+        },
+    ];
 
     const modelStudent: AppMenuItem[] = [
         {
@@ -94,7 +108,6 @@ const AppMenu = () => {
                 { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefe/curso-calificacion' },
                 { label: 'Gestion de Horarios', icon: 'pi pi-fw pi-list', to: '/jefe/horarios' },
                 { label: 'Gestion de Matricula', icon: 'pi pi-fw pi-list', to: '/jefe/matricula' },
-                { label: 'Gestion de Periodo', icon: 'pi pi-fw pi-clock', to: '/jefe/periodo' },
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
@@ -104,7 +117,7 @@ const AppMenu = () => {
     if (status === 'authenticated' && i == 0) {
         switch (session?.user.nivelUsuario) {
             case 1:
-                break;
+                setUser(modelAdmin); break;
             case 2:
                 setUser(modelJefe); break;
             case 3:

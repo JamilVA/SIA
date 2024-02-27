@@ -1,15 +1,12 @@
 'use client';
-import React, { use, useEffect, useRef, useState } from 'react';
-import { Button } from 'primereact/button';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Toast } from 'primereact/toast';
 import axios from 'axios';
-import Perfil from "../../templates/Perfil"
-import Link from 'next/link';
-
-import { useRouter } from 'next/navigation';
 import { useSession } from "next-auth/react";
+import Link from 'next/link';
+import { Button } from 'primereact/button';
+import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
+import React, { useEffect, useRef, useState } from 'react';
+import Perfil from "../../templates/Perfil";
 
 const Page = () => {
     const cursoCVacio = {
@@ -23,22 +20,10 @@ const Page = () => {
         CodigoCurso: ''
     };
 
-    const cursoVacio = {
-        Codigo: '',
-        Nombre: '',
-        HorasTeoria: 0,
-        HorasPractica: 0,
-        Creditos: 0,
-        Nivel: 0,
-        Semestre: 0
-    };
-
     const { data: session, status } = useSession();
-    const [cursos, setCursos] = useState<(typeof cursoVacio)[]>([]);
+    
     const [cursosCalificacion, setCursosCalificaion] = useState<(typeof cursoCVacio)[]>([]);
-    const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
-    const router = useRouter();
 
     useEffect(() => {
         fetchCursos();
@@ -51,51 +36,28 @@ const Page = () => {
             });
             const { cursosCalificacion } = data;
 
-            setCursosCalificaion(cursosCalificacion);
-            setCursos(cursosCalificacion.Curso);
+            setCursosCalificaion(cursosCalificacion);          
 
             console.log(data);
         } catch (error) {
             console.error(error);
         }
-    };
-
-    const detallesCurso = (rowData: any) => {
-        const codigoS = rowData.Codigo;
-        const codigoE = session?.user.codigoPersona;
-
-        // router.push({
-        //     pathname: '/estudiante/clases/detalles-curso',
-        //     query: {
-        //         codigoS,
-        //         codigoE
-        //     }
-        // });
-        router.push(`/estudiante/clases/detalles-curso?${codigoS}&${codigoE}`)
-    };
+    };  
 
     const actionBodyTemplate = (rowData: any) => {
         return (
-            <>
-                {/* <Link href={`/estudiante/clases/detalles-curso?codigoS=${rowData.Codigo}&codigoE=${session?.user.codigoPersona}`}>
-                    <Button icon="" rounded severity="success" tooltip="" className="mr-2">
-                        Ver
-                    </Button>
-                </Link> */}
+            <>               
                 <Link href={{
                     pathname:'/estudiante/clases/detalles-curso',
                     query: {
                         codigoS:rowData.Codigo,
-                        codigoE:1,
+                        codigoE:session?.user.codigoPersona,
                     }
                 }}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">
                         Ver
                     </Button>
-                </Link> 
-                {/* <Button onClick={()=>{detallesCurso(rowData)}} icon="" rounded severity="success" tooltip="" className="mr-2">
-                    Ver
-                </Button> */}
+                </Link>                
             </>
         );
     };
