@@ -10,24 +10,27 @@ const handler = NextAuth({
                 password: { label: "password", type: "password" },
             },
             async authorize(credentials, req) {
-                const res = await fetch(
-                    `http://localhost:3001/api/login`,
-                    {
-                        method: "POST",
-                        body: JSON.stringify({
-                            email: credentials?.email,
-                            password: credentials?.password,
-                        }),
-                        headers: { "Content-Type": "application/json" },
-                    }
-                );
-                const user = await res.json();
-                console.log(user);
+                try {
+                    const res = await fetch(
+                        `http://localhost:3001/api/login`,
+                        {
+                            method: "POST",
+                            body: JSON.stringify({
+                                email: credentials?.email,
+                                password: credentials?.password,
+                            }),
+                            headers: { "Content-Type": "application/json" },
+                        }
+                    );
+                    const user = await res.json();
 
-                if (user.error) throw user;
+                    if (user.error) throw new Error("Usuario no encontrado");
 
-                return user;
+                    return user;
 
+                } catch (error: any) {
+                    throw new Error("Error al procesar la solicitud")
+                }             
             }
         })
     ],
