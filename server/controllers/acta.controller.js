@@ -26,7 +26,7 @@ const crearActa = async (req, res) => {
 
         const acta = await Acta.create({
             Codigo: req.body.Codigo + middCodigoActa(countActas.length + 1),
-            FechaGeneracion: req.body.FechaGeneracion,
+            FechaGeneracion: new Date(),
             CodigoCursoCalificacion: req.body.CodigoCursoCalificacion,
         })
         res.json({
