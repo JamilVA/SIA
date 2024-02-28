@@ -13,6 +13,7 @@ import { ProgressBar } from 'primereact/progressbar';
 import { Checkbox } from 'primereact/checkbox';
 
 import { useSearchParams } from 'next/navigation';
+import { Dialog } from 'primereact/dialog';
 
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
@@ -22,14 +23,13 @@ export default function AsistenciasPage() {
     const codigoSesion = searchParamas.get('codigo');
     const codigoCursoCalificacion = codigoSesion?.slice(-8)
 
-    console.log('Codigo Recibido:', codigoSesion);
-    console.log('Codigo Curso:', codigoCursoCalificacion);
-
     const [estudiantes, setEstudiantes] = useState<Array<any>>([])
     const [globalFilter, setGlobalFilter] = useState('');
     const [loading, setLoading] = useState(false)
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
+    const [visible, setVisible] = useState(false)
+    const [pdfAsistenciaURL, setPdfAsistenciaURL] = useState('')
 
     const fetchMatriculados = async () => {
         await axios.get('http://localhost:3001/api/curso-calificacion/asistentes', {
@@ -110,52 +110,77 @@ export default function AsistenciasPage() {
             })
     }
 
-    const marcarIngreso =async () => {
+    const marcarIngreso = async () => {
         await axios.post('http://localhost:3001/api/sesion/marcar-ingreso', {}, {
             params: {
                 codigoSesion: codigoSesion
             }
         })
-        .then(response => {
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Éxito',
-                detail: response.data.message,
-                life: 3000
+            .then(response => {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: response.data.message,
+                    life: 3000
+                })
             })
-        })
-        .catch(error => {
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Éxito',
-                detail: error.response.data.message,
-                life: 3000
+            .catch(error => {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: error.response.data.message,
+                    life: 3000
+                })
             })
-        })
     }
 
-    const marcarSalida =async () => {
+    const marcarSalida = async () => {
         await axios.post('http://localhost:3001/api/sesion/marcar-salida', {}, {
             params: {
                 codigoSesion: codigoSesion
             }
         })
-        .then(response => {
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Éxito',
-                detail: response.data.message,
-                life: 3000
+            .then(response => {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: response.data.message,
+                    life: 3000
+                })
             })
-        })
-        .catch(error => {
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Éxito',
-                detail: error.response.data.message,
-                life: 3000
+            .catch(error => {
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: error.response.data.message,
+                    life: 3000
+                })
             })
+    }
+
+    const obtenerPDFAsistencias = async () => {
+        await axios.get('http://localhost:3001/api/pdf/lista-asistencia', {
+            params: { codigoCurso: codigoCursoCalificacion, codigoSesion: codigoSesion },
+            responseType: 'blob'
         })
+            .then(response => {
+                console.log(response);
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+
+                setPdfAsistenciaURL(url);
+                setVisible(true)
+                //URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                //console.error(error.response);           
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error en la descarga',
+                    detail: error.response ? "Error al generar el pdf" : error.message,
+                    life: 3000
+                })
+            })
     }
 
     const leftToolbarTemplate = () => {
@@ -207,7 +232,15 @@ export default function AsistenciasPage() {
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Registro de asistencias</h5>
+            <div>
+                <h5 className="m-0 mb-2">Registro de asistencias</h5>
+                <Button className='px-2 py-1 border-none'
+                    size='small'
+                    label="Vista PDF"
+                    icon="pi pi-file-pdf"
+                    onClick={() => obtenerPDFAsistencias()}
+                />
+            </div>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Search..." />
@@ -226,7 +259,7 @@ export default function AsistenciasPage() {
 
                     <DataTable
                         ref={dt}
-                        value={estudiantes}                     
+                        value={estudiantes}
                         dataKey="Estudiante.Codigo"
                         className="datatable-responsive"
                         globalFilter={globalFilter}
@@ -243,7 +276,9 @@ export default function AsistenciasPage() {
                         <Column field="Asistencia.Estado" align='center' header="Asistencia" body={asistenciaBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
-
+                    <Dialog header="Vista PDF de asistencias" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
+                        <iframe src={pdfAsistenciaURL} width="100%" height="99%"></iframe>
+                    </Dialog>
                 </div>
             </div>
         </div>
