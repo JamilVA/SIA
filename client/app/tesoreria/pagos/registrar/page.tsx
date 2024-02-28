@@ -219,7 +219,7 @@ export default function RegistroPagoPage() {
             <h2>Registrar nuevo pago</h2>
             <hr />
             <div className='grid'>
-                <div className="col-12 md:col-6">
+                <div className="col-12 md:col-6 px-5">
                     <h5 className="m-0">Consulta de estudiante</h5>
                     <br />
                     <span className="block mt-2 md:mt-0 p-input-icon-left">
@@ -230,69 +230,51 @@ export default function RegistroPagoPage() {
                             type="search"
                             placeholder="Ingrese DNI"
                             onChange={(e) => { setInputValue(e.target.value) }}
-                            
+
                         />
                         <Button className='ml-2' label='Buscar' onClick={() => { buscarEstudiante(inputValue) }} />
                     </span>
-                    <hr />
                     <h5 className="mb-3">Datos del estudiante</h5>
-                    <div className="grid">
-                        <div className="col">
-                            <label htmlFor="">Apellido paterno:</label>
-                            <InputText value={estudiante.Paterno} disabled className='ml-5' />
-                        </div>
+                    <div className="flex flex-column gap-2 mb-2">
+                        <label htmlFor="">Apellido paterno:</label>
+                        <InputText value={estudiante.Paterno} disabled />
                     </div>
-                    <div className="grid">
-                        <div className="col">
-                            <label htmlFor="">Apellido materno:</label>
-                            <InputText value={estudiante.Materno} disabled className='ml-5' />
-                        </div>
+                    <div className="flex flex-column gap-2 mb-2">
+                        <label htmlFor="">Apellido materno:</label>
+                        <InputText value={estudiante.Materno} disabled />
                     </div>
-                    <div className="grid">
-                        <div className="col">
-                            <label htmlFor="">Nombres: </label>
-                            <InputText value={estudiante.Nombres} disabled className='ml-5' />
-                        </div>
+                    <div className="flex flex-column gap-2">
+                        <label htmlFor="">Nombres: </label>
+                        <InputText value={estudiante.Nombres} disabled />
                     </div>
-                    <Dropdown
-                        value={pago.CodigoConceptoPago === 0 ? null : pago.CodigoConceptoPago}
-                        options={conceptos}
-                        optionLabel='Denominacion'
-                        optionValue='Codigo'
-                        filter
-                        filterBy='Codigo,Denominacion'
-                        valueTemplate={selectedItemTemplate}
-                        itemTemplate={itemOptionTemplate}
-                        onChange={(e) => { onDropDownChange(e.value, 'concepto') }}
-                        placeholder="Seleccione el concepto de pago"
-                        className="w-full md:w-23rem"
-                        showClear />
-                    <br /><br />
-                    <div className="grid">
-                        <div className="col">
-                            <label htmlFor="">Nro. Transacción: </label>
-                            <InputText value={pago.NroTransaccion} className='ml-5' onChange={(e) => onInputChange(e, 'transaccion')} />
-                        </div>
+                </div>
+                <div className="col-12 md:col-6 px-5">
+                    <h5>Datos del pago</h5>
+                    <div className='flex flex-column gap-2'>
+                        <label htmlFor="">Concepto de pago:</label>
+                        <Dropdown
+                            value={pago.CodigoConceptoPago === 0 ? null : pago.CodigoConceptoPago}
+                            options={conceptos}
+                            optionLabel='Denominacion'
+                            optionValue='Codigo'
+                            filter
+                            filterBy='Codigo,Denominacion'
+                            valueTemplate={selectedItemTemplate}
+                            itemTemplate={itemOptionTemplate}
+                            onChange={(e) => { onDropDownChange(e.value, 'concepto') }}
+                            placeholder="Seleccione el concepto de pago"
+                            className="w-full md:w-23rem"
+                            showClear />
+                    </div>
+                    <br />
+                    <div className="flex flex-column gap-2">
+                        <label htmlFor="">Nro. Transacción: </label>
+                        <InputText value={pago.NroTransaccion} onChange={(e) => onInputChange(e, 'transaccion')} />
                     </div>
                     <br /><br />
                     <Button label="Regresar" icon="pi pi-arrow-left" text className='mr-3' onClick={() => { router.back() }} />
-                    <Button label="Save" icon="pi pi-check" severity='success' onClick={guardarPago} />
-
-                </div>
-                <div className="col-12 md:col-6">
-                    <Ticket
-                        estudiante={estudiante.Paterno + ' ' + estudiante.Materno + ', ' + estudiante.Nombres}
-                        dni={estudiante.DNI}
-                        numero={pago.NroTransaccion}
-                        concepto={concepto}
-                        monto={monto}
-                        fecha={new Date(pago.Fecha).toLocaleDateString('es-PE', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                        })}
-                    />
-                    <Button className='ml-5' label="Imprimir ticket" icon="pi pi-print" text onClick={handlePrint} />
+                    <Button label="Registrar" icon="pi pi-check" severity='success' onClick={guardarPago} />
+                    {/* <Button className='ml-5' label="Imprimir ticket" icon="pi pi-print" text onClick={handlePrint} /> */}
                 </div>
             </div>
         </div>
