@@ -80,7 +80,7 @@ const Perfil = () => {
                     }
                 });
                 setDocente(result.data.docente);
-                obtenerArchivo(result.data.docente.Persona.RutaFoto);
+                await obtenerArchivo(result.data.docente.Persona.RutaFoto);
                 console.log(result.data.docente);
 
             } else if (session?.user.nivelUsuario == 4) {
@@ -90,7 +90,7 @@ const Perfil = () => {
                     }
                 });
                 setEstudiante(result.data.estudiante);
-                obtenerArchivo(result.data.estudiante.Persona.RutaFoto)
+                await obtenerArchivo(result.data.estudiante.Persona.RutaFoto)
                 console.log(result.data.estudiante)
             }
 
@@ -104,11 +104,7 @@ const Perfil = () => {
         }
     }
 
-    const obtenerArchivo = async (ruta: string) => {
-        if (ruta === '') {
-            console.error('Ruta recibida:', ruta)
-            return
-        }
+    const obtenerArchivo = async (ruta: string) => {      
         try {
             const response = await axios.get('http://localhost:3001/api/files/download', {
                 params: { fileName: ruta },
