@@ -6,18 +6,19 @@ import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import '../../styles/login.css';
-import { useSession } from "next-auth/react";
+//import { useSession } from "next-auth/react";
 
 const LoginPage = () => {
-    const [errors, setErrors] = useState<string[]>([]);
+    const [errors, setErrors] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [loading, setLoading] = useState(false)
     const router = useRouter();
-    const { data: session, status } = useSession();
-
+    
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setErrors([]);
+        setLoading(true)
+        setErrors("");
 
         const responseNextAuth = await signIn("credentials", {
             email,
@@ -25,22 +26,15 @@ const LoginPage = () => {
             redirect: false,
         });
 
+        setLoading(false)
+
         if (responseNextAuth?.error) {
-            setErrors(responseNextAuth.error.split(","));
-            return;
+            setErrors(responseNextAuth.error);
+        } else {
+            router.push("/")
+            router.refresh()
         }
 
-        switch (session?.user.nivelUsuario) {
-            case 3:
-                router.push("/docente/cursos");
-                break;
-            case 4:
-                router.push("/estudiante/perfil");
-                break;
-            case 5:
-                router.push("/tesoreria/pagos");
-                break;
-        }
     };
 
     return (
@@ -66,7 +60,9 @@ const LoginPage = () => {
                                 <Password id="password" feedback={false} value={password} name='password' tabIndex={1} toggleMask onChange={(event) => setPassword(event.target.value)} className="w-full" inputClassName="w-full md:w-30rem" />
                                 <label htmlFor="password">Password</label>
                             </span>
-                            <Button label="Login" severity="warning" className="w-full btn_login" type="submit"></Button>
+                            <Button loading={loading} label="Login" severity="warning" className="w-full btn_login" type="submit"></Button>
+                            <br /> <br />
+                            {errors.length > 0 && <span style={{color: 'red'}}>{errors}</span>}
                         </form>
                     </div>
                 </div>
