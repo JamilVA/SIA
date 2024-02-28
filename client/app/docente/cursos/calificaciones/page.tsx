@@ -53,9 +53,9 @@ const page = () => {
         PorcentajeAsistencia: 0
     }
 
-    const searchParamas = useSearchParams();
+    const searchParams = useSearchParams();
     const [actaDialog, setActaDialog] = useState(false);
-    const codigoCursoCal = searchParamas.get('codigo')
+    const codigoCursoCal = searchParams.get('codigo')
     const [curso, setCurso] = useState(emptyCurso);
     const [registroMatricula, setRegistroMatricula] = useState();
     const [notasEstudiante, setNotasEstudiante] = useState<Demo.RegistroMatricula>(emptyRegistroMatricula);
@@ -64,6 +64,8 @@ const page = () => {
     let arrayNotas: number[] = [];
     const acta = emptyActa;
     const [actas, setActas] = useState<Demo.Acta[]>([]);
+    const [visible, setVisible] = useState(false)
+    const [pdfActasURL, setPdfActasURL] = useState('')
 
     useEffect(() => {
         fetchData();
@@ -120,7 +122,7 @@ const page = () => {
 
     const apiSaveActa = async (data: object) => {
         const result = await axios.post('http://127.0.0.1:3001/api/acta', data)
-        fetchData();
+        await fetchActas()
         console.log(result);
     }
 
@@ -256,6 +258,32 @@ const page = () => {
         setActaDialog(false);
     };
 
+
+    const obtenerPDFActa = async () => {
+        await axios.get('http://localhost:3001/api/pdf/acta', {
+            params: { codigoCurso: codigoCursoCal },
+            responseType: 'blob'
+        })
+            .then(response => {
+                console.log(response);
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+
+                setPdfActasURL(url);
+                setVisible(true)
+                //URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                //console.error(error.response);           
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error en la descarga',
+                    detail: error.response ? "Error al generar el pdf" : error.message,
+                    life: 3000
+                })
+            })
+    }
+
     const actaDialogFooter = (
         <>
             <Button label="No" outlined icon="pi pi-times" onClick={hideActaDialog} />
@@ -269,7 +297,21 @@ const page = () => {
                 <Button onClick={openActaDialog} style={{ height: '30px', marginBlock: '10px', marginTop: '0px' }}>Generar acta</Button>
             )
         } else {
-            return <div style={{ height: '30px', marginBlock: '10px', marginTop: '0px', padding: '5px', border: '1px solid red' }}> <b style={{ color: 'red' }}>ACTA GENERADA</b> </div>
+            return (
+                <div className='flex flex-row align-items-center'>
+                    <div style={{ height: '30px', marginBlock: '10px', marginTop: '0px', padding: '5px', border: '1px solid red' }}>
+                        <b style={{ color: 'red' }}>ACTA GENERADA</b>
+                    </div>
+                    <div>
+                        <Button className='px-2 py-1 border-none ml-2'
+                            size='small'
+                            label="Vista PDF"
+                            icon="pi pi-file-pdf"
+                            onClick={() => obtenerPDFActa()}
+                        />
+                    </div>
+                </div>
+            )
         }
     }
 
@@ -290,7 +332,6 @@ const page = () => {
                         dataKey="CodigoSunedu"
                         className="datatable-responsive"
                         emptyMessage="Sin estudiantes."
-                        responsiveLayout="scroll"
                     >
                         <Column field="CodigoSunedu" header="COD SUNEDU" />
                         <Column field="Alumno" header="Apellidos y Nombres" sortable />
@@ -310,10 +351,13 @@ const page = () => {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {(
                                 <span style={{ textAlign: 'justify', width: '20rem' }}>
-                                    <b>Estás seguro de generar el acta?</b> Ten en cuenta que luego de genrarlo, no podrás editar ningun registro de calificaciones de este curso.
+                                    <b>¿Estás seguro de generar el acta?</b> Ten en cuenta que luego de generarlo, no podrás editar ningun registro de calificaciones de este curso.
                                 </span>
                             )}
                         </div>
+                    </Dialog>
+                    <Dialog header="Vista PDF de historial de notas" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
+                        <iframe src={pdfActasURL} width="100%" height="99%"></iframe>
                     </Dialog>
                 </div>
             </div>
