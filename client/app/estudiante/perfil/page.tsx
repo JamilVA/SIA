@@ -8,6 +8,8 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { useSession } from "next-auth/react";
 import Perfil from "../../templates/Perfil"
+import { Skeleton } from 'primereact/skeleton';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const Page = () => {
 
@@ -160,6 +162,10 @@ const Page = () => {
             <Button label="Guardar" icon="pi pi-check" onClick={onUpdate} />
         </>
     );
+
+    if (status === "loading") {
+        return <ProgressSpinner style={{width: '200px', height: '200px'}} strokeWidth="4" />
+    }
 
     return (
         <div className="grid">
