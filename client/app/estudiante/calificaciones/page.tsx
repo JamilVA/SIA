@@ -8,6 +8,7 @@ import Perfil from "../../templates/Perfil";
 import { useSession } from "next-auth/react";
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const Page = () => {
 
@@ -70,6 +71,10 @@ const Page = () => {
 
     const actionNFTemplate = (rowData: any) => {
         return <p style={Number(rowData.NotaFinal) >= 11 ? { color: 'blue' } : { color: 'red' }}> {rowData.NotaFinal} </p>
+    }
+
+    if (status === "loading") {
+        return <ProgressSpinner style={{width: '200px', height: '200px'}} strokeWidth="4" />
     }
 
     return (
