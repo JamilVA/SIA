@@ -134,7 +134,7 @@ const generarPDFActa = async (data, res) => {
             ],
         datas: [
             { labels: "bold:CARRERA PROFESIONAL:", values: data.curso.CarreraProfesional.NombreCarrera },
-            { labels: "bold:CURSO:", values: "TECNOLOGÍA DE LA INFORMACIÓN Y LA COMUNICACIÓN I Y PRODUCCIÓN GRÁFICA" }
+            { labels: "bold:CURSO:", values: data.curso.Nombre }
         ],
         options: {
             y: 100,
