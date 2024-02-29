@@ -164,7 +164,7 @@ export default function DocentesDemo() {
                     })
                     .then((response) => {
                         console.log(response);
-                        if(cambioImagen){
+                        if (cambioImagen) {
                             subirArchivo(_docente.codigoPersona);
                         }
                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente actualizado con éxito', life: 3000 });
@@ -271,7 +271,7 @@ export default function DocentesDemo() {
             });
     };
 
-    const modificarRuta = async (codigo:string, ruta:string) => {
+    const modificarRuta = async (codigo: string, ruta: string) => {
         console.log('Docente Recibido:', codigo);
         try {
             axios
@@ -296,8 +296,8 @@ export default function DocentesDemo() {
         }
     };
 
-    const subirArchivo = async (codigo:string) => {
-        console.log('Docente recibido para ruta',docente)
+    const subirArchivo = async (codigo: string) => {
+        console.log('Docente recibido para ruta', docente)
         try {
             console.log('Archivo Recibido:', archivo);
             const file = archivo!.files[0];
@@ -309,7 +309,7 @@ export default function DocentesDemo() {
                 console.log(response.data.path);
                 let _docente = { ...docente, rutaFoto: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
-                modificarRuta(codigo,response.data.filename);
+                modificarRuta(codigo, response.data.filename);
                 setArchivo(null);
                 setCambioImagen(false);
             });
@@ -352,14 +352,15 @@ export default function DocentesDemo() {
         const val = (e.target && e.target.value) || '';
         let _docente = { ...docente };
 
-        _docente[`${name}`] = val;
+        if (name == 'email') {
+            _docente[`${name}`] = val;
+            setCambioEmail(true);
+        } else {
+            _docente[`${name}`] = (val.toUpperCase());
+        }
 
         if (name == 'DNI') {
             setCambioDNI(true);
-        }
-
-        if (name == 'email') {
-            setCambioEmail(true);
         }
 
         setDocente(_docente);
@@ -419,7 +420,7 @@ export default function DocentesDemo() {
     };
 
     const obtenerArchivo = async (ruta: string) => {
-        if(ruta === ''){
+        if (ruta === '') {
             return
         }
         try {
@@ -513,7 +514,7 @@ export default function DocentesDemo() {
                     {/* Renderizar la imagen si hay una URL */}
                     {imagenURL && (
                         <div className="field">
-                            <Image src={imagenURL} zoomSrc={imagenURL} alt="Foto Docente" width="80" height="80" preview/>
+                            <Image src={imagenURL} zoomSrc={imagenURL} alt="Foto Docente" width="80" height="80" preview />
                         </div>
                     )}
                     <FileUpload

@@ -495,18 +495,19 @@ export default function JefeDepartamentosDemo() {
 
         console.log(name);
 
-        _jefeDepartamento[`${name}`] = val;
+        if (name == 'Email') {
+            _jefeDepartamento[`${name}`] = val;
+            setCambioEmail(true);
+            console.log('Email Cambio: ' + cambioEmail);
+            console.log(cambioEmail);
+        } else {
+            _jefeDepartamento[`${name}`] = val.toUpperCase();
+        }
 
         if (name == 'DNI') {
             setCambioDNI(true);
             console.log('DNI Cambio: ' + cambioDNI);
             console.log(cambioDNI);
-        }
-
-        if (name == 'Email') {
-            setCambioEmail(true);
-            console.log('Email Cambio: ' + cambioEmail);
-            console.log(cambioEmail);
         }
 
         setJefeDepartamento(_jefeDepartamento);
