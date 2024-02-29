@@ -184,13 +184,13 @@ const Page = () => {
         }
 
         if (carrera == 1) {
-            return 'A' + cadena + c + correlativo?.toString();
+            return 'AV' + cadena + c + correlativo?.toString();
         } else if (carrera == 2) {
-            return 'M' + cadena + c + correlativo?.toString();
+            return 'MU' + cadena + c + correlativo?.toString();
         } else if (carrera == 3) {
-            return 'P' + cadena + c + correlativo?.toString();
+            return 'AP' + cadena + c + correlativo?.toString();
         } else if (carrera == 4) {
-            return 'E' + cadena + c + correlativo?.toString();
+            return 'AE' + cadena + c + correlativo?.toString();
         }
     };
 
