@@ -14,13 +14,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import axios from 'axios';
-import { callback } from 'chart.js/dist/helpers/helpers.core';
+import { useSession } from "next-auth/react";
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function ActividadesPage() {
     const searchParams = useSearchParams();
     const codigoSesion = searchParams.get('codigo');
-    const codigoEstudiante = searchParams.get('codigoE');
+    const { data: session } = useSession();
 
     const actividadEstudianteVacio = {
         CodigoActividad: 0,
@@ -57,7 +57,7 @@ export default function ActividadesPage() {
             .get('http://localhost:3001/api/actividad/estudiante', {
                 params: {
                     codigoSesion: codigoSesion,
-                    codigoEstudiante: codigoEstudiante
+                    codigoEstudiante: session?.user.codigoPersona
                 }
             })
             .then((response) => {
@@ -81,7 +81,7 @@ export default function ActividadesPage() {
                 const data = await axios.get('http://localhost:3001/api/actividadEstudiante', {
                     params: {
                         codigoActividad: actividad.Codigo,
-                        codigoEstudiante: codigoEstudiante
+                        codigoEstudiante: session?.user.codigoPersona
                     }
                 });
                 console.log('Recurso:', data);
@@ -143,7 +143,7 @@ export default function ActividadesPage() {
             try {
                 const response = await axios.post('http://localhost:3001/api/actividadEstudiante', {
                     CodigoActividad: actividad.Codigo,
-                    CodigoEstudiante: codigoEstudiante
+                    CodigoEstudiante: session?.user.codigoPersona
                 });
                 let _actividades = [...actividades];
                 _actividades.push(response.data.actividadEstudiante);
@@ -197,7 +197,7 @@ export default function ActividadesPage() {
         try {
             axios
                 .put('http://localhost:3001/api/actividadEstudiante/tarea', {
-                    CodigoEstudiante: codigoEstudiante,
+                    CodigoEstudiante: session?.user.codigoPersona,
                     CodigoActividad: codigo,
                     RutaTarea: ruta
                 })

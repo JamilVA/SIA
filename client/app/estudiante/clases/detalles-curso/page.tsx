@@ -13,25 +13,23 @@ import 'primeflex/primeflex.css';
 
 import { Tooltip } from 'primereact/tooltip';
 import { Toast } from 'primereact/toast';
-import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useSession } from "next-auth/react";
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Timeline } from 'primereact/timeline';
 import Perfil from '../../../templates/Perfil';
 
 export default function Curso() {
     const searchParams = useSearchParams();
     const codigoCurso = searchParams.get('codigoS');
-    const codigoEstudiante = searchParams.get('codigoE');
+    const { data: session, status } = useSession();
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
@@ -119,7 +117,7 @@ export default function Curso() {
             const { data } = await axios.get('http://localhost:3001/api/sesion/estudiante', {
                 params: {
                     CodigoCursoCalificacion: codigoCurso,
-                    CodigoEstudiante: codigoEstudiante
+                    CodigoEstudiante: session?.user.codigoPersona
                 }
             });
 
@@ -128,7 +126,12 @@ export default function Curso() {
             setUnidades(unidades);
             setSemanas(semanas);
             setSesiones(sesiones);
-            obtenerArchivo(curso.RutaImagenPortada)
+            if(curso.RutaImagenPortada){
+                obtenerArchivo(curso.RutaImagenPortada)
+            }else{
+                setImagenURL('/images/banner.jpg');
+            }
+            
             console.log(data);
         } catch (e) {
             console.error(e);
@@ -177,7 +180,7 @@ export default function Curso() {
         await axios.get('http://localhost:3001/api/estudiante/notas', {
             params: {
                 codigoCurso: codigoCurso,
-                codigoEstudiante: codigoEstudiante
+                codigoEstudiante: session?.user.codigoPersona
             }
         })
             .then(response => {
@@ -295,7 +298,7 @@ export default function Curso() {
                 <Link href={`/estudiante/clases/detalles-curso/recursos?codigo=${rowData.Codigo}`}>
                     <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" />
                 </Link>
-                <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}}`}>
+                <Link href={`/estudiante/clases/detalles-curso/actividades?codigo=${rowData.Codigo}`}>
                     <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success mr-5" />
                 </Link>
             </React.Fragment>

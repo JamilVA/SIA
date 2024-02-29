@@ -51,7 +51,6 @@ const Page = () => {
                     pathname:'/estudiante/clases/detalles-curso',
                     query: {
                         codigoS:rowData.Codigo,
-                        codigoE:session?.user.codigoPersona,
                     }
                 }}>
                     <Button icon="" rounded severity="success" tooltip="" className="mr-2">
