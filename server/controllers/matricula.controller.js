@@ -76,9 +76,8 @@ const getMatricula = async (req, res) => {
       periodo,
     });
   } catch (error) {
-    res.json({
-      Estado: "Error al cargar matriculas, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en la carga de conceptos de pago" });
   }
 };
 

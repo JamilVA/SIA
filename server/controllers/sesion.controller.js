@@ -73,7 +73,7 @@ const getSesionesDocente = async (req, res) => {
     console.error(error);
     res
       .status(500)
-      .json({ error: "Ha ocurrido un error al procesar la solicitud" });
+      .json({ error: "Ha ocurrido un error al cargar las sesiones del docente" });
   }
 };
 
@@ -149,7 +149,7 @@ const getSesionesEstudiante = async (req, res) => {
     console.error(error);
     res
       .status(500)
-      .json({ error: "Ha ocurrido un error al procesar la solicitud" });
+      .json({ error: "Ha ocurrido un error al cargar las sesiones del estudiante" });
   }
 };
 
@@ -172,9 +172,8 @@ const crearSesion = async (req, res) => {
       sesion,
     });
   } catch (error) {
-    res.json({
-      Estado: "Error al guardar, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en la creación de la sesión" });
   }
 };
 
@@ -199,9 +198,8 @@ const actualizarSesion = async (req, res) => {
       sesion,
     });
   } catch (error) {
-    res.json({
-      Estado: "Error al Actualizar, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en la actualización de datos" });
   }
 };
 
@@ -216,9 +214,8 @@ const eliminarSesion = async (req, res) => {
       sesionEliminada,
     });
   } catch (error) {
-    res.json({
-      Estado: "Error al eliminar, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en la eliminación de la sesión" });
   }
 };
 

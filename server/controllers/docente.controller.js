@@ -1,38 +1,54 @@
 const { Docente, Persona, Usuario } = require("../config/relations");
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
 
 const getDocente = async (req, res) => {
-  const docentes = await Docente.findAll({
-    include: Persona,
-    // where: { estado: true },
-  });
+  try {
+    const docentes = await Docente.findAll({
+      include: Persona,
+    });
 
-  res.json({
-    ok: true,
-    docentes,
-  });
+    res.json({
+      ok: true,
+      docentes,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error en la carga de datos" });
+  }
 };
 
 const getPerfilDocente = async (req, res) => {
-  const { CodigoDocente } = req.query;
+  try {
+    const { CodigoDocente } = req.query;
 
-  const docente = await Docente.findOne({
-    attributes: {
-      exclude: ["CondicionLaboral", "Estado"],
-    },
-    include: [
-      {
-        model: Persona,
-        attributes: ["Nombres", 'Paterno', 'Materno', 'Email', 'RutaFoto', 'DNI'],
+    const docente = await Docente.findOne({
+      attributes: {
+        exclude: ["CondicionLaboral", "Estado"],
       },
-    ],
-    where: { Codigo: CodigoDocente }
-  });
+      include: [
+        {
+          model: Persona,
+          attributes: [
+            "Nombres",
+            "Paterno",
+            "Materno",
+            "Email",
+            "RutaFoto",
+            "DNI",
+          ],
+        },
+      ],
+      where: { Codigo: CodigoDocente },
+    });
 
-  res.json({
-    ok: true,
-    docente,
-  });
+    res.json({
+      ok: true,
+      docente,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error en la carga de datos del docente" });
+  }
 };
 
 const hash = (password) => {
@@ -82,10 +98,8 @@ const crearDocente = async (req, res) => {
       usuario,
     });
   } catch (error) {
-    console.error(error)
-    res.json({
-      Estado: "Error al guardar, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en el registro de datos" });
   }
 };
 
@@ -127,9 +141,8 @@ const actualizarDocente = async (req, res) => {
       docente,
     });
   } catch (error) {
-    res.json({
-      Estado: "Error al Actualizar, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en la actualización de datos" });
   }
 };
 
@@ -151,9 +164,8 @@ const actualizarFoto = async (req, res) => {
       persona,
     });
   } catch (error) {
-    res.json({
-      Estado: "Error al Actualizar, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en la actualización de foto docente" });
   }
 };
 
@@ -162,5 +174,5 @@ module.exports = {
   getPerfilDocente,
   crearDocente,
   actualizarDocente,
-  actualizarFoto
+  actualizarFoto,
 };
