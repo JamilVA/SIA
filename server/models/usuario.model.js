@@ -9,7 +9,10 @@ const Usuario = sequelize.define('Usuario', {
     autoIncrement: true
   },
   Estado: DataTypes.BOOLEAN,
-  Email: DataTypes.STRING(100),
+  Email: {
+    type: DataTypes.STRING(100),
+    unique: true
+  },
   Password: DataTypes.STRING(100)
 });
 
