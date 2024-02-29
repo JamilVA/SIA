@@ -125,7 +125,7 @@ export default function UsuariosPage() {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
-                    detail: error.message,
+                    detail: error.response.data.error,
                     life: 3000
                 });
             })
