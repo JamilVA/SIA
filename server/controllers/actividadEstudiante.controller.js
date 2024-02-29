@@ -1,4 +1,4 @@
-const {Actividad, ActividadEstudiante, Estudiante} = require("../config/relations")
+const {Actividad, ActividadEstudiante} = require("../config/relations")
 
 const getRecursoSubido = async (req, res) => {
     try {
