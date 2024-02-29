@@ -56,8 +56,13 @@ const crearUsuario = async (req, res) => {
 
         res.json({ message: 'Usuario creado correctamente' })
     } catch (error) {
-        console.error(error)
-        res.status(500).json({ message: 'Error al crear el usuario' })
+        console.log("Ha ocurrido un error", error);
+        if ((error.name = "SequelizeUniqueConstraintError")) {
+            return res.status(500).json({
+                error: "El email proporcionado ya ha sido registrado",
+            });
+        }
+        return res.status(500).json({ error: "Ha ocurrido un error al registrar el usuario" });
     }
 }
 
@@ -120,7 +125,7 @@ const inhabilitarUsuario = async (req, res) => {
         }, {
             where: { Codigo: req.query.codigo }
         });
-   
+
         res.json({ message: 'Usuario inhabilitado correctamente' })
     } catch (error) {
         console.error(error)
