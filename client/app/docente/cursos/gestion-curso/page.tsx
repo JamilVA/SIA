@@ -26,8 +26,7 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
-import Perfil from "../../../templates/Perfil";
-
+import Perfil from '../../../templates/Perfil';
 
 export default function Curso() {
     const searchParamas = useSearchParams();
@@ -131,7 +130,11 @@ export default function Curso() {
             setUnidades(unidades);
             setSemanas(semanas);
             setSesiones(sesiones);
-            obtenerArchivo(curso.RutaImagenPortada)
+            if (curso.RutaImagenPortada) {
+                obtenerArchivo(curso.RutaImagenPortada);
+            }else{
+                setImagenURL('/images/banner.jpg');
+            }
         } catch (e) {
             console.error(e);
         }
@@ -179,13 +182,13 @@ export default function Curso() {
     };
 
     const obtenerArchivo = async (ruta: string) => {
-        if(ruta === ''){
-            return
+        if (ruta === '') {
+            return;
         }
         try {
             const response = await axios.get('http://localhost:3001/api/files/download', {
                 params: { fileName: ruta },
-                responseType: 'arraybuffer',  // Especificar el tipo de respuesta como 'arraybuffer'
+                responseType: 'arraybuffer' // Especificar el tipo de respuesta como 'arraybuffer'
             });
 
             const blob = new Blob([response.data], { type: response.headers['content-type'] });
@@ -198,7 +201,7 @@ export default function Curso() {
                 severity: 'error',
                 summary: 'Error',
                 detail: 'Error de carga de archivo',
-                life: 3000,
+                life: 3000
             });
         }
     };
@@ -542,7 +545,7 @@ export default function Curso() {
     const header = (
         <>
             <div style={{ position: 'relative', height: '300px' }}>
-                <Button icon="pi pi-image" outlined tooltip="Cambiar imagen de fondo" severity='secondary' style={{ position: 'absolute', top: '10px', left: '10px', zIndex: '1' }} onClick={() => setImagenDialog(true)} />
+                <Button icon="pi pi-image" outlined tooltip="Cambiar imagen de fondo" severity="secondary" style={{ position: 'absolute', top: '10px', left: '10px', zIndex: '1' }} onClick={() => setImagenDialog(true)} />
                 {imagenURL && (
                     <div className="field">
                         <img alt="Card" src={imagenURL} height={300} style={{ objectFit: 'cover' }} />
