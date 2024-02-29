@@ -1,22 +1,31 @@
-const {CarreraProfesional, JefeDepartamento, Persona, Usuario} = require("../config/relations")
+const {
+  CarreraProfesional,
+  JefeDepartamento,
+  Persona,
+  Usuario,
+} = require("../config/relations");
 
 const getJefeDepartamento = async (req, res) => {
-  const jefesDepartamento = await JefeDepartamento.findAll({
-    include: [
-      {
-        model: Persona,
-        attributes: {
-          exclude: ["Direccion", "Celular", 'EmailPersonal'],
+  try {
+    const jefesDepartamento = await JefeDepartamento.findAll({
+      include: [
+        {
+          model: Persona,
+          attributes: {
+            exclude: ["Direccion", "Celular", "EmailPersonal"],
+          },
         },
-      }
-    ]
-    
-  });
+      ],
+    });
 
-  res.json({
-    ok: true,
-    jefesDepartamento,
-  });
+    res.json({
+      ok: true,
+      jefesDepartamento,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error en la carga de datos" });
+  }
 };
 
 const crearJefeDepartamento = async (req, res) => {
@@ -50,12 +59,11 @@ const crearJefeDepartamento = async (req, res) => {
       Estado: "Guardado con éxito",
       persona,
       jefeDepartamento,
-      usuario
+      usuario,
     });
   } catch (error) {
-    res.json({
-      Estado: "Error al guardar, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en el registro de datos" });
   }
 };
 
@@ -74,7 +82,7 @@ const actualizarJefeDepartamento = async (req, res) => {
       },
       {
         where: {
-            Codigo: req.body.codigoPersona,
+          Codigo: req.body.codigoPersona,
         },
       }
     );
@@ -97,11 +105,9 @@ const actualizarJefeDepartamento = async (req, res) => {
       persona,
       jefeDepartamento,
     });
-
   } catch (error) {
-    res.json({
-      Estado: "Error al Actualizar, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en el registro de datos" });
   }
 };
 
@@ -113,7 +119,7 @@ const asignarCarreraProfesional = async (req, res) => {
       },
       {
         where: {
-            Codigo: req.body.codigo,
+          Codigo: req.body.codigo,
         },
       }
     );
@@ -122,23 +128,24 @@ const asignarCarreraProfesional = async (req, res) => {
       Estado: "Actualizado con éxito",
       carrera,
     });
-
   } catch (error) {
-    res.json({
-      Estado: "Error al Actualizar, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en la asignación de carrera" });
   }
 };
 
 const asignarDocente = async (req, res) => {
   try {
-    const usuario = await Usuario.update({
-      CodigoNivelUsuario: 2
-    },{
-      where: {
-          CodigoPersona: req.body.Codigo,
+    const usuario = await Usuario.update(
+      {
+        CodigoNivelUsuario: 2,
       },
-    });
+      {
+        where: {
+          CodigoPersona: req.body.Codigo,
+        },
+      }
+    );
 
     const jefeDepartamento = await JefeDepartamento.create({
       Codigo: null,
@@ -151,12 +158,11 @@ const asignarDocente = async (req, res) => {
     res.json({
       Estado: "Guardado con éxito",
       jefeDepartamento,
-      usuario
+      usuario,
     });
   } catch (error) {
-    res.json({
-      Estado: "Error al guardar, " + error,
-    });
+    console.error(error);
+    res.status(500).json({ error: "Error en la asignación de docente como jefe" });
   }
 };
 
@@ -165,5 +171,5 @@ module.exports = {
   crearJefeDepartamento,
   actualizarJefeDepartamento,
   asignarCarreraProfesional,
-  asignarDocente
+  asignarDocente,
 };

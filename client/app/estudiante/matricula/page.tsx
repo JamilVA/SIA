@@ -8,8 +8,8 @@ import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import Link from 'next/link';
-import { useSession } from "next-auth/react";
-import Perfil from "../../templates/Perfil";
+import { useSession } from 'next-auth/react';
+import Perfil from '../../templates/Perfil';
 
 import { Message } from 'primereact/message';
 
@@ -97,7 +97,7 @@ export default function Matricula() {
     const [globalFilter, setGlobalFilter] = useState('');
 
     useEffect(() => {
-        console.log(session?.user)
+        console.log(session?.user);
         const cargarDatos = async () => {
             try {
                 const { data } = await axios.get('http://localhost:3001/api/matricula', {
@@ -113,6 +113,12 @@ export default function Matricula() {
                 console.log(data);
             } catch (e) {
                 console.error(e);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error en la carga de datos',
+                    life: 3000
+                });
             }
         };
         const cargarPagos = async () => {
@@ -127,6 +133,12 @@ export default function Matricula() {
                 console.log('Pagos del Estudiante', result.data.pagos);
             } catch (e) {
                 console.error(e);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error en la carga de pagos',
+                    life: 3000
+                });
             }
         };
         cargarPagos();
@@ -197,46 +209,65 @@ export default function Matricula() {
     };
 
     const crearMatricula = async (rowData: any) => {
-        axios
-            .post('http://localhost:3001/api/matricula', {
-                codigoCursoCalificacion: rowData.Codigo,
-                codigoEstudiante: estudiante?.Codigo,
-                fechaMatricula: new Date()
-            })
-            .then((response) => {
-                console.log(response.data);
-                toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Matriculado con éxito', life: 3000 });
-                setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
-                setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
-            });
+        try {
+            axios
+                .post('http://localhost:3001/api/matricula', {
+                    codigoCursoCalificacion: rowData.Codigo,
+                    codigoEstudiante: estudiante?.Codigo,
+                    fechaMatricula: new Date()
+                })
+                .then((response) => {
+                    console.log(response.data);
+                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Matriculado con éxito', life: 3000 });
+                    setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
+                    setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
+                });
 
-        setMatriculaDialog(false);
-        setCursoCalificaion(cursoCVacio);
+            setMatriculaDialog(false);
+            setCursoCalificaion(cursoCVacio);
+        } catch (error) {
+            console.error(error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al registrar matricula',
+                life: 3000
+            });
+        }
     };
 
     const eliminarMatricula = async (curso: any) => {
-        console.log('Datos recibidos para la eliminacion:', estudiante?.Codigo, curso.Codigo);
-        axios
-            .post('http://localhost:3001/api/matricula/eliminar', {
-                codigoEstudiante: estudiante?.Codigo,
-                codigoCursoCalificacion: curso.Codigo
-            })
-            .then((response) => {
-                console.log(response.data);
-                toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Eliminado con éxito', life: 3000 });
-                setCursosMatriculados((cursosMatriculados) => cursosMatriculados.filter((c) => c.Codigo !== curso.Codigo));
-                setCursosLlevar((cursosLlevar) => [...cursosLlevar, curso]);
-                // fetchData();
-                setDeleteMatriculaDialog(false);
-                setCursoCalificaion(cursoCVacio);
+        try {
+            console.log('Datos recibidos para la eliminacion:', estudiante?.Codigo, curso.Codigo);
+            axios
+                .post('http://localhost:3001/api/matricula/eliminar', {
+                    codigoEstudiante: estudiante?.Codigo,
+                    codigoCursoCalificacion: curso.Codigo
+                })
+                .then((response) => {
+                    console.log(response.data);
+                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Eliminado con éxito', life: 3000 });
+                    setCursosMatriculados((cursosMatriculados) => cursosMatriculados.filter((c) => c.Codigo !== curso.Codigo));
+                    setCursosLlevar((cursosLlevar) => [...cursosLlevar, curso]);
+                    // fetchData();
+                    setDeleteMatriculaDialog(false);
+                    setCursoCalificaion(cursoCVacio);
+                });
+        } catch (error) {
+            console.error(error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al eliminar matricula',
+                life: 3000
             });
+        }
     };
 
-    const generarConstancia = async () =>{
+    const generarConstancia = async () => {
         try {
-            
         } catch (error) {
-            console.error(error)
+            console.error(error);
         }
     };
 
@@ -294,7 +325,6 @@ export default function Matricula() {
         );
     };
 
-
     const header1 = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Cursos a Llevar</h4>
@@ -340,7 +370,14 @@ export default function Matricula() {
             <h4 className="m-0">Matrícula en el periodo {periodoActual?.Denominacion}</h4>
             <div className="flex flex-wrap gap-2">
                 <Link href={`http://localhost:3001/api/matricula/obtenerConstancia?c=${session?.user.codigoPersona}`}>
-                    <Button label="Constancia de Matrícula" icon="pi pi-file-pdf" className="p-button-warning" onClick={() => {generarConstancia()}} />
+                    <Button
+                        label="Constancia de Matrícula"
+                        icon="pi pi-file-pdf"
+                        className="p-button-warning"
+                        onClick={() => {
+                            generarConstancia();
+                        }}
+                    />
                 </Link>
             </div>
         </div>
