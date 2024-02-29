@@ -6,7 +6,7 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import React, { useEffect, useRef, useState } from 'react';
-import Perfil from "../../templates/Perfil";
+import Perfil from "../../../templates/Perfil";
 
 const Page = () => {
     const cursoCVacio = {

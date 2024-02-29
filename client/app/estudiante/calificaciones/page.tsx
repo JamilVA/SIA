@@ -4,7 +4,7 @@ import { Toast } from 'primereact/toast';
 import { DataTable } from 'primereact/datatable';
 import axios from 'axios';
 import { Column } from 'primereact/column';
-import Perfil from "../../templates/Perfil";
+import Perfil from "../../../templates/Perfil";
 import { useSession } from "next-auth/react";
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';

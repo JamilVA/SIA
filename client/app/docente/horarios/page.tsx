@@ -4,7 +4,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import axios from 'axios';
 import { Toast } from 'primereact/toast';
-import Perfil from "../../templates/Perfil";
+import Perfil from "../../../templates/Perfil";
 import { useSession } from "next-auth/react";
 
 const page = () => {

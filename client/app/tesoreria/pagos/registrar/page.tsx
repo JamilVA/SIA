@@ -8,7 +8,7 @@ import { Toast } from 'primereact/toast';
 import { useEffect, useRef, useState } from 'react';
 import Router from 'next/router';
 import { useRouter } from 'next/navigation';
-import Ticket from '../../../templates/Ticket';
+import Ticket from '../../../../templates/Ticket';
 import printJS from 'print-js';
 import { classNames } from 'primereact/utils';
 
