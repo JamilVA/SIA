@@ -158,7 +158,7 @@ const Perfil = () => {
                     </p>
                     <p>
                         <b>Email: </b>
-                        {estudiante.Persona.Email}
+                        {session?.user.email}
                     </p>
                 </div>
             </div>
