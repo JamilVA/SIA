@@ -17,6 +17,7 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import { InputSwitch } from 'primereact/inputswitch';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function CursoCalificacionPage() {
@@ -89,12 +90,12 @@ export default function CursoCalificacionPage() {
 
     const fetchCursos = async () => {
         await axios.get('http://localhost:3001/api/curso')
-            .then(response => {
-                setCursos(response.data.cursos)
-                setTempCursos(response.data.cursos)
+            .then(response => {           
+                const cursos = response.data.cursos
+                let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento != session?.user.codigoPersona)               
+                setCursos(_cursos)             
             })
-            .catch(error => {
-                setTempCursos([])
+            .catch(error => {              
                 setCursos([])
                 console.log("Error de carga: ", error)
                 toast.current?.show({
@@ -299,12 +300,7 @@ export default function CursoCalificacionPage() {
     };
 
     const onDropDownChange = (value: any, name: string) => {
-        switch (name) {
-            case 'carrera':
-                let _cursos = tempCursos.filter(curso => curso.CodigoCarreraProfesional === value)
-                setCursos(_cursos)
-                setSelectedCarrera(value)
-                break;
+        switch (name) {         
             case 'curso':
                 setCursoCalificacion({
                     ...cursoCalificacion,
