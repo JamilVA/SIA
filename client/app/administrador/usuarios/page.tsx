@@ -365,29 +365,29 @@ export default function UsuariosPage() {
             <h5 className="m-0">Gestionar usuarios</h5>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Search..." />
+                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Buscar..." />
             </span>
         </div>
     );
 
     const productDialogFooter = (
         <>
-            <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={savePeriodo} />
+            <Button label="Cancelar" icon="pi pi-times" text onClick={hideDialog} />
+            <Button label="Guardar" icon="pi pi-check" text onClick={savePeriodo} />
         </>
     );
 
     const deletePeriodoDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideDeletePeriodoDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={deleteUsuario} />
+            <Button label="Sí" icon="pi pi-check" text onClick={deleteUsuario} />
         </>
     );
 
     const finalizarPeriodoDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideFinalizarPeriodoDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={inhabilitarUsuario} />
+            <Button label="Sí" icon="pi pi-check" text onClick={inhabilitarUsuario} />
         </>
     );
 
