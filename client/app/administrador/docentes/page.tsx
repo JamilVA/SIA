@@ -122,7 +122,7 @@ export default function DocentesDemo() {
             let _docente = { ...docente };
 
             if (!docente.codigo) {
-                if (validarDNI(docente.DNI.trim()) && validarEmail(docente.email.trim())) {
+                if (validarDNI(docente.DNI.trim()) && (docente.email.trim())) {
                     axios
                         .post('http://localhost:3001/api/docente', {
                             paterno: _docente.paterno,
@@ -491,7 +491,7 @@ export default function DocentesDemo() {
                     rows={10}
                     rowsPerPageOptions={[5, 10, 25]}
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} docente"
                     globalFilter={globalFilter}
                     header={header}
                 >

@@ -14,6 +14,11 @@ const getJefeDepartamento = async (req, res) => {
           attributes: {
             exclude: ["Direccion", "Celular", "EmailPersonal"],
           },
+          include:[
+            {
+              model: Usuario
+            }
+          ]
         },
       ],
     });

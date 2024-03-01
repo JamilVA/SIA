@@ -297,7 +297,7 @@ export default function JefeDepartamentosDemo() {
 
     const validarEmail = (Email: string) => {
         const emailExists = jefeDepartamentos.some((doc: any) => {
-            return doc.Persona.Email === Email;
+            return doc.Persona.Usuario.Email === Email;
         });
 
         console.log('Email:', emailExists);
@@ -361,15 +361,15 @@ export default function JefeDepartamentosDemo() {
             FechaAlta: jefeDepartamento.FechaAlta,
             FechaBaja: jefeDepartamento.FechaBaja,
             Estado: jefeDepartamento.Estado,
-            Paterno: jefeDepartamento.Persona.Paterno,
-            Materno: jefeDepartamento.Persona.Materno,
-            Nombres: jefeDepartamento.Persona.Nombres,
-            RutaFoto: jefeDepartamento.Persona.RutaFoto,
+            Paterno: jefeDepartamento.Persona?.Paterno,
+            Materno: jefeDepartamento.Persona?.Materno,
+            Nombres: jefeDepartamento.Persona?.Nombres,
+            RutaFoto: jefeDepartamento.Persona?.RutaFoto,
             CodigoPersona: jefeDepartamento.CodigoPersona,
-            FechaNacimiento: new Date(jefeDepartamento.Persona.FechaNacimiento),
-            Sexo: jefeDepartamento.Persona.Sexo,
-            DNI: jefeDepartamento.Persona.DNI,
-            Email: jefeDepartamento.Persona.Email
+            FechaNacimiento: new Date(jefeDepartamento.Persona?.FechaNacimiento),
+            Sexo: jefeDepartamento.Persona?.Sexo,
+            DNI: jefeDepartamento.Persona?.DNI,
+            Email: jefeDepartamento.Persona?.Usuario.Email
         };
 
         setJefeDepartamento(tempJefeDepartamento);
@@ -429,42 +429,42 @@ export default function JefeDepartamentosDemo() {
         console.log('Departamento a asignar', departamento);
 
         if (docenteJefe.Codigo && departamento != '') {
-            validarDepartamento(departamento);
+            if (validarDepartamento(departamento)) {
+                let codigosCarreras = [0, 0];
 
-            let codigosCarreras = [0, 0];
+                if (departamento == 'Profesionales Pedagógicos') {
+                    codigosCarreras[0] = 1;
+                    codigosCarreras[1] = 2;
+                    console.log(codigosCarreras);
+                } else if (departamento == 'Artistas Profesionales') {
+                    codigosCarreras[0] = 3;
+                    codigosCarreras[1] = 4;
+                    console.log(codigosCarreras);
+                }
 
-            if (departamento == 'Profesionales Pedagógicos') {
-                codigosCarreras[0] = 1;
-                codigosCarreras[1] = 2;
-                console.log(codigosCarreras);
-            } else if (departamento == 'Artistas Profesionales') {
-                codigosCarreras[0] = 3;
-                codigosCarreras[1] = 4;
-                console.log(codigosCarreras);
+                axios
+                    .put('http://localhost:3001/api/jefeDepartamento/asignarDocente', {
+                        Codigo: docenteJefe.CodigoPersona,
+                        Departamento: departamento
+                    })
+                    .then((response) => {
+                        for (let i = 0; i < codigosCarreras.length; i++) {
+                            axios
+                                .put('http://localhost:3001/api/jefeDepartamento/carrera', {
+                                    codigoJefeDepartamento: response.data.jefeDepartamento.Codigo,
+                                    codigo: codigosCarreras[i]
+                                })
+                                .then((response) => {
+                                    console.log(response);
+                                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Carrera Profesional actualizada con éxito', life: 3000 });
+                                });
+                        }
+                        fetchData();
+                        setAsignacionDialog(false);
+                        setDocenteJefe(emptyDocente);
+                        toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente asignado como Jefe de Departamento con éxito', life: 3000 });
+                    });
             }
-
-            axios
-                .put('http://localhost:3001/api/jefeDepartamento/asignarDocente', {
-                    Codigo: docenteJefe.CodigoPersona,
-                    Departamento: departamento,
-                })
-                .then((response) => {
-                    for (let i = 0; i < codigosCarreras.length; i++) {
-                        axios
-                            .put('http://localhost:3001/api/jefeDepartamento/carrera', {
-                                codigoJefeDepartamento: response.data.jefeDepartamento.Codigo,
-                                codigo: codigosCarreras[i]
-                            })
-                            .then((response) => {
-                                console.log(response);
-                                toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Carrera Profesional actualizada con éxito', life: 3000 });
-                            });
-                    }
-                    fetchData();
-                    setAsignacionDialog(false);
-                    setDocenteJefe(emptyDocente);
-                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente asignado como Jefe de Departamento con éxito', life: 3000 });
-                });
         } else {
             if (!docenteJefe.Codigo) {
                 setAdvertencia({ activo: true, mensaje: 'Seleccione un docente para asignarlo como Jefe de Departamento' });
@@ -571,7 +571,7 @@ export default function JefeDepartamentosDemo() {
     };
 
     const emailBodyTemplate = (rowData: any) => {
-        return rowData.Persona.Email;
+        return rowData.Persona?.Usuario?.Email;
     };
 
     const DNIBodyTemplate = (rowData: any) => {
@@ -690,7 +690,7 @@ export default function JefeDepartamentosDemo() {
                     rows={10}
                     rowsPerPageOptions={[5, 10, 25]}
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Jefes Departamento"
                     globalFilter={globalFilter}
                     header={header}
                 >
@@ -866,7 +866,7 @@ export default function JefeDepartamentosDemo() {
                     rows={10}
                     rowsPerPageOptions={[5, 10, 25]}
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} docentes"
                     globalFilter={globalFilter}
                     header={headerDocentes}
                 >
