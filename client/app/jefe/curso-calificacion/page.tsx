@@ -16,9 +16,12 @@ import Link from 'next/link';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { InputSwitch } from 'primereact/inputswitch';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { useSession } from 'next-auth/react';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function CursoCalificacionPage() {
+
+    const { data: session, status } = useSession()
 
     let emptyCursoCalificacion: Sia.CursoCalificacion = {
         Codigo: '',
@@ -80,23 +83,15 @@ export default function CursoCalificacionPage() {
     const [cursosCalificacion, setCursosCalificacion] = useState<Sia.CursoCalificacion[]>([])
     const [cursos, setCursos] = useState([emptyCurso])
     const [docentes, setDocentes] = useState<Array<Sia.Docente>>([])
-    const [tempCursos, setTempCursos] = useState([emptyCurso])
-
-    const carreras = [
-        { Codigo: 1, Carrera: 'Docencia en Artes Visuales' },
-        { Codigo: 2, Carrera: 'Docencia en Música' },
-        { Codigo: 3, Carrera: 'Artista Profesional en Pintura' },
-        { Codigo: 4, Carrera: 'Artista Profesional en Escultura' }
-    ]
 
     const fetchCursos = async () => {
         await axios.get('http://localhost:3001/api/curso')
-            .then(response => {
-                setCursos(response.data.cursos)
-                setTempCursos(response.data.cursos)
+            .then(response => {           
+                const cursos = response.data.cursos
+                let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento != session?.user.codigoPersona)               
+                setCursos(_cursos)             
             })
-            .catch(error => {
-                setTempCursos([])
+            .catch(error => {              
                 setCursos([])
                 console.log("Error de carga: ", error)
                 toast.current?.show({
@@ -169,7 +164,7 @@ export default function CursoCalificacionPage() {
         fetchCursos()
         fetchCursosCalificacion()
         fetchDocentes()
-    }, []);
+    }, [status]);
 
     const openNew = () => {
         if (!periodoVigente) {
@@ -275,12 +270,7 @@ export default function CursoCalificacionPage() {
     };
 
     const onDropDownChange = (value: any, name: string) => {
-        switch (name) {
-            case 'carrera':
-                let _cursos = tempCursos.filter(curso => curso.CodigoCarreraProfesional === value)
-                setCursos(_cursos)
-                setSelectedCarrera(value)
-                break;
+        switch (name) {         
             case 'curso':
                 setCursoCalificacion({
                     ...cursoCalificacion,
@@ -689,20 +679,6 @@ export default function CursoCalificacionPage() {
                     </DataTable>
 
                     <Dialog visible={cursoCalificacionDialog} style={{ width: '450px' }} header="Datos del curso a calificar" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
-                        <div className="field">
-                            <label htmlFor="carrera">Carrera Profesional</label>
-                            <Dropdown
-                                id="carrera"
-                                value={selectedCarrera}
-                                options={carreras}
-                                optionLabel='Carrera'
-                                optionValue='Codigo'
-                                placeholder='Seleccione la carrera'
-                                onChange={(e) => onDropDownChange(e.value, 'carrera')}                               
-                                autoFocus
-                                showClear
-                            />
-                        </div>
                         <div className="field">
                             <label htmlFor="curso">Curso a habilitar</label>
                             <Dropdown
