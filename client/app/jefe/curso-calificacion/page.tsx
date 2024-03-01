@@ -92,7 +92,8 @@ export default function CursoCalificacionPage() {
             .then(response => {           
                 const cursos = response.data.cursos
                 let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento != session?.user.codigoPersona)               
-                setCursos(_cursos)             
+                setCursos(_cursos)
+                setTempCursos(response.data.cursos)         
             })
             .catch(error => {              
                 setCursos([])
@@ -301,8 +302,9 @@ export default function CursoCalificacionPage() {
     const onDropDownChange = (value: any, name: string) => {
         switch (name) {       
             case 'carrera':
+                let _cursos = tempCursos.filter(curso => curso.CodigoCarreraProfesional === value)
+                setCursos(_cursos)
                 setSelectedCarrera(value)
-                break;  
             case 'curso':
                 setCursoCalificacion({
                     ...cursoCalificacion,
