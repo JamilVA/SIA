@@ -97,53 +97,57 @@ export default function Matricula() {
     const [globalFilter, setGlobalFilter] = useState('');
 
     useEffect(() => {
-        console.log(session?.user);
-        const cargarDatos = async () => {
-            try {
-                const { data } = await axios.get('http://localhost:3001/api/matricula', {
-                    params: {
-                        CodigoEstudiante: session?.user.codigoPersona
-                    }
-                });
-                const { estudiante, matriculas, periodo, cursosCalificacion } = data;
-                setEstudiante(estudiante);
-                setMatriculas(matriculas);
-                setPeriodoActual(periodo);
-                setCursosCalificacion(cursosCalificacion);
-                console.log(data);
-            } catch (e) {
-                console.error(e);
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Error en la carga de datos',
-                    life: 3000
-                });
-            }
-        };
-        const cargarPagos = async () => {
-            try {
-                const result = await axios.get('http://localhost:3001/api/pago/pagosEstudiante', {
-                    params: {
-                        CodigoEstudiante: session?.user.codigoPersona
-                    }
-                });
+        console.log('Usuario', session?.user);
 
-                setPagos(result.data.pagos);
-                console.log('Pagos del Estudiante', result.data.pagos);
-            } catch (e) {
-                console.error(e);
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Error en la carga de pagos',
-                    life: 3000
-                });
-            }
-        };
-        cargarPagos();
-        cargarDatos();
-    }, []);
+        if (session?.user) {
+            cargarPagos();
+            cargarDatos();
+        }
+    }, [session]);
+
+    const cargarDatos = async () => {
+        try {
+            const { data } = await axios.get('http://localhost:3001/api/matricula', {
+                params: {
+                    CodigoEstudiante: session?.user.codigoPersona
+                }
+            });
+            const { estudiante, matriculas, periodo, cursosCalificacion } = data;
+            setEstudiante(estudiante);
+            setMatriculas(matriculas);
+            setPeriodoActual(periodo);
+            setCursosCalificacion(cursosCalificacion);
+            console.log(data);
+        } catch (e) {
+            console.error(e);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error en la carga de datos',
+                life: 3000
+            });
+        }
+    };
+    const cargarPagos = async () => {
+        try {
+            const result = await axios.get('http://localhost:3001/api/pago/pagosEstudiante', {
+                params: {
+                    CodigoEstudiante: session?.user.codigoPersona
+                }
+            });
+
+            setPagos(result.data.pagos);
+            console.log('Pagos del Estudiante', result.data.pagos);
+        } catch (e) {
+            console.error(e);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error en la carga de pagos',
+                life: 3000
+            });
+        }
+    };
 
     useEffect(() => {
         comprobarMatricula();

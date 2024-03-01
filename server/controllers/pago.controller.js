@@ -55,6 +55,7 @@ const getPagosEstudiante = async (req, res) => {
       ],
       where: { 
         CodigoEstudiante: CodigoEstudiante,
+        CodigoConceptoPago: '0802',
         EstadoPago: "R",
      },
       attributes: { exclude: ["Fecha", "NumeroComprobante"] },

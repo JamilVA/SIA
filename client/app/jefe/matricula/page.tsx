@@ -149,7 +149,7 @@ export default function Matricula() {
                     try {
                         const { data } = await axios.get('http://localhost:3001/api/matricula', {
                             params: {
-                                Email: response.data.estudiante.Persona.Email
+                                CodigoEstudiante: response.data.estudiante.Codigo
                             }
                         });
                         const { matriculas, periodo, cursosCalificacion } = data;
