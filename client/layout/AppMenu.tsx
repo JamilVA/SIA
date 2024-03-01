@@ -114,8 +114,7 @@ const AppMenu = () => {
         {
             label: 'NAVEGACIÓN',
             items: [           
-                { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefe/curso-calificacion' },
-                { label: 'Gestion de Horarios', icon: 'pi pi-fw pi-list', to: '/jefe/horarios' },
+                { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefe/curso-calificacion' },              
                 { label: 'Gestion de Matricula', icon: 'pi pi-fw pi-list', to: '/jefe/matricula' },
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
