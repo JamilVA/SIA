@@ -299,7 +299,10 @@ export default function CursoCalificacionPage() {
     };
 
     const onDropDownChange = (value: any, name: string) => {
-        switch (name) {         
+        switch (name) {       
+            case 'carrera':
+                setSelectedCarrera(value)
+                break;  
             case 'curso':
                 setCursoCalificacion({
                     ...cursoCalificacion,
