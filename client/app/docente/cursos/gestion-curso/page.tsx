@@ -137,7 +137,7 @@ export default function Curso() {
             setSesiones(sesiones);
             if (curso.RutaImagenPortada) {
                 obtenerArchivo(curso.RutaImagenPortada);
-            }else{
+            } else {
                 setImagenURL('/images/banner.jpg');
             }
         } catch (e) {
@@ -214,16 +214,24 @@ export default function Curso() {
     const saveCurso = () => {
         let _cursoCalificacion = { ...cursoCalificacion };
         console.log('Curso recibida para editar', _cursoCalificacion);
+        if(syllabus){
+            subirArchivo(_cursoCalificacion,'RutaSyllabus')
+        }
+        if(normas){
+            subirArchivo(_cursoCalificacion,'RutaNormas')
+        }
+        if(presentacionCurso){
+            subirArchivo(_cursoCalificacion,'RutaPresentacionCurso')
+        }
+        if(presentacionDocente){
+            subirArchivo(_cursoCalificacion,'RutaPresentacionDocente')
+        }
 
         axios
             .put('http://localhost:3001/api/curso-calificacion', {
                 codigo: _cursoCalificacion.Codigo,
                 competencia: _cursoCalificacion.Competencia,
                 capacidad: _cursoCalificacion.Capacidad,
-                rutaSyllabus: _cursoCalificacion.RutaSyllabus,
-                rutaNormas: _cursoCalificacion.RutaNormas,
-                rutaPresentacionCurso: _cursoCalificacion.RutaPresentacionCurso,
-                rutaPresentacionDocente: _cursoCalificacion.RutaPresentacionDocente
             })
             .then((response) => {
                 console.log(response);
@@ -426,9 +434,85 @@ export default function Curso() {
         }
     };
 
+    const subirArchivo =  async (recurso: typeof cursoCVacio, key: keyof typeof cursoCVacio) => {
+
+        try {
+            let file = imagen!.files[0];
+            switch (key) {
+                case 'RutaSyllabus':
+                    file = syllabus!.files[0];
+                    break;
+                case 'RutaNormas':
+                    file = normas!.files[0];
+                    break;
+                case 'RutaPresentacionCurso':
+                    file = presentacionCurso!.files[0];
+                    break;
+                case 'RutaPresentacionDocente':
+                    file = presentacionDocente!.files[0];
+                    break;
+            
+                default:
+                    break;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            console.log('Archivo Recibido:', file.name);
+            console.log('Tipo de Archivo:', file.name.split('.')[1]);
+
+            await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
+                console.log(response.data.path);
+                let _recurso = { ...recurso, key: response.data.filename};
+                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'ArchivoSubido' });
+                editCurso(_recurso);
+                setCursoCalificaion(cursoCVacio);
+                switch (key) {
+                    case 'RutaSyllabus':
+                        setSyllabus(null)
+                        break;
+                    case 'RutaNormas':
+                        setNormas(null)
+                        break;
+                    case 'RutaPresentacionCurso':
+                        setPresentacionCurso(null)
+                        break;
+                    case 'RutaPresentacionDocente':
+                        setPresentacionDocente(null)
+                        break;
+                    default:
+                        break;
+                }
+            });
+        } catch (error) {
+            console.error('Error en la carga del archivo:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error de carga de archivo',
+                life: 3000
+            });
+        }
+    };
+
     const handleUpload = (event: FileUploadFilesEvent, key: keyof typeof cursoCVacio) => {
         console.log(event);
-        setImagen(event);
+        switch (key) {
+            case 'RutaImagenPortada':
+                setImagen(event);
+                break;
+            case 'RutaSyllabus':
+                setSyllabus(event);
+                break;
+            case 'RutaPresentacionCurso':
+                setPresentacionCurso(event);
+                break;
+            case 'RutaPresentacionDocente':
+                setPresentacionDocente(event);
+                break;
+            default:
+                break;
+        }
     };
 
     const sesionDialogFooter = (
