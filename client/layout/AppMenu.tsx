@@ -113,8 +113,7 @@ const AppMenu = () => {
     const modelJefe: AppMenuItem[] = [
         {
             label: 'NAVEGACIÓN',
-            items: [
-                { label: 'Perfil Estudiante', icon: 'pi pi-fw pi-user', to: '/estudiante/perfil' },
+            items: [           
                 { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefe/curso-calificacion' },
                 { label: 'Gestion de Horarios', icon: 'pi pi-fw pi-list', to: '/jefe/horarios' },
                 { label: 'Gestion de Matricula', icon: 'pi pi-fw pi-list', to: '/jefe/matricula' },
