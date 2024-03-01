@@ -4,7 +4,16 @@ const bcrypt = require("bcryptjs");
 const getDocente = async (req, res) => {
   try {
     const docentes = await Docente.findAll({
-      include: Persona,
+      include: [
+        {
+          model: Persona,
+          include: [
+            {
+              model: Usuario
+            }
+          ]
+        },
+      ]
     });
 
     res.json({
@@ -72,7 +81,6 @@ const crearDocente = async (req, res) => {
       FechaNacimiento: req.body.fechaNacimiento,
       Sexo: req.body.sexo,
       DNI: req.body.DNI,
-      Email: req.body.email,
     });
 
     const docente = await Docente.create({

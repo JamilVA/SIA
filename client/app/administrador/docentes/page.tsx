@@ -164,7 +164,7 @@ export default function DocentesDemo() {
                     })
                     .then((response) => {
                         console.log(response);
-                        if (cambioImagen) {
+                        if (cambioImagen == true) {
                             subirArchivo(_docente.codigoPersona);
                         }
                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente actualizado con éxito', life: 3000 });
@@ -399,7 +399,7 @@ export default function DocentesDemo() {
     };
 
     const emailBodyTemplate = (rowData: any) => {
-        return rowData.Persona.Email;
+        return rowData.Persona?.Usuario?.Email;
     };
 
     const DNIBodyTemplate = (rowData: any) => {

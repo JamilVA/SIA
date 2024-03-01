@@ -269,7 +269,7 @@ const obtenerConstancia = async (req, res) => {
     include: [
       {
         model: Persona,
-        attributes: ["Nombres", "Paterno", "Materno", "Email"],
+        attributes: ["Nombres", "Paterno", "Materno"],
       },
       {
         model: CarreraProfesional,
@@ -408,18 +408,6 @@ const obtenerConstancia = async (req, res) => {
           lineGap: 5,
         }
       );
-
-    doc.font("Helvetica-Bold").text(`Email:  `, {
-      align: "left",
-      indent: 50,
-      continued: true,
-    });
-
-    doc.font("Helvetica").text(estudiante.dataValues.Persona.Email, {
-      align: "left",
-      indent: 50,
-      lineGap: 5,
-    });
 
     doc.font("Helvetica-Bold").text(`Especialidad:  `, {
       align: "left",

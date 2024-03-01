@@ -108,6 +108,7 @@ const crearEstudiante = async (req, res) => {
       usuario
     });
   } catch (error) {
+    console.log(error)
     res.json({
       Estado: "Error",
       Error: error,

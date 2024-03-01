@@ -106,6 +106,11 @@ export default function Curso() {
     const [imagen, setImagen] = useState<FileUploadFilesEvent | null>(null);
     const [imagenURL, setImagenURL] = useState<string | null>(null);
 
+    const [syllabus, setSyllabus] = useState<FileUploadFilesEvent | null>(null);
+    const [presentacionDocente, setPresentacionDocente] = useState<FileUploadFilesEvent | null>(null);
+    const [presentacionCurso, setPresentacionCurso] = useState<FileUploadFilesEvent | null>(null);
+    const [normas, setNormas] = useState<FileUploadFilesEvent | null>(null);
+
     const [fechaInicioClases, setFechaInicioClases] = useState<Date>();
 
     useEffect(() => {
@@ -421,7 +426,7 @@ export default function Curso() {
         }
     };
 
-    const handleUpload = (event: FileUploadFilesEvent) => {
+    const handleUpload = (event: FileUploadFilesEvent, key: keyof typeof cursoCVacio) => {
         console.log(event);
         setImagen(event);
     };
@@ -720,7 +725,7 @@ export default function Curso() {
             </Dialog>
             <Dialog visible={imagenDialog} style={{ width: '40rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Imagen de fondo" modal className="p-fluid" footer={imagenDialogFooter} onHide={hideImagenDialog}>
                 <div className="field">
-                    <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" accept="image/*" maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e)} />
+                    <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" accept="image/*" maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e, 'RutaImagenPortada')} />
                 </div>
             </Dialog>
             <Dialog visible={cursoCDialog} style={{ width: '60rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos del curso" modal className="p-fluid" footer={cursoCDialogFooter} onHide={hideCursoCDialog}>
