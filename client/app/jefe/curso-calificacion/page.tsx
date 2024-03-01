@@ -17,7 +17,6 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import { InputSwitch } from 'primereact/inputswitch';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useSession } from 'next-auth/react';
-import { useSession } from 'next-auth/react';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function CursoCalificacionPage() {
