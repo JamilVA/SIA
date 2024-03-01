@@ -112,7 +112,6 @@ export default function JefeDepartamentosDemo() {
                 NombreCompleto: `${jefeDepartamento.Persona.Nombres} ${jefeDepartamento.Persona.Paterno} ${jefeDepartamento.Persona.Materno}`
             }));
 
-            // Establecer los jefeDepartamentos en el Estado
             setJefeDepartamentos(jefeDepartamentosConNombreCompleto);
             console.log(jefeDepartamentosConNombreCompleto);
         } catch (e) {
@@ -129,7 +128,6 @@ export default function JefeDepartamentosDemo() {
                 NombreCompleto: `${docente.Persona.Nombres} ${docente.Persona.Paterno} ${docente.Persona.Materno}`
             }));
 
-            // Establecer los docentes en el estado
             setDocentes(docentesConNombreCompleto);
             console.log(result.data);
         } catch (e) {

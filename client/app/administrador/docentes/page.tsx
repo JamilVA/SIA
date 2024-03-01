@@ -181,7 +181,7 @@ export default function DocentesDemo() {
 
     const validarEmail = (email: string) => {
         const emailExists = docentes.some((doc: any) => {
-            return doc.Persona.Email === email;
+            return doc.Persona?.Usuario.Email === email;
         });
 
         if (emailExists) {
