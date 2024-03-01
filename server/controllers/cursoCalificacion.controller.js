@@ -1,5 +1,5 @@
 const { sequelize } = require('../config/database')
-const { Curso, CursoCalificacion, Docente, Estudiante, Matricula, Periodo, Persona, UnidadAcemica, SemanaAcademica, Asistencia, CarreraProfesional } = require('../config/relations')
+const { Curso, CursoCalificacion, Docente, Estudiante, Matricula, Periodo, Persona, UnidadAcademica, SemanaAcademica, Asistencia, CarreraProfesional } = require('../config/relations')
 
 const getCarrerasByJefe = async (req, res) => {
     try {
@@ -78,7 +78,7 @@ const crearCursoCalificacion = async (req, res) => {
         await sequelize.transaction(async (t) => {
             const cursoCalificacion = await CursoCalificacion.create(req.body, { transaction: t })
 
-            await UnidadAcemica.bulkCreate(unidades(cursoCalificacion.Codigo), { transaction: t });
+            await UnidadAcademica.bulkCreate(unidades(cursoCalificacion.Codigo), { transaction: t });
 
             const unidadesGeneradas = unidades(cursoCalificacion.Codigo);
 
