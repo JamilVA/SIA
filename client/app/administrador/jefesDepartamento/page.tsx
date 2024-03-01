@@ -112,7 +112,6 @@ export default function JefeDepartamentosDemo() {
                 NombreCompleto: `${jefeDepartamento.Persona.Nombres} ${jefeDepartamento.Persona.Paterno} ${jefeDepartamento.Persona.Materno}`
             }));
 
-            // Establecer los jefeDepartamentos en el Estado
             setJefeDepartamentos(jefeDepartamentosConNombreCompleto);
             console.log(jefeDepartamentosConNombreCompleto);
         } catch (e) {
@@ -129,7 +128,6 @@ export default function JefeDepartamentosDemo() {
                 NombreCompleto: `${docente.Persona.Nombres} ${docente.Persona.Paterno} ${docente.Persona.Materno}`
             }));
 
-            // Establecer los docentes en el estado
             setDocentes(docentesConNombreCompleto);
             console.log(result.data);
         } catch (e) {
@@ -685,21 +683,16 @@ export default function JefeDepartamentosDemo() {
                 <DataTable
                     ref={dt}
                     value={jefeDepartamentos}
-                    dataKey="Codigo"
-                    paginator
-                    rows={10}
-                    rowsPerPageOptions={[5, 10, 25]}
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Jefes Departamento"
+                    dataKey="Codigo"            
                     globalFilter={globalFilter}
                     header={header}
                 >
-                    <Column field="NombreCompleto" header="Nombre Completo" body={nombreBodyTemplate} sortable style={{ minWidth: '20rem' }}></Column>
-                    <Column field="Departamento" header="Departamento" body={departamentoBodyTemplate} sortable style={{ minWidth: '20rem' }}></Column>
-                    <Column field="Persona.DNI" header="DNI" body={DNIBodyTemplate} style={{ minWidth: '6rem' }}></Column>
+                    <Column field="NombreCompleto" header="Nombre Completo" body={nombreBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
+                    <Column field="Departamento" header="Departamento" body={departamentoBodyTemplate} sortable style={{ minWidth: '15rem' }}></Column>
+                    <Column field="Persona.DNI" header="DNI" body={DNIBodyTemplate} style={{ minWidth: '5rem' }}></Column>
                     <Column field="Persona.Email" header="Correo" body={emailBodyTemplate} style={{ minWidth: '16rem' }}></Column>
-                    <Column header="Estado" dataType="boolean" sortable style={{ minWidth: '4rem' }} body={estadoBodyTemplate} />
-                    <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
+                    <Column header="Estado" dataType="boolean" sortable align='center' style={{ minWidth: '4rem' }} body={estadoBodyTemplate} />
+                    <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '10rem' }}></Column>
                 </DataTable>
             </div>
 

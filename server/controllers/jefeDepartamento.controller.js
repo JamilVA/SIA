@@ -14,11 +14,11 @@ const getJefeDepartamento = async (req, res) => {
           attributes: {
             exclude: ["Direccion", "Celular", "EmailPersonal"],
           },
-          include:[
+          include: [
             {
-              model: Usuario
-            }
-          ]
+              model: Usuario,
+            },
+          ],
         },
       ],
     });
@@ -44,7 +44,6 @@ const crearJefeDepartamento = async (req, res) => {
       FechaNacimiento: req.body.fechaNacimiento,
       Sexo: req.body.sexo,
       DNI: req.body.DNI,
-      Email: req.body.email,
     });
 
     const jefeDepartamento = await JefeDepartamento.create({
@@ -59,6 +58,7 @@ const crearJefeDepartamento = async (req, res) => {
       Estado: true,
       CodigoPersona: persona.Codigo,
       CodigoNivelUsuario: 2,
+      Email: req.body.email,
     });
     res.json({
       Estado: "Guardado con éxito",
@@ -92,6 +92,17 @@ const actualizarJefeDepartamento = async (req, res) => {
       }
     );
 
+    const usuario = await Usuario.create(
+      {
+        Email: req.body.email,
+      },
+      {
+        where: {
+          CodigoPersona: req.body.codigoPersona,
+        },
+      }
+    );
+
     const jefeDepartamento = await JefeDepartamento.update(
       {
         Departamento: req.body.departamento,
@@ -107,6 +118,7 @@ const actualizarJefeDepartamento = async (req, res) => {
 
     res.json({
       Estado: "Actualizado con éxito",
+      usuario,
       persona,
       jefeDepartamento,
     });
@@ -167,7 +179,9 @@ const asignarDocente = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error en la asignación de docente como jefe" });
+    res
+      .status(500)
+      .json({ error: "Error en la asignación de docente como jefe" });
   }
 };
 

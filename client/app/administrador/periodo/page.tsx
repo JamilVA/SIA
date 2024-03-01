@@ -308,7 +308,7 @@ export default function PeriodoPage() {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    <Button label="New" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
+                    <Button label="Nuevo periodo" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
                     {/* <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedProducts || !(selectedProducts as any).length} /> */}
                 </div>
             </React.Fragment>
@@ -318,7 +318,7 @@ export default function PeriodoPage() {
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>              
-                <Button label="Export" icon="pi pi-upload" severity="help" onClick={exportCSV} />
+                <Button label="Exportar" icon="pi pi-upload" severity="help" onClick={exportCSV} />
             </React.Fragment>
         );
     };
@@ -363,29 +363,29 @@ export default function PeriodoPage() {
             <h5 className="m-0">Gestionar Periodos Académicos</h5>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Search..." />
+                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Buscar..." />
             </span>
         </div>
     );
 
     const productDialogFooter = (
         <>
-            <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={savePeriodo} />
+            <Button label="Cancelar" icon="pi pi-times" text onClick={hideDialog} />
+            <Button label="Guardar" icon="pi pi-check" text onClick={savePeriodo} />
         </>
     );
 
     const deletePeriodoDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideDeletePeriodoDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={deletePeriodo} />
+            <Button label="Sí" icon="pi pi-check" text onClick={deletePeriodo} />
         </>
     );
 
     const finalizarPeriodoDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideFinalizarPeriodoDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={finalizarPeriodo} />
+            <Button label="Sí" icon="pi pi-check" text onClick={finalizarPeriodo} />
         </>
     );
 
@@ -407,7 +407,7 @@ export default function PeriodoPage() {
                         header={header}
                     >
                         <Column field="Codigo" header="Código" sortable headerStyle={{ minWidth: '5rem' }}></Column>
-                        <Column field="Denominacion" header="Denominacion" sortable headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="Denominacion" header="Denominación" sortable headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field='FechaInicio' header="Fecha de inicio" body={dateInicioBodyTemplate} headerStyle={{ minWidth: '10rem' }} />
                         <Column field='FechaFin' header="Fecha de fin" body={dateFinBodyTemplate} dataType="date" headerStyle={{ minWidth: '8rem' }} />
                         <Column field='InicioMatricula' header="Inicio matrículas" body={dateInicioMatriculaBodyTemplate} dataType="date" headerStyle={{ minWidth: '10rem' }} />

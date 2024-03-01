@@ -467,11 +467,10 @@ export default function Page() {
                         rowsPerPageOptions={[5, 10, 25]}
                         className="datatable-responsive"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} students"
+                        currentPageReportTemplate="Mostrando de {first} a {last} de {totalRecords} estudiantes"
                         globalFilter={globalFilter}
-                        emptyMessage="No students found."
-                        header={header}
-                        responsiveLayout="scroll"
+                        emptyMessage="Sin estudiantes registrados"
+                        header={header}                     
                     >
                         <Column field="CodigoSunedu" header="COD" sortable />
                         <Column field="CarreraProfesional.NombreCarrera" header="Carrera" sortable />
@@ -480,7 +479,7 @@ export default function Page() {
                         <Column field="Persona.Materno" header="Materno" sortable />
                         <Column field="Persona.Nombres" header="Nombres" sortable />
                         <Column field="AnioIngreso" header="Ingreso" sortable />
-                        <Column field="Estado" body={statusBodyTemplate} header="Estado" sortable />
+                        <Column field="Estado" body={statusBodyTemplate} header="Estado" sortable align='center' />
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
 
