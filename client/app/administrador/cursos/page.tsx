@@ -375,11 +375,10 @@ const Page = () => {
                         rowsPerPageOptions={[5, 10, 25]}
                         className="datatable-responsive"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses"
+                        currentPageReportTemplate="Mostrando de {first} a {last} de {totalRecords} cursos"
                         globalFilter={globalFilter}
-                        emptyMessage="No courses found."
-                        header={header}
-                        responsiveLayout="scroll"
+                        emptyMessage="Sin cursos registrados"
+                        header={header}              
                     >
                         <Column field="Codigo" header="COD" sortable />
                         <Column field="Nombre" header="Nombre" sortable />
