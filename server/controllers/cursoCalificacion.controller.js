@@ -131,21 +131,7 @@ const editarCursoCalificacion = async (req, res) => {
     }
 };
 
-// const crearCursoCalificacion = async (req, res) => {
-//     try {
-//         await sequelize.transaction(async (t) => {
-//             const cursoCalificacion = await CursoCalificacion.create(req.body, { transaction: t })
-//             await UnidadAcemica.bulkCreate(unidades(cursoCalificacion.Codigo), { transaction: t })
-//             return res.json({
-//                 mensaje: 'Curso a calificar creado',
-//                 cursoCalificacion
-//             })
-//         })
-//     } catch (error) {
-//         console.log(error)
-//         res.status(500).json({ error: 'Ha ocurrido un error al habilitar el curso' })
-//     }
-// }
+
 
 const unidades = (codigo) => {
     let unidades = [
