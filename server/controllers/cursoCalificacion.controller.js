@@ -1,5 +1,17 @@
 const { sequelize } = require('../config/database')
-const { Curso, CursoCalificacion, Docente, Estudiante, Matricula, Periodo, Persona, UnidadAcemica, SemanaAcademica, Asistencia } = require('../config/relations')
+const { Curso, CursoCalificacion, Docente, Estudiante, Matricula, Periodo, Persona, UnidadAcemica, SemanaAcademica, Asistencia, CarreraProfesional } = require('../config/relations')
+
+const getCarrerasByJefe = async (req, res) => {
+    try {
+        const carreras = await CarreraProfesional.findAll({
+            where: { CodigoJefeDepartamento: req.query.codigoJefe }
+        })
+        res.json({ carreras })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Ha ocurrido un error al cargar las carreras' })
+    }
+}
 
 const getCursosCalificacion = async (req, res) => {
     try {
@@ -408,5 +420,6 @@ module.exports = {
     deshabilitarIngreso,
     getAsistentes,
     contarSesiones,
-    getMatriculados
+    getMatriculados,
+    getCarrerasByJefe
 }

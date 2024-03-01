@@ -16,9 +16,12 @@ import Link from 'next/link';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { InputSwitch } from 'primereact/inputswitch';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { useSession } from 'next-auth/react';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function CursoCalificacionPage() {
+
+    const { data: session, status } = useSession()
 
     let emptyCursoCalificacion: Sia.CursoCalificacion = {
         Codigo: '',
@@ -82,12 +85,7 @@ export default function CursoCalificacionPage() {
     const [docentes, setDocentes] = useState<Array<Sia.Docente>>([])
     const [tempCursos, setTempCursos] = useState([emptyCurso])
 
-    const carreras = [
-        { Codigo: 1, Carrera: 'Docencia en Artes Visuales' },
-        { Codigo: 2, Carrera: 'Docencia en Música' },
-        { Codigo: 3, Carrera: 'Artista Profesional en Pintura' },
-        { Codigo: 4, Carrera: 'Artista Profesional en Escultura' }
-    ]
+    const [carreras, setCarreras] = useState<Array<any>>([])
 
     const fetchCursos = async () => {
         await axios.get('http://localhost:3001/api/curso')
@@ -164,12 +162,38 @@ export default function CursoCalificacionPage() {
             })
     }
 
-    useEffect(() => {
+    const fetchCarreras = async () => {
+        await axios.get('http://localhost:3001/api/curso-calificacion/carreras', {
+            params: { codigoJefe: session?.user.codigoPersona }
+        })
+            .then(response => {
+                const _carreras = response.data.carreras
+                setCarreras(_carreras)
+            })
+            .catch(error => {
+                setCarreras([])
+                console.log("Error de carga: ", error)
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error en la carga de carreras',
+                    life: 3000
+                });
+            })
+    }
+
+    useEffect(() => {      
         fetchPeriodoVigente()
         fetchCursos()
         fetchCursosCalificacion()
         fetchDocentes()
+
     }, []);
+
+    useEffect(() => {
+        if(status === 'authenticated')
+            fetchCarreras()       
+    }, [status]);
 
     const openNew = () => {
         if (!periodoVigente) {
@@ -304,27 +328,27 @@ export default function CursoCalificacionPage() {
                 setLoadingNotas(true)
                 if (rowData.EstadoNotas === true) {
                     await deshabilitarIngreso('notas', rowData.Codigo)
-                }else{
+                } else {
                     await habilitarIngreso('notas', rowData.Codigo)
-                }            
+                }
                 setLoadingNotas(false)
                 break;
             case 'recuperacion':
                 setLoadingNotas(true)
                 if (rowData.EstadoRecuperacion) {
                     await deshabilitarIngreso('recuperacion', rowData.Codigo)
-                }else{
+                } else {
                     await habilitarIngreso('recuperacion', rowData.Codigo)
-                } 
+                }
                 setLoadingNotas(false)
                 break;
             case 'aplazado':
                 setLoadingNotas(true)
                 if (rowData.EstadoAplazado) {
                     await deshabilitarIngreso('aplazado', rowData.Codigo)
-                }else{
+                } else {
                     await habilitarIngreso('aplazado', rowData.Codigo)
-                } 
+                }
                 setLoadingNotas(false)
                 break;
         }
@@ -332,7 +356,7 @@ export default function CursoCalificacionPage() {
 
     const habilitarIngreso = async (campo: string, codigo: string) => {
         await axios.put('http://localhost:3001/api/curso-calificacion/habilitar-ingreso', {}, {
-            params: {              
+            params: {
                 campo: campo,
                 codigo: codigo
             }
@@ -360,7 +384,7 @@ export default function CursoCalificacionPage() {
 
     const deshabilitarIngreso = async (campo: string, codigo: string) => {
         await axios.put('http://localhost:3001/api/curso-calificacion/deshabilitar-ingreso', {}, {
-            params: {              
+            params: {
                 campo: campo,
                 codigo: codigo
             }
@@ -392,7 +416,7 @@ export default function CursoCalificacionPage() {
             case 'notas':
                 _cursosCalificacion = cursosCalificacion.map(curso => {
                     if (curso.Codigo === codigo) {
-                        return {...curso, EstadoNotas: estado}
+                        return { ...curso, EstadoNotas: estado }
                     }
                     return curso
                 })
@@ -400,7 +424,7 @@ export default function CursoCalificacionPage() {
             case 'recuperacion':
                 _cursosCalificacion = cursosCalificacion.map(curso => {
                     if (curso.Codigo === codigo) {
-                        return {...curso, EstadoRecuperacion: estado}
+                        return { ...curso, EstadoRecuperacion: estado }
                     }
                     return curso
                 })
@@ -408,7 +432,7 @@ export default function CursoCalificacionPage() {
             case 'aplazado':
                 _cursosCalificacion = cursosCalificacion.map(curso => {
                     if (curso.Codigo === codigo) {
-                        return {...curso, EstadoAplazado: estado}
+                        return { ...curso, EstadoAplazado: estado }
                     }
                     return curso
                 })
@@ -542,7 +566,7 @@ export default function CursoCalificacionPage() {
         return (
             <>
                 <InputSwitch checked={rowData.EstadoRecuperacion} onChange={() => handleClick('recuperacion', rowData)} />
-                {loadingNotas && cursoCalificacion.Codigo === rowData.Codigo && <ProgressSpinner style={{width: '20px', height: '20px'}} strokeWidth='6' />}
+                {loadingNotas && cursoCalificacion.Codigo === rowData.Codigo && <ProgressSpinner style={{ width: '20px', height: '20px' }} strokeWidth='6' />}
             </>
         )
     };
@@ -551,7 +575,7 @@ export default function CursoCalificacionPage() {
         return (
             <>
                 <InputSwitch checked={rowData.EstadoAplazado} onChange={() => handleClick('aplazado', rowData)} />
-                {loadingNotas && cursoCalificacion.Codigo === rowData.Codigo && <ProgressSpinner style={{width: '20px', height: '20px'}} strokeWidth='6' />}
+                {loadingNotas && cursoCalificacion.Codigo === rowData.Codigo && <ProgressSpinner style={{ width: '20px', height: '20px' }} strokeWidth='6' />}
             </>
         )
     };
@@ -560,7 +584,7 @@ export default function CursoCalificacionPage() {
         return (
             <>
                 <InputSwitch checked={rowData.EstadoNotas} onChange={() => handleClick('notas', rowData)} />
-                {loadingNotas && cursoCalificacion.Codigo === rowData.Codigo && <ProgressSpinner style={{width: '20px', height: '20px'}} strokeWidth='6' />}
+                {loadingNotas && cursoCalificacion.Codigo === rowData.Codigo && <ProgressSpinner style={{ width: '20px', height: '20px' }} strokeWidth='6' />}
             </>
         )
     };
@@ -677,7 +701,7 @@ export default function CursoCalificacionPage() {
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses"
                         globalFilter={globalFilter}
                         emptyMessage="Cursos habilitados no disponibles"
-                        header={header}                     
+                        header={header}
                     >
                         <Column field="Codigo" header="Codigo" sortable headerStyle={{ minWidth: '6rem' }}></Column>
                         <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable headerStyle={{ minWidth: '6rem' }}></Column>
@@ -695,10 +719,10 @@ export default function CursoCalificacionPage() {
                                 id="carrera"
                                 value={selectedCarrera}
                                 options={carreras}
-                                optionLabel='Carrera'
+                                optionLabel='NombreCarrera'
                                 optionValue='Codigo'
                                 placeholder='Seleccione la carrera'
-                                onChange={(e) => onDropDownChange(e.value, 'carrera')}                               
+                                onChange={(e) => onDropDownChange(e.value, 'carrera')}
                                 autoFocus
                                 showClear
                             />
@@ -712,7 +736,7 @@ export default function CursoCalificacionPage() {
                                 optionLabel='Nombre'
                                 optionValue='Codigo'
                                 placeholder='Seleccione un curso'
-                                onChange={(e) => onDropDownChange(e.value, 'curso')}                              
+                                onChange={(e) => onDropDownChange(e.value, 'curso')}
                                 autoFocus
                                 showClear
                                 filter
@@ -722,7 +746,7 @@ export default function CursoCalificacionPage() {
                                 })}
                             />
                             {submitted && !cursoCalificacion.CodigoCurso && <small className="p-invalid">Seleccione un curso</small>}
-                        </div>                       
+                        </div>
                     </Dialog>
 
                     <Dialog visible={asignarDocenteDialog} style={{ width: '450px' }} header="Asignar o reasignar docente" modal className="p-fluid" footer={asignarDocenteDialogFooter} onHide={hideAsignarDocenteDialog}>
