@@ -83,10 +83,10 @@ const changePassword = async (req, res) => {
         if (!user)
             return res.status(403).json({ error: "Usuario inexistente" });
 
-        // const respuestaPassword = comparePassword(user.Password, oldPassword);
+        const respuestaPassword = comparePassword(user.Password, oldPassword);
 
-        // if (!respuestaPassword)
-        //     return res.status(403).json({ error: "Contraseña incorrecta" });
+        if (!respuestaPassword)
+            return res.status(403).json({ error: "Contraseña incorrecta" });
 
         await user.update(
             {
