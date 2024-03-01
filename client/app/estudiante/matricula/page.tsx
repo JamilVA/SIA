@@ -425,6 +425,9 @@ export default function Matricula() {
 
     return (
         <div className="grid">
+            <div className='col-12'>
+                <h5 className='m-3 mt-4'>MATRÍCULA ESTUDIANTE</h5>
+            </div>
             <div className="col-12 md:col-3">
                 <Perfil></Perfil>
             </div>

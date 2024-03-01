@@ -38,7 +38,7 @@ const getPagos = async (req, res = response) => {
 const getPagosEstudiante = async (req, res) => {
   console.log(req.query)
   try {
-    const { Email } = req.query;
+    const { CodigoEstudiante } = req.query;
     let pagos = await Pago.findAll({
       include: [
         {
@@ -54,7 +54,7 @@ const getPagosEstudiante = async (req, res) => {
         },
       ],
       where: { 
-        CodigoEstudiante: 11,
+        CodigoEstudiante: CodigoEstudiante,
         EstadoPago: "R",
      },
       attributes: { exclude: ["Fecha", "NumeroComprobante"] },
