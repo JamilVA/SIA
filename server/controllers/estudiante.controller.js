@@ -127,7 +127,6 @@ const actualizarEstudiante = async (req, res) => {
         FechaNacimiento: req.body.FechaNacimiento,
         Sexo: req.body.Sexo,
         DNI: req.body.DNI,
-        Email: req.body.Email,
         Direccion: req.body.Direccion,
         EmailPersonal: req.body.EmailPersonal,
         Celular: req.body.Celular
@@ -152,6 +151,17 @@ const actualizarEstudiante = async (req, res) => {
         where: {
           Codigo: req.body.Codigo,
         },
+      }
+    );
+
+    await Usuario.update(
+      {
+        Email: req.body.Email
+      },
+      {
+        where: {
+          CodigoPersona: req.body.CodigoPersona,
+        }
       }
     );
 
@@ -220,7 +230,7 @@ function addHorizontalRule(doc, spaceFromEdge = 0, linesAboveAndBelow = 0.5) {
     .stroke();
 
   doc.moveDown(linesAboveAndBelow);
-  
+
   return doc
 }
 
