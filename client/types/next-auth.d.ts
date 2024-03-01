@@ -6,6 +6,7 @@ declare module "next-auth" {
       email: string;
       nivelUsuario: number;
       codigoPersona: number;
+      codigoDocente: number;
       token: string;
     };
   }

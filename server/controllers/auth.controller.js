@@ -37,19 +37,22 @@ const login = async (req, res) => {
 
         const nivelUsuario = user.CodigoNivelUsuario;
         let codigoPersona = user.CodigoPersona;
+        let codigoDocente = 0;
 
         if (nivelUsuario == 2) {
             let _jefe = await JefeDepartamento.findOne({ where: { CodigoPersona: user.CodigoPersona } });
+            let _docente = await Docente.findOne({ where: { CodigoPersona: user.CodigoPersona } });
             codigoPersona = _jefe.Codigo;
+            codigoDocente = _docente.Codigo;
         } else if (nivelUsuario == 3) {
             let _docente = await Docente.findOne({ where: { CodigoPersona: user.CodigoPersona } });
-            codigoPersona = _docente.Codigo;
+            codigoDocente = _docente.Codigo;
         } else if (nivelUsuario == 4) {
             let _estudiante = await Estudiante.findOne({ where: { CodigoPersona: user.CodigoPersona } });
             codigoPersona = _estudiante.Codigo;
         }
 
-        res.json({ email, nivelUsuario, codigoPersona, token, expiresIn });
+        res.json({ email, nivelUsuario, codigoPersona, codigoDocente, token, expiresIn });
 
     } catch (error) {
         console.log(error);

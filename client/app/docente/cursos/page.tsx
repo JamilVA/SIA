@@ -36,7 +36,7 @@ const Page = () => {
         await axios
             .get('http://127.0.0.1:3001/api/curso/cursosdp', {
                 params: {
-                    CodDocente: session?.user.codigoPersona
+                    CodDocente: session?.user.codigoDocente
                 }
             })
             .then((response) => {
