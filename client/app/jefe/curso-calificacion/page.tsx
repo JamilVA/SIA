@@ -91,9 +91,10 @@ export default function CursoCalificacionPage() {
         await axios.get('http://localhost:3001/api/curso')
             .then(response => {           
                 const cursos = response.data.cursos
-                let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento != session?.user.codigoPersona)               
-                setCursos(_cursos)
-                setTempCursos(response.data.cursos)         
+                let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento === session?.user.codigoPersona)               
+                //console.log(_cursos)
+                //setCursos(_cursos)
+                setTempCursos(_cursos)         
             })
             .catch(error => {              
                 setCursos([])
@@ -185,7 +186,7 @@ export default function CursoCalificacionPage() {
 
     useEffect(() => {      
         fetchPeriodoVigente()
-        fetchCursos()
+        //fetchCursos()
         fetchCursosCalificacion()
         fetchDocentes()
 
@@ -193,7 +194,7 @@ export default function CursoCalificacionPage() {
 
     useEffect(() => {
         if(status === 'authenticated')
-            fetchCarreras()       
+            fetchCarreras()   
     }, [status]);
 
     const openNew = () => {
@@ -302,9 +303,11 @@ export default function CursoCalificacionPage() {
     const onDropDownChange = (value: any, name: string) => {
         switch (name) {       
             case 'carrera':
-                let _cursos = tempCursos.filter(curso => curso.CodigoCarreraProfesional === value)
-                setCursos(_cursos)
                 setSelectedCarrera(value)
+                fetchCursos()                
+                let _cursos = tempCursos.filter(curso => curso.CodigoCarreraProfesional === value)
+                //console.log(_cursos)
+                setCursos(_cursos)            
             case 'curso':
                 setCursoCalificacion({
                     ...cursoCalificacion,
