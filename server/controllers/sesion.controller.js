@@ -1,6 +1,7 @@
 const { Sequelize } = require("sequelize");
+const { sequelize } = require("../config/database")
 
-const {Curso, CursoCalificacion, UnidadAcademica, SemanaAcademica, Sesion, Asistencia, ActividadEstudiante, Estudiante, Persona, Horario, Periodo} = require("../config/relations")
+const { Curso, CursoCalificacion, UnidadAcademica, SemanaAcademica, Sesion, Asistencia, ActividadEstudiante, Estudiante, Persona, Horario, Periodo } = require("../config/relations")
 
 const getSesionesDocente = async (req, res) => {
   try {
@@ -177,6 +178,60 @@ const crearSesion = async (req, res) => {
   }
 };
 
+const crearSesionV2 = async (req, res) => {
+  try {
+    const codigoCursoCalificacion = req.query.codigoCursoCalificacion
+    const codigoUnidad = req.query.unidad + codigoCursoCalificacion  //unidad del 1 al 4
+    const codigoSemana = req.query.semana < 10 ? `0${req.query.semana}${codigoUnidad}` : `${req.query.semana}${codigoUnidad}`
+
+    const { count, rows } = Sesion.findAndCountAll({
+      where: {
+        CodigoSemanaAcademica: codigoSemana
+      }
+    })
+
+    if (count >= 2) return res.json({ message: 'No puede crear más sesiones en la semana seleccionada' })
+
+    await sequelize.transaction(async (t) => {
+
+      const unidad = await UnidadAcademica.findOrCreate({
+        transaction: t,
+        where: { Codigo: codigoUnidad },
+        defaults: {
+          Codigo: codigoUnidad,
+          CodigoCursoCalificacion: codigoCursoCalificacion
+        }
+      });
+
+      const semana = await SemanaAcademica.findOrCreate({
+        transaction: t,
+        where: { Codigo: codigoSemana },
+        defaults: {
+          Codigo: codigoSemana,
+          Descripcion: '',
+          CodigoUnidadAcademica: unidad.Codigo
+        }
+      })
+
+      const sesion = await Sesion.create({
+        ...req.body,
+        Codigo: count === 0 ? `1${semana.Codigo}` : `2${semana.Codigo}`
+      }, { transaction: t })
+
+      return res.json({
+        message: 'La sesión se ha creado correctamente',
+        sesion: sesion
+      });
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: error.message,
+      message: 'Ha ocurrido un error al crear la sesión'
+    })
+  }
+};
+
 const actualizarSesion = async (req, res) => {
   try {
     const sesion = await Sesion.update(
@@ -270,32 +325,32 @@ const getActividadesCalificar = async (req, res) => {
 
 const deshabilitarAsistencia = async (req, res) => {
   try {
-      let message
-      await Sesion.update({ EstadoAsistencia: false }, {
-          where: { Codigo: req.query.codigo }
-      })
+    let message
+    await Sesion.update({ EstadoAsistencia: false }, {
+      where: { Codigo: req.query.codigo }
+    })
 
-      res.json({ message: message });
+    res.json({ message: message });
 
   } catch (error) {
-      console.error(error)
-      res.status(500).json({ error: 'Ha ocurrido un error' })
+    console.error(error)
+    res.status(500).json({ error: 'Ha ocurrido un error' })
   }
 }
 
 const habilitarAsistencia = async (req, res) => {
   try {
-      let message
+    let message
 
-      await Sesion.update({ EstadoAsistencia: true }, {
-        where: { Codigo: req.query.codigo }
-      })
+    await Sesion.update({ EstadoAsistencia: true }, {
+      where: { Codigo: req.query.codigo }
+    })
 
-      res.json({ message: message });
+    res.json({ message: message });
 
   } catch (error) {
-      console.error(error)
-      res.status(500).json({ error: 'Ha ocurrido un error' })
+    console.error(error)
+    res.status(500).json({ error: 'Ha ocurrido un error' })
   }
 }
 
@@ -309,5 +364,6 @@ module.exports = {
   marcarSalidaDocente,
   getActividadesCalificar,
   habilitarAsistencia,
-  deshabilitarAsistencia
+  deshabilitarAsistencia,
+  crearSesionV2
 };
