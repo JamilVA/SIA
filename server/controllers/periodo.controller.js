@@ -16,6 +16,21 @@ const getPeriodo = async (req, res) => {
     }
 }
 
+const getPeriodoVigente = async (req, res) => {
+    try {
+        const periodo = await Periodo.findOne({
+            where: { Estado: true }
+        })
+
+        res.json({
+            periodo: periodo
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error al buscar un periodo vigente' })
+    }
+}
+
 const generarCodigo = (denominacion) => {
     let semestre = denominacion.substring(5)   
     if (semestre !== "0") {
@@ -101,6 +116,7 @@ const finalizarPeriodo = async (req, res) => {
 
 module.exports = {
     getPeriodo,
+    getPeriodoVigente,
     crearPeriodo,
     editarPeriodo,
     eliminarPeriodo,
