@@ -56,7 +56,6 @@ const Perfil = () => {
             Paterno: '',
             Materno: '',
             Nombres: '',
-            Email: '',
             RutaFoto: '',
             DNI: ''
         }
@@ -78,9 +77,10 @@ const Perfil = () => {
                         CodigoDocente: session?.user.codigoPersona
                     }
                 });
+                console.log(result.data)
                 setDocente(result.data.docente);
-                if (result.data.docente.Persona.RutaFoto) {
-                    await obtenerArchivo(result.data.docente.Persona.RutaFoto);
+                if (result.data.docente?.Persona?.RutaFoto) {
+                    await obtenerArchivo(result.data.docente?.Persona?.RutaFoto);
                 } else {
                     setImagenURL('/images/usuario.png');
                 }
@@ -92,8 +92,8 @@ const Perfil = () => {
                     }
                 });
                 setEstudiante(result.data.estudiante);
-                if (result.data.estudiante.Persona.RutaFoto) {
-                    await obtenerArchivo(result.data.estudiante.Persona.RutaFoto);
+                if (result.data.estudiante.Persona?.RutaFoto) {
+                    await obtenerArchivo(result.data.estudiante.Persona?.RutaFoto);
                 } else {
                     setImagenURL('/images/usuario.png');
                 }
@@ -145,7 +145,7 @@ const Perfil = () => {
                 <div className="text-center">
                     <img style={{ borderRadius: 'var(--border-radius)', width: '8rem', height: '8rem', objectFit: 'cover' }} alt="Card" className=" mt-1 shadow-1" src={imagenURL} />
                     <h5 style={{ color: 'var(--surface-700)' }}>
-                        {estudiante.Persona.Paterno} {estudiante.Persona.Materno} {estudiante.Persona.Nombres}
+                        {estudiante.Persona?.Paterno} {estudiante.Persona?.Materno} {estudiante.Persona?.Nombres}
                     </h5>
                     <h6 className="mt-0" style={{ color: 'var(--surface-500)' }}>
                         {estudiante.CarreraProfesional.NombreCarrera}
@@ -169,7 +169,7 @@ const Perfil = () => {
                 <div className="text-center">
                     <img style={{ borderRadius: 'var(--border-radius)', width: '8rem', height: '8rem', objectFit: 'cover' }} alt="Card" className=" mt-1 shadow-1" src={imagenURL} />
                     <h5 style={{ color: 'var(--surface-700)' }}>
-                        {docente.Persona.Paterno} {docente.Persona.Materno} {docente.Persona.Nombres}
+                        {docente?.Persona?.Paterno} {docente?.Persona?.Materno} {docente?.Persona?.Nombres}
                     </h5>
                 </div>
                 <div className="mt-4">
@@ -179,7 +179,7 @@ const Perfil = () => {
                     </p>
                     <p>
                         <b>DNI: </b>
-                        {docente.Persona.DNI}
+                        {docente?.Persona?.DNI}
                     </p>
                 </div>
             </div>

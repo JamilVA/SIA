@@ -41,13 +41,12 @@ const getPerfilDocente = async (req, res) => {
             "Nombres",
             "Paterno",
             "Materno",
-            "Email",
             "RutaFoto",
             "DNI",
           ],
         },
       ],
-      where: { Codigo: CodigoDocente },
+      where: { CodigoPersona: CodigoDocente },
     });
 
     res.json({

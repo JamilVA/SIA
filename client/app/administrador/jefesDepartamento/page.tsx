@@ -690,7 +690,7 @@ export default function JefeDepartamentosDemo() {
                     <Column field="NombreCompleto" header="Nombre Completo" body={nombreBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
                     <Column field="Departamento" header="Departamento" body={departamentoBodyTemplate} sortable style={{ minWidth: '15rem' }}></Column>
                     <Column field="Persona.DNI" header="DNI" body={DNIBodyTemplate} style={{ minWidth: '5rem' }}></Column>
-                    <Column field="Persona.Email" header="Correo" body={emailBodyTemplate} style={{ minWidth: '16rem' }}></Column>
+                    <Column field="Persona.Usuario.Email" header="Correo" body={emailBodyTemplate} style={{ minWidth: '16rem' }}></Column>
                     <Column header="Estado" dataType="boolean" sortable align='center' style={{ minWidth: '4rem' }} body={estadoBodyTemplate} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '10rem' }}></Column>
                 </DataTable>

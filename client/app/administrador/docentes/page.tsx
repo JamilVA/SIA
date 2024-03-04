@@ -241,7 +241,7 @@ export default function DocentesDemo() {
             fechaNacimiento: new Date(docente.Persona.FechaNacimiento),
             sexo: docente.Persona.Sexo,
             DNI: docente.Persona.DNI,
-            email: docente.Persona.Email
+            email: docente.Persona?.Usuario.Email
         };
 
         obtenerArchivo(docente.Persona.RutaFoto);
@@ -498,7 +498,7 @@ export default function DocentesDemo() {
                     <Column field="NombreCompleto" header="Nombre Completo" body={nombreBodyTemplate} sortable style={{ minWidth: '18rem' }}></Column>
                     <Column field="Persona.DNI" header="DNI" body={DNIBodyTemplate} style={{ minWidth: '6rem' }}></Column>
                     <Column header="Condición Laboral" body={condicionLaboralBodyTemplate} sortable style={{ minWidth: '6rem' }}></Column>
-                    <Column field="Persona.Email" header="Correo" body={emailBodyTemplate} style={{ minWidth: '16rem' }}></Column>
+                    <Column field="Persona.Usuario.Email" header="Correo" body={emailBodyTemplate} style={{ minWidth: '16rem' }}></Column>
                     <Column header="Estado" dataType="boolean" sortable align='center' style={{ minWidth: '4rem' }} body={estadoBodyTemplate} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '10rem' }}></Column>
                 </DataTable>
