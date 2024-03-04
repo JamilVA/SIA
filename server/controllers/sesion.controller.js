@@ -180,21 +180,26 @@ const crearSesion = async (req, res) => {
 
 const crearSesionV2 = async (req, res) => {
   try {
-    const codigoCursoCalificacion = req.query.codigoCursoCalificacion
-    const codigoUnidad = req.query.unidad + codigoCursoCalificacion  //unidad del 1 al 4
-    const codigoSemana = req.query.semana < 10 ? `0${req.query.semana}${codigoUnidad}` : `${req.query.semana}${codigoUnidad}`
+    const codigoCursoCalificacion = req.body.codigoCursoCalificacion
+    const codigoUnidad = req.body.unidad + codigoCursoCalificacion  //unidad del 1 al 4
+    const codigoSemana = req.body.semana < 10 ? `0${req.body.semana}${codigoUnidad}` : `${req.body.semana}${codigoUnidad}`
 
-    const { count, rows } = Sesion.findAndCountAll({
+    const curso = await CursoCalificacion.findByPk(codigoCursoCalificacion, { attributes: ["Codigo"] })
+
+    if (!curso) return res.json({ message: 'El curso no está habilitado' })
+
+    const { count, rows } = await Sesion.findAndCountAll({
       where: {
         CodigoSemanaAcademica: codigoSemana
-      }
+      },
+      attributes: ["Codigo", "CodigoSemanaAcademica"]
     })
 
     if (count >= 2) return res.json({ message: 'No puede crear más sesiones en la semana seleccionada' })
 
     await sequelize.transaction(async (t) => {
 
-      const unidad = await UnidadAcademica.findOrCreate({
+      const [unidad, createdU] = await UnidadAcademica.findOrCreate({
         transaction: t,
         where: { Codigo: codigoUnidad },
         defaults: {
@@ -203,7 +208,7 @@ const crearSesionV2 = async (req, res) => {
         }
       });
 
-      const semana = await SemanaAcademica.findOrCreate({
+      const [semana, createdS] = await SemanaAcademica.findOrCreate({
         transaction: t,
         where: { Codigo: codigoSemana },
         defaults: {
@@ -215,7 +220,8 @@ const crearSesionV2 = async (req, res) => {
 
       const sesion = await Sesion.create({
         ...req.body,
-        Codigo: count === 0 ? `1${semana.Codigo}` : `2${semana.Codigo}`
+        Codigo: count === 0 ? `1${semana.Codigo}` : `2${semana.Codigo}`,
+        CodigoSemanaAcademica: semana.Codigo
       }, { transaction: t })
 
       return res.json({
@@ -223,6 +229,7 @@ const crearSesionV2 = async (req, res) => {
         sesion: sesion
       });
     });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
