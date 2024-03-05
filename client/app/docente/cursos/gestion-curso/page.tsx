@@ -261,7 +261,7 @@ export default function Curso() {
     };
 
     const openNew = (rowData: any) => {
-        if (horarios.length > 0) {
+        if (horarios.length > 1) {
             console.log('Rowdada', rowData);
             console.log('Horarios', horarios);
 
@@ -589,9 +589,11 @@ export default function Curso() {
     const numeroBodyTemplate = (rowData: any) => {
         return rowData.Numero;
     };
+    
     const sesionBodyTemplate = (rowData: any) => {
         return rowData.Descripcion;
     };
+
     const fechaBodyTemplate = (rowData: any) => {
         if (rowData.Fecha) {
             const hora = new Date(`2000-01-01T${rowData.HoraInicio}`);

@@ -176,15 +176,16 @@ export default function Curso() {
         }
     };
     const cargarNotas = async () => {
-        await axios.get('http://localhost:3001/api/estudiante/notas', {
-            params: {
-                codigoCurso: codigoCurso,
-                codigoEstudiante: session?.user.codigoEstudiante
-            }
-        })
-            .then(response => {
-                let matricula = response.data.matricula
-                setMatricula(matricula)
+        await axios
+            .get('http://localhost:3001/api/estudiante/notas', {
+                params: {
+                    codigoCurso: codigoCurso,
+                    codigoEstudiante: session?.user.codigoEstudiante
+                }
+            })
+            .then((response) => {
+                let matricula = response.data.matricula;
+                setMatricula(matricula);
             })
             .catch((error) => {
                 console.error(error);
@@ -240,6 +241,7 @@ export default function Curso() {
 
     const fechaBodyTemplate = (rowData: any) => {
         if (rowData.Fecha) {
+            const hora = new Date(`2000-01-01T${rowData.HoraInicio}`);
             const fecha = new Date(rowData.Fecha + 'T00:00:00');
             return (
                 fecha
@@ -250,7 +252,7 @@ export default function Curso() {
                     })
                     .toUpperCase() +
                 ' ' +
-                rowData?.HoraInicio.slice(0, 5)
+                hora.toLocaleString('en-ES', { hour: 'numeric', minute: '2-digit', hour12: true })
             );
         }
     };
