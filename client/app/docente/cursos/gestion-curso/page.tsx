@@ -128,7 +128,7 @@ export default function Curso() {
             const { curso, unidades, semanas, sesiones } = data;
             const fechaInicio = new Date(curso.Periodo.FechaInicio);
 
-            console.log(data)
+            console.log(data);
 
             setFechaInicioClases(fechaInicio); // 4 de marzo de 2024 (meses en JavaScript son 0-indexados)
             setCursoCalificaion(curso);
@@ -255,25 +255,34 @@ export default function Curso() {
     };
 
     const openNew = (rowData: any) => {
-        console.log('Rowdada', rowData);
-        console.log('Horarios', horarios);
+        if (horarios.length > 0) {
+            console.log('Rowdada', rowData);
+            console.log('Horarios', horarios);
 
-        const cantidadSesionesSemana = sesiones.filter((s) => s.CodigoSemanaAcademica == rowData.Codigo).length;
-        if (cantidadSesionesSemana == 2) {
-            toast.current!.show({ severity: 'error', summary: 'Advertencia', detail: 'El límite de sesiones por semana es de 2', life: 3000 });
+            const cantidadSesionesSemana = sesiones.filter((s) => s.CodigoSemanaAcademica == rowData.Codigo).length;
+            if (cantidadSesionesSemana == 2) {
+                toast.current!.show({ severity: 'error', summary: 'Advertencia', detail: 'El límite de sesiones por semana es de 2', life: 3000 });
+            } else {
+                let _sesion = sesionVacia;
+                _sesion[`Codigo`] = cantidadSesionesSemana + 1 + rowData.Codigo;
+                _sesion[`Numero`] = String(cantidadSesionesSemana + 1 + (parseInt(rowData.Codigo.slice(0, 2)) - 1) * 2);
+                _sesion[`CodigoSemanaAcademica`] = rowData.Codigo;
+                _sesion[`Fecha`] = calcularFecha(horarios[cantidadSesionesSemana].Dia, parseInt(rowData.Codigo.slice(0, 2)));
+                _sesion[`HoraInicio`] = horarios[cantidadSesionesSemana].HoraInicio;
+                _sesion[`HoraFin`] = horarios[cantidadSesionesSemana].HoraFin;
+                setSesion(_sesion);
+                console.log('Sesion:', _sesion);
+                console.log('Rowdata:', rowData);
+                setSemana(rowData);
+                setSesionDialog(true);
+            }
         } else {
-            let _sesion = sesionVacia;
-            _sesion[`Codigo`] = cantidadSesionesSemana + 1 + rowData.Codigo;
-            _sesion[`Numero`] = String(cantidadSesionesSemana + 1 + (parseInt(rowData.Codigo.slice(0, 2)) - 1) * 2);
-            _sesion[`CodigoSemanaAcademica`] = rowData.Codigo;
-            _sesion[`Fecha`] = calcularFecha(horarios[cantidadSesionesSemana].Dia, parseInt(rowData.Codigo.slice(0, 2)));
-            _sesion[`HoraInicio`] = horarios[cantidadSesionesSemana].HoraInicio;
-            _sesion[`HoraFin`] = horarios[cantidadSesionesSemana].HoraFin;
-            setSesion(_sesion);
-            console.log('Sesion:', _sesion);
-            console.log('Rowdata:', rowData);
-            setSemana(rowData);
-            setSesionDialog(true);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Aun no se ha designado el horario del curso',
+                life: 3000
+            });
         }
     };
 
@@ -418,7 +427,7 @@ export default function Curso() {
 
             await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
                 console.log(response.data.path);
-                let _curso = { ...cursoCalificacion, RutaImagenPortada: response.data.filename};
+                let _curso = { ...cursoCalificacion, RutaImagenPortada: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
                 axios
                     .put('http://localhost:3001/api/curso-calificacion', {
@@ -486,7 +495,7 @@ export default function Curso() {
                         rutaSyllabus: _curso.RutaSyllabus,
                         rutaNormas: _curso.RutaNormas,
                         rutaPresentacionCurso: _curso.RutaPresentacionCurso,
-                        rutaPresentacionDocente: _curso.RutaPresentacionDocente,
+                        rutaPresentacionDocente: _curso.RutaPresentacionDocente
                     })
                     .then((response) => {
                         console.log(response);
@@ -661,7 +670,7 @@ export default function Curso() {
     const header = (
         <>
             <div style={{ position: 'relative', height: '300px' }}>
-                <Button icon="pi pi-image" outlined tooltip="Cambiar imagen de fondo" severity="secondary" style={{ position: 'absolute', top: '10px', left: '10px', zIndex: '1' }} onClick={() => setImagenDialog(true)} />
+                <Button icon="pi pi-image" tooltip="Cambiar imagen de fondo" severity="secondary" style={{ position: 'absolute', top: '10px', left: '10px', zIndex: '1' }} onClick={() => setImagenDialog(true)} />
                 {imagenURL && (
                     <div className="field">
                         <img alt="Card" src={imagenURL} height={300} style={{ objectFit: 'cover' }} />
@@ -755,7 +764,15 @@ export default function Curso() {
                                             Syllabus
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaSyllabus)} disabled={cursoCalificacion.RutaSyllabus == ''} style={{ width: '150px' }} />
+                                            <Button
+                                                icon="pi pi-download"
+                                                label="Descargar"
+                                                severity="info"
+                                                className="mr-2"
+                                                onClick={() => descargarArchivo(cursoCalificacion.RutaSyllabus)}
+                                                disabled={cursoCalificacion.RutaSyllabus == ''}
+                                                style={{ width: '150px' }}
+                                            />
                                         </div>{' '}
                                     </div>
                                     <div className="field col">
@@ -763,7 +780,15 @@ export default function Curso() {
                                             Normas de convivencia
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaNormas)} disabled={cursoCalificacion.RutaNormas == ''} style={{ width: '150px' }} />
+                                            <Button
+                                                icon="pi pi-download"
+                                                label="Descargar"
+                                                severity="info"
+                                                className="mr-2"
+                                                onClick={() => descargarArchivo(cursoCalificacion.RutaNormas)}
+                                                disabled={cursoCalificacion.RutaNormas == ''}
+                                                style={{ width: '150px' }}
+                                            />
                                         </div>{' '}
                                     </div>
                                 </div>
@@ -773,7 +798,15 @@ export default function Curso() {
                                             Presentación del curso
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionCurso)} disabled={cursoCalificacion.RutaPresentacionCurso == ''} style={{ width: '150px' }} />
+                                            <Button
+                                                icon="pi pi-download"
+                                                label="Descargar"
+                                                severity="info"
+                                                className="mr-2"
+                                                onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionCurso)}
+                                                disabled={cursoCalificacion.RutaPresentacionCurso == ''}
+                                                style={{ width: '150px' }}
+                                            />
                                         </div>{' '}
                                     </div>
                                     <div className="field col">
@@ -781,7 +814,15 @@ export default function Curso() {
                                             Presentación del docente
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} disabled={cursoCalificacion.RutaPresentacionDocente == ''} style={{ width: '150px' }} />
+                                            <Button
+                                                icon="pi pi-download"
+                                                label="Descargar"
+                                                severity="info"
+                                                className="mr-2"
+                                                onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)}
+                                                disabled={cursoCalificacion.RutaPresentacionDocente == ''}
+                                                style={{ width: '150px' }}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -848,7 +889,7 @@ export default function Curso() {
                         </span>
                         <span className="text-primary"> ({curso.Codigo})</span>
                         <br />
-                        <small className="text-muted">PINTURA</small>
+                        <small className="text-muted">{}</small>
                     </div>
                 </div>
                 <div className="formgrid grid">
@@ -890,13 +931,21 @@ export default function Curso() {
                         <label htmlFor="rutaSyllabus" className="font-bold">
                             Syllabus
                         </label>
-                        <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" accept="application/pdf"  maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e, 'RutaSyllabus')} />
+                        <FileUpload
+                            chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
+                            chooseLabel="Subir archivo"
+                            accept="application/pdf"
+                            maxFileSize={5000000}
+                            auto
+                            customUpload={true}
+                            uploadHandler={(e) => handleUpload(e, 'RutaSyllabus')}
+                        />
                     </div>
                     <div className="field col">
                         <label htmlFor="rutaNormas" className="font-bold">
                             Normas de convivencia
                         </label>
-                        <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" accept="application/pdf"  maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e, 'RutaNormas')} />
+                        <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" accept="application/pdf" maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e, 'RutaNormas')} />
                     </div>
                 </div>
                 <div className="formgrid grid">
@@ -909,7 +958,6 @@ export default function Curso() {
                             chooseLabel="Subir archivo"
                             accept="application/pdf"
                             maxFileSize={5000000}
-                            
                             auto
                             customUpload={true}
                             uploadHandler={(e) => handleUpload(e, 'RutaPresentacionCurso')}
@@ -923,7 +971,6 @@ export default function Curso() {
                             chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
                             chooseLabel="Subir archivo"
                             accept="application/pdf"
-                            
                             maxFileSize={5000000}
                             auto
                             customUpload={true}
