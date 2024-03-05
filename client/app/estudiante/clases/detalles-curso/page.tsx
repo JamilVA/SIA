@@ -53,7 +53,11 @@ export default function Curso() {
         HorasPractica: 0,
         Creditos: 0,
         Nivel: 0,
-        Semestre: 0
+        Semestre: 0,
+        CarreraProfesional: {
+            Codigo:0,
+            NombreCarrera: '',
+        }
     };
 
     const sesionVacia = {
@@ -176,15 +180,16 @@ export default function Curso() {
         }
     };
     const cargarNotas = async () => {
-        await axios.get('http://localhost:3001/api/estudiante/notas', {
-            params: {
-                codigoCurso: codigoCurso,
-                codigoEstudiante: session?.user.codigoEstudiante
-            }
-        })
-            .then(response => {
-                let matricula = response.data.matricula
-                setMatricula(matricula)
+        await axios
+            .get('http://localhost:3001/api/estudiante/notas', {
+                params: {
+                    codigoCurso: codigoCurso,
+                    codigoEstudiante: session?.user.codigoEstudiante
+                }
+            })
+            .then((response) => {
+                let matricula = response.data.matricula;
+                setMatricula(matricula);
             })
             .catch((error) => {
                 console.error(error);
@@ -212,6 +217,7 @@ export default function Curso() {
 
             setImagenURL(url);
         } catch (error) {
+            setImagenURL('/images/banner.jpg');
             console.error('Error al obtener el archivo:', error);
             toast.current?.show({
                 severity: 'error',
@@ -240,6 +246,7 @@ export default function Curso() {
 
     const fechaBodyTemplate = (rowData: any) => {
         if (rowData.Fecha) {
+            const hora = new Date(`2000-01-01T${rowData.HoraInicio}`);
             const fecha = new Date(rowData.Fecha + 'T00:00:00');
             return (
                 fecha
@@ -250,7 +257,7 @@ export default function Curso() {
                     })
                     .toUpperCase() +
                 ' ' +
-                rowData?.HoraInicio.slice(0, 5)
+                hora.toLocaleString('en-ES', { hour: 'numeric', minute: '2-digit', hour12: true })
             );
         }
     };
@@ -354,7 +361,6 @@ export default function Curso() {
                 {imagenURL && (
                     <div className="field">
                         <img alt="Card" src={imagenURL} height={300} style={{ objectFit: 'cover' }} />
-                        {/* <Image src={imagenURL} zoomSrc={imagenURL} alt="Foto Docente" width="80" height="80" preview /> */}
                     </div>
                 )}
             </div>
@@ -387,7 +393,7 @@ export default function Curso() {
                                         </span>
                                         <span className="text-primary"> ({curso.Codigo})</span>
                                         <br />
-                                        <small className="text-muted">PINTURA</small>
+                                        <small className="text-muted">{curso?.CarreraProfesional?.NombreCarrera}</small>
                                     </div>
                                 </div>
                                 <div className="formgrid grid">

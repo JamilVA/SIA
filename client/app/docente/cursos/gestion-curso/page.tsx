@@ -59,7 +59,6 @@ export default function Curso() {
             Codigo:0,
             NombreCarrera: '',
         }
-
     };
 
     const sesionVacia = {
@@ -208,6 +207,7 @@ export default function Curso() {
 
             setImagenURL(url);
         } catch (error) {
+            setImagenURL('/images/banner.jpg');
             console.error('Error al obtener el archivo:', error);
             toast.current?.show({
                 severity: 'error',
@@ -260,7 +260,7 @@ export default function Curso() {
     };
 
     const openNew = (rowData: any) => {
-        if (horarios.length > 0) {
+        if (horarios.length > 1) {
             console.log('Rowdada', rowData);
             console.log('Horarios', horarios);
 
@@ -588,11 +588,14 @@ export default function Curso() {
     const numeroBodyTemplate = (rowData: any) => {
         return rowData.Numero;
     };
+
     const sesionBodyTemplate = (rowData: any) => {
         return rowData.Descripcion;
     };
+
     const fechaBodyTemplate = (rowData: any) => {
         if (rowData.Fecha) {
+            const hora = new Date(`2000-01-01T${rowData.HoraInicio}`);
             const fecha = new Date(rowData.Fecha + 'T00:00:00');
             return (
                 fecha
@@ -603,7 +606,7 @@ export default function Curso() {
                     })
                     .toUpperCase() +
                 ' ' +
-                rowData.HoraInicio.slice(0, 5)
+                hora.toLocaleString('en-ES', { hour: 'numeric', minute: '2-digit', hour12: true })
             );
         }
     };
