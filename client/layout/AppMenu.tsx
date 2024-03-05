@@ -76,8 +76,8 @@ const AppMenu = () => {
             items: [       
                 { label: 'Cursos (D)', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
                 { label: 'Horarios (D)', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },    
-                { label: 'Habilitación de cursos (J)', icon: 'pi pi-fw pi-book', to: '/jefe/curso-calificacion' },              
-                { label: 'Gestion de Matricula (J)', icon: 'pi pi-fw pi-list', to: '/jefe/matricula' },
+                { label: 'Habilitación de cursos (J)', icon: 'pi pi-fw pi-book', to: '/jefatura/habilitacion-cursos' },              
+                { label: 'Gestion de Matricula (J)', icon: 'pi pi-fw pi-list', to: '/jefatura/matriculas' },
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },

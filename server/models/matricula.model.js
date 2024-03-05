@@ -1,6 +1,5 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/database");
-const Estudiante = require("../models/estudiante.model");
 
 const Matricula = sequelize.define("Matricula", {
   CodigoCursoCalificacion: {
@@ -25,8 +24,5 @@ const Matricula = sequelize.define("Matricula", {
   NotaFinal: DataTypes.INTEGER,
   Observacion: DataTypes.STRING(45),
 });
-
-Estudiante.hasMany(Matricula, {foreignKey:"CodigoEstudiante"})
-Matricula.belongsTo(Estudiante, {foreignKey:"CodigoEstudiante"})
 
 module.exports = Matricula;

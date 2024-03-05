@@ -1,9 +1,11 @@
 const { Router } = require("express");
-const { getPeriodo, crearPeriodo, editarPeriodo, eliminarPeriodo, finalizarPeriodo } = require("../controllers/periodo.controller");
+const { getPeriodo, crearPeriodo, editarPeriodo, eliminarPeriodo, finalizarPeriodo, getPeriodoVigente } = require("../controllers/periodo.controller");
 
 const router = Router();
 
 router.get('/', getPeriodo);
+
+router.get('/vigente', getPeriodoVigente);
 
 router.post('/', crearPeriodo);
 

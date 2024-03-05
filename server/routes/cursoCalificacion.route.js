@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { getCursosCalificacion, crearCursoCalificacion, habilitarIngresos, deshabilitarIngresos, eliminarCursoCalificacion, asignarDocente, habilitarIngreso, deshabilitarIngreso , getAsistentes, editarCursoCalificacion, getCursosEstudiante, contarSesiones, getMatriculados, getCarrerasByJefe } = require("../controllers/cursoCalificacion.controller");
+const { getCursosCalificacion, crearCursoCalificacion, habilitarIngresos, deshabilitarIngresos, eliminarCursoCalificacion, asignarDocente, habilitarIngreso, deshabilitarIngreso , getAsistentes, editarCursoCalificacion, getCursosEstudiante, contarSesiones, getMatriculados, getCarrerasByJefe, habilitarCursosPorCiclo } = require("../controllers/cursoCalificacion.controller");
 
 const router = Router()
 
@@ -10,6 +10,8 @@ router.get('/', getCursosCalificacion)
 router.get('/cursos-estudiante', getCursosEstudiante)
 
 router.post('/', crearCursoCalificacion)
+
+router.post('/habilitar-ciclo', habilitarCursosPorCiclo)
 
 router.put('/', editarCursoCalificacion)
 

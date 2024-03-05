@@ -18,7 +18,7 @@ import { InputText } from 'primereact/inputtext';
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -105,7 +105,7 @@ export default function Curso() {
     const [submitted, setSubmitted] = useState(false);
     const [sesionDialog, setSesionDialog] = useState(false);
     const [cursoCDialog, setCursoCDialog] = useState(false);
-    const [matricula, setMatricula] = useState(matriculaVacia)
+    const [matricula, setMatricula] = useState(matriculaVacia);
 
     useEffect(() => {
         cargarDatos();
@@ -126,43 +126,42 @@ export default function Curso() {
             setUnidades(unidades);
             setSemanas(semanas);
             setSesiones(sesiones);
-            if(curso.RutaImagenPortada){
-                obtenerArchivo(curso.RutaImagenPortada)
-            }else{
+            if (curso.RutaImagenPortada) {
+                obtenerArchivo(curso.RutaImagenPortada);
+            } else {
                 setImagenURL('/images/banner.jpg');
             }
-            
+
             console.log(data);
         } catch (e) {
             console.error(e);
         }
     };
 
-    
     const descargarArchivo = async (ruta: string) => {
         try {
-            const response = await axios.get('http://localhost:3001/api/files/download',{
-                params:{ fileName: ruta }
+            const response = await axios.get('http://localhost:3001/api/files/download', {
+                params: { fileName: ruta }
             });
 
-            console.log(response)
-    
+            console.log(response);
+
             const blob = new Blob([response.data], { type: response.headers['content-type'] });
-    
+
             // Crear un objeto URL del blob
             const url = window.URL.createObjectURL(blob);
-    
+
             // Crear un enlace temporal
             const link = document.createElement('a');
             link.href = url;
-    
+
             // Establecer el nombre del archivo
             link.download = ruta;
-    
+
             // Simular un clic en el enlace para iniciar la descarga
             document.body.appendChild(link);
             link.click();
-    
+
             // Limpiar el enlace después de la descarga
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
@@ -187,7 +186,7 @@ export default function Curso() {
                 let matricula = response.data.matricula
                 setMatricula(matricula)
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error(error);
                 toast.current?.show({
                     severity: 'error',
@@ -195,17 +194,17 @@ export default function Curso() {
                     detail: error.response ? error.response.data.error : error.message,
                     life: 3000
                 });
-            })
-    }
+            });
+    };
 
     const obtenerArchivo = async (ruta: string) => {
-        if(ruta === ''){
-            return
+        if (ruta === '') {
+            return;
         }
         try {
             const response = await axios.get('http://localhost:3001/api/files/download', {
                 params: { fileName: ruta },
-                responseType: 'arraybuffer',  // Especificar el tipo de respuesta como 'arraybuffer'
+                responseType: 'arraybuffer' // Especificar el tipo de respuesta como 'arraybuffer'
             });
 
             const blob = new Blob([response.data], { type: response.headers['content-type'] });
@@ -218,7 +217,7 @@ export default function Curso() {
                 severity: 'error',
                 summary: 'Error',
                 detail: 'Error de carga de archivo',
-                life: 3000,
+                life: 3000
             });
         }
     };
@@ -382,7 +381,6 @@ export default function Curso() {
                         <TabPanel header="Datos del curso" leftIcon="pi pi-info-circle mr-2">
                             <div className="p-fluid">
                                 <div className="field">
-                                    {/* <InputText id="Nombre" value={curso.Nombre + ' (' + curso.Codigo + ')'} disabled /> */}
                                     <div className="text-center">
                                         <span className="text-primary" style={{ fontWeight: 'bold' }}>
                                             {curso.Nombre}
@@ -426,13 +424,22 @@ export default function Curso() {
                                         <InputText id="semestre" value={curso.Semestre.toString()} disabled />
                                     </div>
                                 </div>
+
                                 <div className="formgrid grid">
                                     <div className="field col">
                                         <label htmlFor="rutaSyllabus" className="font-bold">
                                             Syllabus
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                            <Button
+                                                icon="pi pi-download"
+                                                label="Descargar"
+                                                severity="info"
+                                                className="mr-2"
+                                                onClick={() => descargarArchivo(cursoCalificacion.RutaSyllabus)}
+                                                disabled={cursoCalificacion.RutaSyllabus == ''}
+                                                style={{ width: '150px' }}
+                                            />
                                         </div>{' '}
                                     </div>
                                     <div className="field col">
@@ -440,7 +447,15 @@ export default function Curso() {
                                             Normas de convivencia
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                            <Button
+                                                icon="pi pi-download"
+                                                label="Descargar"
+                                                severity="info"
+                                                className="mr-2"
+                                                onClick={() => descargarArchivo(cursoCalificacion.RutaNormas)}
+                                                disabled={cursoCalificacion.RutaNormas == ''}
+                                                style={{ width: '150px' }}
+                                            />
                                         </div>{' '}
                                     </div>
                                 </div>
@@ -450,7 +465,15 @@ export default function Curso() {
                                             Presentación del curso
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                            <Button
+                                                icon="pi pi-download"
+                                                label="Descargar"
+                                                severity="info"
+                                                className="mr-2"
+                                                onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionCurso)}
+                                                disabled={cursoCalificacion.RutaPresentacionCurso == ''}
+                                                style={{ width: '150px' }}
+                                            />
                                         </div>{' '}
                                     </div>
                                     <div className="field col">
@@ -458,7 +481,15 @@ export default function Curso() {
                                             Presentación del docente
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                            <Button
+                                                icon="pi pi-download"
+                                                label="Descargar"
+                                                severity="info"
+                                                className="mr-2"
+                                                onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)}
+                                                disabled={cursoCalificacion.RutaPresentacionDocente == ''}
+                                                style={{ width: '150px' }}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -467,13 +498,13 @@ export default function Curso() {
                                         <label htmlFor="competencia" className="font-bold">
                                             Competencia
                                         </label>
-                                        <InputTextarea id="competencia" value={cursoCalificacion.Competencia || ''} disabled/>
+                                        <InputTextarea id="competencia" value={cursoCalificacion.Competencia || ''} disabled />
                                     </div>
                                     <div className="field col">
                                         <label htmlFor="capacidad" className="font-bold">
                                             Capacidad
                                         </label>
-                                        <InputTextarea id="capacidad" value={cursoCalificacion.Capacidad || ''} disabled/>
+                                        <InputTextarea id="capacidad" value={cursoCalificacion.Capacidad || ''} disabled />
                                     </div>
                                 </div>
                             </div>

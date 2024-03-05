@@ -141,7 +141,7 @@ const Perfil = () => {
                 <div className="text-center">
                     <img style={{ borderRadius: 'var(--border-radius)', width: '8rem', height: '8rem', objectFit: 'cover' }} alt="Card" className=" mt-1 shadow-1" src={imagenURL} />
                     <h5 style={{ color: 'var(--surface-700)' }}>
-                        {estudiante.Persona.Paterno} {estudiante.Persona.Materno} {estudiante.Persona.Nombres}
+                        {estudiante.Persona?.Paterno} {estudiante.Persona?.Materno} {estudiante.Persona?.Nombres}
                     </h5>
                     <h6 className="mt-0" style={{ color: 'var(--surface-500)' }}>
                         {estudiante.CarreraProfesional.NombreCarrera.toLocaleUpperCase()}

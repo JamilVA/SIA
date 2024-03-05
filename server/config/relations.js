@@ -51,12 +51,6 @@ Matricula.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' }
 Estudiante.hasMany(Matricula, { foreignKey: 'CodigoEstudiante' })
 Matricula.belongsTo(Estudiante, { foreignKey: 'CodigoEstudiante' })
 
-CursoCalificacion.hasMany(UnidadAcademica, { foreignKey: 'CodigoCursoCalificacion' })
-UnidadAcademica.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
-
-UnidadAcademica.hasMany(SemanaAcademica, { foreignKey: 'CodigoUnidadAcademica' })
-SemanaAcademica.belongsTo(UnidadAcademica, { foreignKey: 'CodigoUnidadAcademica' })
-
 CarreraProfesional.hasMany(Curso, { foreignKey: 'CodigoCarreraProfesional' })
 Curso.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' })
 
@@ -90,11 +84,11 @@ RecursoAcademico.belongsTo(Sesion, { foreignKey: 'CodigoSesion' })
 Curso.hasMany(CursoCalificacion, { foreignKey: "CodigoCurso" });
 CursoCalificacion.belongsTo(Curso, { foreignKey: "CodigoCurso" });
 
-CursoCalificacion.hasMany(UnidadAcademica, {foreignKey: "CodigoCursoCalificacion"});
-UnidadAcademica.belongsTo(CursoCalificacion, {foreignKey: "CodigoCursoCalificacion"});
+CursoCalificacion.hasMany(UnidadAcademica, { foreignKey: "CodigoCursoCalificacion" });
+UnidadAcademica.belongsTo(CursoCalificacion, { foreignKey: "CodigoCursoCalificacion" });
 
-UnidadAcademica.hasMany(SemanaAcademica, {foreignKey: "CodigoUnidadAcademica"});
-SemanaAcademica.belongsTo(UnidadAcademica, {foreignKey: "CodigoUnidadAcademica"});
+UnidadAcademica.hasMany(SemanaAcademica, { foreignKey: "CodigoUnidadAcademica" });
+SemanaAcademica.belongsTo(UnidadAcademica, { foreignKey: "Codigo" });
 
 SemanaAcademica.hasMany(Sesion, { foreignKey: "CodigoSemanaAcademica" });
 Sesion.belongsTo(SemanaAcademica, { foreignKey: "CodigoSemanaAcademica" });
@@ -108,8 +102,8 @@ Asistencia.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" });
 CursoCalificacion.hasMany(Horario, { foreignKey: 'CodigoCursoCalificacion' })
 Horario.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
 
-CursoCalificacion.hasOne(Acta, {foreignKey: 'CodigoCursoCalificacion'})
-Acta.belongsTo(CursoCalificacion, {foreignKey: 'CodigoCursoCalificacion'})
+CursoCalificacion.hasOne(Acta, { foreignKey: 'CodigoCursoCalificacion' })
+Acta.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
 
 module.exports = {
     Actividad,

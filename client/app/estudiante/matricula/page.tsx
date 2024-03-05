@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef, use } from 'react';
 import axios from 'axios';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { Card } from 'primereact/card';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
@@ -104,6 +103,18 @@ export default function Matricula() {
             cargarDatos();
         }
     }, [session]);
+
+    // useEffect(() => {
+    //     // Mostrar confirmación antes de salir de la página
+    //     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    //         event.preventDefault();
+    //         event.returnValue = ''; // Para mostrar el mensaje personalizado en algunos navegadores
+    //     };
+    //     window.addEventListener('beforeunload', handleBeforeUnload);
+    //     return () => {
+    //         window.removeEventListener('beforeunload', handleBeforeUnload);
+    //     };
+    // }, []);
 
     const cargarDatos = async () => {
         try {
@@ -411,21 +422,6 @@ export default function Matricula() {
         );
     };
 
-    const headerCard = (
-        <div className="flex flex-wrap gap-2 align-items-center justify-content-center">
-            <div className="flex flex-wrap gap-2 mt-4">
-                <Link href="/estudiante/pagos">
-                    <Button label="Pagos" icon="pi pi-money-bill" className="p-button-info p-button-sm" />{' '}
-                </Link>
-            </div>
-        </div>
-    );
-
-    const footer = (
-        <span>
-            <small>Email: {estudiante?.Persona.Email}</small>
-        </span>
-    );
 
     return (
         <div className="grid">

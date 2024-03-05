@@ -65,8 +65,9 @@ export default function CursoCalificacionPage() {
     const [cursoCalificacionDialog, setCursoCalificacionDialog] = useState(false);
     const [deleteCursoCalificacionDialog, setDeleteCursoCalificacionDialog] = useState(false);
     const [asignarDocenteDialog, setAsignarDocenteDialog] = useState(false)
+    const [habilitarBloqueDialog, setHabilitarBloqueDialog] = useState(false)
 
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const [loadingNotas, setLoadingNotas] = useState(false)
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -76,9 +77,10 @@ export default function CursoCalificacionPage() {
 
     const [cursoCalificacion, setCursoCalificacion] = useState<Sia.CursoCalificacion>(emptyCursoCalificacion)
     const [periodoVigente, setPeriodoVigente] = useState<Sia.Periodo>(emptyPeriodo)
-    const [curso, setCurso] = useState<Sia.Curso>()
+    const [curso, setCurso] = useState<Sia.Curso>(emptyCurso)
 
     const [selectedCarrera, setSelectedCarrera] = useState(null)
+    const [semestre, setSemestre] = useState(null)
 
     const [cursosCalificacion, setCursosCalificacion] = useState<Sia.CursoCalificacion[]>([])
     const [cursos, setCursos] = useState([emptyCurso])
@@ -89,13 +91,14 @@ export default function CursoCalificacionPage() {
 
     const fetchCursos = async () => {
         await axios.get('http://localhost:3001/api/curso')
-            .then(response => {           
+            .then(response => {
                 const cursos = response.data.cursos
-                let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento != session?.user.codigoPersona)               
-                setCursos(_cursos)
-                setTempCursos(response.data.cursos)         
+                let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento === session?.user.codigoPersona)
+                //console.log(_cursos)
+                //setCursos(_cursos)
+                setTempCursos(_cursos)
             })
-            .catch(error => {              
+            .catch(error => {
                 setCursos([])
                 console.log("Error de carga: ", error)
                 toast.current?.show({
@@ -108,24 +111,23 @@ export default function CursoCalificacionPage() {
     }
 
     const fetchPeriodoVigente = async () => {
-        await axios.get('http://localhost:3001/api/periodo')
-            .then(response => {
-                const periodos: Array<Sia.Periodo> = response.data.periodos
-                let _periodoVigente = periodos.find(periodo => periodo.Estado === true) as Sia.Periodo
-                setPeriodoVigente(_periodoVigente)
+        await axios.get('http://localhost:3001/api/periodo/vigente')
+            .then(response => {              
+                setPeriodoVigente(response.data.periodo)
             })
             .catch(error => {
-                console.log("Error de carga: ", error)
+                //console.log("Error de carga: ", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Error en la carga de periodos académicos',
+                    detail: error.response.data.error,
                     life: 3000
                 });
             })
     }
 
     const fetchCursosCalificacion = async () => {
+        setLoading(true)
         await axios.get('http://localhost:3001/api/curso-calificacion')
             .then(response => {
                 setLoading(false)
@@ -149,6 +151,7 @@ export default function CursoCalificacionPage() {
         await axios.get('http://localhost:3001/api/docente')
             .then(response => {
                 const _docentes = response.data.docentes
+                //console.log(_docentes)
                 setDocentes(_docentes)
             })
             .catch(error => {
@@ -183,18 +186,22 @@ export default function CursoCalificacionPage() {
             })
     }
 
-    useEffect(() => {      
-        fetchPeriodoVigente()
-        fetchCursos()
-        fetchCursosCalificacion()
-        fetchDocentes()
-
-    }, []);
+    useEffect(() => {
+        if (status === 'authenticated') {
+            fetchPeriodoVigente()
+        }
+    }, [status]);
 
     useEffect(() => {
-        if(status === 'authenticated')
-            fetchCarreras()       
-    }, [status]);
+        if (status === 'authenticated') {
+            if (periodoVigente) {
+                fetchCarreras()
+                fetchCursos()
+                fetchCursosCalificacion()
+                fetchDocentes()
+            }
+        }
+    }, [periodoVigente]);
 
     const openNew = () => {
         if (!periodoVigente) {
@@ -218,8 +225,7 @@ export default function CursoCalificacionPage() {
         setCursoCalificacion(cursoCalificacion)
     };
 
-    const openDetallesCurso = (cursoCalificacion: Sia.CursoCalificacion, e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        let curso = cursos.find(curso => curso.Codigo === cursoCalificacion.CodigoCurso)
+    const openDetallesCurso = (curso: Sia.Curso, e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         setCurso(curso)
         op.current?.toggle(e)
     }
@@ -236,6 +242,11 @@ export default function CursoCalificacionPage() {
     const hideAsignarDocenteDialog = () => {
         setSubmitted(false);
         setAsignarDocenteDialog(false);
+    };
+
+    const hideHabilitarBloqueDialog = () => {
+        setSubmitted(false);
+        setHabilitarBloqueDialog(false);
     };
 
     const saveCursoCalificacion = async () => {
@@ -300,11 +311,13 @@ export default function CursoCalificacionPage() {
     };
 
     const onDropDownChange = (value: any, name: string) => {
-        switch (name) {       
+        switch (name) {
             case 'carrera':
-                let _cursos = tempCursos.filter(curso => curso.CodigoCarreraProfesional === value)
-                setCursos(_cursos)
                 setSelectedCarrera(value)
+                fetchCursos()
+                let _cursos = tempCursos.filter(curso => curso.CodigoCarreraProfesional === value)
+                //console.log(_cursos)
+                setCursos(_cursos)
             case 'curso':
                 setCursoCalificacion({
                     ...cursoCalificacion,
@@ -317,6 +330,9 @@ export default function CursoCalificacionPage() {
                     ...cursoCalificacion,
                     CodigoDocente: value
                 })
+                break;
+            case 'ciclo':
+                setSemestre(value)
                 break;
         }
     }
@@ -543,12 +559,61 @@ export default function CursoCalificacionPage() {
             })
     }
 
+    const openHabilitarCursosBloque = () => {
+        if (!periodoVigente) {
+            toast.current?.show({
+                severity: 'warn',
+                summary: 'Operacion no disponible',
+                detail: 'Periodo vigente no disponible para habilitación de cursos.',
+                life: 3000
+            });
+            return
+        }
+        setSubmitted(false);
+        setSelectedCarrera(null)
+        setSemestre(null)
+        setHabilitarBloqueDialog(true);
+    };
+
+    const habilitarCursosBloque = async () => {
+        setSubmitted(true)
+        if (!selectedCarrera || !semestre) {
+            return
+        }
+
+        await axios.post('http://localhost:3001/api/curso-calificacion/habilitar-ciclo', {}, {
+            params: {
+                codigoPeriodo: periodoVigente.Codigo,
+                codigoCarrera: selectedCarrera,
+                semestre: semestre
+            }
+        })
+            .then(response => {
+                fetchCursosCalificacion()
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Operación exitosa',
+                    detail: response.data.message,
+                    life: 3000
+                });
+            })
+            .catch(error => {
+                console.error(error.response)
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Operacion fallida',
+                    detail: !error.response ? error.message : error.response.data.error,
+                    life: 3000
+                });
+            })
+    }
+
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
                 <div className="my-2">
                     <Button label="Habilitar curso" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
-                    {/* <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedProducts || !(selectedProducts as any).length} /> */}
+                    <Button label="Habilitar en bloque" icon="pi pi-list" severity="secondary" onClick={openHabilitarCursosBloque} />
                 </div>
             </React.Fragment>
         );
@@ -596,7 +661,7 @@ export default function CursoCalificacionPage() {
                     <p>{rowData.Curso?.Nombre}</p>
                 </div>
                 <div className='flex align-items-center justify-content-center'>
-                    <Button icon="pi pi-book" rounded text severity="secondary" onClick={(e) => openDetallesCurso(rowData, e)} tooltip='Ver curso' />
+                    <Button icon="pi pi-book" rounded text severity="secondary" onClick={(e) => openDetallesCurso(rowData.Curso as Sia.Curso, e)} tooltip='Ver curso' />
                 </div>
             </div>
         )
@@ -619,10 +684,10 @@ export default function CursoCalificacionPage() {
     const actionBodyTemplate = (rowData: Sia.CursoCalificacion) => {
         return (
             <>
-                <Link href={`/jefe/curso-calificacion/gestion-curso?codigo=${rowData.Codigo}`}>
+                <Link href={`/jefatura/habilitacion-cursos/gestion-curso?codigo=${rowData.Codigo}`}>
                     <Button icon="pi pi-eye" rounded severity="info" tooltip='Inspeccionar' />
                 </Link>
-                <Link href={`/jefe/curso-calificacion/gestion-horario?codigo=${rowData.Codigo}`}>
+                <Link href={`/jefatura/habilitacion-cursos/gestion-horario?codigo=${rowData.Codigo}`}>
                     <Button icon="pi pi-clock" rounded severity="success" className='ml-2' tooltip='Gestionar horario' />
                 </Link>
                 <Button icon="pi pi-trash" rounded severity="warning" className='ml-2' onClick={() => confirmDeleteCursoCalificacion(rowData)} />
@@ -635,7 +700,7 @@ export default function CursoCalificacionPage() {
             <h5 className="m-0">Cursos habilitados - Ciclo {periodoVigente?.Denominacion}</h5>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Search..." />
+                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Buscar..." />
             </span>
         </div>
     );
@@ -682,6 +747,17 @@ export default function CursoCalificacionPage() {
         </>
     );
 
+    const habilitarBloqueDialogFooter = (
+        <>
+            <Button label="Cancelar" icon="pi pi-times" text onClick={hideHabilitarBloqueDialog} />
+            <Button label="Habilitar" icon="pi pi-check" text onClick={habilitarCursosBloque} />
+        </>
+    );
+
+    if (status === "loading") {
+        return (<h1>Cargando...</h1>)
+    }
+
     return (
         <div className="grid crud-demo">
             <div className="col-12">
@@ -698,12 +774,12 @@ export default function CursoCalificacionPage() {
                         rowsPerPageOptions={[5, 10, 25]}
                         className="datatable-responsive"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses"
+                        currentPageReportTemplate="Mostrando de {first} a {last} de {totalRecords} cursos habilitados"
                         globalFilter={globalFilter}
                         emptyMessage="Cursos habilitados no disponibles"
                         header={header}
                     >
-                        <Column field="Codigo" header="Codigo" sortable headerStyle={{ minWidth: '6rem' }}></Column>
+                        <Column field="CodigoCurso" header="Código" sortable headerStyle={{ minWidth: '6rem' }}></Column>
                         <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable headerStyle={{ minWidth: '6rem' }}></Column>
                         <Column field="Docente.Persona.Nombres" header="Docente" body={docenteTemplate} headerStyle={{ minWidth: '6rem' }}></Column>
                         <Column field="EstadoAplazado" header={headerAplazado} align='center' body={statusAplazadosTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
@@ -711,6 +787,45 @@ export default function CursoCalificacionPage() {
                         <Column field="EstadoNotas" header={headerNotas} align='center' body={statusNotasTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '12rem' }}></Column>
                     </DataTable>
+
+                    <Dialog visible={habilitarBloqueDialog} style={{ width: '450px' }} header="Habilitar cursos en bloque" modal className="p-fluid" footer={habilitarBloqueDialogFooter} onHide={hideHabilitarBloqueDialog}>
+                        <div className="field">
+                            <label htmlFor="carrera">Carrera profesional</label>
+                            <Dropdown
+                                id="carrera"
+                                value={selectedCarrera}
+                                options={carreras}
+                                optionLabel='NombreCarrera'
+                                optionValue='Codigo'
+                                placeholder='Seleccione la carrera'
+                                onChange={(e) => onDropDownChange(e.value, 'carrera')}
+                                autoFocus
+                                showClear
+                                className={classNames({
+                                    'p-invalid': submitted && !cursoCalificacion.CodigoCurso
+                                })}
+                            />
+                            {submitted && !selectedCarrera && <small className="p-invalid">Seleccione una carrera</small>}
+                        </div>
+                        <div className="field">
+                            <label htmlFor="carrera">Ciclo</label>
+                            <Dropdown
+                                id="carrera"
+                                value={semestre}
+                                options={[{ label: 'Ciclos pares', value: 2 }, { label: 'Ciclos impares', value: 1 }]}
+                                optionLabel='label'
+                                optionValue='value'
+                                placeholder='Seleccione ciclo'
+                                onChange={(e) => onDropDownChange(e.value, 'ciclo')}
+                                autoFocus
+                                showClear
+                                className={classNames({
+                                    'p-invalid': submitted && !semestre
+                                })}
+                            />
+                            {submitted && !semestre && <small className="p-invalid">Seleccione un ciclo</small>}
+                        </div>
+                    </Dialog>
 
                     <Dialog visible={cursoCalificacionDialog} style={{ width: '450px' }} header="Datos del curso a calificar" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
                         <div className="field">

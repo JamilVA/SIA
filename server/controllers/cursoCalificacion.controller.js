@@ -16,7 +16,7 @@ const getCarrerasByJefe = async (req, res) => {
 const getCursosCalificacion = async (req, res) => {
     try {
         const cursosCalificacion = await CursoCalificacion.findAll({
-            attributes: { exclude: ['RutaSyllabus', 'RutaNormas', 'RutaPresentacionDocente', 'RutaPresentacionCurso', 'RutaImagenPortada'] },
+            attributes: ['Codigo', 'EstadoAplazado', 'EstadoRecuperacion', 'EstadoNotas', 'CodigoDocente', 'CodigoCurso', 'CodigoPeriodo'],
             include: [
                 {
                     model: Periodo,
@@ -113,6 +113,52 @@ const crearCursoCalificacion = async (req, res) => {
     }
 };
 
+const habilitarCurso = async (req, res) => {
+    try {
+        const cursoCalificacion = await CursoCalificacion.create(req.body)
+        return res.json({
+            mensaje: 'Curso habilitado corretamente',
+            cursoCalificacion
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Ha ocurrido un error al habilitar el curso' })
+    }
+};
+
+const habilitarCursosPorCiclo = async (req, res) => {
+    try {
+        const codigoPeriodo = req.query.codigoPeriodo
+        const codigoCarrera = req.query.codigoCarrera
+        const ciclo = req.query.semestre // 1 -> impar, 2 -> par
+        
+        const periodo = await Periodo.findByPk(codigoPeriodo)
+
+        if (!periodo) return res.json({ message: 'El periodo académico ingresado no existe' })
+        if(periodo.Estado === false) return res.json({ message: 'No puede habilitar cursos en un periodo finalizado' })
+
+        const cursos = await Curso.findAll({ where: { Semestre: ciclo, CodigoCarreraProfesional: codigoCarrera } })
+        const cursosHabilitados = cursos.map(curso => ({
+            Codigo: curso.Codigo + codigoPeriodo,
+            EstadoAplazado: false,
+            EstadoRecuperacion: false,
+            EstadoNotas: false,
+            CodigoCurso: curso.Codigo,
+            CodigoPeriodo: codigoPeriodo
+        }))
+
+        await CursoCalificacion.bulkCreate(cursosHabilitados)
+            
+        return res.json({
+            message: 'Los cursos se han habilitado correctamente'
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Ha ocurrido un error al habilitar los cursos' })
+    }
+};
 
 const editarCursoCalificacion = async (req, res) => {
     try {
@@ -407,5 +453,6 @@ module.exports = {
     getAsistentes,
     contarSesiones,
     getMatriculados,
-    getCarrerasByJefe
+    getCarrerasByJefe,
+    habilitarCursosPorCiclo
 }

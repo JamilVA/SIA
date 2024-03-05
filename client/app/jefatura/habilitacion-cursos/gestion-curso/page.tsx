@@ -199,28 +199,6 @@ export default function Curso() {
         setCursoCalificaion(cursoCVacio);
     };
 
-    const openNew = (rowData: any) => {
-        console.log('Rowdada', rowData);
-        console.log('Horarios', horarios);
-
-        const cantidadSesionesSemana = sesiones.filter((s) => s.CodigoSemanaAcademica == rowData.Codigo).length;
-        if (cantidadSesionesSemana == 2) {
-            toast.current!.show({ severity: 'error', summary: 'Advertencia', detail: 'El límite de sesiones por semana es de 2', life: 3000 });
-        } else {
-            let _sesion = sesionVacia;
-            _sesion[`Codigo`] = cantidadSesionesSemana + 1 + rowData.Codigo;
-            _sesion[`Numero`] = String(cantidadSesionesSemana + 1 + (parseInt(rowData.Codigo.slice(0, 2)) - 1) * 2);
-            _sesion[`CodigoSemanaAcademica`] = rowData.Codigo;
-            _sesion[`Fecha`] = calcularFecha(horarios[cantidadSesionesSemana].Dia, parseInt(rowData.Codigo.slice(0, 2)));
-            _sesion[`HoraInicio`] = horarios[cantidadSesionesSemana].HoraInicio;
-            _sesion[`HoraFin`] = horarios[cantidadSesionesSemana].HoraFin;
-            setSesion(_sesion);
-            console.log('Sesion:', _sesion);
-            console.log('Rowdata:', rowData);
-            setSemana(rowData);
-            setSesionDialog(true);
-        }
-    };
 
     const editSesion = (sesion: typeof sesionVacia) => {
         let tempSesion = {
@@ -256,20 +234,16 @@ export default function Curso() {
     };
 
     const calcularFecha = (dia: string, numeroSemana: number) => {
-        const primerDiaSemanaInicio = startOfWeek(fechaInicioClases, { weekStartsOn: 0 }); // 0 para el domingo, 1 para el lunes, etc.
+        const primerDiaSemanaInicio = startOfWeek(fechaInicioClases, { weekStartsOn: 0 });
 
-        // Mapear los días de la semana a sus índices
         const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         const indiceDia = diasSemana.indexOf(dia);
 
-        // Calcular la fecha basándonos en el número de semanas
-        const fechaCalculada = addWeeks(primerDiaSemanaInicio, numeroSemana - 1); // Restamos 1 porque la primera semana es la semana de inicio
+        const fechaCalculada = addWeeks(primerDiaSemanaInicio, numeroSemana - 1); 
 
-        // Obtener la fecha específica para el día de la semana
         const fechaFinal = new Date(fechaCalculada);
         fechaFinal.setDate(fechaCalculada.getDate() + ((indiceDia - fechaCalculada.getDay() + 7) % 7));
 
-        // Formatear la fecha como "dd de mes del año"
         const formatoFecha = fechaFinal.toLocaleDateString('es-ES', {
             day: '2-digit',
             month: 'long',
@@ -465,7 +439,6 @@ export default function Curso() {
                     <Column headerStyle={{ display: 'none' }} body={fechaBodyTemplate} style={{ minWidth: '8rem' }}></Column>
                     <Column className={classNames({ 'text-right': true })} headerStyle={{ display: 'none' }} body={actionBodyTemplate} style={{ minWidth: '5rem', paddingRight: '1rem' }}></Column>
                 </DataTable>
-                <Button tooltip="Nueva Sesion" icon="pi pi-plus" className="p-button-success p-button-sm m-2" style={{ padding: '0.75em' }} onClick={() => openNew(rowData)} outlined />
             </React.Fragment>
         );
     };
@@ -485,7 +458,6 @@ export default function Curso() {
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
                 <h4>
                     {curso.Nombre}
-                    <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm ml-3 pb-1" style={{ padding: '0.75em' }} onClick={() => editCurso(cursoCalificacion)} text />
                 </h4>
             </div>
         );
@@ -509,7 +481,6 @@ export default function Curso() {
             </Dialog>
             <Dialog visible={cursoCDialog} style={{ width: '60rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos del curso" modal className="p-fluid" footer={cursoCDialogFooter} onHide={hideCursoCDialog}>
                 <div className="field">
-                    {/* <InputText id="Nombre" value={curso.Nombre + ' (' + curso.Codigo + ')'} disabled /> */}
                     <div className="text-center">
                         <span className="text-primary" style={{ fontWeight: 'bold' }}>
                             {curso.Nombre}

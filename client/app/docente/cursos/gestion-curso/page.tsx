@@ -128,6 +128,8 @@ export default function Curso() {
             const { curso, unidades, semanas, sesiones } = data;
             const fechaInicio = new Date(curso.Periodo.FechaInicio);
 
+            console.log(data)
+
             setFechaInicioClases(fechaInicio); // 4 de marzo de 2024 (meses en JavaScript son 0-indexados)
             setCursoCalificaion(curso);
             setHorarios(curso.Horarios);
@@ -212,34 +214,44 @@ export default function Curso() {
     };
 
     const saveCurso = () => {
-        let _cursoCalificacion = { ...cursoCalificacion };
-        console.log('Curso recibida para editar', _cursoCalificacion);
-        if(syllabus){
-            subirArchivo(_cursoCalificacion,'RutaSyllabus')
-        }
-        if(normas){
-            subirArchivo(_cursoCalificacion,'RutaNormas')
-        }
-        if(presentacionCurso){
-            subirArchivo(_cursoCalificacion,'RutaPresentacionCurso')
-        }
-        if(presentacionDocente){
-            subirArchivo(_cursoCalificacion,'RutaPresentacionDocente')
-        }
+        try {
+            let _cursoCalificacion = { ...cursoCalificacion };
 
-        axios
-            .put('http://localhost:3001/api/curso-calificacion', {
-                codigo: _cursoCalificacion.Codigo,
-                competencia: _cursoCalificacion.Competencia,
-                capacidad: _cursoCalificacion.Capacidad,
-            })
-            .then((response) => {
-                console.log(response);
-                toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso actualizado con éxito', life: 3000 });
-                cargarDatos();
+            axios
+                .put('http://localhost:3001/api/curso-calificacion', {
+                    codigo: _cursoCalificacion.Codigo,
+                    competencia: _cursoCalificacion.Competencia,
+                    capacidad: _cursoCalificacion.Capacidad
+                })
+                .then((response) => {
+                    console.log(response);
+                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso actualizado con éxito', life: 3000 });
+                    cargarDatos();
+                });
+            setCursoCDialog(false);
+            setCursoCalificaion(cursoCVacio);
+
+            if (syllabus?.files.length! > 0) {
+                subirArchivo('RutaSyllabus');
+            }
+            if (normas?.files.length! > 0) {
+                subirArchivo('RutaNormas');
+            }
+            if (presentacionCurso?.files.length! > 0) {
+                subirArchivo('RutaPresentacionCurso');
+            }
+            if (presentacionDocente?.files.length! > 0) {
+                subirArchivo('RutaPresentacionDocente');
+            }
+        } catch (error) {
+            console.error('Error al editar información del curso:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al editar información del curso',
+                life: 3000
             });
-        setCursoCDialog(false);
-        setCursoCalificaion(cursoCVacio);
+        }
     };
 
     const openNew = (rowData: any) => {
@@ -400,15 +412,13 @@ export default function Curso() {
     const cambiarImagen = async () => {
         try {
             const file = imagen!.files[0];
-            const tipoArchivo = file.name.split('.')[1];
             const formData = new FormData();
             formData.append('file', file);
             console.log('Archivo Recibido:', file.name);
-            console.log('Tipo de Archivo:', file.name.split('.')[1]);
 
             await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
                 console.log(response.data.path);
-                let _curso = { ...cursoCalificacion, RutaImagenPortada: response.data.filename, Tipo: tipoArchivo };
+                let _curso = { ...cursoCalificacion, RutaImagenPortada: response.data.filename};
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
                 axios
                     .put('http://localhost:3001/api/curso-calificacion', {
@@ -434,10 +444,12 @@ export default function Curso() {
         }
     };
 
-    const subirArchivo =  async (recurso: typeof cursoCVacio, key: keyof typeof cursoCVacio) => {
+    const subirArchivo = async (key: keyof typeof cursoCVacio) => {
+        console.log('Subir ', key);
+
+        let file: File | undefined; // Declara file fuera del bloque try
 
         try {
-            let file = imagen!.files[0];
             switch (key) {
                 case 'RutaSyllabus':
                     file = syllabus!.files[0];
@@ -451,34 +463,49 @@ export default function Curso() {
                 case 'RutaPresentacionDocente':
                     file = presentacionDocente!.files[0];
                     break;
-            
+
                 default:
                     break;
+            }
+
+            if (!file) {
+                throw new Error('No se ha seleccionado ningún archivo.');
             }
 
             const formData = new FormData();
             formData.append('file', file);
             console.log('Archivo Recibido:', file.name);
-            console.log('Tipo de Archivo:', file.name.split('.')[1]);
 
             await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
                 console.log(response.data.path);
-                let _recurso = { ...recurso, key: response.data.filename};
+                let _curso = { ...cursoCalificacion, [key]: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'ArchivoSubido' });
-                editCurso(_recurso);
+                axios
+                    .put('http://localhost:3001/api/curso-calificacion', {
+                        codigo: _curso.Codigo,
+                        rutaSyllabus: _curso.RutaSyllabus,
+                        rutaNormas: _curso.RutaNormas,
+                        rutaPresentacionCurso: _curso.RutaPresentacionCurso,
+                        rutaPresentacionDocente: _curso.RutaPresentacionDocente,
+                    })
+                    .then((response) => {
+                        console.log(response);
+                        toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Imagen actualizada con éxito', life: 3000 });
+                        cargarDatos();
+                    });
                 setCursoCalificaion(cursoCVacio);
                 switch (key) {
                     case 'RutaSyllabus':
-                        setSyllabus(null)
+                        setSyllabus(null);
                         break;
                     case 'RutaNormas':
-                        setNormas(null)
+                        setNormas(null);
                         break;
                     case 'RutaPresentacionCurso':
-                        setPresentacionCurso(null)
+                        setPresentacionCurso(null);
                         break;
                     case 'RutaPresentacionDocente':
-                        setPresentacionDocente(null)
+                        setPresentacionDocente(null);
                         break;
                     default:
                         break;
@@ -728,7 +755,7 @@ export default function Curso() {
                                             Syllabus
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaSyllabus)} disabled={cursoCalificacion.RutaSyllabus == ''} style={{ width: '150px' }} />
                                         </div>{' '}
                                     </div>
                                     <div className="field col">
@@ -736,7 +763,7 @@ export default function Curso() {
                                             Normas de convivencia
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaNormas)} disabled={cursoCalificacion.RutaNormas == ''} style={{ width: '150px' }} />
                                         </div>{' '}
                                     </div>
                                 </div>
@@ -746,7 +773,7 @@ export default function Curso() {
                                             Presentación del curso
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionCurso)} disabled={cursoCalificacion.RutaPresentacionCurso == ''} style={{ width: '150px' }} />
                                         </div>{' '}
                                     </div>
                                     <div className="field col">
@@ -754,7 +781,7 @@ export default function Curso() {
                                             Presentación del docente
                                         </label>
                                         <div>
-                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} style={{ width: '150px' }} />
+                                            <Button icon="pi pi-download" label="Descargar" severity="info" className="mr-2" onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)} disabled={cursoCalificacion.RutaPresentacionDocente == ''} style={{ width: '150px' }} />
                                         </div>
                                     </div>
                                 </div>
@@ -863,13 +890,13 @@ export default function Curso() {
                         <label htmlFor="rutaSyllabus" className="font-bold">
                             Syllabus
                         </label>
-                        <FileUpload mode="basic" name="rutaSyllabus" id="rutaSyllabus" url="/api/upload" accept="pdf/*" maxFileSize={1000000} onUpload={onUpload} chooseLabel="Subir" />
+                        <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" accept="application/pdf"  maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e, 'RutaSyllabus')} />
                     </div>
                     <div className="field col">
                         <label htmlFor="rutaNormas" className="font-bold">
                             Normas de convivencia
                         </label>
-                        <FileUpload mode="basic" name="rutaNormas" id="rutaNormas" url="/api/upload" accept="pdf/*" maxFileSize={1000000} onUpload={onUpload} chooseLabel="Subir" />
+                        <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" accept="application/pdf"  maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e, 'RutaNormas')} />
                     </div>
                 </div>
                 <div className="formgrid grid">
@@ -877,13 +904,31 @@ export default function Curso() {
                         <label htmlFor="rutaPresentacionCurso" className="font-bold">
                             Presentación del curso
                         </label>
-                        <FileUpload mode="basic" name="rutaPresentacionCurso" id="rutaPresentacionCurso" url="/api/upload" accept="pdf/*" maxFileSize={1000000} onUpload={onUpload} chooseLabel="Subir" />
+                        <FileUpload
+                            chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
+                            chooseLabel="Subir archivo"
+                            accept="application/pdf"
+                            maxFileSize={5000000}
+                            
+                            auto
+                            customUpload={true}
+                            uploadHandler={(e) => handleUpload(e, 'RutaPresentacionCurso')}
+                        />
                     </div>
                     <div className="field col">
                         <label htmlFor="rutaPresentacionDocente" className="font-bold">
                             Presentación del docente
                         </label>
-                        <FileUpload mode="basic" name="rutaPresentacionDocente" id="rutaPresentacionDocente" url="/api/upload" accept="pdf/*" maxFileSize={1000000} onUpload={onUpload} chooseLabel="Subir" />
+                        <FileUpload
+                            chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
+                            chooseLabel="Subir archivo"
+                            accept="application/pdf"
+                            
+                            maxFileSize={5000000}
+                            auto
+                            customUpload={true}
+                            uploadHandler={(e) => handleUpload(e, 'RutaPresentacionDocente')}
+                        />
                     </div>
                 </div>
                 <div className="formgrid grid">
