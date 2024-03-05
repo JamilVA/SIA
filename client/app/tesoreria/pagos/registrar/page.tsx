@@ -270,7 +270,7 @@ export default function RegistroPagoPage() {
                     <br />
                     <div className="flex flex-column gap-2">
                         <label htmlFor="">Nro. Transacción: </label>
-                        <InputText value={pago.NroTransaccion} onChange={(e) => onInputChange(e, 'transaccion')} />
+                        <InputText value={pago.NroTransaccion} onChange={(e) => onInputChange(e, 'transaccion')} maxLength={8}/>
                     </div>
                     <br /><br />
                     <Button label="Regresar" icon="pi pi-arrow-left" text className='mr-3' onClick={() => { router.back() }} />
