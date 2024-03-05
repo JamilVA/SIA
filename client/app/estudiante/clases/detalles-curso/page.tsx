@@ -53,7 +53,11 @@ export default function Curso() {
         HorasPractica: 0,
         Creditos: 0,
         Nivel: 0,
-        Semestre: 0
+        Semestre: 0,
+        CarreraProfesional: {
+            Codigo:0,
+            NombreCarrera: '',
+        }
     };
 
     const sesionVacia = {
@@ -213,6 +217,7 @@ export default function Curso() {
 
             setImagenURL(url);
         } catch (error) {
+            setImagenURL('/images/banner.jpg');
             console.error('Error al obtener el archivo:', error);
             toast.current?.show({
                 severity: 'error',
@@ -356,7 +361,6 @@ export default function Curso() {
                 {imagenURL && (
                     <div className="field">
                         <img alt="Card" src={imagenURL} height={300} style={{ objectFit: 'cover' }} />
-                        {/* <Image src={imagenURL} zoomSrc={imagenURL} alt="Foto Docente" width="80" height="80" preview /> */}
                     </div>
                 )}
             </div>
@@ -389,7 +393,7 @@ export default function Curso() {
                                         </span>
                                         <span className="text-primary"> ({curso.Codigo})</span>
                                         <br />
-                                        <small className="text-muted">PINTURA</small>
+                                        <small className="text-muted">{curso?.CarreraProfesional?.NombreCarrera}</small>
                                     </div>
                                 </div>
                                 <div className="formgrid grid">

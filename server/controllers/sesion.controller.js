@@ -120,6 +120,12 @@ const getSesionesEstudiante = async (req, res) => {
             "HorasTeoria",
             "HorasPractica",
           ],
+          include: [
+            {
+              model: CarreraProfesional,
+              attributes: ["Codigo", "NombreCarrera"],
+            },
+          ],
         },
       ],
       where: { Codigo: CodigoCursoCalificacion },
