@@ -25,18 +25,20 @@ const Page = () => {
     const toast = useRef<Toast>(null);
 
     useEffect(() => {
-        fetchPagos();
+        if (status === 'authenticated') {
+            fetchPagos();
+        }
     }, [status]);
 
     const fetchPagos = async () => {
         await axios.get("http://127.0.0.1:3001/api/pago/estudiante", {
             params: {
-                codigo: session?.user.codigoPersona
+                codigo: session?.user.codigoEstudiante
             }
         }).then(response => {
             console.log(response.data);
-            let _pagosM = response.data.pagos.filter((x: any) => x.ConceptoPago.Codigo == 1);
-            let _pagosO = response.data.pagos.filter((x: any) => x.ConceptoPago.Codigo != 1);
+            let _pagosM = response.data.pagos.filter((x: any) => x.CodigoConceptoPago == '0802');
+            let _pagosO = response.data.pagos.filter((x: any) => x.ConceptoPago.Codigo != '0802');
             setPagosM(_pagosM);
             setPagosO(_pagosO);
         })
