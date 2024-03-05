@@ -54,7 +54,12 @@ export default function Curso() {
         HorasPractica: 0,
         Creditos: 0,
         Nivel: 0,
-        Semestre: 0
+        Semestre: 0,
+        CarreraProfesional: {
+            Codigo:0,
+            NombreCarrera: '',
+        }
+
     };
 
     const sesionVacia = {
@@ -684,7 +689,7 @@ export default function Curso() {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
                 <h4>
-                    {curso.Nombre}
+                    {curso?.Nombre}
                     <Button tooltip="Editar datos del curso" icon="pi pi-pencil" className="p-button-warning p-button-sm ml-3 pb-1" style={{ padding: '0.75em' }} onClick={() => editCurso(cursoCalificacion)} text />
                 </h4>
             </div>
@@ -702,7 +707,7 @@ export default function Curso() {
                     <Card
                         title={title(curso)}
                         header={header}
-                        subTitle={'Codigo (' + curso.Codigo + ')'}
+                        subTitle={'Codigo (' + curso?.Codigo + ')'}
                         style={{
                             border: 'none',
                             borderRadius: 0,
@@ -714,14 +719,13 @@ export default function Curso() {
                         <TabPanel header="Datos del curso" leftIcon="pi pi-info-circle mr-2">
                             <div className="p-fluid">
                                 <div className="field">
-                                    {/* <InputText id="Nombre" value={curso.Nombre + ' (' + curso.Codigo + ')'} disabled /> */}
                                     <div className="text-center">
                                         <span className="text-primary" style={{ fontWeight: 'bold' }}>
-                                            {curso.Nombre}
+                                            {curso?.Nombre}
                                         </span>
-                                        <span className="text-primary"> ({curso.Codigo})</span>
+                                        <span className="text-primary"> ({curso?.Codigo})</span>
                                         <br />
-                                        <small className="text-muted">PINTURA</small>
+                                        <small className="text-muted">{curso?.CarreraProfesional?.NombreCarrera}</small>
                                     </div>
                                 </div>
                                 <div className="formgrid grid">
@@ -729,13 +733,13 @@ export default function Curso() {
                                         <label htmlFor="nivel" className="font-bold">
                                             Año
                                         </label>
-                                        <InputText id="nivel" value={curso.Nivel.toString()} disabled />
+                                        <InputText id="nivel" value={curso?.Nivel.toString()} disabled />
                                     </div>
                                     <div className="field col">
                                         <label htmlFor="semestre" className="font-bold">
                                             Semestre
                                         </label>
-                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
                                     </div>
                                 </div>
                                 <div className="formgrid grid">
@@ -743,19 +747,19 @@ export default function Curso() {
                                         <label htmlFor="horasTeoria" className="font-bold">
                                             Horas Teoria
                                         </label>
-                                        <InputText id="horasTeoria" value={curso.HorasTeoria.toString()} disabled />
+                                        <InputText id="horasTeoria" value={curso?.HorasTeoria.toString()} disabled />
                                     </div>
                                     <div className="field col">
                                         <label htmlFor="horasPractica" className="font-bold">
                                             Horas Práctica
                                         </label>
-                                        <InputText id="horasPractica" value={curso.HorasPractica.toString()} disabled />
+                                        <InputText id="horasPractica" value={curso?.HorasPractica.toString()} disabled />
                                     </div>
                                     <div className="field col">
                                         <label htmlFor="semestre" className="font-bold">
                                             Créditos
                                         </label>
-                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
                                     </div>
                                 </div>
                                 <div className="formgrid grid">
@@ -882,14 +886,13 @@ export default function Curso() {
             </Dialog>
             <Dialog visible={cursoCDialog} style={{ width: '60rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos del curso" modal className="p-fluid" footer={cursoCDialogFooter} onHide={hideCursoCDialog}>
                 <div className="field">
-                    {/* <InputText id="Nombre" value={curso.Nombre + ' (' + curso.Codigo + ')'} disabled /> */}
                     <div className="text-center">
                         <span className="text-primary" style={{ fontWeight: 'bold' }}>
-                            {curso.Nombre}
+                            {curso?.Nombre}
                         </span>
-                        <span className="text-primary"> ({curso.Codigo})</span>
+                        <span className="text-primary"> ({curso?.Codigo})</span>
                         <br />
-                        <small className="text-muted">{}</small>
+                        <small className="text-muted">{curso?.CarreraProfesional?.NombreCarrera}</small>
                     </div>
                 </div>
                 <div className="formgrid grid">
@@ -897,13 +900,13 @@ export default function Curso() {
                         <label htmlFor="nivel" className="font-bold">
                             Año
                         </label>
-                        <InputText id="nivel" value={curso.Nivel.toString()} disabled />
+                        <InputText id="nivel" value={curso?.Nivel.toString()} disabled />
                     </div>
                     <div className="field col">
                         <label htmlFor="semestre" className="font-bold">
                             Semestre
                         </label>
-                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
                     </div>
                 </div>
                 <div className="formgrid grid">
