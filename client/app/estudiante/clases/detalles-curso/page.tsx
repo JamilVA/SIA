@@ -106,9 +106,6 @@ export default function Curso() {
     const [unidades, setUnidades] = useState<(typeof unidadVacia)[]>([]);
     const [imagenURL, setImagenURL] = useState<string | null>(null);
 
-    const [submitted, setSubmitted] = useState(false);
-    const [sesionDialog, setSesionDialog] = useState(false);
-    const [cursoCDialog, setCursoCDialog] = useState(false);
     const [matricula, setMatricula] = useState(matriculaVacia);
 
     useEffect(() => {
