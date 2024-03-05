@@ -22,11 +22,13 @@ const page = () => {
             EstadoRecuperacion: false,
             EstadoAplazado: false,
             Periodo: {
-                Codigo: ''
+                Codigo: '',
+                FechaFin: ''
             }
         },
         CarreraProfesional: {
-            Codigo: 0
+            Codigo: 0,
+            NombreCarrera: ''
         }
     }
 
@@ -167,7 +169,7 @@ const page = () => {
             notasEstudiante['NotaFinal'] = 11;
         }
 
-        if (data.NotaRecuperacion == null || notasEstudiante.NotaAplazado != null) {
+        /*if (data.NotaRecuperacion == null || notasEstudiante.NotaAplazado != null) {
             if (data.PorcentajeAsistencia < 75 && (notasEstudiante.NotaRecuperacion != null || notasEstudiante.NotaFinal != null)) {
                 toast.current?.show({
                     severity: 'error',
@@ -179,7 +181,7 @@ const page = () => {
                 apiSaveNotes()
                 setNotasEstudiante(emptyRegistroMatricula);
             }
-        }
+        }*/
         console.log(data)
     }
 
@@ -243,7 +245,7 @@ const page = () => {
     }
 
     const actionSaveTemplate = (rowData: any) => {
-        if (actas.length == 0) {
+        if (curso.CursoCalificacion.EstadoNotas || curso.CursoCalificacion.EstadoRecuperacion || curso.CursoCalificacion.EstadoAplazado) {
             return <i className='pi pi-save' style={{ cursor: 'pointer' }} onClick={() => saveNotes(rowData)}></i>
         } else {
             return <i className='pi pi-save' style={{ color: '#D4D4D4' }}></i>
@@ -292,33 +294,38 @@ const page = () => {
     );
 
     const headerTable = () => {
-        if (actas.length == 0) {
-            return (
-                <Button onClick={openActaDialog} style={{ height: '30px', marginBlock: '10px', marginTop: '0px' }}>Generar acta</Button>
-            )
-        } else {
-            return (
-                <div className='flex flex-row align-items-center'>
-                    <div style={{ height: '30px', marginBlock: '10px', marginTop: '0px', padding: '5px', border: '1px solid red' }}>
-                        <b style={{ color: 'red' }}>ACTA GENERADA</b>
+        let _fechaHoy = new Date(Date.now());
+        let _fechaFin = new Date(curso.CursoCalificacion.Periodo.FechaFin);
+        if (_fechaHoy >= _fechaFin) {
+            if (actas.length == 0) {
+                return (
+                    <Button onClick={openActaDialog} style={{ height: '30px', marginBlock: '10px', marginTop: '0px' }}>Generar acta</Button>
+                )
+            } else {
+                return (
+                    <div className='flex flex-row align-items-center'>
+                        <div style={{ height: '30px', marginBlock: '10px', marginTop: '0px', padding: '5px', border: '1px solid red' }}>
+                            <b style={{ color: 'red' }}>ACTA GENERADA</b>
+                        </div>
+                        <div>
+                            <Button className='px-2 py-1 border-none ml-2'
+                                size='small'
+                                label="Vista PDF"
+                                icon="pi pi-file-pdf"
+                                onClick={() => obtenerPDFActa()}
+                            />
+                        </div>
                     </div>
-                    <div>
-                        <Button className='px-2 py-1 border-none ml-2'
-                            size='small'
-                            label="Vista PDF"
-                            icon="pi pi-file-pdf"
-                            onClick={() => obtenerPDFActa()}
-                        />
-                    </div>
-                </div>
-            )
+                )
+            }
         }
+
     }
 
     return (
         <div className="grid crud-demo">
             <div className="col-12">
-                <h5 className='m-1 mb-3'>{curso.Nombre}</h5>
+                <h5 className='m-3 mt-4'>{curso.Nombre} {'(' + curso.CarreraProfesional.NombreCarrera.toUpperCase() + ')'}</h5>
             </div>
             <div className='col-12'>
                 <div className='card'>
