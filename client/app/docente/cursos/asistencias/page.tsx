@@ -21,7 +21,7 @@ export default function AsistenciasPage() {
 
     const searchParamas = useSearchParams();
     const codigoSesion = searchParamas.get('codigo');
-    const codigoCursoCalificacion = codigoSesion?.slice(-8)
+    const codigoCursoCalificacion = codigoSesion?.slice(-9)
 
     const [estudiantes, setEstudiantes] = useState<Array<any>>([])
     const [globalFilter, setGlobalFilter] = useState('');
