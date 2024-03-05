@@ -342,22 +342,6 @@ export default function Matricula() {
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Cursos a Llevar</h4>
             <div className="flex flex-wrap gap-2">
-                <Button
-                    label="Horarios"
-                    icon="pi pi-calendar"
-                    className="p-button-info"
-                    onClick={() => {
-                        setCursosLlevar(buscarCursosLlevar(cursosMatriculados));
-                    }}
-                />
-                <Button
-                    label="Actualizar"
-                    icon="pi pi-refresh"
-                    className="p-button-warning"
-                    onClick={() => {
-                        setCursosLlevar(buscarCursosLlevar(cursosMatriculados));
-                    }}
-                />
             </div>
         </div>
     );
@@ -366,14 +350,6 @@ export default function Matricula() {
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Cursos Matriculados</h4>
             <div className="flex flex-wrap gap-2">
-                <Button
-                    label="Actualizar"
-                    icon="pi pi-refresh"
-                    className="p-button-warning"
-                    onClick={() => {
-                        setCursosMatriculados(buscarCursosMatriculados);
-                    }}
-                />
             </div>
         </div>
     );
