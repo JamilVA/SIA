@@ -303,7 +303,7 @@ export default function Matricula() {
     };
 
     const codigoBodyTemplate = (rowData: any) => {
-        return rowData.Codigo.slice(0, 5);
+        return rowData.Codigo.slice(0, 6);
     };
 
     const cursoBodyTemplate = (rowData: any) => {
