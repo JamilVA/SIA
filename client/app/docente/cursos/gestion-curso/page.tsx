@@ -59,7 +59,6 @@ export default function Curso() {
             Codigo:0,
             NombreCarrera: '',
         }
-
     };
 
     const sesionVacia = {
@@ -589,7 +588,7 @@ export default function Curso() {
     const numeroBodyTemplate = (rowData: any) => {
         return rowData.Numero;
     };
-    
+
     const sesionBodyTemplate = (rowData: any) => {
         return rowData.Descripcion;
     };

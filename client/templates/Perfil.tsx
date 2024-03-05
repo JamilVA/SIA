@@ -64,7 +64,7 @@ const Perfil = () => {
     const toast = useRef<Toast>(null);
 
     useEffect(() => {
-        fetchData();
+        if (status === 'authenticated') { fetchData(); }
     }, [status]);
 
     const fetchData = async () => {
@@ -79,15 +79,17 @@ const Perfil = () => {
                 setEstudiante(result.data.estudiante);
                 if (result.data.estudiante.Persona.RutaFoto) {
                     await obtenerArchivo(result.data.estudiante.Persona.RutaFoto);
-                } else {    
+                } else {
                     setImagenURL('/images/usuario.png');
                 }
             } else {
+                console.log(session?.user.codigoPersona)
                 result = await axios.get('http://localhost:3001/api/persona', {
                     params: {
                         codPersona: session?.user.codigoPersona
                     }
                 });
+                console.log(result)
                 setPersona(result.data.persona);
                 if (result.data.persona.RutaFoto) {
                     await obtenerArchivo(result.data.docente.Persona.RutaFoto);

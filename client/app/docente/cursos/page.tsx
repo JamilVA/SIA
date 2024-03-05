@@ -30,7 +30,9 @@ const Page = () => {
     const dt = useRef<DataTable<any>>(null);
 
     useEffect(() => {
-        fetchCursos();
+        if (status === 'authenticated') {
+            fetchCursos();
+        }
     }, [status]);
 
     const fetchCursos = async () => {
@@ -96,9 +98,9 @@ const Page = () => {
         );
     };
 
-    if (session?.user.nivelUsuario != 3) {
+    /*if (session?.user.nivelUsuario != 3) {
         redirect('/pages/notfound')
-    }
+    }*/
 
     return (
         <div className="grid">
