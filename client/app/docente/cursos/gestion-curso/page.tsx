@@ -679,7 +679,6 @@ export default function Curso() {
                 {imagenURL && (
                     <div className="field">
                         <img alt="Card" src={imagenURL} height={300} style={{ objectFit: 'cover' }} />
-                        {/* <Image src={imagenURL} zoomSrc={imagenURL} alt="Foto Docente" width="80" height="80" preview /> */}
                     </div>
                 )}
             </div>

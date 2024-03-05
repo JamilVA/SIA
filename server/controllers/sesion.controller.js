@@ -76,7 +76,7 @@ const getSesionesDocente = async (req, res) => {
         exclude: ["EntradaDocente", "SalidaDocente"],
       },
       where: Sequelize.literal(
-        `RIGHT(Codigo, 8) = '${CodigoCursoCalificacion}'`
+        `RIGHT(Codigo, 9) = '${CodigoCursoCalificacion}'`
       ),
     });
 
@@ -142,7 +142,7 @@ const getSesionesEstudiante = async (req, res) => {
         exclude: ["EntradaDocente", "SalidaDocente"],
       },
       where: Sequelize.literal(
-        `RIGHT(Sesion.Codigo, 8) = '${CodigoCursoCalificacion}'`
+        `RIGHT(Sesion.Codigo, 9) = '${CodigoCursoCalificacion}'`
       ),
       include: [
         {
