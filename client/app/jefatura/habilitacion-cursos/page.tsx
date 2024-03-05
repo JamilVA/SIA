@@ -93,7 +93,7 @@ export default function CursoCalificacionPage() {
         await axios.get('http://localhost:3001/api/curso')
             .then(response => {
                 const cursos = response.data.cursos
-                let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento === session?.user.codigoPersona)
+                let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento === session?.user.codigoJefe)
                 //console.log(_cursos)
                 //setCursos(_cursos)
                 setTempCursos(_cursos)
