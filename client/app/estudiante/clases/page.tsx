@@ -71,7 +71,7 @@ const Page = () => {
             </div>
             <div className="col-12 md:col-9">
                 <div className="card">
-                    <DataTable ref={dt} value={cursosCalificacion} dataKey="Codigo" className="datatable-responsive" emptyMessage="No courses found." responsiveLayout="scroll">
+                    <DataTable ref={dt} value={cursosCalificacion} dataKey="Codigo" className="datatable-responsive" emptyMessage="No hay cursos matriculados en el presente ciclo">
                         <Column field="Curso.Codigo" header="Codigo" />
                         <Column field="Curso.Nombre" header="Curso" />
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '15rem' }}></Column>
