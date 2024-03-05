@@ -230,6 +230,7 @@ export default function RegistroPagoPage() {
                             type="search"
                             placeholder="Ingrese DNI"
                             onChange={(e) => { setInputValue(e.target.value) }}
+                            maxLength={8}
 
                         />
                         <Button className='ml-2' label='Buscar' onClick={() => { buscarEstudiante(inputValue) }} />
