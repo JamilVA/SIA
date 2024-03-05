@@ -7,7 +7,7 @@ export const config = {
         "/administrador/:path*", 
         "/docente/:path*",
         "/estudiante/:path*",
-        "/jefe/:path*",
+        "/jefatura/:path*",
         "/manuales-usuario/:path*",
         "/perfil/:path*",
         "/tesoreria/:path*"
