@@ -208,6 +208,7 @@ export default function Curso() {
 
             setImagenURL(url);
         } catch (error) {
+            setImagenURL('/images/banner.jpg');
             console.error('Error al obtener el archivo:', error);
             toast.current?.show({
                 severity: 'error',
@@ -593,6 +594,7 @@ export default function Curso() {
     };
     const fechaBodyTemplate = (rowData: any) => {
         if (rowData.Fecha) {
+            const hora = new Date(`2000-01-01T${rowData.HoraInicio}`);
             const fecha = new Date(rowData.Fecha + 'T00:00:00');
             return (
                 fecha
@@ -603,7 +605,7 @@ export default function Curso() {
                     })
                     .toUpperCase() +
                 ' ' +
-                rowData.HoraInicio.slice(0, 5)
+                hora.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
             );
         }
     };
