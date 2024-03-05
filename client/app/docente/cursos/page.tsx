@@ -9,6 +9,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { Dialog } from 'primereact/dialog';
 import Perfil from "../../../templates/Perfil";
+import { redirect } from 'next/navigation';
 
 const Page = () => {
     const EmptyCurso = {
@@ -94,6 +95,10 @@ const Page = () => {
             </>
         );
     };
+
+    if (session?.user.nivelUsuario != 3) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div className="grid">

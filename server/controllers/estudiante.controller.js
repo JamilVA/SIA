@@ -66,6 +66,16 @@ const hash = (password) => {
 
 const crearEstudiante = async (req, res) => {
   try {
+    let _persona = await Persona.findOne({ where: { DNI: req.body.DNI } });
+    if (_persona) {
+      return res.status(403).json({ error: "El DNI ya existe" });
+    }
+
+    let _usuario = await Usuario.findOne({ where: { Email: req.body.Email } });
+    if (_usuario) {
+      return res.status(403).json({ error: "El email ya existe" });
+    }
+
     const persona = await Persona.create({
       Codigo: null,
       Paterno: req.body.Paterno,
@@ -109,15 +119,24 @@ const crearEstudiante = async (req, res) => {
     });
   } catch (error) {
     console.log(error)
-    res.json({
-      Estado: "Error",
-      Error: error,
+    res.status(403).json({
+      error: error,
     });
   }
 };
 
 const actualizarEstudiante = async (req, res) => {
   try {
+    let _persona = await Persona.findOne({ where: { DNI: req.body.DNI } });
+    if (_persona && _persona.Codigo != req.body.CodigoPersona) {
+      return res.status(403).json({ error: "El DNI ya existe" });
+    }
+
+    let _usuario = await Usuario.findOne({ where: { Email: req.body.Email } });
+    if (_usuario && _usuario.CodigoPersona != req.body.CodigoPersona) {
+      return res.status(403).json({ error: "El email ya existe" });
+    }
+
     await Persona.update(
       {
         Paterno: req.body.Paterno,
@@ -179,9 +198,8 @@ const actualizarEstudiante = async (req, res) => {
       estudiante,
     });
   } catch (error) {
-    res.json({
-      Estado: "Error",
-      Error: error,
+    res.status(403).json({
+      error: error,
     });
   }
 };

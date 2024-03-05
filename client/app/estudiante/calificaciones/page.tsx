@@ -27,7 +27,7 @@ const Page = () => {
     const fetchActas = async () => {
         await axios.get('http://127.0.0.1:3001/api/acta/estudiante', {
             params: {
-                CodigoEstudiante: session?.user.codigoPersona,
+                CodigoEstudiante: session?.user.codigoEstudiante,
             }
         }).then(response => {
             setActas(response.data.actas);
@@ -46,7 +46,7 @@ const Page = () => {
 
     const obtenerPDFHistorial = async () => {
         await axios.get('http://localhost:3001/api/pdf/historial-notas', {
-            params: { codigoEstudiante: session?.user.codigoPersona },
+            params: { codigoEstudiante: session?.user.codigoEstudiante },
             responseType: 'blob'
         })
             .then(response => {

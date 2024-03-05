@@ -50,20 +50,17 @@ const Perfil = () => {
         }
     };
 
-    const emptyDocente = {
-        Codigo: 1,
-        Persona: {
-            Paterno: '',
-            Materno: '',
-            Nombres: '',
-            Email: '',
-            RutaFoto: '',
-            DNI: ''
-        }
+    const emptyPersona = {
+        Paterno: '',
+        Materno: '',
+        Nombres: '',
+        Email: '',
+        RutaFoto: '',
+        DNI: ''
     };
 
     const [estudiante, setEstudiante] = useState(emptyEstudiante);
-    const [docente, setDocente] = useState(emptyDocente);
+    const [persona, setPersona] = useState(emptyPersona);
     const toast = useRef<Toast>(null);
 
     useEffect(() => {
@@ -71,33 +68,32 @@ const Perfil = () => {
     }, [status]);
 
     const fetchData = async () => {
+        let result;
         try {
-            if (session?.user.nivelUsuario == 3) {
-                const result = await axios.get('http://localhost:3001/api/docente/perfil', {
+            if (session?.user.nivelUsuario == 4) {
+                result = await axios.get('http://localhost:3001/api/estudiante/getbycod', {
                     params: {
-                        CodigoDocente: session?.user.codigoPersona
-                    }
-                });
-                setDocente(result.data.docente);
-                if (result.data.docente.Persona.RutaFoto) {
-                    await obtenerArchivo(result.data.docente.Persona.RutaFoto);
-                } else {
-                    setImagenURL('/images/usuario.png');
-                }
-                console.log(result.data.docente);
-            } else if (session?.user.nivelUsuario == 4) {
-                const result = await axios.get('http://localhost:3001/api/estudiante/getbycod', {
-                    params: {
-                        CodigoPersona: session?.user.codigoPersona
+                        CodigoPersona: session?.user.codigoEstudiante
                     }
                 });
                 setEstudiante(result.data.estudiante);
                 if (result.data.estudiante.Persona.RutaFoto) {
                     await obtenerArchivo(result.data.estudiante.Persona.RutaFoto);
+                } else {    
+                    setImagenURL('/images/usuario.png');
+                }
+            } else {
+                result = await axios.get('http://localhost:3001/api/persona', {
+                    params: {
+                        codPersona: session?.user.codigoPersona
+                    }
+                });
+                setPersona(result.data.persona);
+                if (result.data.persona.RutaFoto) {
+                    await obtenerArchivo(result.data.docente.Persona.RutaFoto);
                 } else {
                     setImagenURL('/images/usuario.png');
                 }
-                console.log(result.data.estudiante);
             }
         } catch (e) {
             toast.current?.show({
@@ -120,7 +116,7 @@ const Perfil = () => {
             const url = window.URL.createObjectURL(blob);
 
             setImagenURL(url);
-        } catch (error) {}
+        } catch (error) { }
     };
 
     if (status == 'loading') {
@@ -148,7 +144,7 @@ const Perfil = () => {
                         {estudiante.Persona.Paterno} {estudiante.Persona.Materno} {estudiante.Persona.Nombres}
                     </h5>
                     <h6 className="mt-0" style={{ color: 'var(--surface-500)' }}>
-                        {estudiante.CarreraProfesional.NombreCarrera}
+                        {estudiante.CarreraProfesional.NombreCarrera.toLocaleUpperCase()}
                     </h6>
                 </div>
                 <div className="mt-4">
@@ -163,13 +159,13 @@ const Perfil = () => {
                 </div>
             </div>
         );
-    } else if (session?.user.nivelUsuario == 3) {
+    } else {
         return (
             <div className="card shadow-1">
                 <div className="text-center">
                     <img style={{ borderRadius: 'var(--border-radius)', width: '8rem', height: '8rem', objectFit: 'cover' }} alt="Card" className=" mt-1 shadow-1" src={imagenURL} />
                     <h5 style={{ color: 'var(--surface-700)' }}>
-                        {docente.Persona.Paterno} {docente.Persona.Materno} {docente.Persona.Nombres}
+                        {persona?.Paterno} {persona?.Materno} {persona?.Nombres}
                     </h5>
                 </div>
                 <div className="mt-4">
@@ -179,7 +175,7 @@ const Perfil = () => {
                     </p>
                     <p>
                         <b>DNI: </b>
-                        {docente.Persona.DNI}
+                        {persona?.DNI}
                     </p>
                 </div>
             </div>

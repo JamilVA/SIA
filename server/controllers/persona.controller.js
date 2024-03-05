@@ -1,5 +1,4 @@
-const { response } = require('express');
-const Persona = require('../models/persona.model')
+const { Persona} = require("../config/relations")
 
 const crearPersona = async (req, res = response) => {
     try {
@@ -26,95 +25,34 @@ const crearPersona = async (req, res = response) => {
         console.log(error);
         res.status(500).json({
             ok: false,
-            msg: 'El error eres tu'
+            msg: ''
         });
     }
 }
 
 const getPersona = async (req, res) => {
-    //const desde = Number(req.query.desde) || 0;
-    //const limite = Number(req.query.limite) || 0;
-    const personas = await Persona.findAll();
-
-    res.json({
-        ok: true,
-        personas,
-    });
-}
-
-/*const actualizarMascota = async (req, res) => {
-    const uid = req.params.id;
     try {
-        const mascotaDB = await Mascota.findById(uid);
-
-        if (!mascotaDB) {
-            return res.status(404).json({
-                ok: false,
-                msg: 'No existe una mascota con ese id'
-            });
-        }
-
-        //Codigo previo a la actualizacion 
-        const { nombre, dueño, categoria, ...campos } = req.body;
-
-        //actualizacion de datos
-        const mascotaActualizada = await Mascota.findByIdAndUpdate(uid, campos, { new: true });
-
+        const persona = await Persona.findOne(
+            {
+                where: {
+                    Codigo: req.query.codPersona
+                }
+            }
+        );
         res.json({
             ok: true,
-            mascota: mascotaActualizada
+            persona,
         });
-
-
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
+        console.log(error)
+        res.json({
             ok: false,
-            msg: 'Error al actualizar mascota'
-        });
-    }
-}
-const eliminarMascota = async (req, res = response) => {
-    const id = req.params.id;
-
-    try {
-        const atencion = await Atencion.findOne({ mascota: id });
-        if (atencion) {
-            return res.status(404).json({
-                ok: true,
-                msg: 'No se puede eliminar porque se encuentra en una atención',
-            });
-        } else {
-            const mascota = await Mascota.findById(id);
-
-            if (!mascota) {
-                return res.status(404).json({
-                    ok: true,
-                    msg: 'La mascota no  fue encontrada por  id',
-                });
-            }
-
-            await Mascota.findByIdAndDelete(id);
-
-            res.json({
-                ok: true,
-                msg: 'Mascota borradoLa mascota se ha eliminado'
-            });
-
-        }
-    } catch (error) {
-
-        console.log(error);
-
-        res.status(500).json({
-            ok: false,
-            msg: 'La mascota  no puede eliminarse, consulte con el administrador'
+            Error: error,
         })
     }
-}*/
+}
+
 module.exports = {
     getPersona,
     crearPersona,
-    // eliminarMascota,
-    // actualizarMascota
 }

@@ -117,7 +117,7 @@ export default function Curso() {
             const { data } = await axios.get('http://localhost:3001/api/sesion/estudiante', {
                 params: {
                     CodigoCursoCalificacion: codigoCurso,
-                    CodigoEstudiante: session?.user.codigoPersona
+                    CodigoEstudiante: session?.user.codigoEstudiante
                 }
             });
 
@@ -180,7 +180,7 @@ export default function Curso() {
         await axios.get('http://localhost:3001/api/estudiante/notas', {
             params: {
                 codigoCurso: codigoCurso,
-                codigoEstudiante: session?.user.codigoPersona
+                codigoEstudiante: session?.user.codigoEstudiante
             }
         })
             .then(response => {

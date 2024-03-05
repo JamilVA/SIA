@@ -78,7 +78,7 @@ const page = () => {
     const fetchHorarioE = async () => {
         await axios.get("http://127.0.0.1:3001/api/horario/estudiante", {
             params: {
-                CodEstudiante: session?.user.codigoPersona,
+                CodEstudiante: session?.user.codigoEstudiante,
             }
         }).then(response => {
             console.log(response.data);

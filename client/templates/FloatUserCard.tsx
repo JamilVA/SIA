@@ -12,15 +12,12 @@ const Perfil = () => {
     const { data: session, status } = useSession();
 
     const emptyUser = {
-        Codigo: '',
-        Persona: {
-            Paterno: '',
-            Materno: '',
-            Nombres: '',
-            Email: '',
-            RutaFoto: '',
-            DNI: ''
-        }
+        Paterno: '',
+        Materno: '',
+        Nombres: '',
+        Email: '',
+        RutaFoto: '',
+        DNI: ''
     }
 
     type Data = {
@@ -53,23 +50,12 @@ const Perfil = () => {
 
     const fetchData = async () => {
         try {
-            if (session?.user.nivelUsuario == 3) {
-                const result = await axios.get("http://localhost:3001/api/docente/perfil", {
-                    params: {
-                        CodigoDocente: session?.user.codigoPersona
-                    }
-                });
-                setUser(result.data.docente);
-
-            } else if (session?.user.nivelUsuario == 4) {
-                const result = await axios.get("http://localhost:3001/api/estudiante/getbycod", {
-                    params: {
-                        CodigoPersona: session?.user.codigoPersona
-                    }
-                });
-                setUser(result.data.estudiante);
-            }
-
+            const result = await axios.get('http://localhost:3001/api/persona', {
+                params: {
+                    codPersona: session?.user.codigoPersona
+                }
+            });
+            setUser(result.data.persona);
         } catch (e) {
             toast.current?.show({
                 severity: 'error',
@@ -158,7 +144,7 @@ const Perfil = () => {
                 <img style={{ width: '50px' }} src="/layout/images/avataruser.png" alt="" />
             </div>
             <div className='flex items-center justify-content-center'>
-                <strong>{user.Persona.Nombres} {user.Persona.Paterno} {user.Persona.Materno}</strong>
+                <strong>{user?.Nombres} {user?.Paterno} {user?.Materno}</strong>
             </div>
             <div className='flex items-center justify-content-center mt-2 mb-2'>
                 <Button onClick={() => setVisible(true)} style={{ height: '30px' }} severity='secondary'>Cambiar contraseña</Button>

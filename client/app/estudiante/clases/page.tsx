@@ -32,7 +32,7 @@ const Page = () => {
     const fetchCursos = async () => {
         try {
             const { data } = await axios.get('http://localhost:3001/api/curso-calificacion/cursos-estudiante', {
-                params: { CodigoEstudiante: session?.user.codigoPersona }
+                params: { CodigoEstudiante: session?.user.codigoEstudiante }
             });
             const { cursosCalificacion } = data;
 

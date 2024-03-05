@@ -10,6 +10,7 @@ import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Demo } from '../../../types/types';
 import axios from 'axios'
+import { AxiosError } from 'axios'
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
 import { RadioButton } from 'primereact/radiobutton';
@@ -55,6 +56,7 @@ export default function Page() {
     const [carreras, setCarreras] = useState<Demo.CarreraProfesional[]>([]);
     const [exportDialog, setExportDialog] = useState(false);
     const [carrera, setCarrera] = useState();
+    const [errors, setErrors] = useState('');
 
     //const [actividades, setActividades] = useState<Array<any>>([]);
 
@@ -99,71 +101,59 @@ export default function Page() {
 
     const onSubmitChange = async (e: React.MouseEvent<HTMLButtonElement>, data: object) => {
         e.preventDefault();
-        var response = '';
         try {
             const result = await axios.post("http://127.0.0.1:3001/api/estudiante", data);
             console.log(result);
-            response = result.data.Estado;
             subirFoto(result.data.estudiante.CodigoPersona);
             fetchData();
+            setEstudianteDialog(false);
+            setEstudiante(emptyEstudiante);
 
-            if (response == "Error") {
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Successful',
+                detail: 'Registro creado',
+                life: 3000
+            });
+
+        } catch (error) {
+            if (error instanceof AxiosError) {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Error al guardar',
-                    life: 3000
-                });
-            } else {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Registro creado',
+                    detail: error.response?.data.error,
                     life: 3000
                 });
             }
-        } catch (e) {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error al guardar',
-                life: 3000
-            });
         }
     }
 
     const onUpdate = async (e: React.MouseEvent<HTMLButtonElement>, data: object) => {
         e.preventDefault();
-        var _response = '';
         try {
             await axios.put("http://127.0.0.1:3001/api/estudiante", data).then((response) => {
-                _response = response.data.Estado;
                 subirFoto(response.data.persona.Codigo);
-                fetchData();
+            });
+            fetchData();
+            setEstudianteDialog(false);
+            setEstudiante(emptyEstudiante);
+
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Successful',
+                detail: 'Registro actualizado',
+                life: 3000
             });
 
-            if (_response == "Error") {
+        } catch (error) {
+            if (error instanceof AxiosError) {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Error al actualizar',
-                    life: 3000
-                });
-            } else {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Registro actualizado',
+                    detail: error.response?.data.error,
                     life: 3000
                 });
             }
-        } catch (e) {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error al actualizar',
-                life: 3000
-            });
         }
     }
 
@@ -241,8 +231,6 @@ export default function Page() {
                 _estudiante.CodigoSunedu = crearSunedu(_estudiante.CodigoCarreraProfesional) + _estudiante.DNI;
                 onSubmitChange(e, _estudiante);
             }
-            setEstudianteDialog(false);
-            setEstudiante(emptyEstudiante);
         }
     };
 
@@ -470,7 +458,7 @@ export default function Page() {
                         currentPageReportTemplate="Mostrando de {first} a {last} de {totalRecords} estudiantes"
                         globalFilter={globalFilter}
                         emptyMessage="Sin estudiantes registrados"
-                        header={header}                     
+                        header={header}
                     >
                         <Column field="CodigoSunedu" header="COD" sortable />
                         <Column field="CarreraProfesional.NombreCarrera" header="Carrera" sortable />

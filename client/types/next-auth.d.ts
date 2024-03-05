@@ -7,6 +7,7 @@ declare module "next-auth" {
       nivelUsuario: number;
       codigoPersona: number;
       codigoDocente: number;
+      codigoEstudiante: number;
       token: string;
     };
   }

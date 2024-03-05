@@ -57,7 +57,7 @@ export default function ActividadesPage() {
             .get('http://localhost:3001/api/actividad/estudiante', {
                 params: {
                     codigoSesion: codigoSesion,
-                    codigoEstudiante: session?.user.codigoPersona
+                    codigoEstudiante: session?.user.codigoEstudiante
                 }
             })
             .then((response) => {
@@ -81,7 +81,7 @@ export default function ActividadesPage() {
                 const data = await axios.get('http://localhost:3001/api/actividadEstudiante', {
                     params: {
                         codigoActividad: actividad.Codigo,
-                        codigoEstudiante: session?.user.codigoPersona
+                        codigoEstudiante: session?.user.codigoEstudiante
                     }
                 });
                 console.log('Recurso:', data);
@@ -143,7 +143,7 @@ export default function ActividadesPage() {
             try {
                 const response = await axios.post('http://localhost:3001/api/actividadEstudiante', {
                     CodigoActividad: actividad.Codigo,
-                    CodigoEstudiante: session?.user.codigoPersona
+                    CodigoEstudiante: session?.user.codigoEstudiante
                 });
                 let _actividades = [...actividades];
                 _actividades.push(response.data.actividadEstudiante);
@@ -197,7 +197,7 @@ export default function ActividadesPage() {
         try {
             axios
                 .put('http://localhost:3001/api/actividadEstudiante/tarea', {
-                    CodigoEstudiante: session?.user.codigoPersona,
+                    CodigoEstudiante: session?.user.codigoEstudiante,
                     CodigoActividad: codigo,
                     RutaTarea: ruta
                 })

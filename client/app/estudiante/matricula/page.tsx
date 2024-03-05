@@ -109,7 +109,7 @@ export default function Matricula() {
         try {
             const { data } = await axios.get('http://localhost:3001/api/matricula', {
                 params: {
-                    CodigoEstudiante: session?.user.codigoPersona
+                    CodigoEstudiante: session?.user.codigoEstudiante
                 }
             });
             const { estudiante, matriculas, periodo, cursosCalificacion } = data;
@@ -132,7 +132,7 @@ export default function Matricula() {
         try {
             const result = await axios.get('http://localhost:3001/api/pago/pagosEstudiante', {
                 params: {
-                    CodigoEstudiante: session?.user.codigoPersona
+                    CodigoEstudiante: session?.user.codigoEstudiante
                 }
             });
 
@@ -373,7 +373,7 @@ export default function Matricula() {
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Matrícula en el periodo {periodoActual?.Denominacion}</h4>
             <div className="flex flex-wrap gap-2">
-                <Link href={`http://localhost:3001/api/matricula/obtenerConstancia?c=${session?.user.codigoPersona}`}>
+                <Link href={`http://localhost:3001/api/matricula/obtenerConstancia?c=${session?.user.codigoEstudiante}`}>
                     <Button
                         label="Constancia de Matrícula"
                         icon="pi pi-file-pdf"
