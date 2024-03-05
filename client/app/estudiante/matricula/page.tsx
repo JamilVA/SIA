@@ -95,9 +95,7 @@ export default function Matricula() {
     const dt = useRef<DataTable<any[]> | null>(null);
     const [globalFilter, setGlobalFilter] = useState('');
 
-    useEffect(() => {
-        console.log('Usuario', session?.user);
-
+    useEffect(() => {        
         if (session?.user) {
             cargarPagos();
             cargarDatos();
@@ -196,7 +194,6 @@ export default function Matricula() {
             });
             return cursosDisponibles;
         } else {
-            console.log('Hola, alumno nuevo');
             const cursosAbiertos: (typeof cursoCalificacion)[] = cursosCalificacion?.filter((c) => c.Curso.Nivel == 1 && c.Curso.Semestre == 1);
 
             console.log(cursosMatriculados);
@@ -217,9 +214,10 @@ export default function Matricula() {
     const comprobarMatricula = () => {
         const inicioMatricula = new Date(periodoActual?.InicioMatricula);
         const finMatricula = new Date(periodoActual?.FinMatricula);
+        inicioMatricula.setDate(inicioMatricula.getDate() + 1);
+        finMatricula.setDate(finMatricula.getDate() + 1);
         const currentDate = new Date();
-
-        console.log('Inicio de Matricula', inicioMatricula), console.log('Fin de Matricula', finMatricula), console.log('Fecha Actual', currentDate);
+        
         setMatriculaHabilitada(currentDate >= inicioMatricula && currentDate <= finMatricula && pagos.some((p) => p.Estudiante != null));
     };
 
@@ -398,12 +396,6 @@ export default function Matricula() {
         </div>
     );
 
-    const header4 = (
-        <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Pagos del Estudiante {periodoActual?.Denominacion}</h4>
-        </div>
-    );
-
     const deleteMatriculaDialogFooter = () => {
         return (
             <React.Fragment>
@@ -422,11 +414,10 @@ export default function Matricula() {
         );
     };
 
-
     return (
         <div className="grid">
-            <div className='col-12'>
-                <h5 className='m-3 mt-4'>MATRÍCULA ESTUDIANTE</h5>
+            <div className="col-12">
+                <h5 className="m-3 mt-4">MATRÍCULA ESTUDIANTE</h5>
             </div>
             <div className="col-12 md:col-3">
                 <Perfil></Perfil>
