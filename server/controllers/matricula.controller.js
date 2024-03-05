@@ -193,14 +193,14 @@ const getMatriculaByCurso = async (req, res) => {
           include: [
             {
               model: Periodo,
-              attributes: ["Codigo", "Estado"],
+              attributes: ["Codigo", "Estado", "FechaFin"],
               where: { Estado: true },
             },
           ],
         },
         {
           model: CarreraProfesional,
-          attributes: ["Codigo"],
+          attributes: ["Codigo", "NombreCarrera"],
         },
       ],
     });
