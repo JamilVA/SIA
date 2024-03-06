@@ -6,6 +6,7 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import axios from 'axios';
 import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const Page = () => {
 
@@ -68,6 +69,16 @@ const Page = () => {
         return formatCurrency(Number.parseInt(rowData.ConceptoPago.Monto));
     };
 
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
     return (
         <div className="grid">
             <div className='col-12'>
@@ -75,47 +86,45 @@ const Page = () => {
             </div>
             <div className="col-12">
                 <div className="card">
-                    <Fieldset legend="Matrículas" toggleable>
-                        <Toast ref={toast} />
-                        <DataTable
-                            ref={dt}
-                            value={pagosM}
-                            dataKey="Codigo"
-                            className="datatable-responsive"
-                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses"
-                            emptyMessage="No payments found."
-                            responsiveLayout="scroll"
-                        >
-                            <Column field="Nombre" header="N°" />
-                            <Column field="Fecha" header="Fecha" />
-                            <Column field="ConceptoPago.Denominacion" header="Concepto" />
-                            <Column field="ConceptoPago.Monto" header="Monto" body={montoBodyTemplate} />
-                            <Column field="NumeroComprobante" header="Comprobante" />
-                            <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} />
-                        </DataTable>
-                    </Fieldset>
+                    <Toast ref={toast} />
+                    <h5 className='mt-0' style={{ color: 'blue' }}> <i className='pi pi-book'></i> Matrículas</h5>
+                    <DataTable
+                        ref={dt}
+                        value={pagosM}
+                        dataKey="Codigo"
+                        className="datatable-responsive"
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses"
+                        emptyMessage="No se encontraron pagos"
+                        responsiveLayout="scroll"
+                    >
+                        <Column field="Nombre" header="N°" />
+                        <Column field="Fecha" header="Fecha" />
+                        <Column field="ConceptoPago.Denominacion" header="Concepto" />
+                        <Column field="ConceptoPago.Monto" header="Monto" body={montoBodyTemplate} />
+                        <Column field="NumeroComprobante" header="Comprobante" />
+                        <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} />
+                    </DataTable>
 
-                    <Fieldset className='mt-5' legend="Otros" toggleable>
-                        <Toast ref={toast} />
-                        <DataTable
-                            ref={dt}
-                            value={pagosO}
-                            dataKey="Codigo"
-                            className="datatable-responsive"
-                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses"
-                            emptyMessage="No payments found."
-                            responsiveLayout="scroll"
-                        >
-                            <Column field="Nombre" header="N°" />
-                            <Column field="Fecha" header="Fecha" />
-                            <Column field="ConceptoPago.Denominacion" header="Concepto" />
-                            <Column field="ConceptoPago.Monto" header="Monto" body={montoBodyTemplate} />
-                            <Column field="NumeroComprobante" header="Comprobante" />
-                            <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} />
-                        </DataTable>
-                    </Fieldset>
+                    <h5 className='mt-5' style={{ color: 'blue' }}> <i className='pi pi-credit-card'></i> Otros</h5>
+                    <Toast ref={toast} />
+                    <DataTable
+                        ref={dt}
+                        value={pagosO}
+                        dataKey="Codigo"
+                        className="datatable-responsive"
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses"
+                        emptyMessage="No se encontraron pagos"
+                        responsiveLayout="scroll"
+                    >
+                        <Column field="Nombre" header="N°" />
+                        <Column field="Fecha" header="Fecha" />
+                        <Column field="ConceptoPago.Denominacion" header="Concepto" />
+                        <Column field="ConceptoPago.Monto" header="Monto" body={montoBodyTemplate} />
+                        <Column field="NumeroComprobante" header="Comprobante" />
+                        <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} />
+                    </DataTable>
                 </div>
             </div>
         </div>

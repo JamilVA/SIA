@@ -11,6 +11,7 @@ import { useSession } from 'next-auth/react';
 import Perfil from '../../../templates/Perfil';
 
 import { Message } from 'primereact/message';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function Matricula() {
     const { data: session, status } = useSession();
@@ -389,6 +390,16 @@ export default function Matricula() {
             </React.Fragment>
         );
     };
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
 
     return (
         <div className="grid">

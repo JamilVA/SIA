@@ -74,7 +74,13 @@ const Page = () => {
     }
 
     if (status === "loading") {
-        return <ProgressSpinner style={{width: '200px', height: '200px'}} strokeWidth="4" />
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
     }
 
     return (

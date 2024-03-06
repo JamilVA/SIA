@@ -1,0 +1,31 @@
+.container_img {
+    background-image: url('../layout/images/mural.png');
+    background-image: no-repeat;
+    background-image: fixed;
+    background-image: center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-position: 50%;
+}
+
+.text{
+    color: #fff;
+    border-radius: 5px;
+    background-color: #00257aab;
+    padding: 15px 0 15px 0;
+}
+
+@media screen and (max-width: 500px) {
+    .container_img{
+        padding-top: 150px;
+    }
+    .text{
+        font-size: 18px;
+        color: #ffffff;
+        border-radius: 5px;
+        background-color: #00257aab;
+        padding: 15px 0 15px 0;
+    }
+}

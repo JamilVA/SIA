@@ -45,7 +45,9 @@ const Perfil = () => {
     let res = '';
 
     useEffect(() => {
-        fetchData();
+        if (status === 'authenticated') {
+            fetchData();
+        }
     }, [status]);
 
     const fetchData = async () => {

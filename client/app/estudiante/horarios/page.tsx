@@ -207,7 +207,7 @@ const page = () => {
                         value={i == 0 ? horarios : horarioE}
                         dataKey="CodigoHorario"
                         className="datatable-responsive"
-                        emptyMessage="No se encontraron registros"
+                        emptyMessage="No se encontraron horarios"
                         responsiveLayout="scroll"
                     >
                         <Column header="Codigo" field="CodigoCurso" />

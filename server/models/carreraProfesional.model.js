@@ -10,6 +10,7 @@ const CarreraProfesional = sequelize.define('CarreraProfesional', {
       autoIncrement: true
     },
     NombreCarrera: DataTypes.STRING(60),
+    Siglas: DataTypes.CHAR(2),
     RutaPlanEstudios: DataTypes.STRING(45),
     CodigoJefeDepartamento: DataTypes.INTEGER
   });

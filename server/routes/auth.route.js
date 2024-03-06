@@ -8,7 +8,7 @@ const router = Router();
 
 router.post('/register', bodyRegisterValidator, register);
 
-router.post('/login', bodyLoginValidator, login);
+router.post('/login', login);
 router.get('/refresh', requireRefreshToken, refreshToken)
 router.get('/logout', logout)
 router.put('/changePassword', changePassword);

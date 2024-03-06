@@ -25,11 +25,11 @@ const login = async (req, res) => {
         const { email, password } = req.body;
         let user = await Usuario.findOne({ where: { Email: email } });
         if (!user)
-            return res.status(403).json({ error: "Usuario inexistente" });
+            return res.status(403).json({ error: "Usuario y/o contraseña incorrectos" });
 
         const respuestaPassword = comparePassword(user.Password, password);
         if (!respuestaPassword)
-            return res.status(403).json({ error: "Contraseña incorrecta" });
+            return res.status(403).json({ error: "Usuario y/o contraseña incorrectos" });
 
         //GENERAR JWT
         const { token, expiresIn } = generateToken(user.Codigo);
@@ -46,6 +46,7 @@ const login = async (req, res) => {
             let _docente = await Docente.findOne({ where: { CodigoPersona: user.CodigoPersona } });
             codigoJefe = _jefe.Codigo;
             codigoDocente = _docente.Codigo;
+            next();
         } else if (nivelUsuario == 3) {
             let _docente = await Docente.findOne({ where: { CodigoPersona: user.CodigoPersona } });
             codigoDocente = _docente.Codigo;

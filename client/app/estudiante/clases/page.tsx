@@ -7,6 +7,7 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import React, { useEffect, useRef, useState } from 'react';
 import Perfil from "../../../templates/Perfil";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const Page = () => {
     const cursoCVacio = {
@@ -53,13 +54,23 @@ const Page = () => {
                         codigoS:rowData.Codigo,
                     }
                 }}>
-                    <Button icon="" rounded severity="success" tooltip="" className="mr-2">
+                    <Button style={{height:'25px'}} rounded severity="success" tooltip="" className="mr-2">
                         Ver
                     </Button>
                 </Link>                
             </>
         );
     };
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
 
     return (
         <div className="grid">
