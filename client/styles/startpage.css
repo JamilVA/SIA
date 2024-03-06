@@ -1,5 +1,9 @@
 .container_img {
-    background-image: url('../layout/images/mural.png');
+    background-image: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.5),
+        rgba(182, 182, 248, 0.247)
+      ), url('../layout/images/mural.png');
     background-image: no-repeat;
     background-image: fixed;
     background-image: center;
