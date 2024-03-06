@@ -44,7 +44,7 @@ const LoginPage = () => {
             <div className="card general_container">
                 <div className="grid col-6 p-0 login_container">
                     <div className="col-6 img_container">
-                        <img style={{ objectFit: 'cover', width: '100%', height: '100%', borderRadius: '15px 0 0 15px' }} src={`/layout/images/fachada1.png`} alt="" />
+                        <img style={{ objectFit: 'cover', width: '100%', height: '100%', borderRadius: '15px 0 0 15px' }} src={`/images/fachada1.png`} alt="" />
                     </div>
 
                     <div className="col-6 form_container">
