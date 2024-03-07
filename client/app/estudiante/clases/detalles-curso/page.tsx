@@ -25,6 +25,7 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
 import Perfil from '../../../../templates/Perfil';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function Curso() {
     const searchParams = useSearchParams();
@@ -55,7 +56,7 @@ export default function Curso() {
         Nivel: 0,
         Semestre: 0,
         CarreraProfesional: {
-            Codigo:0,
+            Codigo: 0,
             NombreCarrera: '',
         }
     };
@@ -109,9 +110,11 @@ export default function Curso() {
     const [matricula, setMatricula] = useState(matriculaVacia);
 
     useEffect(() => {
-        cargarDatos();
-        cargarNotas();
-    }, []);
+        if (status === "authenticated") {
+            cargarDatos();
+            cargarNotas();
+        }
+    }, [status]);
 
     const cargarDatos = async () => {
         try {
@@ -370,6 +373,16 @@ export default function Curso() {
             </div>
         );
     };
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
 
     return (
         <div className="grid">
