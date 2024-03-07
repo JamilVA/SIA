@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Toast } from 'primereact/toast';
 import Perfil from "../../../templates/Perfil";
 import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const page = () => {
 
@@ -15,7 +16,7 @@ const page = () => {
     const { data: session, status } = useSession();
 
     useEffect(() => {
-        fetchHorarios();
+        if(status === "authenticated") fetchHorarios();
     }, [status]);
 
     const fetchHorarios = async () => {
@@ -48,6 +49,16 @@ const page = () => {
         )
     }
 
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
     return (
         <div className='grid'>
             <div className='col-12'>
@@ -64,8 +75,7 @@ const page = () => {
                         value={horarios}
                         dataKey="CodigoHorario"
                         className="datatable-responsive"
-                        emptyMessage={status != 'authenticated' ? 'Cargando...' : 'No se encontraron registros'}
-                        responsiveLayout="scroll"
+                        emptyMessage='Horario vacío'
                     >
                         <Column header="Codigo" field="CodigoCurso" />
                         <Column header="Curso" field="Nombre" sortable />
