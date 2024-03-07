@@ -27,7 +27,7 @@ const Page = () => {
     const dt = useRef<DataTable<any>>(null);
 
     useEffect(() => {
-        fetchCursos();
+        if (status === "authenticated") fetchCursos();
     }, [status]);
 
     const fetchCursos = async () => {

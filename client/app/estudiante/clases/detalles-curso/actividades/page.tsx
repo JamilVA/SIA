@@ -20,7 +20,7 @@ import { useSession } from "next-auth/react";
 export default function ActividadesPage() {
     const searchParams = useSearchParams();
     const codigoSesion = searchParams.get('codigo');
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
 
     const actividadEstudianteVacio = {
         CodigoActividad: 0,
@@ -98,9 +98,11 @@ export default function ActividadesPage() {
     };
 
     useEffect(() => {
-        fetchActividades();
-        obtenerActividadEstudiante();
-    }, []);
+        if (status === "authenticated") {
+            fetchActividades();
+            obtenerActividadEstudiante();
+        }
+    }, [status]);
 
     // const handleUpload = (event: FileUploadFilesEvent, rowData: typeof actividadEstudianteVacio) => {
     //     setArchivo(event);
