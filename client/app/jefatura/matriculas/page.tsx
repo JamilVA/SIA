@@ -80,8 +80,6 @@ export default function Matricula() {
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
 
-    useEffect(() => {}, []);
-
     useEffect(() => {
         if (cursosCalificacion.length > 0) {
             const cursosMatriculados = buscarCursosMatriculados();

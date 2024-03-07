@@ -97,11 +97,11 @@ export default function Matricula() {
     const [globalFilter, setGlobalFilter] = useState('');
 
     useEffect(() => {        
-        if (session?.user) {
+        if (status === "authenticated") {
             cargarPagos();
             cargarDatos();
         }
-    }, [session]);
+    }, [status]);
 
     // useEffect(() => {
     //     // Mostrar confirmación antes de salir de la página

@@ -19,7 +19,7 @@ const getRecursoSubido = async (req, res) => {
 }
 
 const crearActividadEstudiante = async (req, res) => {
-    console.error(req.body)
+    console.log(req.body)
     try {
         const actividadE = await ActividadEstudiante.findOne({
             where: { CodigoActividad: req.body.CodigoActividad, CodigoEstudiante: req.body.CodigoEstudiante }

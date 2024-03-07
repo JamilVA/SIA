@@ -20,8 +20,8 @@ import Link from 'next/link';
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function ActividadesPage() {
 
-    const searchParamas = useSearchParams();
-    const codigoSesion = searchParamas.get('codigo');
+    const searchParams = useSearchParams();
+    const codigoSesion = searchParams.get('codigo');
 
     let emptyActividad = {
         Codigo: 0,

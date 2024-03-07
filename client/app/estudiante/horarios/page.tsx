@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Dropdown } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
 import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const page = () => {
 
@@ -49,8 +50,10 @@ const page = () => {
     const [ciclos, setCiclos] = useState(arrayCiclos);
 
     useEffect(() => {
-        fetchHorariosG();
-        fetchHorarioE()
+        if(status === "authenticated"){
+            fetchHorariosG();
+            fetchHorarioE()
+        }      
     }, [status]);
 
     const fetchHorariosG = async () => {
@@ -168,6 +171,16 @@ const page = () => {
         return (
             <>
                 {horaIni} - {horaFin}
+            </>
+        )
+    }
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
             </>
         )
     }

@@ -15,12 +15,13 @@ import { useSearchParams } from 'next/navigation';
 
 import axios from 'axios';
 import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function ActividadesPage() {
     const searchParams = useSearchParams();
     const codigoSesion = searchParams.get('codigo');
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
 
     const actividadEstudianteVacio = {
         CodigoActividad: 0,
@@ -98,9 +99,11 @@ export default function ActividadesPage() {
     };
 
     useEffect(() => {
-        fetchActividades();
-        obtenerActividadEstudiante();
-    }, []);
+        if (status === "authenticated") {
+            fetchActividades();
+            obtenerActividadEstudiante();
+        }
+    }, [status]);
 
     // const handleUpload = (event: FileUploadFilesEvent, rowData: typeof actividadEstudianteVacio) => {
     //     setArchivo(event);
@@ -409,6 +412,16 @@ export default function ActividadesPage() {
     const chooseOptions = { icon: 'pi pi-fw pi-folder', iconOnly: true, className: 'custom-choose-btn p-button-rounded p-button-outlined' };
     const uploadOptions = { icon: 'pi pi-fw pi-cloud-upload', iconOnly: true, className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined display:none' };
     const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
 
     return (
         <div className="card">

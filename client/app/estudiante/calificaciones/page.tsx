@@ -21,7 +21,7 @@ const Page = () => {
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        fetchActas();
+        if (status === "authenticated") fetchActas();
     }, [status]);
 
     const fetchActas = async () => {

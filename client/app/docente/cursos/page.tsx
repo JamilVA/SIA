@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Dialog } from 'primereact/dialog';
 import Perfil from "../../../templates/Perfil";
 import { redirect } from 'next/navigation';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const Page = () => {
     const EmptyCurso = {
@@ -101,6 +102,16 @@ const Page = () => {
     /*if (session?.user.nivelUsuario != 3) {
         redirect('/pages/notfound')
     }*/
+
+    if(status === "authenticated"){
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
 
     return (
         <div className="grid">

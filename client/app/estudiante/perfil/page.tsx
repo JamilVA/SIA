@@ -71,7 +71,7 @@ const Page = () => {
     const [params, setParams] = useState(paramsUpdate);
 
     useEffect(() => {
-        fetchData();
+        if(status === "authenticated") fetchData();
     }, [status]);
 
     const fetchData = async () => {
