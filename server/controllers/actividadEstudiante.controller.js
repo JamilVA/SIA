@@ -21,7 +21,19 @@ const getRecursoSubido = async (req, res) => {
 const crearActividadEstudiante = async (req, res) => {
     console.error(req.body)
     try {
-        const actividadEstudiante = await ActividadEstudiante.create(req.body)
+        const actividadE = await ActividadEstudiante.findOne({
+            where: { CodigoActividad: req.body.CodigoActividad, CodigoEstudiante: req.body.CodigoEstudiante }
+        })
+
+        let actividadEstudiante
+
+        if(!actividadE){
+            actividadEstudiante = await ActividadEstudiante.create(req.body)
+        }else{
+            actividadE.RutaTarea = req.body.RutaTarea
+            actividadEstudiante = actividadE.save()
+        }
+
         res.json({ 
             actividad: actividadEstudiante,
             message: 'Tarea subida correctamente' 
