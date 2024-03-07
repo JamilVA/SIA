@@ -12,7 +12,7 @@ const Page = () => {
 
     const EmptyPago = {
         Codigo: 0,
-        NumeroComprobante: '',
+        NroTransaccion: '',
         Fecha: '',
         EstadoPago: '',
         Estudiante: { CodigoSunedu: '' },
@@ -98,12 +98,11 @@ const Page = () => {
                         emptyMessage="No se encontraron pagos"
                         responsiveLayout="scroll"
                     >
-                        <Column field="Nombre" header="N°" />
-                        <Column field="Fecha" header="Fecha" />
-                        <Column field="ConceptoPago.Denominacion" header="Concepto" />
-                        <Column field="ConceptoPago.Monto" header="Monto" body={montoBodyTemplate} />
-                        <Column field="NumeroComprobante" header="Comprobante" />
-                        <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} />
+                        <Column sortable field="Fecha" header="Fecha" />
+                        <Column sortable field="ConceptoPago.Denominacion" header="Concepto" />
+                        <Column sortable field="ConceptoPago.Monto" header="Monto" body={montoBodyTemplate} />
+                        <Column field="NroTransaccion" header="Nro. Transaccion" />
+                        <Column sortable field="EstadoPago" header="Estado" body={estadoBodyTemplate} />
                     </DataTable>
 
                     <h5 className='mt-5' style={{ color: 'blue' }}> <i className='pi pi-credit-card'></i> Otros</h5>
@@ -118,12 +117,11 @@ const Page = () => {
                         emptyMessage="No se encontraron pagos"
                         responsiveLayout="scroll"
                     >
-                        <Column field="Nombre" header="N°" />
-                        <Column field="Fecha" header="Fecha" />
-                        <Column field="ConceptoPago.Denominacion" header="Concepto" />
-                        <Column field="ConceptoPago.Monto" header="Monto" body={montoBodyTemplate} />
-                        <Column field="NumeroComprobante" header="Comprobante" />
-                        <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} />
+                        <Column sortable field="Fecha" header="Fecha" />
+                        <Column sortable field="ConceptoPago.Denominacion" header="Concepto" />
+                        <Column sortable field="ConceptoPago.Monto" header="Monto" body={montoBodyTemplate} />
+                        <Column field="Nrotransaccion" header="Nro. Transacción" />
+                        <Column sortable field="EstadoPago" header="Estado" body={estadoBodyTemplate} />
                     </DataTable>
                 </div>
             </div>
