@@ -72,12 +72,6 @@ Curso.belongsTo(CarreraProfesional, { foreignKey: 'CodigoCarreraProfesional' });
 Periodo.hasMany(CursoCalificacion, { foreignKey: 'CodigoPeriodo' })
 CursoCalificacion.belongsTo(Periodo, { foreignKey: 'CodigoPeriodo' })
 
-CursoCalificacion.hasMany(Matricula, { foreignKey: "CodigoCursoCalificacion" })
-Matricula.belongsTo(CursoCalificacion, { foreignKey: "CodigoCursoCalificacion" })
-
-Estudiante.hasMany(Matricula, { foreignKey: "CodigoEstudiante" })
-Matricula.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" })
-
 Sesion.hasMany(RecursoAcademico, { foreignKey: 'CodigoSesion' })
 RecursoAcademico.belongsTo(Sesion, { foreignKey: 'CodigoSesion' })
 

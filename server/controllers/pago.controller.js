@@ -36,34 +36,24 @@ const getPagos = async (req, res = response) => {
 };
 
 const getPagosEstudiante = async (req, res) => {
-  console.log(req.query)
+  console.log(req.query);
   try {
     const { CodigoEstudiante } = req.query;
-    let pagos = await Pago.findAll({
-      include: [
-        {
-          model: Estudiante,
-          include: [
-            {
-              model: Persona,
-            },
-          ],
-        },
-        {
-          model: ConceptoPago,
-        },
+
+    const pago = await Pago.findOne({
+      attributes: [
+        [Sequelize.fn("COUNT", "CodigoConceptoPago"), "cantidad"],
       ],
-      where: { 
+      where: {
         CodigoEstudiante: CodigoEstudiante,
-        CodigoConceptoPago: '0802',
         EstadoPago: "R",
-     },
-      attributes: { exclude: ["Fecha", "NumeroComprobante"] },
+        CodigoConceptoPago: "0802",
+      },
     });
 
     res.json({
       mensaje: "Pagos Encotrados",
-      pagos,
+      pagoMatricula: pago || 0,
     });
   } catch (error) {
     console.log(error);
@@ -259,7 +249,7 @@ const obtenerPDFPagos = async (req, res) => {
     doc
       .fontSize(14)
       .fillColor("blue")
-      .text("ConceptoPago: " + (conceptoPago?.dataValues.Denominacion ?? ''), {
+      .text("ConceptoPago: " + (conceptoPago?.dataValues.Denominacion ?? ""), {
         align: "center",
       });
   });

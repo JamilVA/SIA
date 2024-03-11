@@ -8,7 +8,7 @@ const sequelize = new Sequelize(process.env.CONEX, {
     },
     define: {
         freezeTableName: true, //Esta opción evita que se busquen las tablas en plural
-        timestamps: false //Esta opción evita las columnas createdAt y updatedAt      
+        timestamps: false //Esta opción evita las columnas createdAt y updatedAt
     },
     timezone: '-05:00'
 });
@@ -22,7 +22,8 @@ const dbConnection = async () => {
     } catch (error) {
 
         console.log(error);
-        throw new Error('Error al conectar a siaDB');
+        // throw new Error('Error al conectar a siaDB');
+        console.error('Error al conectar a siaDB');
         //process.exit(1); // detener la app
     }
 

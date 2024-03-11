@@ -216,6 +216,7 @@ const obtenerListaCursos = async (req, res) => {
       Tipo: curso.dataValues.Tipo,
       HorasTeoria: curso.dataValues.HorasTeoria,
       HorasPractica: curso.dataValues.HorasPractica,
+      Creditos: curso.dataValues.Creditos,
       Prerequisito: curso.dataValues.CodigoCurso
         ? curso.dataValues.CodigoCurso
         : "NO",
@@ -229,6 +230,7 @@ const obtenerListaCursos = async (req, res) => {
       Tipo: '',
       HorasTeoria: '',
       HorasPractica: '',
+      Creditos: '',
       Prerequisito: '',
     }]
   }
@@ -241,6 +243,7 @@ const obtenerListaCursos = async (req, res) => {
       { key: "Curso", label: "Curso", align: "left" },
       { key: "Nivel", label: "N", align: "left" },
       { key: "Semestre", label: "S", align: "left" },
+      { key: "Creditos", label: "Cr", align: "left" },
       { key: "Tipo", label: "Tipo", align: "left" },
       { key: "HorasTeoria", label: "HT", align: "left" },
       { key: "HorasPractica", label: "HP", align: "left" },

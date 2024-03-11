@@ -11,6 +11,7 @@ const {
 
 const { sequelize } = require("../config/database");
 const { QueryTypes } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 
 // const PDF = require('pdfkit');
 const PDF = require("pdfkit-construct");
@@ -25,10 +26,8 @@ const getMatricula = async (req, res) => {
           model: Persona,
           attributes: ["Nombres", "Paterno", "Materno"],
         },
-
       ],
-      where: { Codigo: CodigoEstudiante }
-
+      where: { Codigo: CodigoEstudiante },
     });
 
     const matriculas = await Matricula.findAll({
@@ -78,6 +77,255 @@ const getMatricula = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error en la carga de conceptos de pago" });
+  }
+};
+
+const getCursosMatriculados = async (req, res) => {
+  try {
+    const CodigoEstudiante = req.query.CodigoEstudiante;
+
+    const cursosMatriculados = await CursoCalificacion.findAll({
+      attributes: ["Codigo"],
+      include: [
+        {
+          model: Curso,
+          attributes: [
+            "Codigo",
+            "Nombre",
+            "Creditos",
+            "Nivel",
+            "Semestre",
+            "CodigoCurso",
+            "CodigoCarreraProfesional",
+          ],
+        },
+        {
+          model: Periodo,
+          where: { Estado: true },
+        },
+        {
+          model: Matricula,
+          where: { CodigoEstudiante },
+        },
+      ],
+    });
+
+    let creditosMatriculados = 0;
+
+    cursosMatriculados.forEach((c) => creditosMatriculados+=c.Curso.Creditos);
+
+    res.json({
+      ok: true,
+      cursosMatriculados,
+      creditosMatriculados
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Error en la carga de matriculas del periodo actual" });
+  }
+};
+
+const getCursosLlevar = async (req, res) => {
+  try {
+    const CodigoEstudiante = req.query.CodigoEstudiante;
+
+    const estudiante = await Estudiante.findOne({
+      attributes: ["CodigoCarreraProfesional"],
+      where: { Codigo: CodigoEstudiante },
+    });
+
+    const cursosAbiertos = await CursoCalificacion.findAll({
+      attributes: ["Codigo"],
+      include: [
+        {
+          model: Curso,
+          attributes: [
+            "Codigo",
+            "Nombre",
+            "Creditos",
+            "Nivel",
+            "Semestre",
+            "CodigoCurso",
+          ],
+          where: {
+            CodigoCarreraProfesional: estudiante.CodigoCarreraProfesional,
+          },
+        },
+        {
+          model: Periodo,
+          attributes: [],
+          where: { Estado: true },
+        },
+      ],
+    });
+
+    const ultimaMatricula = await Matricula.findAll({
+      attributes: [],
+      where: {
+        CodigoEstudiante,
+        '$CursoCalificacion.Periodo.Estado$': false
+      },
+      include: [
+        {
+          model: CursoCalificacion,
+          attributes: ['CodigoPeriodo'],
+          include: [
+            {
+              model: Periodo,
+              attributes: ['Codigo','Estado'],
+              where: { Estado: false },
+            },
+          ],
+        },
+      ],
+    });
+    
+
+    const cursosMatriculados = await CursoCalificacion.findAll({
+      attributes: ["Codigo"],
+      include: [
+        {
+          model: Curso,
+          attributes: [
+            "Codigo",
+            "Nombre",
+            "Creditos",
+            "Nivel",
+            "Semestre",
+            "CodigoCurso",
+            "CodigoCarreraProfesional",
+          ],
+        },
+        {
+          model: Periodo,
+          attributes: ["Codigo"],
+          where: { Estado: true },
+        },
+        {
+          model: Matricula,
+          attributes: [],
+          where: { CodigoEstudiante },
+        },
+      ],
+    });
+
+    let cursosLlevar;
+    let cursoCalificacionMasAlto;
+    let matriculasAprobadas;
+
+    let nivel;
+    let semestre;
+
+    const ultimoPeriodo = ultimaMatricula[ultimaMatricula.length-1].CursoCalificacion?.CodigoPeriodo;
+
+
+    if (!ultimoPeriodo) {
+      nivel = 1;
+      semestre = 1;
+
+      cursosLlevar = cursosAbiertos?.filter(
+        (c) => c.Curso.Nivel == nivel && c.Curso.Semestre == semestre
+      );
+    } else {
+      cursoCalificacionMasAlto = await CursoCalificacion.findAll({
+        attributes: ["Codigo"],
+        include: [
+          {
+            model: Curso,
+            attributes: ["Nivel", "Semestre"],
+          },
+          {
+            model: Periodo,
+            attributes: [],
+            where: { Codigo: ultimoPeriodo },
+          },
+          {
+            model: Matricula,
+            attributes: [],
+            where: { CodigoEstudiante },
+          },
+        ],
+        order: [
+          [{ model: Curso }, "Nivel", "DESC"],
+          [{ model: Curso }, "Semestre", "DESC"],
+        ],
+      });
+
+      
+    matriculasAprobadas = await Matricula.findAll({
+      attributes: ["NotaFinal"],
+      include: [
+        {
+          model: CursoCalificacion,
+          attributes: ['Codigo', 'CodigoCurso'],
+          include: [
+            {
+              model: Curso,
+              attributes: ['Codigo', 'ConPrerequisito', 'CodigoCurso'],
+            },
+          ],
+        },
+      ],
+      where: {
+        CodigoEstudiante,
+        NotaFinal: {
+          [Sequelize.Op.gte]: 11, // "gte" "greater than or equal"
+        },
+      },
+    });
+
+    nivel = cursoCalificacionMasAlto[0]?.Curso?.Nivel;
+    semestre = cursoCalificacionMasAlto[0]?.Curso?.Semestre;
+
+    if (semestre === 1) {
+      semestre = 2;
+    } else {
+      nivel = nivel + 1;
+      semestre = 1;
+    }
+
+    cursosLlevar = cursosAbiertos
+      .filter(
+        (c) => c.Curso.Nivel * 10 + c.Curso.Semestre <= nivel * 10 + semestre
+      )
+      .filter(
+        (curso) =>
+          !matriculasAprobadas.some(
+            (matricula) =>
+              matricula.CursoCalificacion.Curso.Codigo == curso.Curso.Codigo
+          )
+      )
+      .filter((curso) => {
+        const prerrequisitoAprobado = matriculasAprobadas.find(
+          (matricula) =>
+            matricula.CursoCalificacion.Curso.Codigo == curso.Curso.CodigoCurso
+        );
+        return curso.Curso.CodigoCurso === null || prerrequisitoAprobado;
+      });
+    }
+
+    const totalCreditos = await Curso.sum('Creditos', {
+      where: {
+        CodigoCarreraProfesional: estudiante.CodigoCarreraProfesional,
+        Nivel: nivel,
+        Semestre: semestre
+      }
+    });
+
+    cursosLlevar = cursosLlevar.filter((curso) => {
+      return !cursosMatriculados.some((c) => c.Codigo === curso.Codigo);
+    });
+
+    res.json({
+      ok: true,
+      cursosLlevar,
+      totalCreditos,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error en la carga de cursos a llevar" });
   }
 };
 
@@ -260,7 +508,6 @@ const updateNotas = async (req, res) => {
   }
 };
 
-
 const obtenerConstancia = async (req, res) => {
   console.log("Recibido:", req.query);
 
@@ -347,7 +594,9 @@ const obtenerConstancia = async (req, res) => {
 
     doc.moveDown(2);
 
-    doc.fontSize(16).text("CONSTANCIA DE MATRÍCULA", { align: "center", lineGap: 5 });
+    doc
+      .fontSize(16)
+      .text("CONSTANCIA DE MATRÍCULA", { align: "center", lineGap: 5 });
 
     doc
       .fontSize(8)
@@ -366,7 +615,8 @@ const obtenerConstancia = async (req, res) => {
     doc
       .fontSize(6)
       .fillColor("red")
-      .text(' Esta Constancia de Matricula "NO" Tiene Valor Oficial, al no Contar con el Sello Correspondiente.',
+      .text(
+        ' Esta Constancia de Matricula "NO" Tiene Valor Oficial, al no Contar con el Sello Correspondiente.',
         { align: "center", lineGap: 25 }
       );
 
@@ -415,13 +665,14 @@ const obtenerConstancia = async (req, res) => {
       continued: true,
     });
 
-    doc.font("Helvetica").text(estudiante.dataValues.CarreraProfesional.NombreCarrera, {
-      align: "left",
-      indent: 50,
-      lineGap: 5,
-    });
+    doc
+      .font("Helvetica")
+      .text(estudiante.dataValues.CarreraProfesional.NombreCarrera, {
+        align: "left",
+        indent: 50,
+        lineGap: 5,
+      });
   });
-
 
   let cursos = [];
 
@@ -444,15 +695,17 @@ const obtenerConstancia = async (req, res) => {
         }
       ),
     }));
-  }else {
-    cursos= [ {
-      Codigo: '',
-      Curso: '',
-      Nivel: '',
-      Semestre: '',
-      Creditos: '',
-      Fecha: '',
-    }]
+  } else {
+    cursos = [
+      {
+        Codigo: "",
+        Curso: "",
+        Nivel: "",
+        Semestre: "",
+        Creditos: "",
+        Fecha: "",
+      },
+    ];
   }
 
   console.error("CCu", cursos);
@@ -481,7 +734,6 @@ const obtenerConstancia = async (req, res) => {
     }
   );
 
-
   doc.render();
 
   doc.end();
@@ -489,6 +741,8 @@ const obtenerConstancia = async (req, res) => {
 
 module.exports = {
   getMatricula,
+  getCursosMatriculados,
+  getCursosLlevar,
   crearMatricula,
   actualizarMatricula,
   eliminarMatricula,
