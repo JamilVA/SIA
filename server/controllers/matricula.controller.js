@@ -6,7 +6,6 @@ const {
   Periodo,
   Persona,
   CarreraProfesional,
-  Usuario,
   Pago,
 } = require("../config/relations");
 
@@ -14,7 +13,6 @@ const { sequelize } = require("../config/database");
 const { QueryTypes } = require("sequelize");
 const { Sequelize, Op } = require("sequelize");
 
-// const PDF = require('pdfkit');
 const PDF = require("pdfkit-construct");
 
 const getMatricula = async (req, res) => {
@@ -585,7 +583,7 @@ const obtenerConstancia = async (req, res) => {
       },
     ],
   });
-  
+
   const doc = new PDF({
     size: "A4",
     margins: { top: 20, left: 10, right: 10, bottom: 20 },
@@ -607,12 +605,9 @@ const obtenerConstancia = async (req, res) => {
     stream.end();
   });
 
-  // set the header to render in every page
   doc.setDocumentHeader({ height: "29%" }, () => {
-    // Agregar el logo con un tamaño más pequeño
     doc.image("public/logo-escuela.jpg", 40, 22, { width: 70 });
 
-    // Agregar el nombre de la institución y el nombre del director
     doc
       .font("Helvetica-Bold")
       .fontSize(11)

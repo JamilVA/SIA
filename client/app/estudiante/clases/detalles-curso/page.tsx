@@ -526,7 +526,7 @@ export default function Curso() {
                             </div>
                         </TabPanel>
                         <TabPanel header="Sesiones" leftIcon="pi pi-list mr-2">
-                            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
+                            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado sesiones en este curso">
                                 <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                             </DataTable>
                         </TabPanel>

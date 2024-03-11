@@ -171,20 +171,6 @@ export default function Matricula() {
     const crearMatricula = async (rowData: any) => {
         try {
             if (creditosMatriculados + rowData.Curso.Creditos <= totalCreditos) {
-                console.log('Curso Recibido para la matricula:', rowData);
-                // axios
-                //     .post('http://localhost:3001/api/matricula', {
-                //         codigoCursoCalificacion: rowData.Codigo,
-                //         codigoEstudiante: session?.user.codigoEstudiante,
-                //         fechaMatricula: new Date()
-                //     })
-                //     .then((response) => {
-                //         console.log(response.data);
-                //         toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Matriculado con éxito', life: 3000 });
-                //         setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
-                //         setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
-                //         setCreditosMatriculados(creditosMatriculados + rowData?.Curso?.Creditos)
-                //     });
                 toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Curso agregado con éxito', life: 3000 });
 
                 setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
@@ -211,19 +197,6 @@ export default function Matricula() {
 
     const eliminarMatricula = async (curso: any) => {
         try {
-            console.log('Curso Recibido para la eliminacion:', curso);
-            // axios
-            //     .post('http://localhost:3001/api/matricula/eliminar', {
-            //         codigoEstudiante: session?.user.codigoEstudiante,
-            //         codigoCursoCalificacion: curso.Codigo
-            //     })
-            //     .then((response) => {
-            //         console.log(response.data);
-            //         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso eliminado con éxito', life: 3000 });
-            //         setCursosMatriculados((cursosMatriculados) => cursosMatriculados.filter((c) => c.Codigo !== curso.Codigo));
-            //         setCursosLlevar((cursosLlevar) => [...cursosLlevar, curso]);
-            //         setCreditosMatriculados(creditosMatriculados - curso?.Curso?.Creditos);
-            //     });
             toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso eliminado con éxito', life: 3000 });
             setCursosMatriculados((cursosMatriculados) => cursosMatriculados.filter((c) => c.Codigo !== curso.Codigo));
             setCursosLlevar((cursosLlevar) => [...cursosLlevar, curso]);
@@ -249,23 +222,9 @@ export default function Matricula() {
                     cursosMatriculados: cursosMatriculados
                 })
                 .then((response) => {
-                    console.log(response.data);
-                    // setMatriculaHabilitada(false);
-                    // toast.current?.show({
-                    //     severity: 'success',
-                    //     summary: 'Successful',
-                    //     detail: 'Matrícula finalizada con éxito',
-                    //     life: 3000
-                    // });
                 });
         } catch (e) {
             console.error(e);
-            // toast.current?.show({
-            //     severity: 'error',
-            //     summary: 'Error',
-            //     detail: 'Error al finalizar la matrícula',
-            //     life: 3000
-            // });
         }
     };
 
