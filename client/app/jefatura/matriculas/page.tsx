@@ -100,6 +100,7 @@ export default function Matricula() {
                 }
             })
             .catch((error) => {
+                console.log(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operación fallida',

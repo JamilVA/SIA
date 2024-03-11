@@ -46,7 +46,7 @@ const login = async (req, res) => {
             let _docente = await Docente.findOne({ where: { CodigoPersona: user.CodigoPersona } });
             codigoJefe = _jefe.Codigo;
             codigoDocente = _docente.Codigo;
-            next();
+            next(); // Ojito
         } else if (nivelUsuario == 3) {
             let _docente = await Docente.findOne({ where: { CodigoPersona: user.CodigoPersona } });
             codigoDocente = _docente.Codigo;

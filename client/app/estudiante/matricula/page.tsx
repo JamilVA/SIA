@@ -75,18 +75,6 @@ export default function Matricula() {
     }, [matriculaHabilitada]);
 
 
-    // useEffect(() => {
-    //     // Mostrar confirmación antes de salir de la página
-    //     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-    //         event.preventDefault();
-    //         event.returnValue = ''; // Para mostrar el mensaje personalizado en algunos navegadores
-    //     };
-    //     window.addEventListener('beforeunload', handleBeforeUnload);
-    //     return () => {
-    //         window.removeEventListener('beforeunload', handleBeforeUnload);
-    //     };
-    // }, []);
-
     const cargarCursosMatriculados = async () => {
         try {
             const { data } = await axios.get('http://localhost:3001/api/matricula/cursosMatriculados', {
@@ -168,31 +156,6 @@ export default function Matricula() {
         }
     };
 
-    const finalizarMatricula = async () => {
-        try {
-            // const result = await axios.get('http://localhost:3001/api/pago/pagosEstudiante', {
-            //     params: {
-            //         CodigoEstudiante: session?.user.codigoEstudiante
-            //     }
-            // });
-            setMatriculaHabilitada(false)
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Successful',
-                detail: 'Matrícula finalizada con éxito',
-                life: 3000
-            });
-        } catch (e) {
-            console.error(e);
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error al finalizar la matrícula',
-                life: 3000
-            });
-        }
-    };
-
     const comprobarMatricula = () => {
         const inicioMatricula = new Date(periodoActual?.InicioMatricula);
         const finMatricula = new Date(periodoActual?.FinMatricula);
@@ -207,26 +170,33 @@ export default function Matricula() {
 
     const crearMatricula = async (rowData: any) => {
         try {
-            if(creditosMatriculados + rowData.Curso.Creditos <= totalCreditos){
+            if (creditosMatriculados + rowData.Curso.Creditos <= totalCreditos) {
                 console.log('Curso Recibido para la matricula:', rowData);
-                axios
-                    .post('http://localhost:3001/api/matricula', {
-                        codigoCursoCalificacion: rowData.Codigo,
-                        codigoEstudiante: session?.user.codigoEstudiante,
-                        fechaMatricula: new Date()
-                    })
-                    .then((response) => {
-                        console.log(response.data);
-                        toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Matriculado con éxito', life: 3000 });
-                        setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
-                        setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
-                        setCreditosMatriculados(creditosMatriculados + rowData?.Curso?.Creditos)
-                    });
-    
+                // axios
+                //     .post('http://localhost:3001/api/matricula', {
+                //         codigoCursoCalificacion: rowData.Codigo,
+                //         codigoEstudiante: session?.user.codigoEstudiante,
+                //         fechaMatricula: new Date()
+                //     })
+                //     .then((response) => {
+                //         console.log(response.data);
+                //         toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Matriculado con éxito', life: 3000 });
+                //         setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
+                //         setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
+                //         setCreditosMatriculados(creditosMatriculados + rowData?.Curso?.Creditos)
+                //     });
+                toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Curso agregado con éxito', life: 3000 });
+
+                setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
+                setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
+                setCreditosMatriculados(creditosMatriculados + rowData?.Curso?.Creditos);
+
                 setMatriculaDialog(false);
                 setCursoCalificaion(cursoCVacio);
-            }else{
+            } else {
                 toast.current!.show({ severity: 'warn', summary: 'Advertencia', detail: 'No puedes superar el total de creditos por ciclo', life: 5000 });
+                setMatriculaDialog(false);
+                setCursoCalificaion(cursoCVacio);
             }
         } catch (error) {
             console.error(error);
@@ -242,20 +212,24 @@ export default function Matricula() {
     const eliminarMatricula = async (curso: any) => {
         try {
             console.log('Curso Recibido para la eliminacion:', curso);
-            axios
-                .post('http://localhost:3001/api/matricula/eliminar', {
-                    codigoEstudiante: session?.user.codigoEstudiante,
-                    codigoCursoCalificacion: curso.Codigo
-                })
-                .then((response) => {
-                    console.log(response.data);
-                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Eliminado con éxito', life: 3000 });
-                    setCursosMatriculados((cursosMatriculados) => cursosMatriculados.filter((c) => c.Codigo !== curso.Codigo));
-                    setCursosLlevar((cursosLlevar) => [...cursosLlevar, curso]);
-                    setCreditosMatriculados(creditosMatriculados - curso?.Curso?.Creditos)
-                });
-                setDeleteMatriculaDialog(false);
-                setCursoCalificaion(cursoCVacio)
+            // axios
+            //     .post('http://localhost:3001/api/matricula/eliminar', {
+            //         codigoEstudiante: session?.user.codigoEstudiante,
+            //         codigoCursoCalificacion: curso.Codigo
+            //     })
+            //     .then((response) => {
+            //         console.log(response.data);
+            //         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso eliminado con éxito', life: 3000 });
+            //         setCursosMatriculados((cursosMatriculados) => cursosMatriculados.filter((c) => c.Codigo !== curso.Codigo));
+            //         setCursosLlevar((cursosLlevar) => [...cursosLlevar, curso]);
+            //         setCreditosMatriculados(creditosMatriculados - curso?.Curso?.Creditos);
+            //     });
+            toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso eliminado con éxito', life: 3000 });
+            setCursosMatriculados((cursosMatriculados) => cursosMatriculados.filter((c) => c.Codigo !== curso.Codigo));
+            setCursosLlevar((cursosLlevar) => [...cursosLlevar, curso]);
+            setCreditosMatriculados(creditosMatriculados - curso?.Curso?.Creditos);
+            setDeleteMatriculaDialog(false);
+            setCursoCalificaion(cursoCVacio);
         } catch (error) {
             console.error(error);
             toast.current?.show({
@@ -267,7 +241,33 @@ export default function Matricula() {
         }
     };
 
-    
+    const finalizarMatricula = async () => {
+        try {
+            axios
+                .post('http://localhost:3001/api/matricula/guardarMatriculas', {
+                    CodigoEstudiante: session?.user.codigoEstudiante,
+                    cursosMatriculados: cursosMatriculados
+                })
+                .then((response) => {
+                    console.log(response.data);
+                    // setMatriculaHabilitada(false);
+                    // toast.current?.show({
+                    //     severity: 'success',
+                    //     summary: 'Successful',
+                    //     detail: 'Matrícula finalizada con éxito',
+                    //     life: 3000
+                    // });
+                });
+        } catch (e) {
+            console.error(e);
+            // toast.current?.show({
+            //     severity: 'error',
+            //     summary: 'Error',
+            //     detail: 'Error al finalizar la matrícula',
+            //     life: 3000
+            // });
+        }
+    };
 
     const generarConstancia = async () => {
         try {
@@ -317,7 +317,7 @@ export default function Matricula() {
     const actionBodyTemplate1 = (rowData: any) => {
         return (
             <React.Fragment>
-                <Button label="Agregar" icon="pi pi-plus" className="p-button-success p-button-sm" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => newMatricula(rowData)} disabled={!totalCreditos>!creditosMatriculados}/>
+                <Button label="Agregar" icon="pi pi-plus" className="p-button-success p-button-sm" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => newMatricula(rowData)} disabled={!totalCreditos > !creditosMatriculados} />
             </React.Fragment>
         );
     };
@@ -405,8 +405,33 @@ export default function Matricula() {
             </div>
             <div className="col-12 md:col-3">
                 <Perfil></Perfil>
-                <Button label="Confirmar matrícula" icon="pi pi-check" severity='success'  onClick={() => finalizarMatricula()} visible={cursosMatriculados.length>0}/>
-
+                <Button
+                    label="Confirmar matrícula"
+                    icon="pi pi-check"
+                    severity="success"
+                    onClick={async () => {
+                        try {
+                            await finalizarMatricula();
+                            setMatriculaHabilitada(false);
+                            toast.current?.show({
+                                severity: 'success',
+                                summary: 'Successful',
+                                detail: 'Matrícula finalizada con éxito',
+                                life: 3000
+                            });
+                        } catch (error) {
+                            console.error(error);
+                            toast.current?.show({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Error al finalizar la matrícula',
+                                life: 3000
+                            });
+                        }
+                    }}
+                    visible={cursosMatriculados?.length > 0 && matriculaHabilitada}
+                    disabled={creditosMatriculados < 12}
+                />
             </div>
             <div className="col-12 md:col-9">
                 <Toast ref={toast} />
@@ -501,13 +526,13 @@ export default function Matricula() {
             <Dialog visible={deleteMatriculaDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirmar" modal footer={deleteMatriculaDialogFooter()} onHide={hideDeleteMatriculaDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                    { <span>¿Esta seguro de que desea eliminar la Matricula?</span>}
+                    {<span>¿Esta seguro de que desea eliminar la Matricula?</span>}
                 </div>
             </Dialog>
             <Dialog visible={matriculaDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirmar" modal footer={matriculaDialogFooter} onHide={hideMatriculaDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-check-circle mr-3" style={{ fontSize: '2rem' }} />
-                    { <span>¿Esta seguro de que desea agrregar la Matricula?</span>}
+                    {<span>¿Esta seguro de que desea agrregar la Matricula?</span>}
                 </div>
             </Dialog>
         </div>
