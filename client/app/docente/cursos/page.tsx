@@ -127,7 +127,7 @@ const Page = () => {
                         <Column field="CodCurso" header="COD" />
                         <Column field="Nombre" header="Curso" headerStyle={{ minWidth: '16rem' }} />
                         <Column field="Carrera" header="Carrera" headerStyle={{ minWidth: '14rem' }} />
-                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '6rem' }}></Column>
+                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '12rem' }}></Column>
                     </DataTable>
 
                 </div>

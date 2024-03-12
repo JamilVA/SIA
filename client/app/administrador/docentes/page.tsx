@@ -560,7 +560,7 @@ export default function DocentesDemo() {
                         <label htmlFor="fechaNacimiento" className="font-bold">
                             Fecha de Nacimiento
                         </label>
-                        <Calendar id="fechaNacimiento" value={docente.fechaNacimiento} onChange={(e) => onCalendarChange(e)} showIcon required className={classNames({ 'p-invalid': submitted && !docente.fechaNacimiento })} />
+                        <Calendar id="fechaNacimiento" value={docente.fechaNacimiento} onChange={(e) => onCalendarChange(e)} dateFormat='dd/mm/yy' showIcon required className={classNames({ 'p-invalid': submitted && !docente.fechaNacimiento })} />
                         {submitted && !docente.fechaNacimiento && <small className="p-error">Ingrese la Fecha de Nacimiento.</small>}
                     </div>
 
