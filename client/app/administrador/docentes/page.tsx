@@ -137,7 +137,10 @@ export default function DocentesDemo() {
                         })
                         .then((response) => {
                             console.log(response.data);
-                            subirArchivo(response.data.docente.CodigoPersona);
+                            console.log(cambioImagen)
+                            if (archivo?.files) {
+                                subirArchivo(_docente.codigoPersona);
+                            }                            
                             toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente creado con éxito', life: 3000 });
                             fetchData();
                         });
@@ -146,6 +149,7 @@ export default function DocentesDemo() {
 
                     setCambioEmail(false);
                     setCambioDNI(false);
+                    setCambioImagen(false);
                 }
             } else if ((!cambioDNI || (cambioDNI && validarDNI(docente.DNI.trim()))) && (!cambioEmail || (cambioEmail && validarEmail(docente.email.trim())))) {
                 axios
@@ -164,7 +168,7 @@ export default function DocentesDemo() {
                     })
                     .then((response) => {
                         console.log(response);
-                        if (cambioImagen == true) {
+                        if (archivo?.files) {
                             subirArchivo(_docente.codigoPersona);
                         }
                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente actualizado con éxito', life: 3000 });
@@ -175,6 +179,7 @@ export default function DocentesDemo() {
 
                 setCambioEmail(false);
                 setCambioDNI(false);
+                setCambioImagen(false);
             }
         }
     };
