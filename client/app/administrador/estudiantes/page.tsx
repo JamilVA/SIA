@@ -562,6 +562,7 @@ export default function Page() {
                     <Dialog visible={estudianteInfoDialog} style={{ width: '400px' }} header="Otros datos del estudiante" modal className="p-fluid" onHide={hideInfoDialog}>
                         <p><strong>Código:</strong> {estudiante.CodigoSunedu}</p>
                         <p><strong>Nombre:</strong> {estudiante.Nombres + ' ' + estudiante.Paterno + ' ' + estudiante.Materno}</p>
+                        <p><strong>Email:</strong> {estudiante.Email}</p>
                         <p><strong>Dirección:</strong> {estudiante.Direccion}</p>
                         <p><strong>Email personal:</strong> {estudiante.EmailPersonal}</p>
                         <p><strong>Celular:</strong> {estudiante.Celular}</p>

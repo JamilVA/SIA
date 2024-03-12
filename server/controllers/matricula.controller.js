@@ -6,13 +6,13 @@ const {
   Periodo,
   Persona,
   CarreraProfesional,
-  Usuario,
+  Pago,
 } = require("../config/relations");
 
 const { sequelize } = require("../config/database");
 const { QueryTypes } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 
-// const PDF = require('pdfkit');
 const PDF = require("pdfkit-construct");
 
 const getMatricula = async (req, res) => {
@@ -25,10 +25,8 @@ const getMatricula = async (req, res) => {
           model: Persona,
           attributes: ["Nombres", "Paterno", "Materno"],
         },
-
       ],
-      where: { Codigo: CodigoEstudiante }
-
+      where: { Codigo: CodigoEstudiante },
     });
 
     const matriculas = await Matricula.findAll({
@@ -81,6 +79,257 @@ const getMatricula = async (req, res) => {
   }
 };
 
+const getCursosMatriculados = async (req, res) => {
+  try {
+    const CodigoEstudiante = req.query.CodigoEstudiante;
+
+    const cursosMatriculados = await CursoCalificacion.findAll({
+      attributes: ["Codigo"],
+      include: [
+        {
+          model: Curso,
+          attributes: [
+            "Codigo",
+            "Nombre",
+            "Creditos",
+            "Nivel",
+            "Semestre",
+            "CodigoCurso",
+            "CodigoCarreraProfesional",
+          ],
+        },
+        {
+          model: Periodo,
+          where: { Estado: true },
+        },
+        {
+          model: Matricula,
+          where: { CodigoEstudiante },
+        },
+      ],
+    });
+
+    let creditosMatriculados = 0;
+
+    cursosMatriculados.forEach(
+      (c) => (creditosMatriculados += c.Curso.Creditos)
+    );
+
+    res.json({
+      ok: true,
+      cursosMatriculados,
+      creditosMatriculados,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Error en la carga de matriculas del periodo actual" });
+  }
+};
+
+const getCursosLlevar = async (req, res) => {
+  try {
+    const CodigoEstudiante = req.query.CodigoEstudiante;
+
+    const estudiante = await Estudiante.findOne({
+      attributes: ["CodigoCarreraProfesional"],
+      where: { Codigo: CodigoEstudiante },
+    });
+
+    const cursosAbiertos = await CursoCalificacion.findAll({
+      attributes: ["Codigo"],
+      include: [
+        {
+          model: Curso,
+          attributes: [
+            "Codigo",
+            "Nombre",
+            "Creditos",
+            "Nivel",
+            "Semestre",
+            "CodigoCurso",
+          ],
+          where: {
+            CodigoCarreraProfesional: estudiante.CodigoCarreraProfesional,
+          },
+        },
+        {
+          model: Periodo,
+          attributes: [],
+          where: { Estado: true },
+        },
+      ],
+    });
+
+    const ultimaMatricula = await Matricula.findAll({
+      attributes: [],
+      where: {
+        CodigoEstudiante,
+        "$CursoCalificacion.Periodo.Estado$": false,
+      },
+      include: [
+        {
+          model: CursoCalificacion,
+          attributes: ["CodigoPeriodo"],
+          include: [
+            {
+              model: Periodo,
+              attributes: ["Codigo", "Estado"],
+              where: { Estado: false },
+            },
+          ],
+        },
+      ],
+    });
+
+    const cursosMatriculados = await CursoCalificacion.findAll({
+      attributes: ["Codigo"],
+      include: [
+        {
+          model: Curso,
+          attributes: [
+            "Codigo",
+            "Nombre",
+            "Creditos",
+            "Nivel",
+            "Semestre",
+            "CodigoCurso",
+            "CodigoCarreraProfesional",
+          ],
+        },
+        {
+          model: Periodo,
+          attributes: ["Codigo"],
+          where: { Estado: true },
+        },
+        {
+          model: Matricula,
+          attributes: [],
+          where: { CodigoEstudiante },
+        },
+      ],
+    });
+
+    let cursosLlevar;
+    let cursoCalificacionMasAlto;
+    let matriculasAprobadas;
+
+    let nivel;
+    let semestre;
+
+    const ultimoPeriodo =
+      ultimaMatricula[ultimaMatricula.length - 1].CursoCalificacion
+        ?.CodigoPeriodo;
+
+    if (!ultimoPeriodo) {
+      nivel = 1;
+      semestre = 1;
+
+      cursosLlevar = cursosAbiertos?.filter(
+        (c) => c.Curso.Nivel == nivel && c.Curso.Semestre == semestre
+      );
+    } else {
+      cursoCalificacionMasAlto = await CursoCalificacion.findAll({
+        attributes: ["Codigo"],
+        include: [
+          {
+            model: Curso,
+            attributes: ["Nivel", "Semestre"],
+          },
+          {
+            model: Periodo,
+            attributes: [],
+            where: { Codigo: ultimoPeriodo },
+          },
+          {
+            model: Matricula,
+            attributes: [],
+            where: { CodigoEstudiante },
+          },
+        ],
+        order: [
+          [{ model: Curso }, "Nivel", "DESC"],
+          [{ model: Curso }, "Semestre", "DESC"],
+        ],
+      });
+
+      matriculasAprobadas = await Matricula.findAll({
+        attributes: ["NotaFinal"],
+        include: [
+          {
+            model: CursoCalificacion,
+            attributes: ["Codigo", "CodigoCurso"],
+            include: [
+              {
+                model: Curso,
+                attributes: ["Codigo", "ConPrerequisito", "CodigoCurso"],
+              },
+            ],
+          },
+        ],
+        where: {
+          CodigoEstudiante,
+          NotaFinal: {
+            [Sequelize.Op.gte]: 11, // "gte" "greater than or equal"
+          },
+        },
+      });
+
+      nivel = cursoCalificacionMasAlto[0]?.Curso?.Nivel;
+      semestre = cursoCalificacionMasAlto[0]?.Curso?.Semestre;
+
+      if (semestre === 1) {
+        semestre = 2;
+      } else {
+        nivel = nivel + 1;
+        semestre = 1;
+      }
+
+      cursosLlevar = cursosAbiertos
+        .filter(
+          (c) => c.Curso.Nivel * 10 + c.Curso.Semestre <= nivel * 10 + semestre
+        )
+        .filter(
+          (curso) =>
+            !matriculasAprobadas.some(
+              (matricula) =>
+                matricula.CursoCalificacion.Curso.Codigo == curso.Curso.Codigo
+            )
+        )
+        .filter((curso) => {
+          const prerrequisitoAprobado = matriculasAprobadas.find(
+            (matricula) =>
+              matricula.CursoCalificacion.Curso.Codigo ==
+              curso.Curso.CodigoCurso
+          );
+          return curso.Curso.CodigoCurso === null || prerrequisitoAprobado;
+        });
+    }
+
+    const totalCreditos = await Curso.sum("Creditos", {
+      where: {
+        CodigoCarreraProfesional: estudiante.CodigoCarreraProfesional,
+        Nivel: nivel,
+        Semestre: semestre,
+      },
+    });
+
+    cursosLlevar = cursosLlevar.filter((curso) => {
+      return !cursosMatriculados.some((c) => c.Codigo === curso.Codigo);
+    });
+
+    res.json({
+      ok: true,
+      cursosLlevar,
+      totalCreditos,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error en la carga de cursos a llevar" });
+  }
+};
+
 const buscarEstudiante = async (req, res) => {
   try {
     const { CodigoSunedu } = req.query;
@@ -118,9 +367,49 @@ const crearMatricula = async (req, res) => {
       matricula,
     });
   } catch (error) {
-    res.json({
-      Estado: "Error al guardar, " + error,
+    res.status(500).json({ error: "Error al agregar la matrícula" });
+  }
+};
+
+const guardarMatriculas = async (req, res) => {
+  try {
+    const { CodigoEstudiante, cursosMatriculados } = req.body;
+
+    let matriculas = [];
+
+    for (const curso of cursosMatriculados) {
+      try {
+        const matricula = await Matricula.create({
+          CodigoCursoCalificacion: curso.Codigo,
+          CodigoEstudiante: CodigoEstudiante,
+          FechaMatricula: new Date(),
+        });
+        matriculas.push(matricula);
+      } catch (error) {
+        console.error("Error al crear la matrícula:", error);
+      }
+    }
+
+    const pago = await Pago.update(
+      {
+        EstadoPago: "U",
+      },
+      {
+      where: {
+        CodigoEstudiante,
+        EstadoPago: "R",
+        CodigoConceptoPago: "0802",
+      },
     });
+
+    res.json({
+      ok: true,
+      Estado: "Guardado con éxito",
+      pago,
+      matriculas,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Error al finalizar la matrícula" });
   }
 };
 
@@ -260,10 +549,7 @@ const updateNotas = async (req, res) => {
   }
 };
 
-
 const obtenerConstancia = async (req, res) => {
-  console.log("Recibido:", req.query);
-
   const estudiante = await Estudiante.findOne({
     attributes: ["CodigoSunedu", "AnioIngreso"],
     include: [
@@ -279,26 +565,24 @@ const obtenerConstancia = async (req, res) => {
     where: { Codigo: req.query.c },
   });
 
-  const matriculas = await Matricula.findAll({
-    attributes: {
-      exclude: ["Observacion", "Habilitado", "PorcentajeAsistencia"],
-    },
+  const matriculas = await CursoCalificacion.findAll({
+    attributes: ["Codigo"],
     include: [
       {
-        model: CursoCalificacion,
-        include: [
-          {
-            model: Curso,
-            attributes: ["Codigo", "Nombre", "Creditos", "Nivel", "Semestre"],
-          },
-        ],
+        model: Curso,
+        attributes: ["Codigo", "Nombre", "Creditos", "Nivel", "Semestre"],
+      },
+      {
+        model: Periodo,
+        where: { Estado: true },
+      },
+      {
+        model: Matricula,
+        attributes: ["FechaMatricula"],
+        where: { CodigoEstudiante: req.query.c },
       },
     ],
-    where: { CodigoEstudiante: req.query.c },
   });
-
-  console.log("EEstudiante:", estudiante);
-  console.log("MMatricula:", matriculas);
 
   const doc = new PDF({
     size: "A4",
@@ -321,12 +605,9 @@ const obtenerConstancia = async (req, res) => {
     stream.end();
   });
 
-  // set the header to render in every page
   doc.setDocumentHeader({ height: "29%" }, () => {
-    // Agregar el logo con un tamaño más pequeño
     doc.image("public/logo-escuela.jpg", 40, 22, { width: 70 });
 
-    // Agregar el nombre de la institución y el nombre del director
     doc
       .font("Helvetica-Bold")
       .fontSize(11)
@@ -347,7 +628,9 @@ const obtenerConstancia = async (req, res) => {
 
     doc.moveDown(2);
 
-    doc.fontSize(16).text("CONSTANCIA DE MATRÍCULA", { align: "center", lineGap: 5 });
+    doc
+      .fontSize(16)
+      .text("CONSTANCIA DE MATRÍCULA", { align: "center", lineGap: 5 });
 
     doc
       .fontSize(8)
@@ -366,7 +649,8 @@ const obtenerConstancia = async (req, res) => {
     doc
       .fontSize(6)
       .fillColor("red")
-      .text(' Esta Constancia de Matricula "NO" Tiene Valor Oficial, al no Contar con el Sello Correspondiente.',
+      .text(
+        "Esta constancia de matrícula carece de validez oficial debido a la ausencia del sello correspondiente.",
         { align: "center", lineGap: 25 }
       );
 
@@ -415,47 +699,47 @@ const obtenerConstancia = async (req, res) => {
       continued: true,
     });
 
-    doc.font("Helvetica").text(estudiante.dataValues.CarreraProfesional.NombreCarrera, {
-      align: "left",
-      indent: 50,
-      lineGap: 5,
-    });
+    doc
+      .font("Helvetica")
+      .text(estudiante.dataValues.CarreraProfesional.NombreCarrera, {
+        align: "left",
+        indent: 50,
+        lineGap: 5,
+      });
   });
-
 
   let cursos = [];
 
   if (matriculas.length > 0) {
     cursos = matriculas.map((matricula) => ({
-      Codigo: matricula.dataValues.CursoCalificacion.Curso.Codigo,
-      Curso: matricula.dataValues.CursoCalificacion.Curso.Nombre,
-      Nivel: matricula.dataValues.CursoCalificacion.Curso.Nivel,
-      Semestre: matricula.dataValues.CursoCalificacion.Curso.Semestre,
-      Creditos: matricula.dataValues.CursoCalificacion.Curso.Creditos,
-      Fecha: new Date(matricula.dataValues.FechaMatricula).toLocaleDateString(
-        "es-ES",
-        {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        }
-      ),
+      Codigo: matricula.dataValues.Curso?.Codigo,
+      Curso: matricula.dataValues.Curso?.Nombre,
+      Nivel: matricula.dataValues.Curso?.Nivel,
+      Semestre: matricula.dataValues.Curso?.Semestre,
+      Creditos: matricula.dataValues.Curso?.Creditos,
+      Fecha: new Date(
+        matricula.dataValues.Matriculas[0]?.FechaMatricula
+      ).toLocaleDateString("es-ES", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
     }));
-  }else {
-    cursos= [ {
-      Codigo: '',
-      Curso: '',
-      Nivel: '',
-      Semestre: '',
-      Creditos: '',
-      Fecha: '',
-    }]
+  } else {
+    cursos = [
+      {
+        Codigo: "",
+        Curso: "",
+        Nivel: "",
+        Semestre: "",
+        Creditos: "",
+        Fecha: "",
+      },
+    ];
   }
-
-  console.error("CCu", cursos);
 
   doc.addTable(
     [
@@ -481,7 +765,6 @@ const obtenerConstancia = async (req, res) => {
     }
   );
 
-
   doc.render();
 
   doc.end();
@@ -489,7 +772,10 @@ const obtenerConstancia = async (req, res) => {
 
 module.exports = {
   getMatricula,
+  getCursosMatriculados,
+  getCursosLlevar,
   crearMatricula,
+  guardarMatriculas,
   actualizarMatricula,
   eliminarMatricula,
   buscarEstudiante,

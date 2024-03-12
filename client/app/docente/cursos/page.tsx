@@ -103,10 +103,10 @@ const Page = () => {
         redirect('/pages/notfound')
     }*/
 
-    if(status === "loading"){
+    if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
@@ -123,11 +123,15 @@ const Page = () => {
             </div>
             <div className="col-12 md:col-9">
                 <div className="card">
-                    <DataTable ref={dt} value={cursos} dataKey="CodCurso" className="datatable-responsive" emptyMessage="No courses found.">
+                    <DataTable ref={dt} value={cursos} dataKey="CodCurso" className="datatable-responsive" emptyMessage="No se encontaron cursos activos">
                         <Column field="CodCurso" header="COD" />
                         <Column field="Nombre" header="Curso" headerStyle={{ minWidth: '16rem' }} />
                         <Column field="Carrera" header="Carrera" headerStyle={{ minWidth: '14rem' }} />
-                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '6rem' }}></Column>
+                        if(status === 'authenticated'){
+                            <>
+                                <Column body={actionBodyTemplate} headerStyle={{ minWidth: '6rem' }}></Column>
+                            </>
+                        }
                     </DataTable>
 
                 </div>
