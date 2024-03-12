@@ -22,7 +22,7 @@ const dbConnection = async () => {
     } catch (error) {
 
         console.log(error);
-        throw new Error('Error al conectar a siaDB');
+        //throw new Error('Error al conectar a siaDB');
         //process.exit(1); // detener la app
     }
 

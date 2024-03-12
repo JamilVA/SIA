@@ -103,7 +103,7 @@ const Page = () => {
         redirect('/pages/notfound')
     }*/
 
-    if(status === "authenticated"){
+    if(status === "loading"){
         return (
             <>
                 <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
