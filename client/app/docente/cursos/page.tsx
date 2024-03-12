@@ -21,7 +21,7 @@ const Page = () => {
     };
 
     const { data: session, status } = useSession();
-    const [cursos, setCursos] = useState([EmptyCurso]);
+    const [cursos, setCursos] = useState([]);
     //const [docente, setDocente] = useState(docenteVacio);
     const [visible, setVisible] = useState(false);
     const [imagenURL, setImagenURL] = useState<string>('');
@@ -127,11 +127,7 @@ const Page = () => {
                         <Column field="CodCurso" header="COD" />
                         <Column field="Nombre" header="Curso" headerStyle={{ minWidth: '16rem' }} />
                         <Column field="Carrera" header="Carrera" headerStyle={{ minWidth: '14rem' }} />
-                        if(status === 'authenticated'){
-                            <>
-                                <Column body={actionBodyTemplate} headerStyle={{ minWidth: '6rem' }}></Column>
-                            </>
-                        }
+                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '6rem' }}></Column>
                     </DataTable>
 
                 </div>
