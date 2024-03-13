@@ -13,6 +13,7 @@ const Pago = sequelize.define('Pago', {
     },   
     Fecha: DataTypes.DATE,
     EstadoPago: DataTypes.CHAR(1),
+    Observacion: DataTypes.STRING(100),
 })
 
 module.exports = Pago;
