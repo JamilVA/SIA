@@ -64,14 +64,14 @@ const Perfil = () => {
     const toast = useRef<Toast>(null);
 
     useEffect(() => {
-        if (status === 'authenticated') { fetchData(); }
+        if (status === 'authenticated') fetchData(); 
     }, [status]);
 
     const fetchData = async () => {
         let result;
         try {
             if (session?.user.nivelUsuario == 4) {
-                result = await axios.get('http://localhost:3001/api/estudiante/getbycod', {
+                result = await axios.get('/estudiante/getbycod', {
                     params: {
                         CodigoPersona: session?.user.codigoEstudiante
                     }
@@ -84,7 +84,7 @@ const Perfil = () => {
                 }
             } else {
                 console.log(session?.user.codigoPersona)
-                result = await axios.get('http://localhost:3001/api/persona', {
+                result = await axios.get('/persona', {
                     params: {
                         codPersona: session?.user.codigoPersona
                     }
@@ -109,7 +109,7 @@ const Perfil = () => {
 
     const obtenerArchivo = async (ruta: string) => {
         try {
-            const response = await axios.get('http://localhost:3001/api/files/download', {
+            const response = await axios.get('/files/download', {
                 params: { fileName: ruta },
                 responseType: 'arraybuffer' // Especificar el tipo de respuesta como 'arraybuffer'
             });

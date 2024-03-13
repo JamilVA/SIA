@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios'
+import { axiosInstance as axios } from '../utils/axios.instance';
 import { useSession } from "next-auth/react";
 import { Skeleton } from 'primereact/skeleton';
 import { Button } from 'primereact/button';
@@ -52,7 +52,7 @@ const Perfil = () => {
 
     const fetchData = async () => {
         try {
-            const result = await axios.get('http://localhost:3001/api/persona', {
+            const result = await axios.get('/persona', {
                 params: {
                     codPersona: session?.user.codigoPersona
                 }
@@ -77,7 +77,7 @@ const Perfil = () => {
 
     const verifyInputs = () => {
         if (dataChang.newPassword.length < 8) {
-            res = 'Su nueva contraseña debe contener almenos 8 caracteres';
+            res = 'Su nueva contraseña debe contener al menos 8 caracteres';
             return false;
         } else if (dataChang.newPassword != dataChang.repeatNewPassword) {
             res = 'Las nuevas contraseñas no coinciden';
@@ -91,7 +91,7 @@ const Perfil = () => {
         if (verifyGeneralInputs()) {
             if (verifyInputs()) {
                 try {
-                    await axios.put("http://localhost:3001/api/changePassword", dataChang);
+                    await axios.put("/changePassword", dataChang);
                     toastSuccess.current?.show({
                         severity: 'success',
                         summary: 'Proceso exitoso',
