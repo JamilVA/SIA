@@ -173,7 +173,7 @@ declare namespace Demo {
         Nota4: number | null,
         NotaRecuperacion: number | null,
         NotaAplazado: number | null,
-        NotaFinal: number,
+        NotaFinal: number | null,
         PorcentajeAsistencia: number,
         [key: string]: string | string[] | number | boolean | undefined | null;
     }

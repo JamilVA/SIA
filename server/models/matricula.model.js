@@ -21,6 +21,7 @@ const Matricula = sequelize.define("Matricula", {
   Nota4: DataTypes.FLOAT,
   NotaRecuperacion: DataTypes.FLOAT,
   NotaAplazado: DataTypes.FLOAT,
+  NotaDirigido: DataTypes.FLOAT,
   NotaFinal: DataTypes.INTEGER,
   Observacion: DataTypes.STRING(45),
 });

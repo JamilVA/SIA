@@ -10,6 +10,9 @@ import axios from 'axios';
 import { Button } from 'primereact/button';
 import { Demo } from '../../../../types/types';
 import { ProgressBar } from 'primereact/progressbar';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { useSession } from "next-auth/react";
+import { TabPanel, TabView } from 'primereact/tabview';
 
 const page = () => {
 
@@ -51,10 +54,11 @@ const page = () => {
         Nota4: null,
         NotaRecuperacion: null,
         NotaAplazado: null,
-        NotaFinal: 0,
+        NotaFinal: null,
         PorcentajeAsistencia: 0
     }
 
+    const { data: session, status } = useSession();
     const searchParams = useSearchParams();
     const [actaDialog, setActaDialog] = useState(false);
     const codigoCursoCal = searchParams.get('codigo')
@@ -67,7 +71,7 @@ const page = () => {
     const acta = emptyActa;
     const [actas, setActas] = useState<Demo.Acta[]>([]);
     const [visible, setVisible] = useState(false)
-    const [pdfActasURL, setPdfActasURL] = useState('')
+    const [pdfActasURL, setPdfActasURL] = useState('');
 
     useEffect(() => {
         fetchData();
@@ -129,10 +133,23 @@ const page = () => {
     }
 
     const onUpdateNotas = (data: Demo.RegistroMatricula, nota: string) => {
+        let response = true;
         if (nota != 'NotaRecuperacion' && nota != 'NotaAplazado') arrayNotas.push(Number(data[nota]));
         const _n = (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement)?.value;
+
         if (data[nota] == null && _n != '' && (Number(_n) >= 0) && (Number(_n) <= 20)) {
             notasEstudiante[nota] = Number(_n);
+
+            if (nota == 'NotaRecuperacion') {
+                arrayNotas.push(Number(_n));
+                arrayNotas.sort((a, b) => b - a).pop();
+                let total = arrayNotas.reduce((a, b) => a + b, 0);
+                console.log(arrayNotas);
+                console.log(total);
+                notasEstudiante['NotaFinal'] = Math.round(total / 4);
+            } else {
+                notasEstudiante.NotaFinal = Math.round((Number(notasEstudiante.Nota1) + Number(notasEstudiante.Nota2) + Number(notasEstudiante.Nota3) + Number(notasEstudiante.Nota4)) / 4);
+            }
         } else if (data[nota] != undefined) {
             notasEstudiante[nota] = Number(data[nota]);
         } else if (_n != '') {
@@ -142,47 +159,31 @@ const page = () => {
                 detail: 'Nota inválida',
                 life: 3000
             });
-            (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement).value = ''
+            (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement).value = '';
+            response = false;
         }
-        if (nota == 'NotaRecuperacion') arrayNotas.push(Number(_n));
+        return response;
     };
 
     const saveNotes = (data: Demo.RegistroMatricula) => {
         notasEstudiante['CodigoCursoCalificacion'] = data.CodigoCursoCalificacion;
         notasEstudiante['CodigoEstudiante'] = data.CodigoEstudiante;
-        onUpdateNotas(data, 'Nota1');
-        onUpdateNotas(data, 'Nota2');
-        onUpdateNotas(data, 'Nota3');
-        onUpdateNotas(data, 'Nota4');
-        onUpdateNotas(data, 'NotaRecuperacion');
-        onUpdateNotas(data, 'NotaAplazado');
-        notasEstudiante.NotaFinal = Math.round((Number(notasEstudiante.Nota1) + Number(notasEstudiante.Nota2) + Number(notasEstudiante.Nota3) + Number(notasEstudiante.Nota4)) / 4);
 
-        if (notasEstudiante.NotaRecuperacion != null) {
-            arrayNotas.sort((a, b) => b - a).pop();
-            let total = arrayNotas.reduce((a, b) => a + b, 0);
-            console.log(total);
-            notasEstudiante['NotaFinal'] = Math.round(total / 4);
-        }
+        if (onUpdateNotas(data, 'Nota1') && onUpdateNotas(data, 'Nota2') && onUpdateNotas(data, 'Nota3') && onUpdateNotas(data, 'Nota4')
+            && onUpdateNotas(data, 'NotaRecuperacion') && onUpdateNotas(data, 'NotaAplazado')) {
+            console.log('success')
 
-        if ((Number(notasEstudiante.NotaAplazado)) >= 11) {
-            notasEstudiante['NotaFinal'] = 11;
-        }
-
-        /*if (data.NotaRecuperacion == null || notasEstudiante.NotaAplazado != null) {
-            if (data.PorcentajeAsistencia < 75 && (notasEstudiante.NotaRecuperacion != null || notasEstudiante.NotaFinal != null)) {
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No cumple con el mínimo porcentaje de asistencia',
-                    life: 3000
-                });
-            } else {
+            if (notasEstudiante.NotaFinal != null) {
+                if ((Number(notasEstudiante.NotaAplazado)) >= 11) {
+                    notasEstudiante['NotaFinal'] = 11;
+                } else if (notasEstudiante.NotaAplazado != null) {
+                    notasEstudiante['NotaFinal'] = data.NotaFinal;
+                }
                 apiSaveNotes()
                 setNotasEstudiante(emptyRegistroMatricula);
+                console.log(data)
             }
-        }*/
-        console.log(data)
+        }
     }
 
     const middCodigoActa = (n: number) => {
@@ -216,6 +217,18 @@ const page = () => {
             : <p style={Number(n) >= 11 ? { color: 'blue' } : { color: 'red' }}>{n}</p>
     }
 
+    const actionRecuperacion = (data: Demo.RegistroMatricula, nota: string, estadoNota: boolean) => {
+        const n = (data[nota]);
+        return n == null ? <InputText id={String(data.CodigoEstudiante) + nota} autoComplete='off' className='p-inputtext-sm' disabled={estadoNota == false || data.NotaFinal! > 10 ? true : false} style={{ width: '40px', padding: '1px', textAlign: 'center' }} ></InputText>
+            : <p style={Number(n) >= 11 ? { color: 'blue' } : { color: 'red' }}>{n}</p>
+    }
+
+    const actionAplazado = (data: Demo.RegistroMatricula, nota: string, estadoNota: boolean) => {
+        const n = (data[nota]);
+        return n == null ? <InputText id={String(data.CodigoEstudiante) + nota} autoComplete='off' className='p-inputtext-sm' disabled={estadoNota == false || data.NotaFinal! < 8 || data.NotaFinal! > 10 ? true : false} style={{ width: '40px', padding: '1px', textAlign: 'center' }} ></InputText>
+            : <p style={Number(n) >= 11 ? { color: 'blue' } : { color: 'red' }}>{n}</p>
+    }
+
     const actionN1Template = (rowData: any) => {
         return actionNotas(rowData, 'Nota1', curso.CursoCalificacion.EstadoNotas);
     }
@@ -230,10 +243,10 @@ const page = () => {
         return actionNotas(rowData, 'Nota4', curso.CursoCalificacion.EstadoNotas);
     }
     const actionNRTemplate = (rowData: any) => {
-        return actionNotas(rowData, 'NotaRecuperacion', curso.CursoCalificacion.EstadoRecuperacion);
+        return actionRecuperacion(rowData, 'NotaRecuperacion', curso.CursoCalificacion.EstadoRecuperacion);
     }
     const actionNATemplate = (rowData: any) => {
-        return actionNotas(rowData, 'NotaAplazado', curso.CursoCalificacion.EstadoAplazado);
+        return actionAplazado(rowData, 'NotaAplazado', curso.CursoCalificacion.EstadoAplazado);
     }
 
     const percentBodyTemplate = (rowData: Demo.RegistroMatricula) => {
@@ -259,7 +272,6 @@ const page = () => {
     const hideActaDialog = () => {
         setActaDialog(false);
     };
-
 
     const obtenerPDFActa = async () => {
         await axios.get('http://localhost:3001/api/pdf/acta', {
@@ -322,51 +334,68 @@ const page = () => {
 
     }
 
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
     return (
         <div className="grid crud-demo">
             <div className="col-12">
                 <h5 className='m-3 mt-4'>{curso.Nombre} {'(' + curso.CarreraProfesional.NombreCarrera.toUpperCase() + ')'}</h5>
             </div>
             <div className='col-12'>
-                <div className='card'>
-                    <div style={{ display: 'flex', justifyContent: 'end' }}>
-                        {headerTable()}
-                    </div>
-                    <Toast ref={toast} />
-                    <DataTable
-                        ref={dt}
-                        value={registroMatricula}
-                        dataKey="CodigoSunedu"
-                        className="datatable-responsive"
-                        emptyMessage="Sin estudiantes."
-                    >
-                        <Column field="CodigoSunedu" header="COD SUNEDU" />
-                        <Column field="Alumno" header="Apellidos y Nombres" sortable />
-                        <Column field="Nota1" body={actionN1Template} header="N1" />
-                        <Column field="Nota2" body={actionN2Template} header="N2" />
-                        <Column field="Nota3" body={actionN3Template} header="N3" />
-                        <Column field="Nota4" body={actionN4Template} header="N4" />
-                        <Column field="NotaRecuperacion" body={actionNRTemplate} header="R" />
-                        <Column field="NotaAplazado" body={actionNATemplate} header="A" />
-                        <Column field="NotaFinal" body={actionNFTemplate} header="NF" />
-                        <Column body={actionSaveTemplate} />
-                        <Column field="PorcentajeAsistencia" body={percentBodyTemplate} header="% Asistencia" />
-                    </DataTable>
+                <TabView>
+                    <TabPanel header="Curso regular" leftIcon="pi pi-book mr-2">
+                        <div className='card'>
+                            <div style={{ display: 'flex', justifyContent: 'end' }}>
+                                {headerTable()}
+                            </div>
+                            <Toast ref={toast} />
+                            <DataTable
+                                ref={dt}
+                                value={registroMatricula}
+                                dataKey="CodigoSunedu"
+                                className="datatable-responsive"
+                                emptyMessage="Sin estudiantes."
+                            >
+                                <Column field="CodigoSunedu" header="COD SUNEDU" />
+                                <Column field="Alumno" header="Apellidos y Nombres" sortable />
+                                <Column field="Nota1" body={actionN1Template} header="N1" />
+                                <Column field="Nota2" body={actionN2Template} header="N2" />
+                                <Column field="Nota3" body={actionN3Template} header="N3" />
+                                <Column field="Nota4" body={actionN4Template} header="N4" />
+                                <Column field="NotaRecuperacion" body={actionNRTemplate} header="R" />
+                                <Column field="NotaAplazado" body={actionNATemplate} header="A" />
+                                <Column field="NotaFinal" body={actionNFTemplate} header="NF" />
+                                <Column body={actionSaveTemplate} />
+                                <Column field="PorcentajeAsistencia" body={percentBodyTemplate} header="% Asistencia" />
+                            </DataTable>
 
-                    <Dialog visible={actaDialog} style={{ width: '400px' }} header="Confirmar" modal footer={actaDialogFooter} onHide={hideActaDialog}>
-                        <div className="flex align-items-center justify-content-center">
-                            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                            {(
-                                <span style={{ textAlign: 'justify', width: '20rem' }}>
-                                    <b>¿Estás seguro de generar el acta?</b> Ten en cuenta que luego de generarlo, no podrás editar ningun registro de calificaciones de este curso.
-                                </span>
-                            )}
+                            <Dialog visible={actaDialog} style={{ width: '400px' }} header="Confirmar" modal footer={actaDialogFooter} onHide={hideActaDialog}>
+                                <div className="flex align-items-center justify-content-center">
+                                    <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                                    {(
+                                        <span style={{ textAlign: 'justify', width: '20rem' }}>
+                                            <b>¿Estás seguro de generar el acta?</b> Ten en cuenta que luego de generarlo, no podrás editar ningun registro de calificaciones de este curso.
+                                        </span>
+                                    )}
+                                </div>
+                            </Dialog>
+                            <Dialog header="Vista PDF de historial de notas" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
+                                <iframe src={pdfActasURL} width="100%" height="99%"></iframe>
+                            </Dialog>
                         </div>
-                    </Dialog>
-                    <Dialog header="Vista PDF de historial de notas" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
-                        <iframe src={pdfActasURL} width="100%" height="99%"></iframe>
-                    </Dialog>
-                </div>
+                    </TabPanel>
+                    <TabPanel header="Curso dirigido" leftIcon="pi pi-clock mr-2">
+
+                    </TabPanel>
+                </TabView>
             </div>
         </div>
     )
