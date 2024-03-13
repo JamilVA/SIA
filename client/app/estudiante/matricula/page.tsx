@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef, use } from 'react';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
@@ -77,7 +77,7 @@ export default function Matricula() {
 
     const cargarCursosMatriculados = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/matricula/cursosMatriculados', {
+            const { data } = await axios.get('/matricula/cursosMatriculados', {
                 params: {
                     CodigoEstudiante: session?.user.codigoEstudiante
                 }
@@ -99,7 +99,7 @@ export default function Matricula() {
 
     const cargarCursosLlevar = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/matricula/cursosLlevar', {
+            const { data } = await axios.get('/matricula/cursosLlevar', {
                 params: {
                     CodigoEstudiante: session?.user.codigoEstudiante
                 }
@@ -121,7 +121,7 @@ export default function Matricula() {
 
     const cargarPeriodo = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/periodo/vigente', {});
+            const { data } = await axios.get('/periodo/vigente', {});
             const { periodo } = data;
             setPeriodoActual(periodo);
             console.log(data);
@@ -138,7 +138,7 @@ export default function Matricula() {
 
     const cargarPagos = async () => {
         try {
-            const result = await axios.get('http://localhost:3001/api/pago/pagosEstudiante', {
+            const result = await axios.get('/pago/pagosEstudiante', {
                 params: {
                     CodigoEstudiante: session?.user.codigoEstudiante
                 }
@@ -217,7 +217,7 @@ export default function Matricula() {
     const finalizarMatricula = async () => {
         try {
             axios
-                .post('http://localhost:3001/api/matricula/guardarMatriculas', {
+                .post('/matricula/guardarMatriculas', {
                     CodigoEstudiante: session?.user.codigoEstudiante,
                     cursosMatriculados: cursosMatriculados
                 })
@@ -315,7 +315,7 @@ export default function Matricula() {
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Matrícula en el periodo {periodoActual?.Denominacion}</h4>
             <div className="flex flex-wrap gap-2">
-                <Link href={`http://localhost:3001/api/matricula/obtenerConstancia?c=${session?.user.codigoEstudiante}`}>
+                <Link href={`/matricula/obtenerConstancia?c=${session?.user.codigoEstudiante}`}>
                     <Button
                         label="Constancia de Matrícula"
                         icon="pi pi-file-pdf"

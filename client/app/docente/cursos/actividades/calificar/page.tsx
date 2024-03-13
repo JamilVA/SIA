@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../../../utils/axios.instance';
 import { useSearchParams } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
@@ -41,7 +41,7 @@ export default function CalificarActividadesPage() {
     const dt = useRef<DataTable<any>>(null);
 
     const fetchActividades = async () => {
-        await axios.get('http://localhost:3001/api/sesion/actividades-calificar', {
+        await axios.get('/sesion/actividades-calificar', {
             params: {
                 codigoActividad: codigoActividad
             }
@@ -78,7 +78,7 @@ export default function CalificarActividadesPage() {
             return
         }
         setCalificarDialog(false)
-        await axios.put('http://localhost:3001/api/actividad/calificar', actividad)
+        await axios.put('/actividad/calificar', actividad)
             .then(response => {
                 let _actividades = actividades.map(value => {
                     if (value.CodigoEstudiante === actividad.CodigoEstudiante) {
@@ -97,7 +97,7 @@ export default function CalificarActividadesPage() {
     };
 
     const descargarArchivo = async (ruta: string) => {
-        await axios.get('http://localhost:3001/api/files/download', {
+        await axios.get('/files/download', {
             params: { fileName: ruta },
             responseType: 'arraybuffer' 
         })

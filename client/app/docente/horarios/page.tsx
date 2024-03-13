@@ -2,13 +2,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Toast } from 'primereact/toast';
 import Perfil from "../../../templates/Perfil";
 import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
 
-const page = () => {
+const Page = () => {
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
@@ -20,7 +20,7 @@ const page = () => {
     }, [status]);
 
     const fetchHorarios = async () => {
-        await axios.get("http://127.0.0.1:3001/api/horario/docente", {
+        await axios.get("/horario/docente", {
             params: {
                 CodDocente: session?.user.codigoDocente
             }
@@ -90,4 +90,4 @@ const page = () => {
     );
 }
 
-export default page
+export default Page
