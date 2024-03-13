@@ -33,7 +33,7 @@ export default function RegistrarPagoPage() {
     const [anularPagoDialog, setAnularPagoDialog] = useState(false);
     const [codigoAnular, setCodigoAnular] = useState(0);
     const [concepto, setConcepto] = useState();
-    const [anio, setAnio] = useState('');
+    const [anio, setAnio] = useState(new Date());
     const [filters, setFilters] = useState<DataTableFilterMeta>({});
     const [loading, setLoading] = useState(true);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -279,7 +279,7 @@ export default function RegistrarPagoPage() {
         <>
             <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideExportDialog} />
             {/* <Button label="Descargar" icon="pi pi-download" onClick={exportCSV} /> */}
-            <Link href={`${axios.defaults.baseURL}/pago/listaPagos?c=${concepto}&a=${anio ? anio : currentYear}`}>
+            <Link href={`${axios.defaults.baseURL}/pago/listaPagos?c=${concepto}&a=${anio.getFullYear() ? anio : currentYear}`}>
                 <Button label="Descargar" icon="pi pi-download"/>
             </Link>
         </>
@@ -359,7 +359,10 @@ export default function RegistrarPagoPage() {
                         <div className="formgrid grid">
                             <div className="field col">
                                 <label htmlFor="anio">Año de Pago:</label>
-                                <Calendar value={anio} onChange={(e) => setAnio((new Date(e.value as string)).getFullYear().toString())}  view="year" dateFormat="yy" />
+                                <Calendar value={anio} onChange={(e) => {
+                                    console.log(e.value)
+                                    setAnio(new Date(e.value as string))
+                                }}  view="year" dateFormat="yy" />
                             </div>
                         </div>
                     </Dialog>
