@@ -1,32 +1,26 @@
 'use client';
-import React, { useState, useEffect, useRef, use } from 'react';
-import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
+import { axiosInstance as axios } from '../../../../utils/axios.instance';
 
-const { startOfWeek, addWeeks, format } = require('date-fns');
-
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
+import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
 import { classNames } from 'primereact/utils';
 
 import 'primeflex/primeflex.css';
 
-import { Toast } from 'primereact/toast';
-import { Calendar } from 'primereact/calendar';
-import { FileUpload } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
-import { InputText } from 'primereact/inputtext';
 import { InputSwitch } from 'primereact/inputswitch';
+import { Toast } from 'primereact/toast';
 
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 
-import 'primereact/resources/themes/saga-blue/theme.css';
-import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
-import { InputTextarea } from 'primereact/inputtextarea';
 import { CalendarChangeEvent } from 'primereact/calendar';
+import 'primereact/resources/primereact.min.css';
+import 'primereact/resources/themes/saga-blue/theme.css';
 
 export default function Curso() {
     const searchParamas = useSearchParams();
@@ -34,18 +28,6 @@ export default function Curso() {
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
-    const [globalFilter, setGlobalFilter] = useState('');
-
-    const cursoCVacio = {
-        Codigo: '',
-        RutaSyllabus: '',
-        RutaNormas: '',
-        RutaPresentacionCurso: '',
-        RutaPresentacionDocente: '',
-        Capacidad: '',
-        Competencia: '',
-        CodigoCurso: ''
-    };
 
     const cursoVacio = {
         Codigo: '',
@@ -81,33 +63,18 @@ export default function Curso() {
         CodigoCursoCalificacion: ''
     };
 
-    const horarioVacio = {
-        Codigo: 0,
-        Dia: '',
-        HoraInicio: '00:00:00',
-        HoraFin: '00:00:00',
-        NombreAula: '',
-        NumeroAula: ''
-    };
-
-    const [cursoCalificacion, setCursoCalificaion] = useState(cursoCVacio);
     const [curso, setCurso] = useState(cursoVacio);
     const [sesion, setSesion] = useState({
         ...sesionVacia,
         Fecha: new Date()
     });
     const [sesiones, setSesiones] = useState<(typeof sesionVacia)[]>([]);
-    const [semana, setSemana] = useState(sesionVacia);
     const [semanas, setSemanas] = useState<(typeof semanaVacia)[]>([]);
     const [unidades, setUnidades] = useState<(typeof unidadVacia)[]>([]);
-    const [horarios, setHorarios] = useState<(typeof horarioVacio)[]>([]);
 
     const [submitted, setSubmitted] = useState(false);
     const [modified, setModified] = useState(false);
     const [sesionDialog, setSesionDialog] = useState(false);
-    const [cursoCDialog, setCursoCDialog] = useState(false);
-
-    const [fechaInicioClases, setFechaInicioClases] = useState<Date>();
 
     useEffect(() => {
         cargarDatos();
@@ -115,18 +82,14 @@ export default function Curso() {
 
     const cargarDatos = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/sesion/docente', {
+            const { data } = await axios.get('/sesion/docente', {
                 params: {
                     CodigoCursoCalificacion: codigoCurso
                 }
             });
 
-            const { curso, unidades, semanas, sesiones } = data;
-            const fechaInicio = new Date(curso.Periodo.FechaInicio);
-
-            setFechaInicioClases(fechaInicio); // 4 de marzo de 2024 (meses en JavaScript son 0-indexados)
-            setCursoCalificaion(curso);
-            setHorarios(curso.Horarios);
+            const { curso, unidades, semanas, sesiones } = data;         
+    
             setCurso(curso.Curso);
             setUnidades(unidades);
             setSemanas(semanas);
@@ -134,6 +97,7 @@ export default function Curso() {
             console.log(data);
         } catch (e) {
             console.error(e);
+            toast.current!.show({ severity: 'error', summary: 'Error', detail: 'Ha ocurrido un error al cargar los datos', life: 3000 });
         }
     };
 
@@ -142,7 +106,7 @@ export default function Curso() {
 
         if (modified) {
             axios
-                .put('http://localhost:3001/api/sesion', {
+                .put('/sesion', {
                     codigo: _sesion.Codigo,
                     descripcion: _sesion.Descripcion,
                     linkClaseVirtual: _sesion.LinkClaseVirtual,
@@ -159,7 +123,7 @@ export default function Curso() {
             setSesion(sesionVacia);
         } else {
             axios
-                .post('http://localhost:3001/api/sesion', {
+                .post('/sesion', {
                     codigo: _sesion.Codigo,
                     numero: _sesion.Numero,
                     descripcion: _sesion.Descripcion,
@@ -177,28 +141,6 @@ export default function Curso() {
             setSesion(sesionVacia);
         }
     };
-
-    const saveCurso = () => {
-        let _cursoCalificacion = { ...cursoCalificacion };
-        axios
-            .put('http://localhost:3001/api/curso-calificacion', {
-                codigo: _cursoCalificacion.Codigo,
-                competencia: _cursoCalificacion.Competencia,
-                capacidad: _cursoCalificacion.Capacidad,
-                rutaSyllabus: _cursoCalificacion.RutaSyllabus,
-                rutaNormas: _cursoCalificacion.RutaNormas,
-                rutaPresentacionCurso: _cursoCalificacion.RutaPresentacionCurso,
-                rutaPresentacionDocente: _cursoCalificacion.RutaPresentacionDocente
-            })
-            .then((response) => {
-                console.log(response);
-                toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso actualizado con éxito', life: 3000 });
-                cargarDatos();
-            });
-        setCursoCDialog(false);
-        setCursoCalificaion(cursoCVacio);
-    };
-
 
     const editSesion = (sesion: typeof sesionVacia) => {
         let tempSesion = {
@@ -218,67 +160,15 @@ export default function Curso() {
         setSesionDialog(true);
     };
 
-    const editCurso = (curso: typeof cursoCVacio) => {
-        const tempCursoC = {
-            Codigo: curso.Codigo,
-            RutaSyllabus: curso.RutaSyllabus,
-            RutaNormas: curso.RutaNormas,
-            RutaPresentacionCurso: curso.RutaPresentacionCurso,
-            RutaPresentacionDocente: curso.RutaPresentacionDocente,
-            Capacidad: curso.Capacidad,
-            Competencia: curso.Competencia,
-            CodigoCurso: curso.CodigoCurso
-        };
-        setCursoCalificaion(tempCursoC);
-        setCursoCDialog(true);
-    };
-
-    const calcularFecha = (dia: string, numeroSemana: number) => {
-        const primerDiaSemanaInicio = startOfWeek(fechaInicioClases, { weekStartsOn: 0 });
-
-        const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-        const indiceDia = diasSemana.indexOf(dia);
-
-        const fechaCalculada = addWeeks(primerDiaSemanaInicio, numeroSemana - 1); 
-
-        const fechaFinal = new Date(fechaCalculada);
-        fechaFinal.setDate(fechaCalculada.getDate() + ((indiceDia - fechaCalculada.getDay() + 7) % 7));
-
-        const formatoFecha = fechaFinal.toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        });
-
-        console.log(`Fecha para ${dia} de la semana ${numeroSemana}: ${formatoFecha}`);
-        return fechaFinal;
-    };
-
-    const onInputCursoChange = (e: React.ChangeEvent<HTMLTextAreaElement>, name: keyof typeof cursoCVacio) => {
-        const val = (e.target && e.target.value) || '';
-        let _cursoCalificacion = { ...cursoCalificacion };
-        _cursoCalificacion[name] = val;
-        setCursoCalificaion(_cursoCalificacion);
-    };
-
-    const onUpload = () => {
-        toast.current!.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
-    };
-
     const hideSesionDialog = () => {
         setSubmitted(false);
         setSesionDialog(false);
     };
 
-    const hideCursoCDialog = () => {
-        setSubmitted(false);
-        setCursoCDialog(false);
-    };
-
     const deshabilitarAsistencia = async (codigo: string) => {
         await axios
             .put(
-                'http://localhost:3001/api/sesion/deshabilitar-asistencia',
+                '/sesion/deshabilitar-asistencia',
                 {},
                 {
                     params: {
@@ -309,7 +199,7 @@ export default function Curso() {
     const habilitarAsistencia = async (codigo: string) => {
         await axios
             .put(
-                'http://localhost:3001/api/sesion/habilitar-asistencia',
+                '/sesion/habilitar-asistencia',
                 {},
                 {
                     params: {
@@ -363,12 +253,6 @@ export default function Curso() {
         </React.Fragment>
     );
 
-    const cursoCDialogFooter = (
-        <React.Fragment>
-            <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideCursoCDialog} />
-            <Button label="Guardar" icon="pi pi-check" onClick={saveCurso} />
-        </React.Fragment>
-    );
 
     const filtrarSemanas = (Semanas: (typeof semanaVacia)[], Codigo: string) => {
         return Semanas.filter((s) => s.CodigoUnidadAcademica === Codigo);
@@ -479,94 +363,7 @@ export default function Curso() {
                     {submitted && !sesion.Fecha && <small className="p-error">Ingrese la Fecha.</small>}
                 </div>
             </Dialog>
-            <Dialog visible={cursoCDialog} style={{ width: '60rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos del curso" modal className="p-fluid" footer={cursoCDialogFooter} onHide={hideCursoCDialog}>
-                <div className="field">
-                    <div className="text-center">
-                        <span className="text-primary" style={{ fontWeight: 'bold' }}>
-                            {curso.Nombre}
-                        </span>
-                        <span className="text-primary"> ({curso.Codigo})</span>
-                        <br />
-                        <small className="text-muted">PINTURA</small>
-                    </div>
-                </div>
-                <div className="formgrid grid">
-                    <div className="field col">
-                        <label htmlFor="nivel" className="font-bold">
-                            Año
-                        </label>
-                        <InputText id="nivel" value={curso.Nivel.toString()} disabled />
-                    </div>
-                    <div className="field col">
-                        <label htmlFor="semestre" className="font-bold">
-                            Semestre
-                        </label>
-                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
-                    </div>
-                </div>
-                <div className="formgrid grid">
-                    <div className="field col">
-                        <label htmlFor="horasTeoria" className="font-bold">
-                            Horas Teoria
-                        </label>
-                        <InputText id="horasTeoria" value={curso.HorasTeoria.toString()} disabled />
-                    </div>
-                    <div className="field col">
-                        <label htmlFor="horasPractica" className="font-bold">
-                            Horas Práctica
-                        </label>
-                        <InputText id="horasPractica" value={curso.HorasPractica.toString()} disabled />
-                    </div>
-                    <div className="field col">
-                        <label htmlFor="semestre" className="font-bold">
-                            Créditos
-                        </label>
-                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
-                    </div>
-                </div>
-                <div className="formgrid grid">
-                    <div className="field col">
-                        <label htmlFor="rutaSyllabus" className="font-bold">
-                            Syllabus
-                        </label>
-                        <FileUpload mode="basic" name="rutaSyllabus" id="rutaSyllabus" url="/api/upload" accept="pdf/*" maxFileSize={1000000} onUpload={onUpload} chooseLabel="Subir" />
-                    </div>
-                    <div className="field col">
-                        <label htmlFor="rutaNormas" className="font-bold">
-                            Normas de convivencia
-                        </label>
-                        <FileUpload mode="basic" name="rutaNormas" id="rutaNormas" url="/api/upload" accept="pdf/*" maxFileSize={1000000} onUpload={onUpload} chooseLabel="Subir" />
-                    </div>
-                </div>
-                <div className="formgrid grid">
-                    <div className="field col">
-                        <label htmlFor="rutaPresentacionCurso" className="font-bold">
-                            Presentación del curso
-                        </label>
-                        <FileUpload mode="basic" name="rutaPresentacionCurso" id="rutaPresentacionCurso" url="/api/upload" accept="pdf/*" maxFileSize={1000000} onUpload={onUpload} chooseLabel="Subir" />
-                    </div>
-                    <div className="field col">
-                        <label htmlFor="rutaPresentacionDocente" className="font-bold">
-                            Presentación del docente
-                        </label>
-                        <FileUpload mode="basic" name="rutaPresentacionDocente" id="rutaPresentacionDocente" url="/api/upload" accept="pdf/*" maxFileSize={1000000} onUpload={onUpload} chooseLabel="Subir" />
-                    </div>
-                </div>
-                <div className="formgrid grid">
-                    <div className="field col">
-                        <label htmlFor="competencia" className="font-bold">
-                            Competencia
-                        </label>
-                        <InputTextarea id="competencia" value={cursoCalificacion.Competencia || ''} onChange={(e) => onInputCursoChange(e, 'Competencia')} />
-                    </div>
-                    <div className="field col">
-                        <label htmlFor="capacidad" className="font-bold">
-                            Capacidad
-                        </label>
-                        <InputTextarea id="capacidad" value={cursoCalificacion.Capacidad || ''} onChange={(e) => onInputCursoChange(e, 'Capacidad')} />
-                    </div>
-                </div>
-            </Dialog>
+            
         </div>
     );
 }

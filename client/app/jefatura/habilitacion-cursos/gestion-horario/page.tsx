@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../../utils/axios.instance';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
@@ -11,7 +11,6 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
-import { Sia } from '../../../../types/sia';
 import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 import { useSearchParams } from 'next/navigation';
@@ -22,24 +21,6 @@ export default function CursoCalificacionPage() {
     const searchParamas = useSearchParams()
 
     const codigoCurso = searchParamas.get('codigo')
-
-    let emptyCursoCalificacion: Sia.CursoCalificacion = {
-        Codigo: '',
-        EstadoAplazado: false,
-        EstadoRecuperacion: false,
-        EstadoNotas: false,
-        RutaSyllabus: '',
-        RutaNormas: '',
-        RutaPresentacionCurso: '',
-        RutaPresentacionDocente: '',
-        Competencia: '',
-        Capacidad: '',
-        CodigoDocente: null,
-        CodigoCurso: '',
-        CodigoPeriodo: '',
-        Docente: null,
-        Curso: null
-    }
 
     let emptyHorario = {
         Codigo: null,
@@ -60,8 +41,6 @@ export default function CursoCalificacionPage() {
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
 
-    const [cursoCalificacion, setCursoCalificacion] = useState<Sia.CursoCalificacion>(emptyCursoCalificacion)
-
     const [horario, setHorario] = useState(emptyHorario)
 
     const [horarios, setHorarios] = useState<Array<any>>([])
@@ -76,7 +55,7 @@ export default function CursoCalificacionPage() {
     ]
 
     const fetchHorario = async () => {
-        await axios.get('http://localhost:3001/api/horario/buscar', {
+        await axios.get('/horario/buscar', {
             params: {
                 codigo: codigoCurso
             }
@@ -187,7 +166,7 @@ export default function CursoCalificacionPage() {
             return
         }
         hideAsignarHorarioDialog()
-        await axios.post('http://localhost:3001/api/horario', {
+        await axios.post('/horario', {
             ...horario,
             CodigoCursoCalificacion: codigoCurso
         })
@@ -216,7 +195,7 @@ export default function CursoCalificacionPage() {
     const editarDia = async () => {
         setSubmitted(true)
         hideAsignarHorarioDialog()
-        await axios.put('http://localhost:3001/api/horario', {...horario}, {
+        await axios.put('/horario', {...horario}, {
             params: {
                 codigo: horario.Codigo             
             }
@@ -249,7 +228,7 @@ export default function CursoCalificacionPage() {
 
     const deleteDia = async () => {
         hideConfirmDeleteDia()
-        await axios.delete('http://localhost:3001/api/horario', {
+        await axios.delete('/horario', {
             params: {
                 codigo: horario.Codigo
             }
