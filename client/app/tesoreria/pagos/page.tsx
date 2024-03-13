@@ -46,7 +46,7 @@ export default function RegistrarPagoPage() {
     const fetchPagos = async () => {
         await axios("/pago")
             .then(response => {
-                console.log(response.data.pagos)
+                //console.log(response.data.pagos)
                 setPagos(response.data.pagos)
                 setLoading(false);
             })
@@ -64,7 +64,7 @@ export default function RegistrarPagoPage() {
     }
 
     const fetchConceptos = async () => {
-        await axios("http://localhost:3001/api/pago/conceptos")
+        await axios("/pago/conceptos")
             .then(response => {
                 setConceptos(response.data.conceptos)
             })
@@ -95,7 +95,7 @@ export default function RegistrarPagoPage() {
     };
 
     const anularPago = async () => {
-        await axios.put('http://localhost:3001/api/pago', {
+        await axios.put('/pago', {
             codigo: codigoAnular
         }).then(response => {
             console.log("Pago anulado: ", response.data)
@@ -283,7 +283,7 @@ export default function RegistrarPagoPage() {
         <>
             <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideExportDialog} />
             {/* <Button label="Descargar" icon="pi pi-download" onClick={exportCSV} /> */}
-            <Link href={`http://localhost:3001/api/pago/listaPagos?c=${concepto}&a=${anio ? anio : currentYear}`}>
+            <Link href={`${axios.defaults.baseURL}/pago/listaPagos?c=${concepto}&a=${anio ? anio : currentYear}`}>
                 <Button label="Descargar" icon="pi pi-download"/>
             </Link>
         </>
@@ -311,7 +311,7 @@ export default function RegistrarPagoPage() {
                 >
                     <Column field='Codigo' header="Cod." sortable style={{ minWidth: '6rem' }} />
                     <Column field='NroTransaccion' header="Nro. Transaccion" sortable style={{ minWidth: '12rem' }} />
-                    <Column field='Fecha' header="Fecha" body={dateBodyTemplate} showFilterMenuOptions={false} filterField="Fecha" dataType="date" style={{ minWidth: '12rem' }} filter filterElement={dateFilterTemplate} />
+                    <Column field='Fecha' header="Fecha" body={dateBodyTemplate} showFilterMenuOptions={false} filterField="Fecha" dataType="date" style={{ minWidth: '13rem' }} filter filterElement={dateFilterTemplate} />
                     <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} showFilterMenuOptions={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '8rem' }} filter filterElement={estadoFilterTemplate} />
                     <Column field="Estudiante.CodigoSunedu" header="Cód. Estudiante" style={{ minWidth: '10rem' }} />
                     <Column
@@ -355,6 +355,8 @@ export default function RegistrarPagoPage() {
                                     optionLabel="Denominacion"
                                     optionValue="Codigo"
                                     placeholder="Seleccione"
+                                    filterBy='Codigo,Denominacion'
+                                    filter
                                 ></Dropdown>
                             </div>
                         </div>

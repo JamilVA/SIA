@@ -162,23 +162,6 @@ export default function RegistroPagoPage() {
             });
     }
 
-    const handlePrint = () => {
-        if (submitted) {
-            printJS({
-                printable: 'p',
-                type: 'html',
-                showModal: true
-            })
-        } else {
-            toast.current?.show({
-                severity: 'warn',
-                summary: 'Operación no válida',
-                detail: 'Debe registrar el pago antes de imprimir',
-                life: 3000
-            });
-        }
-    }
-
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
         const val = (e.target && e.target.value) || '';
         let _pago = {...pago}
