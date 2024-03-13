@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import Link from 'next/link';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { Button } from 'primereact/button';
@@ -9,11 +9,9 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
-import { FileUpload } from 'primereact/fileupload';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
-import { Nullable } from "primereact/ts-helpers";
 import React, { useEffect, useRef, useState } from 'react';
 
 export default function RegistrarPagoPage() {
@@ -46,7 +44,7 @@ export default function RegistrarPagoPage() {
     const dt = useRef<DataTable<any>>(null);
 
     const fetchPagos = async () => {
-        await axios("http://localhost:3001/api/pago")
+        await axios("/pago")
             .then(response => {
                 console.log(response.data.pagos)
                 setPagos(response.data.pagos)
@@ -327,6 +325,7 @@ export default function RegistrarPagoPage() {
                         filterElement={conceptoFilterTemplate}
                     />
                     <Column field='ConceptoPago.Monto' header="Monto" body={montoBodyTemplate} style={{ minWidth: '8rem' }} />
+                    <Column field='Observacion' header="Observación" style={{ minWidth: '8rem' }} />
                     <Column body={actionBodyTemplate} headerStyle={{ minWidth: '4rem' }}></Column>
                 </DataTable>
 

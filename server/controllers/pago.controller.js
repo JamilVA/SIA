@@ -81,31 +81,6 @@ const getPagosByStudent = async (req, res) => {
   }
 };
 
-async function numeroComprobante() {
-  let cantidad = (await Pago.count()) + 1;
-  let correlativo;
-
-  if (cantidad >= 0 && cantidad < 10) {
-    correlativo = "000" + cantidad;
-  }
-
-  if (cantidad >= 10 && cantidad < 100) {
-    correlativo = "00" + cantidad;
-  }
-
-  if (cantidad >= 100 && cantidad < 1000) {
-    correlativo = "0" + cantidad;
-  }
-
-  if (cantidad >= 1000) {
-    correlativo = cantidad.toString();
-  }
-
-  const fecha = new Date();
-
-  return "C" + fecha.getFullYear().toString().slice(-2) + correlativo;
-}
-
 const crearPago = async (req, res) => {
   try {
     //const numeroComprob = (await numeroComprobante()).toString();
@@ -115,6 +90,7 @@ const crearPago = async (req, res) => {
       NroTransaccion: data.NroTransaccion,
       Fecha: new Date(),
       EstadoPago: "R",
+      Observacion: data.Observacion,
       CodigoEstudiante: data.CodigoEstudiante,
       CodigoConceptoPago: data.CodigoConceptoPago,
     });

@@ -29,13 +29,14 @@ export default function RegistroPagoPage() {
         NroTransaccion: '',
         Fecha: '',
         EstadoPago: '',
+        Observacion: '',
         CodigoEstudiante: 0,
         CodigoConceptoPago: 0,
     }
     const [conceptos, setConceptos] = useState<Array<any>>([])
     const [pago, setPago] = useState(pagoVacio);
     const [estudiante, setEstudiante] = useState(estudianteVacio);
-    const [inputValue, setInputValue] = useState('')
+    const [inputValue, setInputSearch] = useState('')
     const [concepto, setConcepto] = useState('');
     const [monto, setMonto] = useState(0);
     const [submitted, setSubmitted] = useState(false);
@@ -140,7 +141,7 @@ export default function RegistroPagoPage() {
 
         await axios.post('http://localhost:3001/api/pago', pago)
             .then(response => {
-                setInputValue('');
+                setInputSearch('');
                 setSubmitted(true);
                 setPago(pagoVacio)
                 toast.current?.show({
@@ -180,7 +181,16 @@ export default function RegistroPagoPage() {
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
         const val = (e.target && e.target.value) || '';
-        let _pago = { ...pago, NroTransaccion: val };
+        let _pago = {...pago}
+
+        switch (name) {
+            case 'transaccion':
+                _pago = { ...pago, NroTransaccion: val };
+                break;
+            case 'obs':
+                _pago = { ...pago, Observacion: val };
+                break;
+        }
 
         setPago(_pago)
     };
@@ -228,7 +238,7 @@ export default function RegistroPagoPage() {
                             autoFocus
                             type="search"
                             placeholder="Ingrese DNI"
-                            onChange={(e) => { setInputValue(e.target.value) }}
+                            onChange={(e) => { setInputSearch(e.target.value) }}
                             maxLength={8}
 
                         />
@@ -269,7 +279,12 @@ export default function RegistroPagoPage() {
                     <br />
                     <div className="flex flex-column gap-2">
                         <label htmlFor="">Nro. Transacción: </label>
-                        <InputText value={pago.NroTransaccion} onChange={(e) => onInputChange(e, 'transaccion')} maxLength={8}/>
+                        <InputText value={pago.NroTransaccion} onChange={(e) => onInputChange(e, 'transaccion')} maxLength={8} />
+                    </div>
+                    <br />
+                    <div className="flex flex-column gap-2">
+                        <label htmlFor="">Observación</label>
+                        <InputText value={pago.Observacion} onChange={(e) => onInputChange(e, 'obs')} maxLength={100} />
                     </div>
                     <br /><br />
                     <Button label="Regresar" icon="pi pi-arrow-left" text className='mr-3' onClick={() => { router.back() }} />
