@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 
 import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
@@ -14,12 +14,8 @@ import { Toolbar } from 'primereact/toolbar';
 import { RadioButton } from 'primereact/radiobutton';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { InputSwitch } from 'primereact/inputswitch';
-import { Tag } from 'primereact/tag';
-import { Message } from 'primereact/message';
 import { Calendar } from 'primereact/calendar';
 import { CalendarChangeEvent } from 'primereact/calendar';
-import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 
 export default function DocentesDemo() {
     let emptyDocente: {
@@ -72,7 +68,7 @@ export default function DocentesDemo() {
 
     const fetchData = async () => {
         try {
-            const result = await axios.get('http://localhost:3001/api/docente');
+            const result = await axios.get('/docente');
 
             const docentesConNombreCompleto = result.data.docentes.map((docente: any) => ({
                 ...docente,
@@ -124,7 +120,7 @@ export default function DocentesDemo() {
             if (!docente.codigo) {
                 if (validarDNI(docente.DNI.trim()) && (docente.email.trim())) {
                     axios
-                        .post('http://localhost:3001/api/docente', {
+                        .post('/docente', {
                             paterno: _docente.paterno,
                             materno: _docente.materno,
                             nombres: _docente.nombres,
@@ -153,7 +149,7 @@ export default function DocentesDemo() {
                 }
             } else if ((!cambioDNI || (cambioDNI && validarDNI(docente.DNI.trim()))) && (!cambioEmail || (cambioEmail && validarEmail(docente.email.trim())))) {
                 axios
-                    .put('http://localhost:3001/api/docente', {
+                    .put('/docente', {
                         codigo: _docente.codigo,
                         paterno: _docente.paterno,
                         materno: _docente.materno,
@@ -263,7 +259,7 @@ export default function DocentesDemo() {
     const deleteDocente = (rowData: any) => {
         const _estado = rowData.Estado ? false : true;
         axios
-            .put('http://localhost:3001/api/docente', {
+            .put('/docente', {
                 codigo: rowData.Codigo,
                 estado: _estado
             })
@@ -280,7 +276,7 @@ export default function DocentesDemo() {
         console.log('Docente Recibido:', codigo);
         try {
             axios
-                .put('http://localhost:3001/api/docente/actualizar-foto', {
+                .put('/docente/actualizar-foto', {
                     codigoPersona: codigo,
                     rutaFoto: ruta
                 })
@@ -310,7 +306,7 @@ export default function DocentesDemo() {
             formData.append('file', file);
             console.log('Archivo Recibido:', file.name);
 
-            await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
+            await axios.post('/files/upload', formData).then((response) => {
                 console.log(response.data.path);
                 let _docente = { ...docente, rutaFoto: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
@@ -429,7 +425,7 @@ export default function DocentesDemo() {
             return
         }
         try {
-            const response = await axios.get('http://localhost:3001/api/files/download', {
+            const response = await axios.get('/files/download', {
                 params: { fileName: ruta },
                 responseType: 'arraybuffer',  // Especificar el tipo de respuesta como 'arraybuffer'
             });

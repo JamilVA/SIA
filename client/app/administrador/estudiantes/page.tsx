@@ -9,7 +9,7 @@ import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Demo } from '../../../types/types';
-import axios from 'axios'
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { AxiosError } from 'axios'
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
@@ -66,7 +66,7 @@ export default function Page() {
 
     const fetchData = async () => {
         try {
-            const result = await axios("http://localhost:3001/api/estudiante");
+            const result = await axios("/estudiante");
             setestudiantes(result.data.estudiantes);
             setCarreras(result.data.carreras);
         } catch (e) {
@@ -102,7 +102,7 @@ export default function Page() {
     const onSubmitChange = async (e: React.MouseEvent<HTMLButtonElement>, data: object) => {
         e.preventDefault();
         try {
-            const result = await axios.post("http://127.0.0.1:3001/api/estudiante", data);
+            const result = await axios.post("/estudiante", data);
             console.log(result);
             subirFoto(result.data.estudiante.CodigoPersona);
             fetchData();
@@ -131,7 +131,7 @@ export default function Page() {
     const onUpdate = async (e: React.MouseEvent<HTMLButtonElement>, data: object) => {
         e.preventDefault();
         try {
-            await axios.put("http://127.0.0.1:3001/api/estudiante", data).then((response) => {
+            await axios.put("/estudiante", data).then((response) => {
                 subirFoto(response.data.persona.Codigo);
             });
             fetchData();
@@ -162,7 +162,7 @@ export default function Page() {
             const file = archivo!.files[0]
             const formData = new FormData()
             formData.append('file', file)
-            await axios.post('http://localhost:3001/api/files/upload', formData)
+            await axios.post('/files/upload', formData)
                 .then(response => {
                     console.log(response.data.path)
                     estudiante.RutaFoto = response.data.filename;
@@ -179,7 +179,7 @@ export default function Page() {
         console.log('Docente Recibido:', codigo);
         try {
             axios
-                .put('http://localhost:3001/api/docente/actualizar-foto', {
+                .put('/docente/actualizar-foto', {
                     codigoPersona: codigo,
                     rutaFoto: ruta
                 }).then((response) => {
@@ -239,7 +239,7 @@ export default function Page() {
             return
         }
         try {
-            const response = await axios.get('http://localhost:3001/api/files/download', {
+            const response = await axios.get('/files/download', {
                 params: { fileName: ruta },
                 responseType: 'arraybuffer',  // Especificar el tipo de respuesta como 'arraybuffer'
             })
@@ -434,7 +434,7 @@ export default function Page() {
         <>
             <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideExportDialog} />
             {/* <Button label="Descargar" icon="pi pi-download" onClick={exportCSV} /> */}
-            <Link href={`http://localhost:3001/api/estudiante/obtenerListaEstudiantes?c=${carrera}`}>
+            <Link href={`${axios.defaults.baseURL}/estudiante/obtenerListaEstudiantes?c=${carrera}`}>
                 <Button label="Descargar" icon="pi pi-download" onClick={hideExportDialog} />
             </Link>
         </>

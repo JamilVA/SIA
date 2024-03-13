@@ -1,13 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Button } from 'primereact/button';
-import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
-import { FileUpload } from 'primereact/fileupload';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
@@ -48,7 +46,7 @@ export default function UsuariosPage() {
     const dt = useRef<DataTable<any>>(null);
 
     const fetchUsuarios = async () => {
-        await axios.get('http://localhost:3001/api/usuario')
+        await axios.get('/usuario')
             .then(response => {
                 //console.log(response.data.usuarios)
                 setUsuarios(response.data.usuarios)
@@ -68,7 +66,7 @@ export default function UsuariosPage() {
     }
 
     const fetchNiveles = async () => {
-        await axios.get('http://localhost:3001/api/usuario/niveles')
+        await axios.get('/usuario/niveles')
             .then(response => {
                 //console.log(response.data.usuarios)
                 setNivelesUsuario(response.data.niveles)
@@ -110,7 +108,7 @@ export default function UsuariosPage() {
     };
 
     const crearUsuario = async () => {
-        await axios.post('http://localhost:3001/api/usuario', usuario)
+        await axios.post('/usuario', usuario)
             .then(response => {
                 fetchUsuarios()
                 toast.current?.show({
@@ -135,7 +133,7 @@ export default function UsuariosPage() {
     }
 
     const editarUsuario = async () => {
-        await axios.put('http://localhost:3001/api/usuario', usuario)
+        await axios.put('/usuario', usuario)
             .then(response => {
                 const _usuarios = usuarios.map(u => {
                     if (u.Persona.Codigo === usuario.Persona.Codigo) {
@@ -227,7 +225,7 @@ export default function UsuariosPage() {
     };
 
     const deleteUsuario = async () => {
-        await axios.delete('http://localhost:3001/api/usuario', {
+        await axios.delete('/usuario', {
             params: {
                 codigoPersona: usuario.Persona.Codigo
             }
@@ -261,7 +259,7 @@ export default function UsuariosPage() {
     const inhabilitarUsuario = async () => {
         setFinalizarPeriodoDialog(false);
 
-        await axios.put('http://localhost:3001/api/usuario/inhabilitar', {}, {
+        await axios.put('/usuario/inhabilitar', {}, {
             params: {
                 codigo: usuario.Codigo,
             }
