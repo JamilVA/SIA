@@ -5,7 +5,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { useSession } from "next-auth/react";
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import Link from 'next/link';
 import { Dialog } from 'primereact/dialog';
 import Perfil from "../../../templates/Perfil";
@@ -38,7 +38,7 @@ const Page = () => {
 
     const fetchCursos = async () => {
         await axios
-            .get('http://127.0.0.1:3001/api/curso/cursosdp', {
+            .get('/curso/cursosdp', {
                 params: {
                     CodDocente: session?.user.codigoDocente
                 }
@@ -59,7 +59,7 @@ const Page = () => {
     };
 
     const obtenerPDFMatriculados = async (codigoCurso: string) => {
-        await axios.get('http://localhost:3001/api/pdf/lista-matriculados', {
+        await axios.get('/pdf/lista-matriculados', {
             params: { codigoCurso: codigoCurso },
             responseType: 'blob'
         })

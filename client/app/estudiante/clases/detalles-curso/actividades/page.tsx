@@ -13,7 +13,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../../../utils/axios.instance';
 import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
 
@@ -55,7 +55,7 @@ export default function ActividadesPage() {
 
     const fetchActividades = async () => {
         await axios
-            .get('http://localhost:3001/api/actividad/estudiante', {
+            .get('/actividad/estudiante', {
                 params: {
                     codigoSesion: codigoSesion,
                     codigoEstudiante: session?.user.codigoEstudiante
@@ -79,7 +79,7 @@ export default function ActividadesPage() {
     const obtenerActividadEstudiante = async () => {
         for (const actividad of actividades) {
             try {
-                const data = await axios.get('http://localhost:3001/api/actividadEstudiante', {
+                const data = await axios.get('/actividadEstudiante', {
                     params: {
                         codigoActividad: actividad.Codigo,
                         codigoEstudiante: session?.user.codigoEstudiante
@@ -144,7 +144,7 @@ export default function ActividadesPage() {
         console.log('Hola', modificar);
         if (!modificar) {
             try {
-                const response = await axios.post('http://localhost:3001/api/actividadEstudiante', {
+                const response = await axios.post('/actividadEstudiante', {
                     CodigoActividad: actividad.Codigo,
                     CodigoEstudiante: session?.user.codigoEstudiante
                 });
@@ -176,7 +176,7 @@ export default function ActividadesPage() {
             formData.append('file', file);
             console.log('Archivo Recibido:', file.name);
 
-            await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
+            await axios.post('/files/upload', formData).then((response) => {
                 console.log(response.data.path);
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
                 modificarRuta(codigoActividad, response.data.filename);
@@ -199,7 +199,7 @@ export default function ActividadesPage() {
     const modificarRuta = async (codigo: number, ruta: string) => {
         try {
             axios
-                .put('http://localhost:3001/api/actividadEstudiante/tarea', {
+                .put('/actividadEstudiante/tarea', {
                     CodigoEstudiante: session?.user.codigoEstudiante,
                     CodigoActividad: codigo,
                     RutaTarea: ruta
@@ -232,7 +232,7 @@ export default function ActividadesPage() {
 
     const descargarArchivo = async (ruta: string) => {
         await axios
-            .get('http://localhost:3001/api/files/download', {
+            .get('/files/download', {
                 params: { fileName: ruta },
                 responseType: 'arraybuffer'
             })

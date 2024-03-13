@@ -7,7 +7,7 @@ import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../../utils/axios.instance';
 import { classNames } from 'primereact/utils';
 import { ProgressBar } from 'primereact/progressbar';
 import { Checkbox } from 'primereact/checkbox';
@@ -32,7 +32,7 @@ export default function AsistenciasPage() {
     const [pdfAsistenciaURL, setPdfAsistenciaURL] = useState('')
 
     const fetchMatriculados = async () => {
-        await axios.get('http://localhost:3001/api/curso-calificacion/asistentes', {
+        await axios.get('/curso-calificacion/asistentes', {
             params: {
                 codigoCursoCalificacion: codigoCursoCalificacion,
                 codigoSesion: codigoSesion
@@ -57,7 +57,7 @@ export default function AsistenciasPage() {
 
     const marcarAsistencia = async (rowData: any) => {
         const codEstudiante = rowData.Estudiante.Codigo
-        await axios.post('http://localhost:3001/api/asistencia/marcar', {
+        await axios.post('/asistencia/marcar', {
             codigoSesion: codigoSesion,
             codigoEstudiante: codEstudiante,
             codigoCurso: codigoCursoCalificacion
@@ -84,7 +84,7 @@ export default function AsistenciasPage() {
 
     const desmarcarAsistencia = async (rowData: any) => {
         const codEstudiante = rowData.Estudiante.Codigo
-        await axios.delete('http://localhost:3001/api/asistencia/desmarcar', {
+        await axios.delete('/asistencia/desmarcar', {
             params: {
                 codigoSesion: codigoSesion,
                 codigoEstudiante: codEstudiante,
@@ -111,7 +111,7 @@ export default function AsistenciasPage() {
     }
 
     const marcarIngreso = async () => {
-        await axios.post('http://localhost:3001/api/sesion/marcar-ingreso', {}, {
+        await axios.post('/sesion/marcar-ingreso', {}, {
             params: {
                 codigoSesion: codigoSesion
             }
@@ -135,7 +135,7 @@ export default function AsistenciasPage() {
     }
 
     const marcarSalida = async () => {
-        await axios.post('http://localhost:3001/api/sesion/marcar-salida', {}, {
+        await axios.post('/sesion/marcar-salida', {}, {
             params: {
                 codigoSesion: codigoSesion
             }
@@ -159,7 +159,7 @@ export default function AsistenciasPage() {
     }
 
     const obtenerPDFAsistencias = async () => {
-        await axios.get('http://localhost:3001/api/pdf/lista-asistencia', {
+        await axios.get('/pdf/lista-asistencia', {
             params: { codigoCurso: codigoCursoCalificacion, codigoSesion: codigoSesion },
             responseType: 'blob'
         })

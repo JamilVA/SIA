@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Toast } from 'primereact/toast';
 import { DataTable } from 'primereact/datatable';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Column } from 'primereact/column';
 import Perfil from "../../../templates/Perfil";
 import { useSession } from "next-auth/react";

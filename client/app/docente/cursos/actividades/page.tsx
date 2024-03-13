@@ -1,8 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
+import { axiosInstance as axios } from '../../../../utils/axios.instance';
 import { Button } from 'primereact/button';
-import { Column } from 'primereact/column';
-import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { DataView } from 'primereact/dataview';
 import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
@@ -13,7 +12,6 @@ import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Calendar } from 'primereact/calendar';
 
-import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -43,7 +41,7 @@ export default function ActividadesPage() {
 
     const fetchActividades = async () => {
         setLoading(true)
-        await axios.get('http://localhost:3001/api/actividad', {
+        await axios.get('/actividad', {
             params: { codigoSesion: codigoSesion }
         })
             .then(response => {
@@ -99,7 +97,7 @@ export default function ActividadesPage() {
     };
 
     const crearActividad = async () => {
-        await axios.post('http://localhost:3001/api/actividad', actividad)
+        await axios.post('/actividad', actividad)
             .then(response => {         
                 toast.current?.show({
                     severity: 'success',
@@ -121,7 +119,7 @@ export default function ActividadesPage() {
     }
 
     const modificarActividad = async (actividad: any) => {
-        await axios.put('http://localhost:3001/api/actividad', actividad)
+        await axios.put('/actividad', actividad)
             .then(response => {
                 let _actividades = actividades.map(value => {
                     if (value.Codigo === actividad.Codigo) {
@@ -161,7 +159,7 @@ export default function ActividadesPage() {
 
     const deleteActividad = async () => {
         setDeleteActividadDialog(false);
-        await axios.delete('http://localhost:3001/api/actividad', {
+        await axios.delete('/actividad', {
             params: { codigo: actividad.Codigo }
         })
             .then(response => {
@@ -189,7 +187,7 @@ export default function ActividadesPage() {
         const file = event.files[0]
         const formData = new FormData()
         formData.append('file', file)
-        await axios.post('http://localhost:3001/api/files/upload', formData)
+        await axios.post('/files/upload', formData)
             .then(response => {
                 console.log(response.data.path)
                 let _actividad = { ...rowData, RutaRecursoGuia: response.data.filename }
@@ -205,7 +203,7 @@ export default function ActividadesPage() {
     }
 
     const descargarArchivo = async (ruta: string) => {
-        await axios.get('http://localhost:3001/api/files/download', {
+        await axios.get('/files/download', {
             params: { fileName: ruta },
             responseType: 'arraybuffer'
         })

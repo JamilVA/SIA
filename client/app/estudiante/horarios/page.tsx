@@ -4,10 +4,8 @@ import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
-import axios from 'axios';
-import Link from 'next/link';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Dropdown } from 'primereact/dropdown';
-import { classNames } from 'primereact/utils';
 import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
 
@@ -57,7 +55,7 @@ const page = () => {
     }, [status]);
 
     const fetchHorariosG = async () => {
-        await axios.get("http://127.0.0.1:3001/api/horario/generales", {
+        await axios.get("/horario/generales", {
             params: {
                 CodCarrera: paramsHG.CodCarrera,
                 Nivel: paramsHG.Nivel,
@@ -79,7 +77,7 @@ const page = () => {
     }
 
     const fetchHorarioE = async () => {
-        await axios.get("http://127.0.0.1:3001/api/horario/estudiante", {
+        await axios.get("/horario/estudiante", {
             params: {
                 CodEstudiante: session?.user.codigoEstudiante,
             }

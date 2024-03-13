@@ -9,7 +9,7 @@ import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../../utils/axios.instance';
 import { useSearchParams } from 'next/navigation';
 
 export default function ActividadesPage() {
@@ -43,7 +43,7 @@ export default function ActividadesPage() {
 
     const fetchActividades = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/recursoAcademico', {
+            const response = await axios.get('/recursoAcademico', {
                 params: { codigoSesion: codigoSesion }
             });
             setRecursos(response.data.recursosAcademicos);
@@ -99,7 +99,7 @@ export default function ActividadesPage() {
 
     const crearRecurso = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/api/recursoAcademico', recurso);
+            const response = await axios.post('/recursoAcademico', recurso);
             let _recursos = [...recursos];
             _recursos.push(response.data.recursoAcademico);
             subirArchivo(response.data.recursoAcademico)
@@ -124,7 +124,7 @@ export default function ActividadesPage() {
 
     const modificarRecurso = async (recurso: any) => {
         try {
-            const response = await axios.put('http://localhost:3001/api/recursoAcademico', recurso);
+            const response = await axios.put('/recursoAcademico', recurso);
             let _recursos = recursos.map((value) => (value.Codigo === recurso.Codigo ? recurso : value));
             setRecursos(_recursos);
             toast.current?.show({
@@ -159,7 +159,7 @@ export default function ActividadesPage() {
     const deleteRecurso = async () => {
         setDeleteRecursoDialog(false);
         try {
-            await axios.delete('http://localhost:3001/api/recursoAcademico', {
+            await axios.delete('/recursoAcademico', {
                 params: { codigo: recurso.Codigo }
             });
             let _recursos = recursos.filter((val) => val.Codigo !== recurso.Codigo);
@@ -192,7 +192,7 @@ export default function ActividadesPage() {
             console.log('Archivo Recibido:', file.name);
             console.log('Tipo de Archivo:', file.name.split('.')[1]);
 
-            await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
+            await axios.post('/files/upload', formData).then((response) => {
                 console.log(response.data.path);
                 let _recurso = { ...recurso, Ruta: response.data.filename, Tipo: tipoArchivo};
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
@@ -213,7 +213,7 @@ export default function ActividadesPage() {
 
 
     const descargarArchivo = async (ruta: string) => {
-        await axios.get('http://localhost:3001/api/files/download', {
+        await axios.get('/files/download', {
             params: { fileName: ruta },
             responseType: 'arraybuffer' 
         })

@@ -4,7 +4,7 @@ import { Tooltip } from 'primereact/tooltip';
 import { Toast } from 'primereact/toast';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
@@ -32,7 +32,7 @@ const Page = () => {
 
     const fetchPagos = async () => {
         await axios
-            .get('http://127.0.0.1:3001/api/pago/estudiante', {
+            .get('/pago/estudiante', {
                 params: {
                     codigo: session?.user.codigoEstudiante
                 }

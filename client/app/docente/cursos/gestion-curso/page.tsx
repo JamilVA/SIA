@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef, use } from 'react';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../../utils/axios.instance';
 
 const { startOfWeek, addWeeks, format } = require('date-fns');
 
@@ -123,7 +123,7 @@ export default function Curso() {
 
     const cargarDatos = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/sesion/docente', {
+            const { data } = await axios.get('/sesion/docente', {
                 params: {
                     CodigoCursoCalificacion: codigoCurso
                 }
@@ -156,7 +156,7 @@ export default function Curso() {
 
         if (modified) {
             axios
-                .put('http://localhost:3001/api/sesion', {
+                .put('/sesion', {
                     codigo: _sesion.Codigo,
                     descripcion: _sesion.Descripcion,
                     linkClaseVirtual: _sesion.LinkClaseVirtual,
@@ -173,7 +173,7 @@ export default function Curso() {
             setSesion(sesionVacia);
         } else {
             axios
-                .post('http://localhost:3001/api/sesion', {
+                .post('/sesion', {
                     codigo: _sesion.Codigo,
                     numero: _sesion.Numero,
                     descripcion: _sesion.Descripcion,
@@ -197,7 +197,7 @@ export default function Curso() {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:3001/api/files/download', {
+            const response = await axios.get('/files/download', {
                 params: { fileName: ruta },
                 responseType: 'arraybuffer' // Especificar el tipo de respuesta como 'arraybuffer'
             });
@@ -223,7 +223,7 @@ export default function Curso() {
             let _cursoCalificacion = { ...cursoCalificacion };
 
             axios
-                .put('http://localhost:3001/api/curso-calificacion', {
+                .put('/curso-calificacion', {
                     codigo: _cursoCalificacion.Codigo,
                     competencia: _cursoCalificacion.Competencia,
                     capacidad: _cursoCalificacion.Capacidad
@@ -351,7 +351,7 @@ export default function Curso() {
 
     const descargarArchivo = async (ruta: string) => {
         try {
-            const response = await axios.get('http://localhost:3001/api/files/download', {
+            const response = await axios.get('/files/download', {
                 params: { fileName: ruta }
             });
 
@@ -430,12 +430,12 @@ export default function Curso() {
             formData.append('file', file);
             console.log('Archivo Recibido:', file.name);
 
-            await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
+            await axios.post('/files/upload', formData).then((response) => {
                 console.log(response.data.path);
                 let _curso = { ...cursoCalificacion, RutaImagenPortada: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
                 axios
-                    .put('http://localhost:3001/api/curso-calificacion', {
+                    .put('/curso-calificacion', {
                         codigo: _curso.Codigo,
                         rutaImagenPortada: _curso.RutaImagenPortada
                     })
@@ -490,12 +490,12 @@ export default function Curso() {
             formData.append('file', file);
             console.log('Archivo Recibido:', file.name);
 
-            await axios.post('http://localhost:3001/api/files/upload', formData).then((response) => {
+            await axios.post('/files/upload', formData).then((response) => {
                 console.log(response.data.path);
                 let _curso = { ...cursoCalificacion, [key]: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'ArchivoSubido' });
                 axios
-                    .put('http://localhost:3001/api/curso-calificacion', {
+                    .put('/curso-calificacion', {
                         codigo: _curso.Codigo,
                         rutaSyllabus: _curso.RutaSyllabus,
                         rutaNormas: _curso.RutaNormas,
