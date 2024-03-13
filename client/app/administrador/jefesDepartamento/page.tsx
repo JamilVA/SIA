@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 
 import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
@@ -14,8 +14,6 @@ import { RadioButton } from 'primereact/radiobutton';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { Tag } from 'primereact/tag';
-import { Message } from 'primereact/message';
 import { Calendar } from 'primereact/calendar';
 import { CalendarChangeEvent } from 'primereact/calendar';
 
@@ -105,7 +103,7 @@ export default function JefeDepartamentosDemo() {
 
     const fetchData = async () => {
         try {
-            const result = await axios.get('http://localhost:3001/api/jefeDepartamento');
+            const result = await axios.get('/jefeDepartamento');
 
             const jefeDepartamentosConNombreCompleto = result.data.jefesDepartamento.map((jefeDepartamento: any) => ({
                 ...jefeDepartamento,
@@ -121,7 +119,7 @@ export default function JefeDepartamentosDemo() {
 
     const getDocentes = async () => {
         try {
-            const result = await axios.get('http://localhost:3001/api/docente');
+            const result = await axios.get('/docente');
 
             const docentesConNombreCompleto = result.data.docentes.map((docente: any) => ({
                 ...docente,
@@ -197,7 +195,7 @@ export default function JefeDepartamentosDemo() {
             if (!jefeDepartamento.Codigo) {
                 if (validarDNI(jefeDepartamento.DNI.trim()) && validarEmail(jefeDepartamento.Email.trim()) && validarDepartamento(jefeDepartamento.Departamento.trim())) {
                     axios
-                        .post('http://localhost:3001/api/jefeDepartamento', {
+                        .post('/jefeDepartamento', {
                             departamento: _jefeDepartamento.Departamento,
                             fechaAlta: new Date(),
                             paterno: _jefeDepartamento.Paterno,
@@ -212,7 +210,7 @@ export default function JefeDepartamentosDemo() {
                         .then((response) => {
                             for (let i = 0; i < codigosCarreras.length; i++) {
                                 axios
-                                    .put('http://localhost:3001/api/jefeDepartamento/carrera', {
+                                    .put('/jefeDepartamento/carrera', {
                                         codigoJefeDepartamento: response.data.jefeDepartamento.Codigo,
                                         codigo: codigosCarreras[i]
                                     })
@@ -238,7 +236,7 @@ export default function JefeDepartamentosDemo() {
                 (!cambioDepartamento || (cambioDepartamento && validarDepartamento(jefeDepartamento.Departamento)))
             ) {
                 axios
-                    .put('http://localhost:3001/api/jefeDepartamento', {
+                    .put('/jefeDepartamento', {
                         codigo: _jefeDepartamento.Codigo,
                         departamento: _jefeDepartamento.Departamento,
                         paterno: _jefeDepartamento.Paterno,
@@ -255,7 +253,7 @@ export default function JefeDepartamentosDemo() {
                         console.log(response);
                         for (let i = 0; i < codigosCarreras.length; i++) {
                             axios
-                                .put('http://localhost:3001/api/jefeDepartamento/carrera', {
+                                .put('/jefeDepartamento/carrera', {
                                     codigoJefeDepartamento: _jefeDepartamento.Codigo,
                                     codigo: codigosCarreras[i]
                                 })
@@ -397,7 +395,7 @@ export default function JefeDepartamentosDemo() {
 
         const _estado = rowData.Estado ? false : true;
         axios
-            .put('http://localhost:3001/api/jefeDepartamento', {
+            .put('/jefeDepartamento', {
                 codigo: rowData.Codigo,
                 departamento: 'No asignado',
                 estado: _estado,
@@ -406,7 +404,7 @@ export default function JefeDepartamentosDemo() {
             .then((response) => {
                 for (let i = 0; i < codigosCarreras.length; i++) {
                     axios
-                        .put('http://localhost:3001/api/jefeDepartamento/carrera', {
+                        .put('/jefeDepartamento/carrera', {
                             codigoJefeDepartamento: null,
                             codigo: codigosCarreras[i]
                         })
@@ -441,14 +439,14 @@ export default function JefeDepartamentosDemo() {
                 }
 
                 axios
-                    .put('http://localhost:3001/api/jefeDepartamento/asignarDocente', {
+                    .put('/jefeDepartamento/asignarDocente', {
                         Codigo: docenteJefe.CodigoPersona,
                         Departamento: departamento
                     })
                     .then((response) => {
                         for (let i = 0; i < codigosCarreras.length; i++) {
                             axios
-                                .put('http://localhost:3001/api/jefeDepartamento/carrera', {
+                                .put('/jefeDepartamento/carrera', {
                                     codigoJefeDepartamento: response.data.jefeDepartamento.Codigo,
                                     codigo: codigosCarreras[i]
                                 })

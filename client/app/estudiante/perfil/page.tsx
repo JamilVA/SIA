@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Demo } from '../../../types/types';
-import axios from 'axios'
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
@@ -76,7 +76,7 @@ const Page = () => {
 
     const fetchData = async () => {
         try {
-            const result = await axios.get("http://localhost:3001/api/estudiante/getbycod", {
+            const result = await axios.get("/estudiante/getbycod", {
                 params: {
                     CodigoPersona: session?.user.codigoEstudiante
                 }
@@ -96,7 +96,7 @@ const Page = () => {
     const onUpdate = async () => {
         var response = '';
         try {
-            const result = await axios.put("http://127.0.0.1:3001/api/estudiante", params);
+            const result = await axios.put("/estudiante", params);
             response = result.data.Estado;
             fetchData();
 

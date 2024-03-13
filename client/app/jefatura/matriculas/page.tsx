@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
@@ -82,7 +81,7 @@ export default function Matricula() {
 
     const buscarEstudiante = async (CodigoSunedu: string) => {
         await axios
-            .get('http://localhost:3001/api/matricula/buscarEstudiante', {
+            .get('/matricula/buscarEstudiante', {
                 params: {
                     CodigoSunedu: CodigoSunedu
                 }
@@ -112,7 +111,7 @@ export default function Matricula() {
 
     const cargarCursosMatriculados = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/matricula/cursosMatriculados', {
+            const { data } = await axios.get('/matricula/cursosMatriculados', {
                 params: {
                     CodigoEstudiante: estudiante?.Codigo
                 }
@@ -133,7 +132,7 @@ export default function Matricula() {
 
     const cargarCursosLlevar = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/matricula/cursosLlevar', {
+            const { data } = await axios.get('/matricula/cursosLlevar', {
                 params: {
                     CodigoEstudiante: estudiante.Codigo
                 }
@@ -154,7 +153,7 @@ export default function Matricula() {
 
     const cargarPeriodo = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/periodo/vigente', {});
+            const { data } = await axios.get('/periodo/vigente', {});
             const { periodo } = data;
             setPeriodoActual(periodo);
         } catch (e) {
@@ -172,7 +171,7 @@ export default function Matricula() {
         try {
             if(creditosMatriculados + rowData.Curso.Creditos <= totalCreditos){
                 axios
-                    .post('http://localhost:3001/api/matricula', {
+                    .post('/matricula', {
                         codigoCursoCalificacion: rowData.Codigo,
                         codigoEstudiante: estudiante.Codigo,
                         fechaMatricula: new Date()
@@ -203,7 +202,7 @@ export default function Matricula() {
     const eliminarMatricula = async (curso: any) => {
         try {
             axios
-                .post('http://localhost:3001/api/matricula/eliminar', {
+                .post('/matricula/eliminar', {
                     codigoEstudiante: estudiante.Codigo,
                     codigoCursoCalificacion: curso.Codigo
                 })

@@ -1,5 +1,5 @@
 'use client';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { useSession } from "next-auth/react";
 import Link from 'next/link';
 import { Button } from 'primereact/button';
@@ -32,7 +32,7 @@ const Page = () => {
 
     const fetchCursos = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/curso-calificacion/cursos-estudiante', {
+            const { data } = await axios.get('/curso-calificacion/cursos-estudiante', {
                 params: { CodigoEstudiante: session?.user.codigoEstudiante }
             });
             const { cursosCalificacion } = data;

@@ -4,7 +4,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import React, { useEffect, useRef, useState } from 'react';
 
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../../../utils/axios.instance';
 import { useSearchParams } from 'next/navigation';
 
 export default function ActividadesPage() {
@@ -33,7 +33,7 @@ export default function ActividadesPage() {
 
     const fetchActividades = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/recursoAcademico', {
+            const response = await axios.get('/recursoAcademico', {
                 params: { codigoSesion: codigoSesion }
             });
             setRecursos(response.data.recursosAcademicos);
@@ -56,7 +56,7 @@ export default function ActividadesPage() {
 
 
     const descargarArchivo = async (ruta: string) => {
-        await axios.get('http://localhost:3001/api/files/download', {
+        await axios.get('/files/download', {
             params: { fileName: ruta },
             responseType: 'arraybuffer' 
         })

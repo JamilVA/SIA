@@ -10,7 +10,7 @@ import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Demo } from '../../../types/types';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import Link from 'next/link';
@@ -62,7 +62,7 @@ const Page = () => {
 
     const fetchData = async () => {
         try {
-            const result = await axios('http://localhost:3001/api/curso');
+            const result = await axios('/curso');
             setCursos(result.data.cursos);
             setCarreras(result.data.carreras);
         } catch (e) {
@@ -111,7 +111,7 @@ const Page = () => {
         e.preventDefault();
         var response = '';
         try {
-            const result = await axios.post('http://127.0.0.1:3001/api/curso', data);
+            const result = await axios.post('/curso', data);
             response = result.data.Estado;
             fetchData();
             if (response == 'Error') {
@@ -143,7 +143,7 @@ const Page = () => {
         e.preventDefault();
         var response = '';
         try {
-            const result = await axios.put('http://127.0.0.1:3001/api/curso', data);
+            const result = await axios.put('/curso', data);
             response = result.data.Estado;
             fetchData();
 
@@ -347,7 +347,7 @@ const Page = () => {
         <>
             <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideExportDialog} />
             {/* <Button label="Descargar" icon="pi pi-download" onClick={exportCSV} /> */}
-            <Link href={`http://localhost:3001/api/curso/obtenerListaCursos?c=${carrera}`}>
+            <Link href={`${axios.defaults.baseURL}/curso/obtenerListaCursos?c=${carrera}`}>
                 <Button label="Descargar" icon="pi pi-download"/>
             </Link>
         </>

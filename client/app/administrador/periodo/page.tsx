@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Button } from 'primereact/button';
 import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
 import { Column } from 'primereact/column';
@@ -38,7 +38,7 @@ export default function PeriodoPage() {
     const dt = useRef<DataTable<any>>(null);
 
     const fetchPeriodos = async () => {
-        await axios.get('http://localhost:3001/api/periodo')
+        await axios.get('/periodo')
             .then(response => {
                 //console.log(response.data.periodos)
                 setPeriodos(response.data.periodos)
@@ -101,7 +101,7 @@ export default function PeriodoPage() {
     }
 
     const crearPeriodo = async () => {
-        await axios.post('http://localhost:3001/api/periodo', periodo)
+        await axios.post('/periodo', periodo)
             .then(response => {
                 //console.log(response.data)
                 const _periodo = response.data.periodo
@@ -131,7 +131,7 @@ export default function PeriodoPage() {
     }
 
     const editarPeriodo = async () => {
-        await axios.put('http://localhost:3001/api/periodo', periodo)
+        await axios.put('/periodo', periodo)
             .then(response => {
                 const _periodos = periodos.map(p => {
                     if (p.Codigo === periodo.Codigo) {
@@ -199,7 +199,7 @@ export default function PeriodoPage() {
     };
 
     const deletePeriodo = async () => {
-        await axios.delete('http://localhost:3001/api/periodo', {
+        await axios.delete('/periodo', {
             params: {
                 codigo: periodo.Codigo
             }
@@ -233,7 +233,7 @@ export default function PeriodoPage() {
     const finalizarPeriodo = async () => {
         setFinalizarPeriodoDialog(false);
 
-        await axios.put('http://localhost:3001/api/periodo/finalizar', {}, {
+        await axios.put('/periodo/finalizar', {}, {
             params: {
                 codigo: periodo.Codigo,
             }

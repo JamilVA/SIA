@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef, use } from 'react';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../../utils/axios.instance';
 
 import { TabView, TabPanel } from 'primereact/tabview';
 
@@ -118,7 +118,7 @@ export default function Curso() {
 
     const cargarDatos = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3001/api/sesion/estudiante', {
+            const { data } = await axios.get('/sesion/estudiante', {
                 params: {
                     CodigoCursoCalificacion: codigoCurso,
                     CodigoEstudiante: session?.user.codigoEstudiante
@@ -144,7 +144,7 @@ export default function Curso() {
 
     const descargarArchivo = async (ruta: string) => {
         try {
-            const response = await axios.get('http://localhost:3001/api/files/download', {
+            const response = await axios.get('/files/download', {
                 params: { fileName: ruta }
             });
 
@@ -181,7 +181,7 @@ export default function Curso() {
     };
     const cargarNotas = async () => {
         await axios
-            .get('http://localhost:3001/api/estudiante/notas', {
+            .get('/estudiante/notas', {
                 params: {
                     codigoCurso: codigoCurso,
                     codigoEstudiante: session?.user.codigoEstudiante
@@ -207,7 +207,7 @@ export default function Curso() {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:3001/api/files/download', {
+            const response = await axios.get('/files/download', {
                 params: { fileName: ruta },
                 responseType: 'arraybuffer' // Especificar el tipo de respuesta como 'arraybuffer'
             });
