@@ -1,15 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../../utils/axios.instance';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { useEffect, useRef, useState } from 'react';
-import Router from 'next/router';
 import { useRouter } from 'next/navigation';
-import printJS from 'print-js';
-import { classNames } from 'primereact/utils';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function RegistroPagoPage() {
@@ -37,14 +34,12 @@ export default function RegistroPagoPage() {
     const [pago, setPago] = useState(pagoVacio);
     const [estudiante, setEstudiante] = useState(estudianteVacio);
     const [inputValue, setInputSearch] = useState('')
-    const [concepto, setConcepto] = useState('');
-    const [monto, setMonto] = useState(0);
-    const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false)
     const toast = useRef<Toast>(null);
     const router = useRouter();
 
     const fetchConceptos = async () => {
-        await axios.get('http://localhost:3001/api/pago/conceptos')
+        await axios.get('/pago/conceptos')
             .then(response => {
                 setConceptos(response.data.conceptos)
             })
@@ -63,18 +58,9 @@ export default function RegistroPagoPage() {
         fetchConceptos()
     }, [])
 
-    const actualizarConcepto = (codigo: number) => {
-        conceptos.forEach(concepto => {
-            if (concepto.Codigo === codigo) {
-                setConcepto(concepto.Denominacion)
-                setMonto(concepto.Monto)
-            }
-        });
-    }
-
     const buscarEstudiante = async (dni: string) => {
-        setSubmitted(false)
-        await axios.get('http://localhost:3001/api/estudiante/buscar', {
+        setLoading(true)
+        await axios.get('/estudiante/buscar', {
             params: {
                 dni: dni
             }
@@ -111,6 +97,7 @@ export default function RegistroPagoPage() {
                     life: 3000
                 });
             })
+        setLoading(false)
     }
 
     const guardarPago = async () => {
@@ -139,10 +126,9 @@ export default function RegistroPagoPage() {
             });
         }
 
-        await axios.post('http://localhost:3001/api/pago', pago)
+        await axios.post('/pago', pago)
             .then(response => {
                 setInputSearch('');
-                setSubmitted(true);
                 setPago(pagoVacio)
                 toast.current?.show({
                     severity: 'success',
@@ -181,7 +167,6 @@ export default function RegistroPagoPage() {
     const onDropDownChange = (value: any, name: string) => {
         let _pago = { ...pago, CodigoConceptoPago: value }
         setPago(_pago)
-        actualizarConcepto(value)
     }
 
     const selectedItemTemplate = (option: any, props: any) => {
@@ -223,9 +208,9 @@ export default function RegistroPagoPage() {
                             placeholder="Ingrese DNI"
                             onChange={(e) => { setInputSearch(e.target.value) }}
                             maxLength={8}
-
+                            
                         />
-                        <Button className='ml-2' label='Buscar' onClick={() => { buscarEstudiante(inputValue) }} />
+                        <Button loading={loading} className='ml-2' label='Buscar' onClick={() => { buscarEstudiante(inputValue) }} />
                     </span>
                     <h5 className="mb-3">Datos del estudiante</h5>
                     <div className="flex flex-column gap-2 mb-2">
@@ -269,10 +254,9 @@ export default function RegistroPagoPage() {
                         <label htmlFor="">Observación</label>
                         <InputText value={pago.Observacion} onChange={(e) => onInputChange(e, 'obs')} maxLength={100} />
                     </div>
-                    <br /><br />
+                    <br />
                     <Button label="Regresar" icon="pi pi-arrow-left" text className='mr-3' onClick={() => { router.back() }} />
                     <Button label="Registrar" icon="pi pi-check" severity='success' onClick={guardarPago} />
-                    {/* <Button className='ml-5' label="Imprimir ticket" icon="pi pi-print" text onClick={handlePrint} /> */}
                 </div>
             </div>
         </div>

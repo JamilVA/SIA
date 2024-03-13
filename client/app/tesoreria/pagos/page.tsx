@@ -130,10 +130,6 @@ export default function RegistrarPagoPage() {
         setAnularPagoDialog(false);
     };
 
-    const exportCSV = () => {
-        dt.current?.exportCSV();
-    };
-
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
