@@ -495,7 +495,7 @@ const getMatriculaByCurso = async (req, res) => {
     });
 
     const registroMatricula = await sequelize.query(
-      `select e.CodigoSunedu, m.CodigoEstudiante, m.CodigoCursoCalificacion, concat(p.Paterno,' ', p.Materno,' ', p.Nombres) as Alumno, m.Nota1, m.Nota2, m.Nota3, m.Nota4, m.NotaRecuperacion, m.NotaFinal, m.NotaAplazado, m.PorcentajeAsistencia 
+      `select e.CodigoSunedu, m.CodigoEstudiante, m.CodigoCursoCalificacion, concat(p.Paterno,' ', p.Materno,' ', p.Nombres) as Alumno, m.Nota1, m.Nota2, m.Nota3, m.Nota4, m.NotaRecuperacion, m.NotaFinal, m.NotaAplazado, m.NotaDirigido, m.PorcentajeAsistencia 
     from curso c join cursocalificacion cc
     on c.Codigo = cc.CodigoCurso join matricula m
     on cc.Codigo = m.CodigoCursoCalificacion join periodo pd
@@ -519,7 +519,6 @@ const getMatriculaByCurso = async (req, res) => {
 };
 
 const updateNotas = async (req, res) => {
-  const n1 = req.body.Nota1;
   try {
     const matricula = await Matricula.update(
       {
@@ -529,6 +528,7 @@ const updateNotas = async (req, res) => {
         Nota4: req.body.Nota4,
         NotaRecuperacion: req.body.NotaRecuperacion,
         NotaAplazado: req.body.NotaAplazado,
+        NotaDirigido: req.body.NotaDirigido,
         NotaFinal: req.body.NotaFinal,
       },
       {

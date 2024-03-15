@@ -4,9 +4,11 @@ const { QueryTypes } = require("sequelize");
 
 const middCodigoActa = (n) => {
     let c = '';
-    if (n < 10)
+    if (n >= 0 && n < 10) {
+        c = '00' + n;
+    } else if (n >= 10 && n < 100) {
         c = '0' + n;
-    else {
+    } else {
         c = n.toString()
     }
 

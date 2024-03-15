@@ -54,6 +54,7 @@ const page = () => {
         Nota4: null,
         NotaRecuperacion: null,
         NotaAplazado: null,
+        NotaDirigido: null,
         NotaFinal: null,
         PorcentajeAsistencia: 0
     }
@@ -72,13 +73,15 @@ const page = () => {
     const [actas, setActas] = useState<Demo.Acta[]>([]);
     const [visible, setVisible] = useState(false)
     const [pdfActasURL, setPdfActasURL] = useState('');
+    const [estudiantesDirigido, setEstudiantesDirigido] = useState();
 
     useEffect(() => {
         fetchData();
         fetchActas();
-    }, []);
+    }, [status]);
 
     const fetchData = async () => {
+        let _estudDirigido;
         await axios.get('http://127.0.0.1:3001/api/matricula/getMatriculaByCurso', {
             params: {
                 codCurso: codigoCursoCal,
@@ -88,7 +91,8 @@ const page = () => {
             setRegistroMatricula(response.data.registroMatricula);
             console.log(response.data);
             // setCursos(response.data.cursos)
-
+            _estudDirigido = response.data.registroMatricula.filter((x: any) => x.NotaFinal < 11);
+            setEstudiantesDirigido(_estudDirigido);
         }).catch(error => {
             console.log("Error en carga de datos: ", error);
             toast.current?.show({
@@ -186,6 +190,55 @@ const page = () => {
         }
     }
 
+    const onUpdateNotesDirigido = (data: Demo.RegistroMatricula) => {
+        let response = true;
+        const _n = (document.getElementById(String(data.CodigoEstudiante) + 'NotaDirigido') as HTMLInputElement)?.value;
+
+        if (data['NotaDirigido'] == null && _n != '' && (Number(_n) >= 0) && (Number(_n) <= 14)) {
+            notasEstudiante['NotaDirigido'] = Number(_n);
+        } else if (data['NotaDirigido'] != undefined) {
+            notasEstudiante['NotaDirigido'] = Number(data['NotaDirigido']);
+        } else if (_n != '') {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Nota inválida',
+                life: 3000
+            });
+            (document.getElementById(String(data.CodigoEstudiante) + 'NotaDirigido') as HTMLInputElement).value = '';
+            response = false;
+        }
+        return response;
+    }
+
+    const setNoteDefault = (data: Demo.RegistroMatricula, nota: string) => {
+        if (Number(data[nota] != null)) {
+            notasEstudiante[nota] = Number(data[nota]);
+        }
+    }
+
+    const saveNotesDirigido = (data: Demo.RegistroMatricula) => {
+        if (onUpdateNotesDirigido(data)) {
+            console.log('success')
+            notasEstudiante['CodigoCursoCalificacion'] = data.CodigoCursoCalificacion;
+            notasEstudiante['CodigoEstudiante'] = data.CodigoEstudiante;
+            setNoteDefault(data, 'Nota1');
+            setNoteDefault(data, 'Nota2');
+            setNoteDefault(data, 'Nota3');
+            setNoteDefault(data, 'Nota4');
+            setNoteDefault(data, 'NotaRecuperacion');
+            setNoteDefault(data, 'NotaAplazado');
+            if (notasEstudiante.NotaDirigido! > data.NotaFinal!) {
+                notasEstudiante.NotaFinal = notasEstudiante.NotaDirigido;
+            } else {
+                setNoteDefault(data, 'NotaFinal');
+            }
+            apiSaveNotes()
+            setNotasEstudiante(emptyRegistroMatricula);
+            console.log(data)
+        }
+    }
+
     const middCodigoActa = (n: number) => {
         let c = '';
         if (n < 10)
@@ -229,10 +282,15 @@ const page = () => {
             : <p style={Number(n) >= 11 ? { color: 'blue' } : { color: 'red' }}>{n}</p>
     }
 
+    const actionDirigido = (data: Demo.RegistroMatricula, nota: string) => {
+        const n = (data[nota]);
+        return n == null ? <InputText id={String(data.CodigoEstudiante) + nota} autoComplete='off' className='p-inputtext-sm' style={{ width: '40px', padding: '1px', textAlign: 'center' }} ></InputText>
+            : <p style={Number(n) >= 11 ? { color: 'blue' } : { color: 'red' }}>{n}</p>
+    }
+
     const actionN1Template = (rowData: any) => {
         return actionNotas(rowData, 'Nota1', curso.CursoCalificacion.EstadoNotas);
     }
-
     const actionN2Template = (rowData: any) => {
         return actionNotas(rowData, 'Nota2', curso.CursoCalificacion.EstadoNotas);
     }
@@ -248,7 +306,9 @@ const page = () => {
     const actionNATemplate = (rowData: any) => {
         return actionAplazado(rowData, 'NotaAplazado', curso.CursoCalificacion.EstadoAplazado);
     }
-
+    const actionNDTemplate = (rowData: any) => {
+        return actionDirigido(rowData, 'NotaDirigido');
+    }
     const percentBodyTemplate = (rowData: Demo.RegistroMatricula) => {
         if (rowData.PorcentajeAsistencia >= 75) {
             return <ProgressBar color='#16A34A' value={rowData.PorcentajeAsistencia} />
@@ -263,6 +323,10 @@ const page = () => {
         } else {
             return <i className='pi pi-save' style={{ color: '#D4D4D4' }}></i>
         }
+    }
+
+    const actionSaveDirigidoTemplate = (rowData: any) => {
+        return <i className='pi pi-save' style={{ cursor: 'pointer' }} onClick={() => saveNotesDirigido(rowData)}></i>
     }
 
     const openActaDialog = () => {
@@ -350,13 +414,13 @@ const page = () => {
                 <h5 className='m-3 mt-4'>{curso.Nombre} {'(' + curso.CarreraProfesional.NombreCarrera.toUpperCase() + ')'}</h5>
             </div>
             <div className='col-12'>
+                <Toast ref={toast} />
                 <TabView>
                     <TabPanel header="Curso regular" leftIcon="pi pi-book mr-2">
                         <div className='card'>
                             <div style={{ display: 'flex', justifyContent: 'end' }}>
                                 {headerTable()}
                             </div>
-                            <Toast ref={toast} />
                             <DataTable
                                 ref={dt}
                                 value={registroMatricula}
@@ -392,7 +456,27 @@ const page = () => {
                             </Dialog>
                         </div>
                     </TabPanel>
+
                     <TabPanel header="Curso dirigido" leftIcon="pi pi-clock mr-2">
+                        {actas.length > 0 ?
+                            <div className='card'>
+                                <DataTable
+                                    ref={dt}
+                                    value={estudiantesDirigido}
+                                    dataKey="CodigoSunedu"
+                                    className="datatable-responsive"
+                                    emptyMessage="Sin estudiantes."
+                                >
+                                    <Column field="CodigoSunedu" header="COD SUNEDU" />
+                                    <Column field="Alumno" header="Apellidos y Nombres" sortable />
+                                    <Column field="NotaDirigido" body={actionNDTemplate} header="Nota dirigido" />
+                                    <Column field="NotaFinal" body={actionNFTemplate} header="Nota final" />
+                                    <Column body={actionSaveDirigidoTemplate} />
+                                </DataTable>
+                            </div>
+                            : <></>
+                        }
+
 
                     </TabPanel>
                 </TabView>
