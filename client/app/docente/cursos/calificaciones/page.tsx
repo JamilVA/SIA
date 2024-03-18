@@ -91,7 +91,7 @@ const page = () => {
             setRegistroMatricula(response.data.registroMatricula);
             console.log(response.data);
             // setCursos(response.data.cursos)
-            _estudDirigido = response.data.registroMatricula.filter((x: any) => x.NotaFinal < 11);
+            _estudDirigido = response.data.registroMatricula.filter((x: any) => x.NotaFinal < 11 || x.NotaDirigido);
             setEstudiantesDirigido(_estudDirigido);
         }).catch(error => {
             console.log("Error en carga de datos: ", error);
@@ -190,14 +190,15 @@ const page = () => {
         }
     }
 
-    const onUpdateNotesDirigido = (data: Demo.RegistroMatricula) => {
+    const onUpdateNotesDirigido = (data: Demo.RegistroMatricula, nota: string) => {
+        let noteEntered = nota == 'NotaAplazado' ? 13 : 14;
         let response = true;
-        const _n = (document.getElementById(String(data.CodigoEstudiante) + 'NotaDirigido') as HTMLInputElement)?.value;
+        const _n = (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement)?.value;
 
-        if (data['NotaDirigido'] == null && _n != '' && (Number(_n) >= 0) && (Number(_n) <= 14)) {
-            notasEstudiante['NotaDirigido'] = Number(_n);
-        } else if (data['NotaDirigido'] != undefined) {
-            notasEstudiante['NotaDirigido'] = Number(data['NotaDirigido']);
+        if (data[nota] == null && _n != '' && (Number(_n) >= 0) && (Number(_n) <= noteEntered)) {
+            notasEstudiante[nota] = Number(_n);
+        } else if (data[nota] != undefined) {
+            notasEstudiante[nota] = Number(data[nota]);
         } else if (_n != '') {
             toast.current?.show({
                 severity: 'error',
@@ -205,7 +206,7 @@ const page = () => {
                 detail: 'Nota inválida',
                 life: 3000
             });
-            (document.getElementById(String(data.CodigoEstudiante) + 'NotaDirigido') as HTMLInputElement).value = '';
+            (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement).value = '';
             response = false;
         }
         return response;
@@ -217,8 +218,8 @@ const page = () => {
         }
     }
 
-    const saveNotesDirigido = (data: Demo.RegistroMatricula) => {
-        if (onUpdateNotesDirigido(data)) {
+    const saveNotesDirigido = (data: Demo.RegistroMatricula, nota: string) => {
+        if (onUpdateNotesDirigido(data, nota)) {
             console.log('success')
             notasEstudiante['CodigoCursoCalificacion'] = data.CodigoCursoCalificacion;
             notasEstudiante['CodigoEstudiante'] = data.CodigoEstudiante;
@@ -228,7 +229,7 @@ const page = () => {
             setNoteDefault(data, 'Nota4');
             setNoteDefault(data, 'NotaRecuperacion');
             setNoteDefault(data, 'NotaAplazado');
-            if (notasEstudiante.NotaDirigido! > data.NotaFinal!) {
+            if (Number(notasEstudiante[nota]) > data.NotaFinal!) {
                 notasEstudiante.NotaFinal = notasEstudiante.NotaDirigido;
             } else {
                 setNoteDefault(data, 'NotaFinal');
@@ -318,15 +319,23 @@ const page = () => {
     }
 
     const actionSaveTemplate = (rowData: any) => {
-        if (curso.CursoCalificacion.EstadoNotas || curso.CursoCalificacion.EstadoRecuperacion || curso.CursoCalificacion.EstadoAplazado) {
+        if (curso.CursoCalificacion.EstadoNotas || curso.CursoCalificacion.EstadoRecuperacion) {
             return <i className='pi pi-save' style={{ cursor: 'pointer' }} onClick={() => saveNotes(rowData)}></i>
         } else {
             return <i className='pi pi-save' style={{ color: '#D4D4D4' }}></i>
         }
     }
 
+    const actionSaveAplazadoTemplate = (rowData: any) => {
+        if (curso.CursoCalificacion.EstadoAplazado) {
+            return <i className='pi pi-save' style={{ cursor: 'pointer' }} onClick={() => saveNotesDirigido(rowData, 'NotaAplazado')}></i>
+        } else {
+            return <i className='pi pi-save' style={{ color: '#D4D4D4' }}></i>
+        }
+    }
+
     const actionSaveDirigidoTemplate = (rowData: any) => {
-        return <i className='pi pi-save' style={{ cursor: 'pointer' }} onClick={() => saveNotesDirigido(rowData)}></i>
+        return <i className='pi pi-save' style={{ cursor: 'pointer' }} onClick={() => saveNotesDirigido(rowData, 'NotaDirigido')}></i>
     }
 
     const openActaDialog = () => {
