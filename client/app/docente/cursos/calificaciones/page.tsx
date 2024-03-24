@@ -1,7 +1,7 @@
 'use client'
 import React, { use, useEffect, useRef, useState } from 'react';
 import { Toast } from 'primereact/toast';
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
@@ -415,6 +415,10 @@ const page = () => {
                 </div>
             </>
         )
+    }
+
+    if (session?.user.codigoDocente == 0) {
+        redirect('/pages/notfound')
     }
 
     return (

@@ -8,9 +8,10 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
-
+import { useSession } from "next-auth/react";
 import { axiosInstance as axios } from '../../../../utils/axios.instance';
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function ActividadesPage() {
     const searchParams = useSearchParams();
@@ -40,6 +41,7 @@ export default function ActividadesPage() {
     const [submitted, setSubmitted] = useState(false);
     const [modificar, setModificar] = useState(false);
     const toast = useRef<Toast>(null);
+    const { data: session, status } = useSession();
 
     const fetchActividades = async () => {
         try {
@@ -211,7 +213,6 @@ export default function ActividadesPage() {
         }
     };
 
-
     const descargarArchivo = async (ruta: string) => {
         await axios.get('/files/download', {
             params: { fileName: ruta },
@@ -273,6 +274,20 @@ export default function ActividadesPage() {
             <Button label="Yes" icon="pi pi-check" text onClick={deleteRecurso} />
         </>
     );
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.codigoDocente == 0) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div className="card">

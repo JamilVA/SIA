@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import { axiosInstance as axios } from '../utils/axios.instance';
 import { useSession } from 'next-auth/react';
 import { Skeleton } from 'primereact/skeleton';
 import { Toast } from 'primereact/toast';

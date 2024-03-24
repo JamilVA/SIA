@@ -16,7 +16,7 @@ import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
@@ -382,6 +382,10 @@ export default function Curso() {
                 </div>
             </>
         )
+    }
+
+    if (session?.user.nivelUsuario != 4) {
+        redirect('/pages/notfound')
     }
 
     return (

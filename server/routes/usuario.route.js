@@ -1,11 +1,13 @@
 const { Router } = require("express")
-const { crearUsuario, getUsuarios, getNivelesUsuario, eliminarUsuario, editarUsuario, inhabilitarUsuario } = require("../controllers/usuario.controller")
+const { crearUsuario, getUsuarios, getNivelesUsuario, eliminarUsuario, editarUsuario, inhabilitarUsuario, getAllUsuarios } = require("../controllers/usuario.controller")
 
 const router = Router()
 
 router.post('/', crearUsuario)
 
 router.get('/', getUsuarios)
+
+router.get('/all', getAllUsuarios)
 
 router.get('/niveles', getNivelesUsuario)
 

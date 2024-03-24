@@ -7,6 +7,7 @@ import { DataTable } from 'primereact/datatable';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { redirect } from 'next/navigation';
 
 const Page = () => {
     const EmptyPago = {
@@ -102,6 +103,10 @@ const Page = () => {
                 </div>
             </>
         );
+    }
+
+    if (session?.user.nivelUsuario != 4) {
+        redirect('/pages/notfound')
     }
 
     return (

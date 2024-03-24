@@ -24,12 +24,14 @@ const AppMenu = () => {
         {
             label: 'PANEL DE ADMINISTRACIÓN',
             items: [
-                { label: 'Gestion de Usuarios', icon: 'pi pi-fw pi-user', to: '/administrador/usuarios' },
-                { label: 'Gestion de Estudiantes', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes' },
-                { label: 'Gestion de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
-                { label: 'Gestion de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/administrador/jefesDepartamento' },
-                { label: 'Gestion de Cursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
-                { label: 'Gestion de Periodo', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' }
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },
+                { label: 'Gestión de Usuarios', icon: 'pi pi-fw pi-user', to: '/administrador/usuarios' },
+                { label: 'Gestión de Estudiantes', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes' },
+                { label: 'Gestión de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
+                { label: 'Gestión de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/administrador/jefesDepartamento' },
+                { label: 'Gestión de Cursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
+                { label: 'Gestión de Periodos', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' },
+                { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
     ];
@@ -38,7 +40,9 @@ const AppMenu = () => {
         {
             label: 'PANEL DE TESORERÍA',
             items: [
-                { label: 'Gestion de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' }
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },
+                { label: 'Gestion de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' },
+                { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
     ];
@@ -47,6 +51,7 @@ const AppMenu = () => {
         {
             label: 'PANEL DE ESTUDIANTE',
             items: [
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },
                 { label: 'Perfil', icon: 'pi pi-fw pi-user', to: '/estudiante/perfil' },
                 { label: 'Calificaciones', icon: 'pi pi-fw pi-check-square', to: '/estudiante/calificaciones' },
                 { label: 'Clases', icon: 'pi pi-fw pi-book', to: '/estudiante/clases' },
@@ -62,6 +67,7 @@ const AppMenu = () => {
         {
             label: 'PANEL DE DOCENTE',
             items: [
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },
                 { label: 'Cursos', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
                 { label: 'Horarios', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
@@ -74,13 +80,22 @@ const AppMenu = () => {
         {
             label: 'PANEL DE JEFE DE DEPARTAMENTO',
             items: [       
-                { label: 'Cursos (D)', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
-                { label: 'Horarios (D)', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },    
-                { label: 'Habilitación de cursos (J)', icon: 'pi pi-fw pi-book', to: '/jefatura/habilitacion-cursos' },              
-                { label: 'Gestion de Matricula (J)', icon: 'pi pi-fw pi-list', to: '/jefatura/matriculas' },
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },  
+                { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefatura/habilitacion-cursos' },              
+                { label: 'Gestion de Matricula', icon: 'pi pi-fw pi-list', to: '/jefatura/matriculas' },
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
+        session?.user.codigoDocente != 0?
+        {
+            label: 'PANEL DE DOCENTE',
+            items: [
+                { label: 'Cursos', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
+                { label: 'Horarios', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },
+            ]
+        }:{
+            label: ''
+        }
 
     ];
     

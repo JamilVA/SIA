@@ -13,7 +13,9 @@ import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { useSession } from "next-auth/react";
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function CursoCalificacionPage() {
@@ -44,6 +46,7 @@ export default function CursoCalificacionPage() {
     const [horario, setHorario] = useState(emptyHorario)
 
     const [horarios, setHorarios] = useState<Array<any>>([])
+    const { data: session, status } = useSession();
 
     const dias = [
         { Codigo: 1, Nombre: 'Lunes' },
@@ -330,6 +333,20 @@ export default function CursoCalificacionPage() {
             <Button label="Yes" icon="pi pi-check" text onClick={deleteDia} />
         </>
     );
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.codigoJefe == 0) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div className="grid crud-demo">

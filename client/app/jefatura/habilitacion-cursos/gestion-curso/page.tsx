@@ -1,26 +1,23 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { axiosInstance as axios } from '../../../../utils/axios.instance';
-
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { classNames } from 'primereact/utils';
-
 import 'primeflex/primeflex.css';
-
 import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Toast } from 'primereact/toast';
-
-import { useSearchParams } from 'next/navigation';
-
+import { redirect, useSearchParams } from 'next/navigation';
 import 'primeicons/primeicons.css';
 import { CalendarChangeEvent } from 'primereact/calendar';
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/saga-blue/theme.css';
+import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function Curso() {
     const searchParamas = useSearchParams();
@@ -75,6 +72,7 @@ export default function Curso() {
     const [submitted, setSubmitted] = useState(false);
     const [modified, setModified] = useState(false);
     const [sesionDialog, setSesionDialog] = useState(false);
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         cargarDatos();
@@ -346,6 +344,20 @@ export default function Curso() {
             </div>
         );
     };
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.codigoJefe == 0) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div>

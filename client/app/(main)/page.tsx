@@ -1,8 +1,7 @@
 'use client'
-import Perfil from "../../templates/Perfil"
 import axios from 'axios';
 import { useSession } from "next-auth/react";
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../styles/startpage.css';
 import { ProgressSpinner } from 'primereact/progressspinner';
 

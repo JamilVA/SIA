@@ -17,6 +17,9 @@ import { RadioButton } from 'primereact/radiobutton';
 import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
 import { Image } from 'primereact/image';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function Page() {
 
@@ -57,6 +60,7 @@ export default function Page() {
     const [exportDialog, setExportDialog] = useState(false);
     const [carrera, setCarrera] = useState();
     const [errors, setErrors] = useState('');
+    const { data: session, status } = useSession();
 
     //const [actividades, setActividades] = useState<Array<any>>([]);
 
@@ -439,6 +443,20 @@ export default function Page() {
             </Link>
         </>
     );
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.nivelUsuario != 1) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div className="grid crud-demo">

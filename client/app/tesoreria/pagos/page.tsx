@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
+import { redirect } from 'next/navigation';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
 import Link from 'next/link';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
@@ -10,9 +11,11 @@ import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import React, { useEffect, useRef, useState } from 'react';
+import { useSession } from "next-auth/react";
 
 export default function RegistrarPagoPage() {
 
@@ -37,7 +40,7 @@ export default function RegistrarPagoPage() {
     const [filters, setFilters] = useState<DataTableFilterMeta>({});
     const [loading, setLoading] = useState(true);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
-
+    const { data: session, status } = useSession();
     const [exportDialog, setExportDialog] = useState(false);
 
     const toast = useRef<Toast>(null);
@@ -285,8 +288,21 @@ export default function RegistrarPagoPage() {
         </>
     );
 
-    return (
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
 
+    if (session?.user.nivelUsuario != 5) {
+        redirect('/pages/notfound')
+    }
+
+    return (
         <div className="col-12">
             <h2>Gestión de Pagos</h2>
             <div>

@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import Perfil from "../../../templates/Perfil"
 import { Skeleton } from 'primereact/skeleton';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { redirect } from 'next/navigation';
 
 const Page = () => {
 
@@ -171,6 +172,10 @@ const Page = () => {
                 </div>
             </>
         )
+    }
+
+    if (session?.user.nivelUsuario != 4) {
+        redirect('/pages/notfound')
     }
 
     return (

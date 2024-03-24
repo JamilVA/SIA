@@ -11,10 +11,10 @@ import { axiosInstance as axios } from '../../../../utils/axios.instance';
 import { classNames } from 'primereact/utils';
 import { ProgressBar } from 'primereact/progressbar';
 import { Checkbox } from 'primereact/checkbox';
-
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 import { Dialog } from 'primereact/dialog';
-
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { useSession } from "next-auth/react";
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function AsistenciasPage() {
@@ -30,6 +30,7 @@ export default function AsistenciasPage() {
     const dt = useRef<DataTable<any>>(null);
     const [visible, setVisible] = useState(false)
     const [pdfAsistenciaURL, setPdfAsistenciaURL] = useState('')
+    const { data: session, status } = useSession();
 
     const fetchMatriculados = async () => {
         await axios.get('/curso-calificacion/asistentes', {
@@ -249,6 +250,20 @@ export default function AsistenciasPage() {
     );
 
     const footer = `${estudiantes ? estudiantes.length : 0} estudiantes matriculados`;
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.codigoDocente == 0) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div className="grid crud-demo">

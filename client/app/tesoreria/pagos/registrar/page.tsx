@@ -6,7 +6,9 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
+import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function RegistroPagoPage() {
@@ -37,6 +39,7 @@ export default function RegistroPagoPage() {
     const [loading, setLoading] = useState(false)
     const toast = useRef<Toast>(null);
     const router = useRouter();
+    const { data: session, status } = useSession();
 
     const fetchConceptos = async () => {
         await axios.get('/pago/conceptos')
@@ -189,8 +192,21 @@ export default function RegistroPagoPage() {
         );
     };
 
-    return (
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
 
+    if (session?.user.nivelUsuario != 5) {
+        redirect('/pages/notfound')
+    }
+
+    return (
         <div className="card">
             <Toast ref={toast} />
             <h2>Registrar nuevo pago</h2>

@@ -1,11 +1,9 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
-
 import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-
 import { Toast } from 'primereact/toast';
 import { Image } from 'primereact/image';
 import { Button } from 'primereact/button';
@@ -16,6 +14,9 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
 import { CalendarChangeEvent } from 'primereact/calendar';
+import { redirect } from 'next/navigation';
+import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function DocentesDemo() {
     let emptyDocente: {
@@ -58,6 +59,7 @@ export default function DocentesDemo() {
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
+    const { data: session, status } = useSession();
 
     const [imagenURL, setImagenURL] = useState<string | null>(null);
     const [archivo, setArchivo] = useState<FileUploadFilesEvent | null>(null);
@@ -414,8 +416,8 @@ export default function DocentesDemo() {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" severity="warning" onClick={() => editDocente(rowData)} />
-                <Button icon="pi pi-power-off" rounded outlined severity={rowData.Estado ? 'danger' : 'info'} onClick={() => confirmDeleteDocente(rowData)} />
+                <Button icon="pi pi-pencil" rounded className="mr-2" severity="warning" onClick={() => editDocente(rowData)} />
+                <Button icon="pi pi-power-off" rounded severity={rowData.Estado ? 'danger' : 'info'} onClick={() => confirmDeleteDocente(rowData)} />
             </React.Fragment>
         );
     };
@@ -477,6 +479,20 @@ export default function DocentesDemo() {
             </React.Fragment>
         );
     };
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.nivelUsuario != 1) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div>

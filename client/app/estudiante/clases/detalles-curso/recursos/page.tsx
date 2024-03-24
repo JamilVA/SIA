@@ -3,9 +3,10 @@
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import React, { useEffect, useRef, useState } from 'react';
-
+import { useSession } from "next-auth/react";
 import { axiosInstance as axios } from '../../../../../utils/axios.instance';
 import { useSearchParams } from 'next/navigation';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function ActividadesPage() {
     const searchParams = useSearchParams();
@@ -28,6 +29,7 @@ export default function ActividadesPage() {
 
     const [recursos, setRecursos] = useState<(typeof recursoVacio)[]>([]);
     const [recurso, setRecurso] = useState(recursoVacio);
+    const { data: session, status } = useSession();
     const [sesion, setSesion] = useState(sesionVacia);
     const toast = useRef<Toast>(null);
 
@@ -81,6 +83,20 @@ export default function ActividadesPage() {
             })
     };
 
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.nivelUsuario != 4) {
+        redirect('/pages/notfound')
+    }
+
     return (
         <div className="card">
             <Toast ref={toast} />
@@ -128,3 +144,7 @@ export default function ActividadesPage() {
         }
     }
 }
+function redirect(arg0: string) {
+    throw new Error('Function not implemented.');
+}
+

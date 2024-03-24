@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import { axiosInstance as axios } from '../../../../../utils/axios.instance';
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
@@ -10,6 +10,8 @@ import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
 import React, { useEffect, useRef, useState } from 'react';
+import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function CalificarActividadesPage() {
@@ -39,6 +41,7 @@ export default function CalificarActividadesPage() {
     const [submitted, setSubmitted] = useState(false);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
+    const { data: session, status } = useSession();
 
     const fetchActividades = async () => {
         await axios.get('/sesion/actividades-calificar', {
@@ -172,8 +175,21 @@ export default function CalificarActividadesPage() {
         </>
     );
 
-    return (
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
 
+    if (session?.user.codigoDocente == 0) {
+        redirect('/pages/notfound')
+    }
+
+    return (
         <div className="card">
             <Toast ref={toast} />
             <DataTable

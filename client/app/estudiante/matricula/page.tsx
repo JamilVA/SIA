@@ -12,6 +12,7 @@ import Perfil from '../../../templates/Perfil';
 
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { redirect } from 'next/navigation';
 
 export default function Matricula() {
     const { data: session, status } = useSession();
@@ -355,6 +356,10 @@ export default function Matricula() {
                 </div>
             </>
         );
+    }
+
+    if (session?.user.nivelUsuario != 4) {
+        redirect('/pages/notfound')
     }
 
     return (
