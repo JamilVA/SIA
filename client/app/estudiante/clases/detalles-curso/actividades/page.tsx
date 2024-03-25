@@ -10,8 +10,7 @@ import { ProgressBar } from 'primereact/progressbar';
 import { Tag } from 'primereact/tag';
 import { BlockUI } from 'primereact/blockui';
 import React, { useEffect, useRef, useState } from 'react';
-
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 
 import { axiosInstance as axios } from '../../../../../utils/axios.instance';
 import { useSession } from "next-auth/react";
@@ -421,6 +420,10 @@ export default function ActividadesPage() {
                 </div>
             </>
         )
+    }
+
+    if (session?.user.nivelUsuario != 4) {
+        redirect('/pages/notfound')
     }
 
     return (

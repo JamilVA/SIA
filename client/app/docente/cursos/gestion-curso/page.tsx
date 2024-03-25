@@ -1,32 +1,28 @@
 'use client';
 import React, { useState, useEffect, useRef, use } from 'react';
 import { axiosInstance as axios } from '../../../../utils/axios.instance';
-
 const { startOfWeek, addWeeks, format } = require('date-fns');
-
 import { TabView, TabPanel } from 'primereact/tabview';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { classNames } from 'primereact/utils';
-
 import 'primeflex/primeflex.css';
-
 import { Toast } from 'primereact/toast';
 import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
 import { SpeedDial } from 'primereact/speeddial';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
 import Perfil from '../../../../templates/Perfil';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { useSession } from "next-auth/react";
 
 export default function Curso() {
     const searchParamas = useSearchParams();
@@ -101,7 +97,7 @@ export default function Curso() {
     const [semanas, setSemanas] = useState<(typeof semanaVacia)[]>([]);
     const [unidades, setUnidades] = useState<(typeof unidadVacia)[]>([]);
     const [horarios, setHorarios] = useState<(typeof horarioVacio)[]>([]);
-
+    const { data: session, status } = useSession();
     const [submitted, setSubmitted] = useState(false);
     const [modified, setModified] = useState(false);
     const [sesionDialog, setSesionDialog] = useState(false);
@@ -687,6 +683,7 @@ export default function Curso() {
             </div>
         </>
     );
+
     const title = (curso: typeof cursoVacio) => {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -697,6 +694,20 @@ export default function Curso() {
             </div>
         );
     };
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.codigoDocente == 0) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div className="grid">

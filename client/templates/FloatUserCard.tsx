@@ -158,22 +158,22 @@ const Perfil = () => {
                     {(
                         <div className='formgrid grid'>
                             <div className="field row">
-                                <label htmlFor="DNI"> <b>Contraseña actual:</b> </label>
-                                <Password toggleMask feedback={false} style={{ width: '100%' }} autoFocus id="DNI" inputClassName="w-full md:w-rem"
+                                <label htmlFor="currentPassword"> <b>Contraseña actual:</b> </label>
+                                <Password toggleMask feedback={false} style={{ width: '100%' }} autoFocus id="currentPassword" inputClassName="w-full md:w-rem"
                                     onChange={(e) => onInputChange(e.target.value, 'oldPassword')} required
                                     className={classNames({ 'p-invalid': submitted && !dataChang.oldPassword })} />
                                 {submitted && !dataChang.oldPassword && <small className="p-error">Complete el campo</small>}
                             </div>
                             <div className="field row">
-                                <label htmlFor="paterno"> <b>Nueva contraseña:</b> </label>
-                                <Password toggleMask feedback={false} style={{ width: '100%' }} id="paterno" inputClassName="w-full md:w-rem"
+                                <label htmlFor="newPassword"> <b>Nueva contraseña:</b> </label>
+                                <Password toggleMask feedback={false} style={{ width: '100%' }} id="newPassword" inputClassName="w-full md:w-rem"
                                     onChange={(e) => onInputChange(e.target.value, 'newPassword')} required
                                     className={classNames({ 'p-invalid': submitted && !dataChang.newPassword })} />
                                 {submitted && !dataChang.newPassword && <small className="p-error">Complete el campo</small>}
                             </div>
                             <div className="field row">
-                                <label htmlFor="materno"> <b>Repita la nueva contraseña:</b> </label>
-                                <Password toggleMask feedback={false} style={{ width: '100%' }} id="materno" inputClassName="w-full md:w-rem"
+                                <label htmlFor="repeatPassword"> <b>Repita la nueva contraseña:</b> </label>
+                                <Password toggleMask feedback={false} style={{ width: '100%' }} id="repeatPassword" inputClassName="w-full md:w-rem"
                                     onChange={(e) => onInputChange(e.target.value, 'repeatNewPassword')} required
                                     className={classNames({ 'p-invalid': submitted && !dataChang.repeatNewPassword })} />
                                 {submitted && !dataChang.repeatNewPassword && <small className="p-error">Complete el campo</small>}

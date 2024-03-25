@@ -7,6 +7,9 @@ import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
+import { redirect } from 'next/navigation';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { useSession } from "next-auth/react";
 
 export default function Matricula() {
     const estudianteVacio = {
@@ -67,6 +70,7 @@ export default function Matricula() {
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         cargarPeriodo();
@@ -318,6 +322,19 @@ export default function Matricula() {
         );
     };
 
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.codigoJefe == 0) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div className="grid">

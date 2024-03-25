@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
+import { redirect } from 'next/navigation';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
@@ -7,10 +8,13 @@ import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
+import { Password } from 'primereact/password';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
+import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function UsuariosPage() {
@@ -31,10 +35,36 @@ export default function UsuariosPage() {
             Nombre: ''
         }
     }
-    const [usuarios, setUsuarios] = useState([usuarioVacio])
-    const [usuario, setUsuario] = useState(usuarioVacio);
-    const [nivelesUsuario, setNivelesUsuario] = useState([{ Codigo: 0, Nombre: '' }])
 
+    const usuarioVacioGen = {
+        Codigo: 0,
+        Email: '',
+        Persona: {
+            Paterno: '',
+            Materno: '',
+            Nombres: '',
+            DNI: ''
+        }
+    }
+
+    type Data = {
+        email: string | undefined;
+        newPassword: string;
+        repeatNewPassword: string;
+        [key: string]: string | undefined;
+    }
+
+    const data = {
+        email: '',
+        newPassword: '',
+        repeatNewPassword: ''
+    }
+
+    const [usuarios, setUsuarios] = useState([usuarioVacio]);
+    const [usuariosGen, setUsuariosGen] = useState([usuarioVacioGen]);
+    const [usuario, setUsuario] = useState(usuarioVacio);
+    const [usuarioGen, setUsuarioGen] = useState(usuarioVacioGen);
+    const [nivelesUsuario, setNivelesUsuario] = useState([{ Codigo: 0, Nombre: '' }])
     const [loading, setLoading] = useState(true)
     const [editar, setEditar] = useState(false)
     const [usuarioDialog, setUsuarioDialog] = useState(false);
@@ -44,6 +74,10 @@ export default function UsuariosPage() {
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
+    const [dataChang, setDataChang] = useState<Data>(data);
+    const [visible, setVisible] = useState(false);
+    let res = '';
+    const { data: session, status } = useSession();
 
     const fetchUsuarios = async () => {
         await axios.get('/usuario')
@@ -63,6 +97,20 @@ export default function UsuariosPage() {
                     life: 3000
                 });
             })
+    }
+
+    const fetchUsuariosGen = async () => {
+        await axios.get('/usuario/all').then(response => {
+            setUsuariosGen(response.data.usuarios);
+            console.log(response.data.usuarios)
+        }).catch(error => {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: error.message,
+                life: 3000
+            });
+        })
     }
 
     const fetchNiveles = async () => {
@@ -85,6 +133,7 @@ export default function UsuariosPage() {
 
     useEffect(() => {
         fetchUsuarios();
+        fetchUsuariosGen();
         fetchNiveles();
     }, []);
 
@@ -150,6 +199,7 @@ export default function UsuariosPage() {
                     detail: response.data.message,
                     life: 3000
                 });
+                fetchUsuarios();
             })
             .catch(error => {
                 console.log("Ha ocurrido un error", error)
@@ -212,6 +262,13 @@ export default function UsuariosPage() {
         setEditar(true)
         setUsuario(_usuario);
         setUsuarioDialog(true);
+    };
+
+    const changPassUsuario = (usuarioGen: any) => {
+        let _usuario = { ...usuarioGen }
+        setUsuarioGen(_usuario);
+        dataChang['email'] = usuarioGen.Email;
+        setVisible(true);
     };
 
     const confirmDeletePeriodo = (usuario: any) => {
@@ -320,12 +377,65 @@ export default function UsuariosPage() {
         //console.log(_usuario)
     };
 
+    const onInputPassChange = (val: string, name: string) => {
+        let _data = { ...dataChang };
+        _data[`${name}`] = val;
+
+        setDataChang(_data);
+    };
+
     const onDropdownChange = (e: any) => {
         const val = (e.target && e.target.value) || '';
         let _usuario = { ...usuario };
         _usuario.NivelUsuario.Codigo = val;
         setUsuario(_usuario)
     };
+
+    const verifyGeneralInputs = () => {
+        if (dataChang.email != '' && dataChang.newPassword != '' && dataChang.repeatNewPassword != '') {
+            return true
+        }
+        return false
+    }
+
+    const verifyInputs = () => {
+        if (dataChang.newPassword.length < 8) {
+            res = 'Su nueva contraseña debe contener al menos 8 caracteres';
+            return false;
+        } else if (dataChang.newPassword != dataChang.repeatNewPassword) {
+            res = 'Las nuevas contraseñas no coinciden';
+            return false;
+        }
+        return true;
+    }
+
+    const changePassword = async () => {
+        setSubmitted(true);
+        if (verifyGeneralInputs()) {
+            if (verifyInputs()) {
+                await axios.put("/auth/changePasswordAdmin", dataChang).then(response => {
+                    toast.current?.show({
+                        severity: 'success',
+                        summary: 'Proceso exitoso',
+                        detail: response.data.message,
+                        life: 3000
+                    });
+                    setDataChang(data);
+                    setSubmitted(false);
+                    setVisible(false);
+                    setUsuarioGen(usuarioVacioGen);
+                }).catch(error => {
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'No se pudo cambiar la contraseña',
+                        life: 3000
+                    });
+                });
+            }
+        }
+    }
+
 
     const leftToolbarTemplate = () => {
         return (
@@ -358,9 +468,23 @@ export default function UsuariosPage() {
         );
     };
 
+    const actionPasswordTemplate = (rowData: any) => {
+        return (
+            <>
+                <Button icon="pi pi-key" rounded severity="info" className="mr-2" onClick={() => changPassUsuario(rowData)} />
+            </>
+        );
+    };
+
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
             <h5 className="m-0">Gestionar usuarios</h5>
+        </div>
+    );
+
+    const headerAll = (
+        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <h5 className="m-0">Gestionar contraseñas</h5>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Buscar..." />
@@ -370,8 +494,8 @@ export default function UsuariosPage() {
 
     const productDialogFooter = (
         <>
-            <Button label="Cancelar" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Guardar" icon="pi pi-check" text onClick={savePeriodo} />
+            <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideDialog} />
+            <Button label="Guardar" icon="pi pi-check" onClick={savePeriodo} />
         </>
     );
 
@@ -389,11 +513,32 @@ export default function UsuariosPage() {
         </>
     );
 
+    const DialogFooter = (
+        <>
+            <Button label="Cancelar" icon="pi pi-times" outlined onClick={() => (setVisible(false), setSubmitted(false), setDataChang(data))} />
+            <Button label="Guardar" icon="pi pi-check" onClick={changePassword} />
+        </>
+    );
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.nivelUsuario != 1) {
+        redirect('/pages/notfound')
+    }
+
     return (
         <div className="grid crud-demo">
             <div className="col-12">
+                <Toast ref={toast} />
                 <div className="card">
-                    <Toast ref={toast} />
                     <Toolbar className="mb-4" start={leftToolbarTemplate}></Toolbar>
                     <DataTable
                         ref={dt}
@@ -401,7 +546,6 @@ export default function UsuariosPage() {
                         value={usuarios}
                         dataKey="Codigo"
                         className="datatable-responsive"
-                        globalFilter={globalFilter}
                         emptyMessage="No se encontraron usuarios registrados"
                         header={header}
                     >
@@ -452,7 +596,7 @@ export default function UsuariosPage() {
                                 <label htmlFor="nivel">Nivel de usuario</label>
                                 <Dropdown
                                     id="nivel"
-                                    value={usuario.NivelUsuario.Codigo}
+                                    value={usuario.NivelUsuario?.Codigo}
                                     onChange={(e) => {
                                         onDropdownChange(e);
                                     }}
@@ -483,8 +627,58 @@ export default function UsuariosPage() {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {usuario && (
                                 <span>
-                                    ¿Seguro de que desea inhabilitar el usuario <b>{usuario.Email}</b>?                                 
+                                    ¿Seguro de que desea inhabilitar el usuario <b>{usuario.Email}</b>?
                                 </span>
+                            )}
+                        </div>
+                    </Dialog>
+                </div>
+                <div className='card'>
+                    <DataTable
+                        ref={dt}
+                        value={usuariosGen}
+                        dataKey="Codigo"
+                        paginator
+                        rows={10}
+                        rowsPerPageOptions={[5, 10, 25]}
+                        className="datatable-responsive"
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Mostrando de {first} a {last} de {totalRecords} usuarios"
+                        globalFilter={globalFilter}
+                        emptyMessage="Sin usuarios registrados"
+                        header={headerAll}
+                    >
+                        <Column field="Persona.DNI" header="DNI" sortable />
+                        <Column field="Persona.Paterno" header="Paterno" sortable />
+                        <Column field="Persona.Materno" header="Materno" sortable />
+                        <Column field="Persona.Nombres" header="Nombres" sortable />
+                        <Column field="Email" header="Email" sortable />
+                        <Column body={actionPasswordTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                    </DataTable>
+
+                    <Dialog visible={visible} style={{ width: '300px' }} header="Cambiar contraseña" modal footer={DialogFooter} onHide={() => setVisible(false)}>
+                        <div className="flex align-items-center justify-content-center">
+                            {(
+                                <div className='formgrid grid'>
+                                    <div className="field row">
+                                        <label htmlFor="newPassword"> <b>Nueva contraseña:</b> </label>
+                                        <Password toggleMask feedback={false} style={{ width: '100%' }} id='newPassword' inputClassName="w-full md:w-rem"
+                                            onChange={(e) => onInputPassChange(e.target.value, 'newPassword')} required
+                                            className={classNames({ 'p-invalid': submitted && !dataChang.newPassword })} />
+                                    </div>
+                                    <div className="field row">
+                                        <label htmlFor="repeatPassword"> <b>Repita la nueva contraseña:</b> </label>
+                                        <Password toggleMask feedback={false} style={{ width: '100%' }} id="repeatPassword" inputClassName="w-full md:w-rem"
+                                            onChange={(e) => onInputPassChange(e.target.value, 'repeatNewPassword')} required
+                                            className={classNames({ 'p-invalid': submitted && !dataChang.repeatNewPassword })} />
+                                    </div>
+                                    {
+                                        (submitted && !verifyInputs()) ?
+                                            <div className='row' style={{ border: '1px solid red', borderRadius: '5px', padding: '8px', backgroundColor: '#F2B5B5' }}>
+                                                <small className="p-error">{res}</small>
+                                            </div> : <></>
+                                    }
+                                </div>
                             )}
                         </div>
                     </Dialog>

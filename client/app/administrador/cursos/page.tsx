@@ -14,6 +14,9 @@ import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const Page = () => {
     let emptyCurso: Demo.Curso = {
@@ -45,6 +48,7 @@ const Page = () => {
     const dt = useRef<DataTable<any>>(null);
     const [state, setState] = useState('');
     const [className, setClassName] = useState('disable');
+    const { data: session, status } = useSession();
 
     const niveles = [{ value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }, { value: 5 }];
 
@@ -359,6 +363,20 @@ const Page = () => {
             <Button label="Si" icon="pi pi-check" onClick={deleteCurso} />
         </>
     );
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.nivelUsuario != 1) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div className="grid crud-demo">

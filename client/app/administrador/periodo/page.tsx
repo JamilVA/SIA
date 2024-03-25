@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
+import { redirect } from 'next/navigation';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Button } from 'primereact/button';
 import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
@@ -12,6 +13,8 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
+import { useSession } from "next-auth/react";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function PeriodoPage() {
@@ -36,6 +39,7 @@ export default function PeriodoPage() {
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
+    const { data: session, status } = useSession();
 
     const fetchPeriodos = async () => {
         await axios.get('/periodo')
@@ -370,8 +374,8 @@ export default function PeriodoPage() {
 
     const productDialogFooter = (
         <>
-            <Button label="Cancelar" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Guardar" icon="pi pi-check" text onClick={savePeriodo} />
+            <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideDialog} />
+            <Button label="Guardar" icon="pi pi-check" onClick={savePeriodo} />
         </>
     );
 
@@ -388,6 +392,20 @@ export default function PeriodoPage() {
             <Button label="Sí" icon="pi pi-check" text onClick={finalizarPeriodo} />
         </>
     );
+
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
+
+    if (session?.user.nivelUsuario != 1) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div className="grid crud-demo">

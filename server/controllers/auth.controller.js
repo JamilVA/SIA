@@ -45,7 +45,7 @@ const login = async (req, res) => {
             let _jefe = await JefeDepartamento.findOne({ where: { CodigoPersona: user.CodigoPersona } });
             let _docente = await Docente.findOne({ where: { CodigoPersona: user.CodigoPersona } });
             codigoJefe = _jefe.Codigo;
-            codigoDocente = _docente.Codigo;
+            _docente? codigoDocente = _docente.Codigo : codigoDocente = 0;
         } else if (nivelUsuario == 3) {
             let _docente = await Docente.findOne({ where: { CodigoPersona: user.CodigoPersona } });
             codigoDocente = _docente.Codigo;
@@ -108,4 +108,30 @@ const changePassword = async (req, res) => {
     }
 }
 
-module.exports = { login, register, refreshToken, logout, changePassword };
+const changePasswordAdmin = async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+        let user = await Usuario.findOne({ where: { Email: email } });
+
+        if (!user)
+            return res.status(403).json({ error: "Usuario inexistente" });
+
+        await user.update(
+            {
+                Password: hash(newPassword)
+            },
+            {
+                where: {
+                    Email: email,
+                }
+            }
+        )
+        res.json({ ok: true, 'message': 'Contraseña actualizada correctamente' });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Error de servidor" });
+    }
+}
+
+module.exports = { login, register, refreshToken, logout, changePassword, changePasswordAdmin };

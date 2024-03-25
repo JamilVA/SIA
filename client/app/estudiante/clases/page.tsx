@@ -8,6 +8,7 @@ import { DataTable } from 'primereact/datatable';
 import React, { useEffect, useRef, useState } from 'react';
 import Perfil from "../../../templates/Perfil";
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { redirect } from 'next/navigation';
 
 const Page = () => {
     const cursoCVacio = {
@@ -22,7 +23,7 @@ const Page = () => {
     };
 
     const { data: session, status } = useSession();
-    
+
     const [cursosCalificacion, setCursosCalificaion] = useState<(typeof cursoCVacio)[]>([]);
     const dt = useRef<DataTable<any>>(null);
 
@@ -37,27 +38,27 @@ const Page = () => {
             });
             const { cursosCalificacion } = data;
 
-            setCursosCalificaion(cursosCalificacion);          
+            setCursosCalificaion(cursosCalificacion);
 
             console.log(data);
         } catch (error) {
             console.error(error);
         }
-    };  
+    };
 
     const actionBodyTemplate = (rowData: any) => {
         return (
-            <>               
+            <>
                 <Link href={{
-                    pathname:'/estudiante/clases/detalles-curso',
+                    pathname: '/estudiante/clases/detalles-curso',
                     query: {
-                        codigoS:rowData.Codigo,
+                        codigoS: rowData.Codigo,
                     }
                 }}>
-                    <Button style={{height:'25px'}} rounded severity="success" tooltip="" className="mr-2">
+                    <Button style={{ height: '25px' }} rounded severity="success" tooltip="" className="mr-2">
                         Ver
                     </Button>
-                </Link>                
+                </Link>
             </>
         );
     };
@@ -65,11 +66,15 @@ const Page = () => {
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
         )
+    }
+
+    if (session?.user.nivelUsuario != 4) {
+        redirect('/pages/notfound')
     }
 
     return (
@@ -94,3 +99,4 @@ const Page = () => {
 };
 
 export default Page;
+

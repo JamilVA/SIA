@@ -82,7 +82,7 @@ const editarUsuario = async (req, res) => {
 
         })
 
-        res.json({ message: 'Usuario creado correctamente' })
+        res.json({ message: 'Usuario editado correctamente' })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Error al crear el usuario' })
@@ -133,11 +133,30 @@ const inhabilitarUsuario = async (req, res) => {
     }
 }
 
+const getAllUsuarios = async (req, res) => {
+    try {
+        const usuarios = await Usuario.findAll({
+            include: [{
+                model: Persona,
+                attributes: [ 'DNI','Nombres', 'Paterno', 'Materno']
+            }
+                
+            ],
+            attributes: ['Codigo','Email']
+        })
+        res.json({ usuarios: usuarios })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Error al cargar los usuarios' })
+    }
+}
+
 module.exports = {
     getUsuarios,
     crearUsuario,
     getNivelesUsuario,
     eliminarUsuario,
     editarUsuario,
-    inhabilitarUsuario
+    inhabilitarUsuario,
+    getAllUsuarios
 }

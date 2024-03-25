@@ -7,6 +7,7 @@ import { Toast } from 'primereact/toast';
 import Perfil from "../../../templates/Perfil";
 import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { redirect } from 'next/navigation';
 
 const Page = () => {
 
@@ -52,11 +53,15 @@ const Page = () => {
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
         )
+    }
+
+    if (session?.user.codigoDocente == 0) {
+        redirect('/pages/notfound')
     }
 
     return (

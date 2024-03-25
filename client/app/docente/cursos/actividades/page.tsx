@@ -11,9 +11,10 @@ import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Calendar } from 'primereact/calendar';
-
-import { useSearchParams } from 'next/navigation';
+import { useSession } from "next-auth/react";
+import { redirect, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function ActividadesPage() {
@@ -38,6 +39,7 @@ export default function ActividadesPage() {
     const [loading, setLoading] = useState(false)
     const [modificar, setModificar] = useState(false)
     const toast = useRef<Toast>(null);
+    const { data: session, status } = useSession();
 
     const fetchActividades = async () => {
         setLoading(true)
@@ -333,8 +335,21 @@ export default function ActividadesPage() {
         );
     };
 
-    return (
+    if (status === "loading") {
+        return (
+            <>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                    <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
+                </div>
+            </>
+        )
+    }
 
+    if (session?.user.codigoDocente == 0) {
+        redirect('/pages/notfound')
+    }
+
+    return (
         <div className="card">
             <Toast ref={toast} />
             <Toolbar className="mb-4" start={leftToolbarTemplate}></Toolbar>

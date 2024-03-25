@@ -8,6 +8,7 @@ import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Dropdown } from 'primereact/dropdown';
 import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { redirect } from 'next/navigation';
 
 const page = () => {
 
@@ -181,6 +182,10 @@ const page = () => {
                 </div>
             </>
         )
+    }
+
+    if (session?.user.nivelUsuario != 4) {
+        redirect('/pages/notfound')
     }
 
     return (

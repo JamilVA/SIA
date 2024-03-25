@@ -99,10 +99,6 @@ const Page = () => {
         );
     };
 
-    /*if (session?.user.nivelUsuario != 3) {
-        redirect('/pages/notfound')
-    }*/
-
     if (status === "loading") {
         return (
             <>
@@ -111,6 +107,10 @@ const Page = () => {
                 </div>
             </>
         )
+    }
+
+    if (session?.user.codigoDocente == 0) {
+        redirect('/pages/notfound')
     }
 
     return (

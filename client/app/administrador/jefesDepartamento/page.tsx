@@ -1,11 +1,9 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
-
 import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { FileUpload } from 'primereact/fileupload';
@@ -16,6 +14,8 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { CalendarChangeEvent } from 'primereact/calendar';
+import { redirect } from 'next/navigation';
+import { useSession } from "next-auth/react";
 
 export default function JefeDepartamentosDemo() {
     let emptyJefeDepartamento: {
@@ -96,6 +96,7 @@ export default function JefeDepartamentosDemo() {
     const [departamento, setDepartamento] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         fetchData();
@@ -585,8 +586,8 @@ export default function JefeDepartamentosDemo() {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
-                <Button icon="pi pi-pencil" rounded outlined className="mr-2" severity="warning" onClick={() => editJefeDepartamento(rowData)} />
-                <Button icon="pi pi-power-off" rounded outlined severity={rowData.Estado ? 'danger' : 'info'} onClick={() => confirmDeleteJefeDepartamento(rowData)} />
+                <Button icon="pi pi-pencil" rounded className="mr-2" severity="warning" onClick={() => editJefeDepartamento(rowData)} />
+                <Button icon="pi pi-power-off" rounded severity={rowData.Estado ? 'danger' : 'info'} onClick={() => confirmDeleteJefeDepartamento(rowData)} />
             </React.Fragment>
         );
     };
@@ -671,6 +672,10 @@ export default function JefeDepartamentosDemo() {
             </React.Fragment>
         );
     };
+
+    if (session?.user.nivelUsuario != 1) {
+        redirect('/pages/notfound')
+    }
 
     return (
         <div>
