@@ -27,7 +27,6 @@ export default function JefeDepartamentosDemo() {
         Paterno: string;
         Materno: string;
         Nombres: string;
-        RutaFoto: string;
         CodigoPersona: null | string;
         FechaNacimiento: string | Date;
         Sexo: string;
@@ -43,7 +42,6 @@ export default function JefeDepartamentosDemo() {
         Paterno: '',
         Materno: '',
         Nombres: '',
-        RutaFoto: '',
         FechaNacimiento: '',
         Sexo: '',
         DNI: '',
@@ -206,7 +204,6 @@ export default function JefeDepartamentosDemo() {
                             sexo: _jefeDepartamento.Sexo,
                             fechaNacimiento: _jefeDepartamento.FechaNacimiento,
                             DNI: _jefeDepartamento.DNI,
-                            rutaFoto: _jefeDepartamento.RutaFoto
                         })
                         .then((response) => {
                             for (let i = 0; i < codigosCarreras.length; i++) {
@@ -247,7 +244,6 @@ export default function JefeDepartamentosDemo() {
                         sexo: _jefeDepartamento.Sexo,
                         fechaNacimiento: _jefeDepartamento.FechaNacimiento,
                         DNI: _jefeDepartamento.DNI,
-                        rutaFoto: _jefeDepartamento.RutaFoto,
                         codigoPersona: _jefeDepartamento.CodigoPersona
                     })
                     .then((response) => {
@@ -303,16 +299,13 @@ export default function JefeDepartamentosDemo() {
             setAdvertencia({ activo: true, mensaje: 'Este correo ya está registrado. Por favor, ingresa otro.' });
             return false;
         }
-        // Si el DNI es válido, oculta la advertencia y devuelve true
         setAdvertencia({ activo: false, mensaje: '' });
         return true;
     };
 
     const validarDNI = (DNI: string) => {
-        // Expresión regular para verificar que el DNI contenga solo números
         const regexSoloNumeros = /^[0-9]+$/;
 
-        // Expresión regular para verificar que el DNI tenga exactamente 8 dígitos
         const regexOchoDigitos = /^[0-9]{8}$/;
 
         if (!regexSoloNumeros.test(DNI)) {
@@ -337,7 +330,6 @@ export default function JefeDepartamentosDemo() {
             return false;
         }
 
-        // Si el DNI es válido, oculta la advertencia y devuelve true
         setAdvertencia({ activo: false, mensaje: '' });
         return true;
     };

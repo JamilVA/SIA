@@ -13,8 +13,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { redirect, useSearchParams } from 'next/navigation';
 
 import { axiosInstance as axios } from '../../../../../utils/axios.instance';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { set } from 'date-fns';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function ActividadesPage() {
@@ -42,12 +43,10 @@ export default function ActividadesPage() {
     const [actividades, setActividades] = useState<(typeof emptyActividad)[]>([]);
     const [actividadEstudiante, setActividadEstudiante] = useState(actividadEstudianteVacio);
     const [actividad, setActividad] = useState(emptyActividad);
+    const [fileName, setFileName] = useState('');
     const [archivo, setArchivo] = useState<FileUploadFilesEvent | null>(null);
 
-    const [submitted, setSubmitted] = useState(false);
-    const [modificar, setModificar] = useState(false);
     const toast = useRef<Toast>(null);
-    const dt = useRef<DataTable<any>>(null);
 
     const [totalSize, setTotalSize] = useState(0);
     const fileUploadRef = useRef<FileUpload>(null);
@@ -98,16 +97,12 @@ export default function ActividadesPage() {
     };
 
     useEffect(() => {
-        if (status === "authenticated") {
+        if (status === 'authenticated') {
             fetchActividades();
             obtenerActividadEstudiante();
         }
     }, [status]);
 
-    // const handleUpload = (event: FileUploadFilesEvent, rowData: typeof actividadEstudianteVacio) => {
-    //     setArchivo(event);
-    //     setActividadEstudiante(rowData);
-    // };
 
     const onTemplateSelect = (e: FileUploadFilesEvent, actividad: typeof emptyActividad, subido: boolean) => {
         let _totalSize = totalSize;
@@ -119,56 +114,18 @@ export default function ActividadesPage() {
 
         setArchivo(e);
         setActividad(actividad);
-        if (subido) {
-            setModificar(true);
-        }
+
         console.log(e);
 
         setTotalSize(_totalSize);
     };
 
-    const saveTarea = (e: FileUploadFilesEvent, actividad: typeof actividadEstudianteVacio) => {
-        console.log('ActividadRecibida', actividad);
-        let _totalSize = 0;
-
-        e.files.forEach((file) => {
-            _totalSize += file.size || 0;
-        });
-
-        setTotalSize(_totalSize);
-        toast.current!.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
-    };
-
     const crearActividarEstudiante = async (actividad: typeof emptyActividad, callback: any) => {
-        console.log('Hola', modificar);
-        if (!modificar) {
-            try {
-                const response = await axios.post('/actividadEstudiante', {
-                    CodigoActividad: actividad.Codigo,
-                    CodigoEstudiante: session?.user.codigoEstudiante
-                });
-                let _actividades = [...actividades];
-                _actividades.push(response.data.actividadEstudiante);
-                subirArchivo(response.data.actividad.Codigo);
-                setActividades(_actividades);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: response.data.message,
-                    life: 3000
-                });
-                fetchActividades();
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        } else {
-            subirArchivo(actividad.Codigo);
-        }
-        callback();
-    };
+        console.log('ActividadRecibida', actividad);
+        let _fileName = '';
 
-    const subirArchivo = async (codigoActividad: number) => {
         try {
+
             console.log('Archivo Recibido:', archivo);
             const file = archivo!.files[0];
             const formData = new FormData();
@@ -176,54 +133,36 @@ export default function ActividadesPage() {
             console.log('Archivo Recibido:', file.name);
 
             await axios.post('/files/upload', formData).then((response) => {
-                console.log(response.data.path);
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
-                modificarRuta(codigoActividad, response.data.filename);
                 setArchivo(null);
                 setActividad(emptyActividad);
-                setModificar(false);
                 setTotalSize(0);
+                _fileName = response.data.filename
+                
             });
-        } catch (error) {
-            console.error('Error en la carga del archivo:', error);
+
+            const response = await axios.post('/actividadEstudiante', {
+                CodigoActividad: actividad.Codigo,
+                CodigoEstudiante: session?.user.codigoEstudiante,
+                RutaTarea: _fileName
+            });
+
+
             toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error de carga de archivo',
+                severity: 'success',
+                summary: 'Successful',
+                detail: response.data.message,
                 life: 3000
             });
-        }
-    };
 
-    const modificarRuta = async (codigo: number, ruta: string) => {
-        try {
-            axios
-                .put('/actividadEstudiante/tarea', {
-                    CodigoEstudiante: session?.user.codigoEstudiante,
-                    CodigoActividad: codigo,
-                    RutaTarea: ruta
-                })
-                .then((response) => {
-                    console.log('Ruta Actualizada', response);
-                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Tarea actualizada con éxito', life: 3000 });
-                    fetchActividades();
-                });
-            setActividadEstudiante(actividadEstudianteVacio);
+            fetchActividades();
         } catch (error) {
-            console.error(error);
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No se pudo modificar la Tarea',
-                life: 3000
-            });
+            console.error('Error:', error);
         }
-    };
 
-    const onTemplateRemove = (file: any, callback: any) => {
-        setTotalSize(totalSize - file.size);
         callback();
     };
+
 
     const onTemplateClear = () => {
         setTotalSize(0);
@@ -236,7 +175,6 @@ export default function ActividadesPage() {
                 responseType: 'arraybuffer'
             })
             .then((response) => {
-                //console.log(response);
                 const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
@@ -246,7 +184,6 @@ export default function ActividadesPage() {
                 URL.revokeObjectURL(url);
             })
             .catch((error) => {
-                //console.error(error.response);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',
@@ -272,7 +209,6 @@ export default function ActividadesPage() {
 
         setActividades((prevActividades) => {
             return prevActividades.map((actividad) => {
-
                 const fechaCierre = new Date(actividad.FechaCierre);
 
                 fechaCierre.setMinutes(fechaCierre.getMinutes() - 3);
@@ -390,7 +326,6 @@ export default function ActividadesPage() {
                         </span>
                     </div>
                     <Tag value={props.formatSize} severity="warning" className="px-3 py-2" />
-                    {/* <Button type="button" tooltip="Cancelar" icon="pi pi-times" className="p-button-outlined p-button-rounded p-button-danger ml-auto mr-2" onClick={() => onTemplateRemove(file, props.onRemove)} /> */}
                     <Button icon="pi pi-upload" tooltip="Subir tarea" className="ml-auto" severity="success" outlined rounded size="small" onClick={() => crearActividarEstudiante(actividad, props.onRemove)} />
                 </div>
             </div>
@@ -412,18 +347,18 @@ export default function ActividadesPage() {
     const uploadOptions = { icon: 'pi pi-fw pi-cloud-upload', iconOnly: true, className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined display:none' };
     const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
 
-    if (status === "loading") {
+    if (status === 'loading') {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className="flex items-center justify-center align-content-center" style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
-        )
+        );
     }
 
     if (session?.user.nivelUsuario != 4) {
-        redirect('/pages/notfound')
+        redirect('/pages/notfound');
     }
 
     return (
