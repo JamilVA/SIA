@@ -138,20 +138,33 @@ const page = () => {
 
     const onUpdateNotas = (data: Demo.RegistroMatricula, nota: string) => {
         let response = true;
-        if (nota != 'NotaRecuperacion' && nota != 'NotaAplazado') arrayNotas.push(Number(data[nota]));
+        let notaMax = nota == 'NotaAplazado' ? 13 : 20;
         const _n = (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement)?.value;
+        //if (nota != 'NotaRecuperacion' && nota != 'NotaAplazado' && (Number(_n) <= notaMax)) arrayNotas.push(Number(data[nota]));
+        //console.log(arrayNotas);
 
-        if (data[nota] == null && _n != '' && (Number(_n) >= 0) && (Number(_n) <= 20)) {
+        if (data[nota] == null && _n != '' && (Number(_n) >= 0) && (Number(_n) <= notaMax)) {
             notasEstudiante[nota] = Number(_n);
-
             if (nota == 'NotaRecuperacion') {
+                arrayNotas.push(Number(data['Nota1']));
+                arrayNotas.push(Number(data['Nota2']));
+                arrayNotas.push(Number(data['Nota3']));
+                arrayNotas.push(Number(data['Nota4']));
                 arrayNotas.push(Number(_n));
                 arrayNotas.sort((a, b) => b - a).pop();
                 let total = arrayNotas.reduce((a, b) => a + b, 0);
                 console.log(arrayNotas);
                 console.log(total);
                 notasEstudiante['NotaFinal'] = Math.round(total / 4);
+            } else if (nota == 'NotaAplazado' ) {
+                if(Number(_n) > data.NotaFinal!){
+                    console.log('Nfinal: ' + data.NotaFinal)
+                    notasEstudiante.NotaFinal = Number(_n);
+                }else{
+                    notasEstudiante.NotaFinal = data.NotaFinal;
+                }
             } else {
+                console.log('llega')
                 notasEstudiante.NotaFinal = Math.round((Number(notasEstudiante.Nota1) + Number(notasEstudiante.Nota2) + Number(notasEstudiante.Nota3) + Number(notasEstudiante.Nota4)) / 4);
             }
         } else if (data[nota] != undefined) {
@@ -160,7 +173,7 @@ const page = () => {
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Nota inválida',
+                detail: 'Ingrese una nota entre 0 y ' + notaMax,
                 life: 3000
             });
             (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement).value = '';
@@ -178,11 +191,7 @@ const page = () => {
             console.log('success')
 
             if (notasEstudiante.NotaFinal != null) {
-                if ((Number(notasEstudiante.NotaAplazado)) >= 11) {
-                    notasEstudiante['NotaFinal'] = 11;
-                } else if (notasEstudiante.NotaAplazado != null) {
-                    notasEstudiante['NotaFinal'] = data.NotaFinal;
-                }
+                console.log(notasEstudiante.NotaFinal);
                 apiSaveNotes()
                 setNotasEstudiante(emptyRegistroMatricula);
                 console.log(data)
@@ -191,11 +200,10 @@ const page = () => {
     }
 
     const onUpdateNotesDirigido = (data: Demo.RegistroMatricula, nota: string) => {
-        let noteEntered = nota == 'NotaAplazado' ? 13 : 14;
         let response = true;
         const _n = (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement)?.value;
 
-        if (data[nota] == null && _n != '' && (Number(_n) >= 0) && (Number(_n) <= noteEntered)) {
+        if (data[nota] == null && _n != '' && (Number(_n) >= 0) && (Number(_n) <= 14)) {
             notasEstudiante[nota] = Number(_n);
         } else if (data[nota] != undefined) {
             notasEstudiante[nota] = Number(data[nota]);
@@ -203,7 +211,7 @@ const page = () => {
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Nota inválida',
+                detail: 'Ingrese una nota entre 0 y 14',
                 life: 3000
             });
             (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement).value = '';
