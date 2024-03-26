@@ -113,17 +113,42 @@ const crearCursoCalificacion = async (req, res) => {
     }
 };
 
-const habilitarCurso = async (req, res) => {
+const generarUnidades = async (req, res) => {
+    const codigoCurso = req.body.codigoCurso
     try {
-        const cursoCalificacion = await CursoCalificacion.create(req.body)
-        return res.json({
-            mensaje: 'Curso habilitado corretamente',
-            cursoCalificacion
-        });
+        await sequelize.transaction(async (t) => {
 
+            await UnidadAcademica.bulkCreate(unidades(codigoCurso), { transaction: t });
+
+            const unidadesGeneradas = unidades(codigoCurso);
+
+            let semanaGlobalIndex = 1;
+
+            for (let unidad of unidadesGeneradas) {
+                const totalSemanas = (unidad.Codigo.charAt(0) === '4') ? 6 : 4;
+
+                for (let semanaIndex = 1; semanaIndex <= totalSemanas; semanaIndex++) {
+                    const codigoSemana = `${semanaGlobalIndex.toString().padStart(2, '0')}${unidad.Codigo}`;
+                    const descripcionSemana = `Semana ${semanaGlobalIndex.toString().padStart(2, '0')}`;
+
+                    await SemanaAcademica.create({
+                        Codigo: codigoSemana,
+                        Descripcion: descripcionSemana,
+                        CodigoUnidadAcademica: unidad.Codigo
+                    }, { transaction: t });
+
+                    semanaGlobalIndex++;
+                }
+            }
+
+
+            return res.json({
+                message: 'Unidades generadas correctamente',
+            });
+        });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ error: 'Ha ocurrido un error al habilitar el curso' })
+        res.status(500).json({ error: 'Ha ocurrido un error al generar las unidades' })
     }
 };
 
@@ -454,5 +479,6 @@ module.exports = {
     contarSesiones,
     getMatriculados,
     getCarrerasByJefe,
-    habilitarCursosPorCiclo
+    habilitarCursosPorCiclo,
+    generarUnidades
 }

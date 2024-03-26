@@ -15,7 +15,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { CalendarChangeEvent } from 'primereact/calendar';
 import { redirect } from 'next/navigation';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 
 export default function JefeDepartamentosDemo() {
     let emptyJefeDepartamento: {
@@ -27,7 +27,6 @@ export default function JefeDepartamentosDemo() {
         Paterno: string;
         Materno: string;
         Nombres: string;
-        RutaFoto: string;
         CodigoPersona: null | string;
         FechaNacimiento: string | Date;
         Sexo: string;
@@ -43,7 +42,6 @@ export default function JefeDepartamentosDemo() {
         Paterno: '',
         Materno: '',
         Nombres: '',
-        RutaFoto: '',
         FechaNacimiento: '',
         Sexo: '',
         DNI: '',
@@ -171,6 +169,7 @@ export default function JefeDepartamentosDemo() {
 
     const hideAsignacionDialog = () => {
         setDepartamento('');
+        setDocenteJefe(emptyDocente)
         setAsignacionDialog(false);
         setGlobalFilter('');
         console.log('Global filter reset');
@@ -205,8 +204,7 @@ export default function JefeDepartamentosDemo() {
                             email: _jefeDepartamento.Email,
                             sexo: _jefeDepartamento.Sexo,
                             fechaNacimiento: _jefeDepartamento.FechaNacimiento,
-                            DNI: _jefeDepartamento.DNI,
-                            rutaFoto: _jefeDepartamento.RutaFoto
+                            DNI: _jefeDepartamento.DNI
                         })
                         .then((response) => {
                             for (let i = 0; i < codigosCarreras.length; i++) {
@@ -247,7 +245,6 @@ export default function JefeDepartamentosDemo() {
                         sexo: _jefeDepartamento.Sexo,
                         fechaNacimiento: _jefeDepartamento.FechaNacimiento,
                         DNI: _jefeDepartamento.DNI,
-                        rutaFoto: _jefeDepartamento.RutaFoto,
                         codigoPersona: _jefeDepartamento.CodigoPersona
                     })
                     .then((response) => {
@@ -303,16 +300,13 @@ export default function JefeDepartamentosDemo() {
             setAdvertencia({ activo: true, mensaje: 'Este correo ya está registrado. Por favor, ingresa otro.' });
             return false;
         }
-        // Si el DNI es válido, oculta la advertencia y devuelve true
         setAdvertencia({ activo: false, mensaje: '' });
         return true;
     };
 
     const validarDNI = (DNI: string) => {
-        // Expresión regular para verificar que el DNI contenga solo números
         const regexSoloNumeros = /^[0-9]+$/;
 
-        // Expresión regular para verificar que el DNI tenga exactamente 8 dígitos
         const regexOchoDigitos = /^[0-9]{8}$/;
 
         if (!regexSoloNumeros.test(DNI)) {
@@ -337,7 +331,6 @@ export default function JefeDepartamentosDemo() {
             return false;
         }
 
-        // Si el DNI es válido, oculta la advertencia y devuelve true
         setAdvertencia({ activo: false, mensaje: '' });
         return true;
     };
@@ -596,12 +589,12 @@ export default function JefeDepartamentosDemo() {
         return (
             <React.Fragment>
                 <Button
-                    icon="pi pi-check"
+                    icon={rowData.Codigo === docenteJefe.Codigo ? '' : 'pi pi-check'}
                     rounded
-                    label="Seleccionar"
+                    label={rowData.Codigo === docenteJefe.Codigo ? 'Seleccionado' : 'Seleccionar'}
                     outlined
                     className="mr-2"
-                    severity="warning"
+                    severity={rowData.Codigo === docenteJefe.Codigo ? 'success' : 'warning'}
                     onClick={() => {
                         setDocenteJefe(rowData);
                         console.log(rowData);
@@ -674,7 +667,7 @@ export default function JefeDepartamentosDemo() {
     };
 
     if (session?.user.nivelUsuario != 1) {
-        redirect('/pages/notfound')
+        redirect('/pages/notfound');
     }
 
     return (
@@ -683,18 +676,12 @@ export default function JefeDepartamentosDemo() {
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
 
-                <DataTable
-                    ref={dt}
-                    value={jefeDepartamentos}
-                    dataKey="Codigo"            
-                    globalFilter={globalFilter}
-                    header={header}
-                >
+                <DataTable ref={dt} value={jefeDepartamentos} dataKey="Codigo" globalFilter={globalFilter} header={header}>
                     <Column field="NombreCompleto" header="Nombre Completo" body={nombreBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
                     <Column field="Departamento" header="Departamento" body={departamentoBodyTemplate} sortable style={{ minWidth: '15rem' }}></Column>
                     <Column field="Persona.DNI" header="DNI" body={DNIBodyTemplate} style={{ minWidth: '5rem' }}></Column>
                     <Column field="Persona.Usuario.Email" header="Correo" body={emailBodyTemplate} style={{ minWidth: '16rem' }}></Column>
-                    <Column header="Estado" dataType="boolean" sortable align='center' style={{ minWidth: '4rem' }} body={estadoBodyTemplate} />
+                    <Column header="Estado" dataType="boolean" sortable align="center" style={{ minWidth: '4rem' }} body={estadoBodyTemplate} />
                     <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '10rem' }}></Column>
                 </DataTable>
             </div>

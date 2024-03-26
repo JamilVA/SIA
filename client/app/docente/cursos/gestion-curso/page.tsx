@@ -52,7 +52,7 @@ export default function Curso() {
         Nivel: 0,
         Semestre: 0,
         CarreraProfesional: {
-            Codigo:0,
+            Codigo: 0,
             NombreCarrera: '',
         }
     };
@@ -99,6 +99,7 @@ export default function Curso() {
     const [horarios, setHorarios] = useState<(typeof horarioVacio)[]>([]);
     const { data: session, status } = useSession();
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [modified, setModified] = useState(false);
     const [sesionDialog, setSesionDialog] = useState(false);
     const [cursoCDialog, setCursoCDialog] = useState(false);
@@ -552,6 +553,29 @@ export default function Curso() {
         }
     };
 
+    const generarUnidades = async () => {
+        setLoading(true)
+        await axios.post('/curso-calificacion/generar-unidades', { codigoCurso: codigoCurso })
+            .then(response => {
+                cargarDatos()
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Operación exitosa',
+                    detail: response.data.message,
+                    life: 3000
+                });
+            })
+            .catch(error => {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: !error.response ? error.message : error.response.message,
+                    life: 3000
+                });
+            })
+        setLoading(false)
+    }
+
     const sesionDialogFooter = (
         <React.Fragment>
             <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideSesionDialog} />
@@ -860,7 +884,8 @@ export default function Curso() {
                             </div>
                         </TabPanel>
                         <TabPanel header="Sesiones" leftIcon="pi pi-list mr-2">
-                            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
+                            {unidades.length === 0 && <Button loading={loading} label="Generar Unidades Académicas" className='px-2 py-1' severity="secondary" onClick={generarUnidades} />}
+                            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado unidades académicas">
                                 <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                             </DataTable>
                         </TabPanel>

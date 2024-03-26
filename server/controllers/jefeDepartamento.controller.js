@@ -40,7 +40,6 @@ const crearJefeDepartamento = async (req, res) => {
       Paterno: req.body.paterno,
       Materno: req.body.materno,
       Nombres: req.body.nombres,
-      RutaFoto: req.body.rutaFoto,
       FechaNacimiento: req.body.fechaNacimiento,
       Sexo: req.body.sexo,
       DNI: req.body.DNI,
@@ -79,11 +78,9 @@ const actualizarJefeDepartamento = async (req, res) => {
         Paterno: req.body.paterno,
         Materno: req.body.materno,
         Nombres: req.body.nombres,
-        RutaFoto: req.body.rutaFoto,
         FechaNacimiento: req.body.fechaNacimiento,
         Sexo: req.body.sexo,
         DNI: req.body.DNI,
-        Email: req.body.email,
       },
       {
         where: {

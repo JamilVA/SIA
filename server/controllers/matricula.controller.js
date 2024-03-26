@@ -219,7 +219,7 @@ const getCursosLlevar = async (req, res) => {
     let semestre;
 
     const ultimoPeriodo =
-      ultimaMatricula[ultimaMatricula.length - 1].CursoCalificacion
+      ultimaMatricula[ultimaMatricula.length - 1]?.CursoCalificacion
         ?.CodigoPeriodo;
 
     if (!ultimoPeriodo) {
