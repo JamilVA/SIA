@@ -20,7 +20,7 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
-import Perfil from '../../../../templates/Perfil';
+import Perfil from '../../../../components/Perfil';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useSession } from "next-auth/react";
 

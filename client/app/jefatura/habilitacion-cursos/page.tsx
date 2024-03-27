@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
@@ -90,7 +90,7 @@ export default function CursoCalificacionPage() {
     const [carreras, setCarreras] = useState<Array<any>>([])
 
     const fetchCursos = async () => {
-        await axios.get('http://localhost:3001/api/curso')
+        await axios.get('/curso')
             .then(response => {
                 const cursos = response.data.cursos
                 let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento === session?.user.codigoJefe)
@@ -111,7 +111,7 @@ export default function CursoCalificacionPage() {
     }
 
     const fetchPeriodoVigente = async () => {
-        await axios.get('http://localhost:3001/api/periodo/vigente')
+        await axios.get('/periodo/vigente')
             .then(response => {              
                 setPeriodoVigente(response.data.periodo)
             })
@@ -128,7 +128,7 @@ export default function CursoCalificacionPage() {
 
     const fetchCursosCalificacion = async () => {
         setLoading(true)
-        await axios.get('http://localhost:3001/api/curso-calificacion')
+        await axios.get('/curso-calificacion')
             .then(response => {
                 setLoading(false)
                 const _cursosPeriodoVigente = response.data.cursosCalificacion
@@ -148,7 +148,7 @@ export default function CursoCalificacionPage() {
     }
 
     const fetchDocentes = async () => {
-        await axios.get('http://localhost:3001/api/docente')
+        await axios.get('/docente')
             .then(response => {
                 const _docentes = response.data.docentes
                 //console.log(_docentes)
@@ -167,7 +167,7 @@ export default function CursoCalificacionPage() {
     }
 
     const fetchCarreras = async () => {
-        await axios.get('http://localhost:3001/api/curso-calificacion/carreras', {
+        await axios.get('/curso-calificacion/carreras', {
             params: { codigoJefe: session?.user.codigoPersona }
         })
             .then(response => {
@@ -255,7 +255,7 @@ export default function CursoCalificacionPage() {
             return
         }
         setCursoCalificacionDialog(false);
-        await axios.post('http://localhost:3001/api/curso-calificacion', {
+        await axios.post('/curso-calificacion', {
             ...cursoCalificacion,
             CodigoDocente: null,
             CodigoPeriodo: periodoVigente?.Codigo
@@ -287,7 +287,7 @@ export default function CursoCalificacionPage() {
 
     const deleteCursoCalificacion = async () => {
         hideDeleteCursoCalificacion()
-        await axios.delete('http://localhost:3001/api/curso-calificacion/eliminar', {
+        await axios.delete('/curso-calificacion/eliminar', {
             params: { codigo: cursoCalificacion.Codigo }
         })
             .then(response => {
@@ -371,7 +371,7 @@ export default function CursoCalificacionPage() {
     }
 
     const habilitarIngreso = async (campo: string, codigo: string) => {
-        await axios.put('http://localhost:3001/api/curso-calificacion/habilitar-ingreso', {}, {
+        await axios.put('/curso-calificacion/habilitar-ingreso', {}, {
             params: {
                 campo: campo,
                 codigo: codigo
@@ -399,7 +399,7 @@ export default function CursoCalificacionPage() {
     }
 
     const deshabilitarIngreso = async (campo: string, codigo: string) => {
-        await axios.put('http://localhost:3001/api/curso-calificacion/deshabilitar-ingreso', {}, {
+        await axios.put('/curso-calificacion/deshabilitar-ingreso', {}, {
             params: {
                 campo: campo,
                 codigo: codigo
@@ -474,7 +474,7 @@ export default function CursoCalificacionPage() {
     }
 
     const habilitarIngresos = async (campo: string) => {
-        await axios.put('http://localhost:3001/api/curso-calificacion/habilitar-ingresos', {}, {
+        await axios.put('/curso-calificacion/habilitar-ingresos', {}, {
             params: {
                 periodo: periodoVigente.Codigo,
                 campo: campo
@@ -501,7 +501,7 @@ export default function CursoCalificacionPage() {
     }
 
     const deshabilitarIngresos = async (campo: string) => {
-        await axios.put('http://localhost:3001/api/curso-calificacion/deshabilitar-ingresos', {}, {
+        await axios.put('/curso-calificacion/deshabilitar-ingresos', {}, {
             params: {
                 periodo: periodoVigente.Codigo,
                 campo: campo
@@ -533,7 +533,7 @@ export default function CursoCalificacionPage() {
             return
         }
         hideAsignarDocenteDialog()
-        await axios.put('http://localhost:3001/api/curso-calificacion/asignar-docente', {}, {
+        await axios.put('/curso-calificacion/asignar-docente', {}, {
             params: {
                 codigo: cursoCalificacion.Codigo,
                 codigoDocente: cursoCalificacion.CodigoDocente
@@ -581,7 +581,7 @@ export default function CursoCalificacionPage() {
             return
         }
 
-        await axios.post('http://localhost:3001/api/curso-calificacion/habilitar-ciclo', {}, {
+        await axios.post('/curso-calificacion/habilitar-ciclo', {}, {
             params: {
                 codigoPeriodo: periodoVigente.Codigo,
                 codigoCarrera: selectedCarrera,

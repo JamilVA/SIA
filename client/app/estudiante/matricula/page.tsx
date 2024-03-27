@@ -8,7 +8,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import Perfil from '../../../templates/Perfil';
+import Perfil from '../../../components/Perfil';
 
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';

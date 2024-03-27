@@ -4,7 +4,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Toast } from 'primereact/toast';
-import Perfil from "../../../templates/Perfil";
+import Perfil from "../../../components/Perfil";
 import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';

@@ -4,7 +4,7 @@ import { Toast } from 'primereact/toast';
 import { DataTable } from 'primereact/datatable';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Column } from 'primereact/column';
-import Perfil from "../../../templates/Perfil";
+import Perfil from "../../../components/Perfil";
 import { useSession } from "next-auth/react";
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
@@ -26,7 +26,7 @@ const Page = () => {
     }, [status]);
 
     const fetchActas = async () => {
-        await axios.get('http://127.0.0.1:3001/api/acta/estudiante', {
+        await axios.get('/acta/estudiante', {
             params: {
                 CodigoEstudiante: session?.user.codigoEstudiante,
             }
@@ -46,7 +46,7 @@ const Page = () => {
     }
 
     const obtenerPDFHistorial = async () => {
-        await axios.get('http://localhost:3001/api/pdf/historial-notas', {
+        await axios.get('/pdf/historial-notas', {
             params: { codigoEstudiante: session?.user.codigoEstudiante },
             responseType: 'blob'
         })

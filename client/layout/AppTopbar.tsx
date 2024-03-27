@@ -9,7 +9,7 @@ import { LayoutContext } from './context/layoutcontext';
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Dialog } from 'primereact/dialog';
 import { OverlayPanel } from 'primereact/overlaypanel';
-import FloatUserCard from '../templates/FloatUserCard'
+import FloatUserCard from '../components/FloatUserCard'
 // import { signOut } from "next-auth/react";
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {

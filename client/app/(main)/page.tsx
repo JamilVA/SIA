@@ -1,5 +1,5 @@
 'use client'
-import axios from 'axios';
+import { axiosInstance as axios } from '../../utils/axios.instance';
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from 'react';
 import '../../styles/startpage.css';
@@ -17,7 +17,7 @@ const Page = () => {
     const [persona, setPersona] = useState(emptyPersona);
 
     const fetchData = async () => {
-        const result = await axios.get('http://localhost:3001/api/persona', {
+        const result = await axios.get('/persona', {
             params: {
                 codPersona: session?.user.codigoPersona
             }

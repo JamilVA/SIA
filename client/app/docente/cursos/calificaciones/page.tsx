@@ -6,7 +6,7 @@ import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
-import axios from 'axios';
+import { axiosInstance as axios } from '../../../../utils/axios.instance';
 import { Button } from 'primereact/button';
 import { Demo } from '../../../../types/types';
 import { ProgressBar } from 'primereact/progressbar';
@@ -82,7 +82,7 @@ const Page = () => {
 
     const fetchData = async () => {
         let _estudDirigido;
-        await axios.get('http://127.0.0.1:3001/api/matricula/getMatriculaByCurso', {
+        await axios.get('/matricula/getMatriculaByCurso', {
             params: {
                 codCurso: codigoCursoCal,
             }
@@ -105,7 +105,7 @@ const Page = () => {
     }
 
     const fetchActas = async () => {
-        await axios.get('http://127.0.0.1:3001/api/acta', {
+        await axios.get('/acta', {
             params: {
                 CodCursoCal: codigoCursoCal
             }
@@ -125,13 +125,13 @@ const Page = () => {
     }
 
     const apiSaveNotes = async () => {
-        const result = await axios.put('http://127.0.0.1:3001/api/matricula/updateNotas', notasEstudiante)
+        const result = await axios.put('/api/matricula/updateNotas', notasEstudiante)
         fetchData();
         console.log(result);
     }
 
     const apiSaveActa = async (data: object) => {
-        const result = await axios.post('http://127.0.0.1:3001/api/acta', data)
+        const result = await axios.post('/acta', data)
         await fetchActas()
         console.log(result);
     }
@@ -355,7 +355,7 @@ const Page = () => {
     };
 
     const obtenerPDFActa = async () => {
-        await axios.get('http://localhost:3001/api/pdf/acta', {
+        await axios.get('/pdf/acta', {
             params: { codigoCurso: codigoCursoCal },
             responseType: 'blob'
         })

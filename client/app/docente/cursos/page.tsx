@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 import { axiosInstance as axios } from '../../../utils/axios.instance';
 import Link from 'next/link';
 import { Dialog } from 'primereact/dialog';
-import Perfil from "../../../templates/Perfil";
+import Perfil from "../../../components/Perfil";
 import { redirect } from 'next/navigation';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
