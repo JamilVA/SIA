@@ -128,7 +128,7 @@ const getActa = async (codigoCurso) => {
             Estudiante: item.Estudiante.Persona.Paterno + ' ' + item.Estudiante.Persona.Materno + ', ' + item.Estudiante.Persona.Nombres,
             Estado: item.Habilitado ? 'HABILITADO' : 'INHABILITADO',
             Promedio: item.NotaFinal,
-            Obs: item.NotaFinal > 11 && item.Habilitado ? 'APROBADO' : 'DESAPROBADO'
+            Obs: item.Observacion
         }))
 
         const numeroMatriculados = matriculados.length
