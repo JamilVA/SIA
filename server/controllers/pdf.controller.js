@@ -132,8 +132,8 @@ const getActa = async (codigoCurso) => {
         }))
 
         const numeroMatriculados = matriculados.length
-        const aprobados = lista.filter(item => item.Obs === "APROBADO").length
-        const desaprobados = lista.filter(item => item.Obs === "DESAPROBADO").length
+        const aprobados = lista.filter(item => item.NotaFinal >= 11).length
+        const desaprobados = lista.filter(item => item.NotaFinal < 11).length
         const desaprobadosInasistencia = lista.filter(item => item.Estado === "INHABILITADO").length
         const stats = { numeroMatriculados, aprobados, desaprobados, desaprobadosInasistencia }
 
