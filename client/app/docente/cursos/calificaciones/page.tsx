@@ -14,7 +14,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { useSession } from "next-auth/react";
 import { TabPanel, TabView } from 'primereact/tabview';
 
-const page = () => {
+const Page = () => {
 
     const emptyCurso = {
         Codigo: '',
@@ -506,4 +506,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

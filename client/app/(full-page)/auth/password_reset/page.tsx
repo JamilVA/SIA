@@ -3,7 +3,7 @@ import { useState } from "react";
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 
-const page = () => {
+const Page = () => {
 
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -38,4 +38,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
