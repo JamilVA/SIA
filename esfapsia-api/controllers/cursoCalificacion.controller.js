@@ -157,11 +157,11 @@ const habilitarCursosPorCiclo = async (req, res) => {
         const codigoPeriodo = req.query.codigoPeriodo
         const codigoCarrera = req.query.codigoCarrera
         const ciclo = req.query.semestre // 1 -> impar, 2 -> par
-        
+
         const periodo = await Periodo.findByPk(codigoPeriodo)
 
         if (!periodo) return res.json({ message: 'El periodo académico ingresado no existe' })
-        if(periodo.Estado === false) return res.json({ message: 'No puede habilitar cursos en un periodo finalizado' })
+        if (periodo.Estado === false) return res.json({ message: 'No puede habilitar cursos en un periodo finalizado' })
 
         const cursos = await Curso.findAll({ where: { Semestre: ciclo, CodigoCarreraProfesional: codigoCarrera } })
         const cursosHabilitados = cursos.map(curso => ({
@@ -174,7 +174,7 @@ const habilitarCursosPorCiclo = async (req, res) => {
         }))
 
         await CursoCalificacion.bulkCreate(cursosHabilitados)
-            
+
         return res.json({
             message: 'Los cursos se han habilitado correctamente'
         });
@@ -396,7 +396,7 @@ const asignarDocente = async (req, res) => {
 
 const getAsistentes = async (req, res) => {
     try {
-        const matriculados = await Matricula.findAll({
+        const matriculas = await Matricula.findAll({
             where: { CodigoCursoCalificacion: req.query.codigoCursoCalificacion },
             attributes: { exclude: ['FechaMatricula', 'NotaFinal', 'Observacion', 'Nota1', 'Nota2', 'Nota3', 'Nota4', 'NotaRecuperacion', 'NotaAplazado'] },
             include: [
@@ -417,6 +417,25 @@ const getAsistentes = async (req, res) => {
 
         })
 
+        const data = matriculas.sort((a, b) => {
+            if (a.Estudiante.Persona.Paterno < b.Estudiante.Persona.Paterno) {
+                return -1;
+            }
+            if (a.Estudiante.Persona.Paterno > b.Estudiante.Persona.Paterno) {
+                return 1;
+            }
+            return 0;
+        })
+
+        const matriculados = data.map((matricula, index) => ({
+            Numero: index + 1,
+            Codigo: matricula.Estudiante.Codigo,
+            Estudiante: `${matricula.Estudiante.Persona.Paterno} ${matricula.Estudiante.Persona.Materno} ${matricula.Estudiante.Persona.Nombres}`,
+            Asistencias: matricula.PorcentajeAsistencia,
+            Habilitado: matricula.Habilitado,
+            Asistencia: matricula.Estudiante.Asistencia[0] === undefined ? false : matricula.Estudiante.Asistencia[0].Estado
+        }))
+        console.log(matriculados)
         res.json({ matriculados })
     } catch (error) {
         console.error(error)

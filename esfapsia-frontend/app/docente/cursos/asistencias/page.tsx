@@ -19,8 +19,8 @@ import { useSession } from "next-auth/react";
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function AsistenciasPage() {
 
-    const searchParamas = useSearchParams();
-    const codigoSesion = searchParamas.get('codigo');
+    const searchParams = useSearchParams();
+    const codigoSesion = searchParams.get('codigo');
     const codigoCursoCalificacion = codigoSesion?.slice(-9)
 
     const [estudiantes, setEstudiantes] = useState<Array<any>>([])
@@ -57,7 +57,7 @@ export default function AsistenciasPage() {
     }, []);
 
     const marcarAsistencia = async (rowData: any) => {
-        const codEstudiante = rowData.Estudiante.Codigo
+        const codEstudiante = rowData.Codigo
         await axios.post('/asistencia/marcar', {
             codigoSesion: codigoSesion,
             codigoEstudiante: codEstudiante,
@@ -84,7 +84,7 @@ export default function AsistenciasPage() {
     }
 
     const desmarcarAsistencia = async (rowData: any) => {
-        const codEstudiante = rowData.Estudiante.Codigo
+        const codEstudiante = rowData.Codigo
         await axios.delete('/asistencia/desmarcar', {
             params: {
                 codigoSesion: codigoSesion,
@@ -195,20 +195,10 @@ export default function AsistenciasPage() {
         );
     };
 
-
-    const nameBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <span className="p-column-title">Name</span>
-                {rowData.Estudiante.Persona.Paterno + ' ' + rowData.Estudiante.Persona.Materno + ', ' + rowData.Estudiante.Persona.Nombres}
-            </>
-        );
-    };
-
     const asistenciasBodyTemplate = (rowData: any) => {
         return (
             <>
-                <ProgressBar value={rowData.PorcentajeAsistencia} ></ProgressBar>
+                <ProgressBar value={rowData.Asistencias} ></ProgressBar>
             </>
         );
     };
@@ -218,8 +208,7 @@ export default function AsistenciasPage() {
     };
 
     const asistenciaBodyTemplate = (rowData: any) => {
-        let asistencia = rowData.Estudiante.Asistencia[0]
-        return <Checkbox checked={asistencia === undefined ? false : asistencia.Estado}></Checkbox>
+        return <Checkbox checked={rowData.Asistencia}></Checkbox>
     };
 
     const actionBodyTemplate = (rowData: any) => {
@@ -284,11 +273,11 @@ export default function AsistenciasPage() {
                         sortField='Estudiante.Persona.Paterno'
                         sortOrder={1}
                     >
-                        <Column field="Estudiante.Codigo" header="Código" hidden headerStyle={{ minWidth: '5rem' }}></Column>
-                        <Column field="Estudiante.Persona.Paterno" header="Estudiante" body={nameBodyTemplate} headerStyle={{ minWidth: '15rem' }}></Column>
-                        <Column field="Asistencias" header="Asistencias" body={asistenciasBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
-                        <Column field="Matriculas.Habilitado" align='center' header="Habilitado" body={habilitadoBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column field="Asistencia.Estado" align='center' header="Asistencia" body={asistenciaBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="Numero" header="#" headerStyle={{ minWidth: '3rem' }}></Column>
+                        <Column field="Estudiante" header="Estudiante" headerStyle={{ minWidth: '15rem' }}></Column>
+                        <Column field="Asistencias" header="Asistencias" body={asistenciasBodyTemplate} headerStyle={{ minWidth: '9rem' }}></Column>
+                        <Column field="Habilitado" align='center' header="Habilitado" body={habilitadoBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
+                        <Column field="Estado" align='center' header="Asistencia" body={asistenciaBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
                     <Dialog header="Vista PDF de asistencias" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
