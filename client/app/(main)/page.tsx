@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import '../../styles/startpage.css';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
-const Page = () => {
+export default function Page () {
     const { data: session, status } = useSession();
 
     const emptyPersona = {
@@ -49,5 +49,5 @@ const Page = () => {
     )
 }
 
-export default Page
+
 

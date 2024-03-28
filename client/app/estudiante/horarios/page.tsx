@@ -10,7 +10,7 @@ import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 
-const Page = () => {
+export default function Page () {
 
     const paramsHorarioG = {
         CodCarrera: 4,
@@ -239,4 +239,4 @@ const Page = () => {
     )
 }
 
-export default Page
+

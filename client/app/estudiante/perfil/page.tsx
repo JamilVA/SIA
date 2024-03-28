@@ -12,7 +12,7 @@ import { Skeleton } from 'primereact/skeleton';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 
-const Page = () => {
+export default function Page () {
 
     const { data: session, status } = useSession();
 
@@ -228,4 +228,4 @@ const Page = () => {
     )
 }
 
-export default Page;    
+    

@@ -12,7 +12,7 @@ import Perfil from "../../../components/Perfil";
 import { redirect } from 'next/navigation';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
-const Page = () => {
+export default function Page () {
     const EmptyCurso = {
         CodCurso: '',
         CodCursoCal: '',
@@ -140,4 +140,4 @@ const Page = () => {
     );
 };
 
-export default Page;
+

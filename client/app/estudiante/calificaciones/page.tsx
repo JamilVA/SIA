@@ -11,7 +11,7 @@ import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 
-const Page = () => {
+export default function Page () {
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
@@ -130,4 +130,4 @@ const Page = () => {
     )
 }
 
-export default Page;    
+    

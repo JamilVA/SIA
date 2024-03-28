@@ -10,7 +10,7 @@ import Perfil from "../../../components/Perfil";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 
-const Page = () => {
+export default function Page () {
     const cursoCVacio = {
         Codigo: '',
         RutaSyllabus: '',
@@ -98,5 +98,5 @@ const Page = () => {
     );
 };
 
-export default Page;
+
 

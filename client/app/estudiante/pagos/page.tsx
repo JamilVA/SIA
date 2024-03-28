@@ -9,7 +9,7 @@ import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 
-const Page = () => {
+export default function Page () {
     const EmptyPago = {
         Codigo: 0,
         NroTransaccion: '',
@@ -165,4 +165,4 @@ const Page = () => {
     );
 };
 
-export default Page;
+

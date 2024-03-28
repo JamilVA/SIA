@@ -3,7 +3,6 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
-import { FileUpload } from 'primereact/fileupload';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
@@ -18,7 +17,7 @@ import { redirect } from 'next/navigation';
 import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
 
-const Page = () => {
+export default function AdminCursosPage () {
     let emptyCurso: Demo.Curso = {
         Codigo: '',
         Nombre: '',
@@ -564,5 +563,3 @@ const Page = () => {
         </div>
     );
 };
-
-export default Page;
