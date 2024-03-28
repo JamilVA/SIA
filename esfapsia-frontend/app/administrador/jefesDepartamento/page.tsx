@@ -700,7 +700,7 @@ export default function JefeDepartamentosDemo() {
                     <label htmlFor="imagen" className="font-bold">
                         Foto
                     </label>
-                    <FileUpload name="foto" url="/api/upload" accept="image/*" chooseLabel="Cargar Imagen" uploadLabel="Confirmar" cancelLabel="Cancelar" className="p-mb-3" maxFileSize={5 * 1024 * 1024} customUpload uploadHandler={onFileSelect} />
+                    <FileUpload name="foto" url="/upload" accept="image/*" chooseLabel="Cargar Imagen" uploadLabel="Confirmar" cancelLabel="Cancelar" className="p-mb-3" maxFileSize={5 * 1024 * 1024} customUpload uploadHandler={onFileSelect} />
                 </div>
 
                 <div className="field">

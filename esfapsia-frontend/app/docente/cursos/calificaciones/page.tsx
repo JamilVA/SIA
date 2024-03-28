@@ -125,7 +125,7 @@ export default function Page () {
     }
 
     const apiSaveNotes = async () => {
-        const result = await axios.put('/api/matricula/updateNotas', notasEstudiante)
+        const result = await axios.put('/matricula/updateNotas', notasEstudiante)
         fetchData();
         console.log(result);
     }
