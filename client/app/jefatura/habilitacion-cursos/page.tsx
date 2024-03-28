@@ -112,7 +112,7 @@ export default function CursoCalificacionPage() {
 
     const fetchPeriodoVigente = async () => {
         await axios.get('/periodo/vigente')
-            .then(response => {              
+            .then(response => {
                 setPeriodoVigente(response.data.periodo)
             })
             .catch(error => {
@@ -128,7 +128,11 @@ export default function CursoCalificacionPage() {
 
     const fetchCursosCalificacion = async () => {
         setLoading(true)
-        await axios.get('/curso-calificacion')
+        await axios.get('/curso-calificacion', {
+            params: {
+                CodigoJefe: session?.user.codigoJefe
+            }
+        })
             .then(response => {
                 setLoading(false)
                 const _cursosPeriodoVigente = response.data.cursosCalificacion
@@ -757,7 +761,7 @@ export default function CursoCalificacionPage() {
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>

@@ -176,6 +176,8 @@ declare namespace Demo {
         NotaDirigido: number | null,
         NotaFinal: number | null,
         PorcentajeAsistencia: number,
+        Obs: string,
+        Obs: string,
         [key: string]: string | string[] | number | boolean | undefined | null;
     }
 

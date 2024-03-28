@@ -56,7 +56,8 @@ export default function Page () {
         NotaAplazado: null,
         NotaDirigido: null,
         NotaFinal: null,
-        PorcentajeAsistencia: 0
+        PorcentajeAsistencia: 0,
+        Obs: ''
     }
 
     const { data: session, status } = useSession();
@@ -64,7 +65,7 @@ export default function Page () {
     const [actaDialog, setActaDialog] = useState(false);
     const codigoCursoCal = searchParams.get('codigo')
     const [curso, setCurso] = useState(emptyCurso);
-    const [registroMatricula, setRegistroMatricula] = useState();
+    const [registroMatricula, setRegistroMatricula] = useState<(Demo.RegistroMatricula)[]>([]);
     const [notasEstudiante, setNotasEstudiante] = useState<Demo.RegistroMatricula>(emptyRegistroMatricula);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
@@ -127,6 +128,11 @@ export default function Page () {
     const apiSaveNotes = async () => {
         const result = await axios.put('/matricula/updateNotas', notasEstudiante)
         fetchData();
+        console.log(result);
+    }
+
+    const apiSaveObs = async (data: any) => {
+        const result = await axios.patch('/matricula/updateObs', { registroMatricula: data })
         console.log(result);
     }
 
@@ -237,6 +243,7 @@ export default function Page () {
             setNoteDefault(data, 'Nota4');
             setNoteDefault(data, 'NotaRecuperacion');
             setNoteDefault(data, 'NotaAplazado');
+            notasEstudiante['Obs'] = '';
             if (Number(notasEstudiante[nota]) > data.NotaFinal!) {
                 notasEstudiante.NotaFinal = notasEstudiante.NotaDirigido;
             } else {
@@ -266,6 +273,14 @@ export default function Page () {
         acta['FechaGeneracion'] = new Date().toLocaleDateString();
         acta['CodigoCursoCalificacion'] = curso.CursoCalificacion.Codigo;
         apiSaveActa(acta);
+
+        let _registroMatricula = registroMatricula.map((registro: Demo.RegistroMatricula) => ({
+            ...registro,
+            Observacion: Number(registro.PorcentajeAsistencia) <= 70 ? 'INHABILITADO' : '',
+            NotaF: Number(registro.PorcentajeAsistencia) <= 70 ? 0 : registro.NotaFinal
+        }));
+
+        apiSaveObs(_registroMatricula)
         setActaDialog(false);
     }
 

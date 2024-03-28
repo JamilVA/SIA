@@ -24,7 +24,12 @@ const getCursosCalificacion = async (req, res) => {
                     where: { 'Estado': true }
                 },
                 {
-                    model: Curso
+                    model: Curso,
+                    include: [{
+                        model: CarreraProfesional,
+                        attributes: [],
+                    }
+                    ]
                 },
                 {
                     model: Docente,
@@ -32,6 +37,7 @@ const getCursosCalificacion = async (req, res) => {
                     include: [{ model: Persona, attributes: ['Paterno', 'Materno', 'Nombres'] }]
                 }
             ],
+            where: { '$Curso.CarreraProfesional.CodigoJefeDepartamento$': req.query.CodigoJefe }
         })
         res.json({ cursosCalificacion })
     } catch (error) {

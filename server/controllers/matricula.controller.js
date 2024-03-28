@@ -520,26 +520,66 @@ const getMatriculaByCurso = async (req, res) => {
 
 const updateNotas = async (req, res) => {
   try {
-    const matricula = await Matricula.update(
-      {
-        Nota1: req.body.Nota1,
-        Nota2: req.body.Nota2,
-        Nota3: req.body.Nota3,
-        Nota4: req.body.Nota4,
-        NotaRecuperacion: req.body.NotaRecuperacion,
-        NotaAplazado: req.body.NotaAplazado,
-        NotaDirigido: req.body.NotaDirigido,
-        NotaFinal: req.body.NotaFinal,
-      },
-      {
-        where: {
-          CodigoEstudiante: req.body.CodigoEstudiante,
-          CodigoCursoCalificacion: req.body.CodigoCursoCalificacion,
+    await sequelize.transaction(async (t) => {
+      await Matricula.update(
+        {
+          Nota1: req.body.Nota1,
+          Nota2: req.body.Nota2,
+          Nota3: req.body.Nota3,
+          Nota4: req.body.Nota4,
+          NotaRecuperacion: req.body.NotaRecuperacion,
+          NotaAplazado: req.body.NotaAplazado,
+          NotaDirigido: req.body.NotaDirigido,
+          NotaFinal: req.body.NotaFinal,
+          Observacion: req.body.Obs
         },
-      }
-    );
+        {
+          where: {
+            CodigoEstudiante: req.body.CodigoEstudiante,
+            CodigoCursoCalificacion: req.body.CodigoCursoCalificacion,
+          },
+        },
+        {
+          transaction: t
+        }
+      );
+    })
+
     res.json({
-      Matricula: matricula,
+      Estado: "Actualizado con éxito",
+    });
+  } catch (error) {
+    res.json({
+      Estado: "Error" + error,
+    });
+  }
+};
+
+const updateObs = async (req, res) => {
+  try {
+    let registro = req.body.registroMatricula;
+    console.log(registro)
+    await sequelize.transaction(async (t) => {
+      for (let i = 0; i < registro.length; i++) {
+        await Matricula.update(
+          {
+            NotaFinal: registro[i].NotaF,
+            Observacion: registro[i].Observacion
+          },
+          {
+            where: {
+              CodigoEstudiante: registro[i].CodigoEstudiante,
+              CodigoCursoCalificacion: registro[i].CodigoCursoCalificacion,
+            },
+          },
+          {
+            transaction: t
+          }
+        );
+      }
+    })
+
+    res.json({
       Estado: "Actualizado con éxito",
     });
   } catch (error) {
@@ -782,4 +822,5 @@ module.exports = {
   getMatriculaByCurso,
   updateNotas,
   obtenerConstancia,
+  updateObs
 };
