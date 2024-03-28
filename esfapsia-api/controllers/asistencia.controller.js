@@ -11,7 +11,7 @@ const generarAsistencias = async (req, res) => {
     }
 }
 
-const contarAsistencias = async (codigoCurso, codigoEstudiante) => {
+const contarAsistencias = async (codigoCurso, codigoEstudiante, t) => {
     try {
         const QUERY = "select count(*) as `asistencias` " +
         "from cursocalificacion as c " +
@@ -23,31 +23,32 @@ const contarAsistencias = async (codigoCurso, codigoEstudiante) => {
         "on sa.Codigo = s.CodigoSemanaAcademica " +
         "inner join asistencia as a " +
         "on a.CodigoSesion = s.Codigo and a.CodigoEstudiante = ? "
-        const [results, metadata] = await sequelize.query(QUERY, { replacements: [codigoCurso, codigoEstudiante] })
+        const [results, metadata] = await sequelize.query(QUERY, { replacements: [codigoCurso, codigoEstudiante], transaction: t })
         return metadata[0]
     } catch (error) {
-        console.error(error)
-        return new Error("Error al contar las asistencias")
+        throw new Error(error.message)
     }
 }
 
 
 const marcarAsistencia = async (req, res) => {
     try {
-        await Asistencia.findOrCreate({
-            where: { 
-                CodigoSesion: req.body.codigoSesion,
-                CodigoEstudiante: req.body.codigoEstudiante
-            },
-            defaults: {
-                CodigoSesion: req.body.codigoSesion,
-                CodigoEstudiante: req.body.codigoEstudiante,
-                Estado: true,
-                Fecha: new Date(),
-                Hora: new Date()
-            }
-        })
-        await consolidarAsistencia(req.body.codigoCurso, req.body.codigoEstudiante) 
+        await sequelize.transaction(async (t) => {
+            await Asistencia.findOrCreate({
+                where: { 
+                    CodigoSesion: req.body.codigoSesion,
+                    CodigoEstudiante: req.body.codigoEstudiante
+                },
+                defaults: {
+                    CodigoSesion: req.body.codigoSesion,
+                    CodigoEstudiante: req.body.codigoEstudiante,
+                    Estado: true,
+                    Fecha: new Date(),
+                    Hora: new Date()
+                }, transaction: t
+            })
+            await consolidarAsistencia(req.body.codigoCurso, req.body.codigoEstudiante, t) 
+        })      
         res.json({ message: 'Asistencia marcada correctamente' })
     } catch (error) {
         console.error(error)
@@ -57,13 +58,15 @@ const marcarAsistencia = async (req, res) => {
 
 const desmarcarAsistencia = async (req, res) => {
     try {
-        await Asistencia.destroy({
-            where: { 
-                CodigoSesion: req.query.codigoSesion,
-                CodigoEstudiante: req.query.codigoEstudiante
-            }
-        })
-        await consolidarAsistencia(req.query.codigoCurso, req.query.codigoEstudiante)
+        await sequelize.transaction(async(t) => {
+            await Asistencia.destroy({
+                where: { 
+                    CodigoSesion: req.query.codigoSesion,
+                    CodigoEstudiante: req.query.codigoEstudiante
+                }, transaction: t
+            })
+            await consolidarAsistencia(req.query.codigoCurso, req.query.codigoEstudiante, t)
+        })   
         res.json({ message: 'Asistencia desmarcada correctamente' })
     } catch (error) {
         console.error(error)
@@ -71,14 +74,11 @@ const desmarcarAsistencia = async (req, res) => {
     }
 }
 
-const consolidarAsistencia = async (codigoCurso, codigoEstudiante) => {
+const consolidarAsistencia = async (codigoCurso, codigoEstudiante, t) => {
     try {
-        const asistencias = await contarAsistencias(codigoCurso, codigoEstudiante)
-        const params = { codigoCurso: codigoCurso }
-        const queryString = new URLSearchParams(params).toString()
-        const response = await fetch('http://localhost:3001/api/curso-calificacion/sesiones?' + queryString)
-        const data = await response.json()
-        const porcentaje = asistencias.asistencias / data.sesiones * 100
+        const asistencias = await contarAsistencias(codigoCurso, codigoEstudiante, t)
+        const numeroSesiones = await contarSesiones(codigoCurso)
+        const porcentaje = asistencias.asistencias / numeroSesiones.sesiones * 100
         await Matricula.update({
             PorcentajeAsistencia: porcentaje,
             Habilitado: porcentaje < 75 ? false : true
@@ -86,11 +86,31 @@ const consolidarAsistencia = async (codigoCurso, codigoEstudiante) => {
             where: { 
                 CodigoCursoCalificacion: codigoCurso,
                 CodigoEstudiante: codigoEstudiante
-            }
+            }, 
+            transaction: t
         })
-        console.log(asistencias, " ", data, " ", porcentaje)        
+        console.log(asistencias, " ", numeroSesiones, " ", porcentaje)        
     } catch (error) {
-        console.error(error)
+        throw new Error(error.message)
+    }
+}
+
+const contarSesiones = async (codigoCurso) => {
+    try {
+        const QUERY = "select count(*) as `sesiones` " +
+            "from cursocalificacion as c " +
+            "inner join unidadacademica as u " +
+            "on c.Codigo = u.CodigoCursoCalificacion and c.Codigo like ? " +
+            "inner join semanaacademica as sa " +
+            "on u.Codigo = sa.CodigoUnidadAcademica " +
+            "inner join sesion as s " +
+            "on sa.Codigo = s.CodigoSemanaAcademica"
+        const [results, metadata] = await sequelize.query(QUERY, { replacements: [codigoCurso] })
+        let numeroSesiones = 0
+        numeroSesiones = metadata[0]
+        return numeroSesiones
+    } catch (error) {
+        throw new Error(error.message)
     }
 }
 
