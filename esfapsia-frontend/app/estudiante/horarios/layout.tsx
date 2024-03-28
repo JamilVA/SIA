@@ -6,6 +6,7 @@ interface AppLayoutProps {
 }
 
 export const metadata: Metadata = {
+    metadataBase: new URL(process.env.NEXTAUTH_URL as string),
     title: 'Académico ESFAPMUA',
     description: 'The ultimate collection of design-agnostic, flexible and accessible React UI Components.',
     robots: { index: false, follow: false },
