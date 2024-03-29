@@ -12,9 +12,8 @@ import { Demo } from '../../../types/types';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function AdminCursosPage () {
@@ -37,6 +36,8 @@ export default function AdminCursosPage () {
     const [carreras, setCarreras] = useState<Demo.CarreraProfesional[]>([]);
     const [prerequisitos, setPrerequisitos] = useState<Demo.Curso[]>([]);
     const [cursoDialog, setCursoDialog] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const [pdfURL, setPdfURL] = useState('');
     const [exportDialog, setExportDialog] = useState(false);
     const [deleteCursoDialog, setDeleteCursoDialog] = useState(false);
     const [curso, setCurso] = useState<Demo.Curso>(emptyCurso);
@@ -238,6 +239,36 @@ export default function AdminCursosPage () {
         setDeleteCursoDialog(true);
     };
 
+    const obtenerLista = async () => {
+        try {
+            await axios
+                .get('/curso/obtenerListaCursos', {
+                    params: { c: carrera },
+                    responseType: 'blob'
+                })
+                .then((response) => {
+                    console.log(response);
+                    const blob = new Blob([response.data], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    console.log(url);
+                    setPdfURL(url);
+                    setVisible(true);
+                    //URL.revokeObjectURL(url);
+                })
+                .catch((error) => {
+                    //console.error(error.response);
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Error en la descarga',
+                        detail: error.response ? 'Error al generar el pdf' : error.message,
+                        life: 3000
+                    });
+                });
+        } catch (error) {
+            console.error('Error al descargar la constancia:', error);
+        }
+    };
+
     const deleteCurso = (e: React.MouseEvent<HTMLButtonElement>) => {
         setCurso({ ...curso });
         let state: boolean;
@@ -350,9 +381,7 @@ export default function AdminCursosPage () {
         <>
             <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideExportDialog} />
             {/* <Button label="Descargar" icon="pi pi-download" onClick={exportCSV} /> */}
-            <Link href={`${axios.defaults.baseURL}/curso/obtenerListaCursos?c=${carrera}`}>
-                <Button label="Descargar" icon="pi pi-download"/>
-            </Link>
+            <Button label="Descargar" icon="pi pi-file-pdf" className="p-button-primary" onClick={obtenerLista} />
         </>
     );
 
@@ -363,18 +392,18 @@ export default function AdminCursosPage () {
         </>
     );
 
-    if (status === "loading") {
+    if (status === 'loading') {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className="flex items-center justify-center align-content-center" style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
-        )
+        );
     }
 
     if (session?.user.nivelUsuario != 1) {
-        redirect('/pages/notfound')
+        redirect('/pages/notfound');
     }
 
     return (
@@ -395,7 +424,7 @@ export default function AdminCursosPage () {
                         currentPageReportTemplate="Mostrando de {first} a {last} de {totalRecords} cursos"
                         globalFilter={globalFilter}
                         emptyMessage="Sin cursos registrados"
-                        header={header}              
+                        header={header}
                     >
                         <Column field="Codigo" header="COD" sortable />
                         <Column field="Nombre" header="Nombre" sortable />
@@ -557,6 +586,9 @@ export default function AdminCursosPage () {
                                 </span>
                             )}
                         </div>
+                    </Dialog>
+                    <Dialog header="Vista PDF de lista de cursos" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
+                        <iframe src={pdfURL} width="100%" height="99%"></iframe>
                     </Dialog>
                 </div>
             </div>

@@ -189,7 +189,6 @@ const getPDFMatriculados = async (req, res) => {
     } catch (error) {
         console.error(error)
     }
-
 }
 
 const getPDFAsistencia = async (req, res) => {
@@ -200,7 +199,6 @@ const getPDFAsistencia = async (req, res) => {
     } catch (error) {
         console.error(error)
     }
-
 }
 
 const getPDFActa = async (req, res) => {
@@ -211,7 +209,6 @@ const getPDFActa = async (req, res) => {
     } catch (error) {
         console.error(error)
     }
-
 }
 
 const getPDFHistorialNotas = async (req, res) => {
@@ -223,7 +220,6 @@ const getPDFHistorialNotas = async (req, res) => {
     } catch (error) {
         console.error(error)
     }
-
 }
 
 module.exports = {

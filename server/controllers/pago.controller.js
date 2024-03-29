@@ -6,7 +6,7 @@ const {
   Persona,
 } = require("../config/relations");
 
-const PDF = require("pdfkit-construct");
+const PDF = require("pdfkit-table");
 const { Sequelize } = require("sequelize");
 
 const getConceptos = async (req, res = response) => {
@@ -128,28 +128,57 @@ const anularPago = async (req, res) => {
   }
 };
 
+
+const setHeader = (doc, conceptoPago, anio) => {
+
+  doc.image("public/logo-escuela.jpg", 40, 15, { width: 80 });
+  doc.image("public/logo-sunedu.png", doc.page.width - 40 - 80, 15, {
+    width: 80,
+  });
+
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(11)
+    .text("ESCUELA SUPERIOR DE FORMACIÓN ARTÍSTICA PÚBLICA", 0, 20, {
+      align: "center",
+      lineGap: 10,
+    });
+  doc
+    .fontSize(12)
+    .text("MARIO URTEAGA ALVARADO", { align: "center", lineGap: 20 });
+
+    doc.fontSize(10).text(`LISTA DE PAGOS ${anio}`, {
+      align: "center",
+      lineGap: 5,
+    });
+
+    doc
+      .fontSize(8)
+      .fillColor("blue")
+      .text(
+        "CONCEPTO: " + (conceptoPago?.dataValues.Denominacion ?? "") + '('+ (conceptoPago?.dataValues.Codigo ?? "") + ')',
+        {
+          align: "center",
+        }
+      );
+
+  doc
+    .moveTo(30, 70)
+    .lineTo(doc.page.width - 30, 70)
+    .lineWidth(1.5)
+    .stroke("#000000");
+
+  doc.fillColor("black");
+};
+
 const obtenerPDFPagos = async (req, res) => {
 
-  anio = new Date(req.query.a).getFullYear();
-
-  const doc = new PDF({
-    size: "A4",
-    margins: { top: 20, left: 10, right: 10, bottom: 20 },
-    bufferPages: true,
-  });
-
-  const filename = `LISTA DE PAGOS ${anio}.pdf`;
-
-  const stream = res.writeHead(200, {
-    "Content-Type": "application/pdf",
-    "Content-disposition": `attachment;filename=${filename}`,
-  });
-
   try {
-    console.log("Recibido:", req.query);
+
+    anio = new Date(req.query.a).getFullYear();
 
     const conceptoPago = await ConceptoPago.findOne({
-      attributes: ["Denominacion", "Monto"],
+      attributes: ['Codigo',"Denominacion", "Monto"],
       where: { Codigo: req.query.c },
     });
 
@@ -181,59 +210,6 @@ const obtenerPDFPagos = async (req, res) => {
         CodigoConceptoPago: req.query.c,
         Fecha: Sequelize.literal(`YEAR(Fecha) = ${anio}`),
       },
-    });
-
-    console.log("CCarrera:", conceptoPago);
-    console.log("CCursos:", listaPagos);
-
-    doc.on("data", (data) => {
-      stream.write(data);
-    });
-
-    doc.on("end", () => {
-      stream.end();
-    });
-
-    // set the header to render in every page
-    doc.setDocumentHeader({ height: "15%" }, () => {
-      // Agregar el logo con un tamaño más pequeño
-      doc.image("public/logo-escuela.jpg", 40, 22, { width: 70 });
-
-      // Agregar el nombre de la institución y el nombre del director
-      doc
-        .font("Helvetica-Bold")
-        .fontSize(11)
-
-        .text("ESCUELA SUPERIOR DE FORMACIÓN ARTÍSTICA PÚBLICA", {
-          align: "center",
-          lineGap: 10,
-        });
-      doc
-        .fontSize(12)
-        .text("MARIO URTEAGA ALVADADO", { align: "center", lineGap: 10 });
-
-      doc
-        .moveTo(50, 75)
-        .lineTo(doc.page.width - 50, 75)
-        .lineWidth(1.5)
-        .stroke("#000000");
-
-      doc.moveDown(2);
-
-      doc.fontSize(16).text(`LISTA DE PAGOS ${anio}`, {
-        align: "center",
-        lineGap: 5,
-      });
-
-      doc
-        .fontSize(14)
-        .fillColor("blue")
-        .text(
-          "ConceptoPago: " + (conceptoPago?.dataValues.Denominacion ?? ""),
-          {
-            align: "center",
-          }
-        );
     });
 
     let pagos = [];
@@ -268,46 +244,57 @@ const obtenerPDFPagos = async (req, res) => {
       ];
     }
 
-    doc.addTable(
-      [
-        { key: "NComprobante", label: "N° Transacción", align: "left" },
-        { key: "Estudiante", label: "Estudiante", align: "left" },
-        { key: "Fecha", label: "Fecha", align: "left" },
-        { key: "Estado", label: "Estado", align: "left" },
-      ],
-      pagos,
-      {
-        border: { size: 0.1, color: "#cdcdcd" },
-        width: "fill_body",
-        cellsPadding: 10,
-        marginLeft: 45,
-        marginRight: 45,
-        headColor: "#ffffff",
-        headAlign: "left",
-        headBackground: "#002479",
-        headHeight: 20,
-        cellsPadding: 5,
-      }
-    );
+    const doc = new PDF({
+      size: "A4",
+      margins: { top: 20, left: 10, right: 10, bottom: 20 },
+      autoFirstPage: false,
+      bufferPages: true,
+    });
 
-    doc.render();
+    doc.on("pageAdded", () => {
+      setHeader(doc, conceptoPago, anio);
+      doc.page.margins = { top: 120, left: 10, right: 10, bottom: 20 };
+
+    });
+
+    doc.addPage();
+
+    const table = {
+      headers: [
+        { key: "NComprobante", label: "N° TRANSACCIÓN", align: "left", width: 100 },
+        { key: "Estudiante", label: "ESTUDIANTE", align: "left", width: 300 },
+        { key: "Fecha", label: "FECHA", align: "left", width: 80 },
+        { key: "Estado", label: "ESTADO", align: "left", width: 50 },
+
+      ],
+      rows: pagos.map((curso) => Object.values(curso)),
+      options: {
+        x: 30,
+        divider: {
+          header: { disabled: true },
+          horizontal: { disabled: false },
+        },
+      },
+    };
+
+    doc.moveDown(1);
+
+    doc.table(table, {
+      prepareHeader: () => doc.font("Helvetica-Bold").fontSize(9),
+      prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+        doc.font("Helvetica").fontSize(8);
+      },
+    });
+
+    doc.pipe(res);
 
     doc.end();
   } catch (error) {
-    console.log('EError',error)
-    doc.on("data", (data) => {
-      stream.write(data);
-    });
-
-    doc.on("end", () => {
-      stream.end();
-    });
-
-    doc.render();
-
-    doc.end();
+    console.error("Error al generar la lista de cursos:", error);
+    res.status(500).send("Error al generar la lista de cursos");
   }
 };
+
 module.exports = {
   getPagos,
   getPagosEstudiante,

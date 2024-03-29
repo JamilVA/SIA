@@ -51,6 +51,8 @@ export default function Matricula() {
     const [cursosLlevar, setCursosLlevar] = useState<(typeof cursoCalificacion)[]>([]);
     const [cursosMatriculados, setCursosMatriculados] = useState<(typeof cursoCalificacion)[]>([]);
     const [totalCreditos, setTotalCreditos] = useState(0);
+    const [visible, setVisible] = useState(false);
+    const [constanciaURL, setConstanciaURL] = useState('');
     const [creditosMatriculados, setCreditosMatriculados] = useState(0);
 
     const toast = useRef<Toast>(null);
@@ -229,10 +231,31 @@ export default function Matricula() {
         }
     };
 
-    const generarConstancia = async () => {
+    const obtenerConstancia = async () => {
+
         try {
+            await axios.get('/matricula/obtenerConstancia', {
+                params: { c: session?.user.codigoEstudiante },
+                responseType: 'blob'
+            }).then(response => {
+                console.log(response);
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                console.log(url);
+                setConstanciaURL(url);
+                setVisible(true)
+                //URL.revokeObjectURL(url);
+            }).catch(error => {
+                //console.error(error.response);           
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error en la descarga',
+                    detail: error.response ? "Error al generar el pdf" : error.message,
+                    life: 3000
+                })
+            })
         } catch (error) {
-            console.error(error);
+            console.error('Error al descargar la constancia:', error);
         }
     };
 
@@ -312,23 +335,23 @@ export default function Matricula() {
         </div>
     );
 
+
     const header3 = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Matrícula en el periodo {periodoActual?.Denominacion}</h4>
             <div className="flex flex-wrap gap-2">
-                <Link href={`/matricula/obtenerConstancia?c=${session?.user.codigoEstudiante}`}>
                     <Button
                         label="Constancia de Matrícula"
                         icon="pi pi-file-pdf"
                         className="p-button-warning"
-                        onClick={() => {
-                            generarConstancia();
-                        }}
+                        onClick={obtenerConstancia}
                     />
-                </Link>
             </div>
         </div>
     );
+
+
+    
 
     const deleteMatriculaDialogFooter = () => {
         return (
@@ -498,6 +521,10 @@ export default function Matricula() {
                     <i className="pi pi-check-circle mr-3" style={{ fontSize: '2rem' }} />
                     {<span>¿Esta seguro de que desea agrregar la Matricula?</span>}
                 </div>
+            </Dialog>
+            <Dialog header="Vista PDF de constancia de Matrícula" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
+                <iframe src={constanciaURL} width="100%" height="99%"></iframe>
+                {/* <embed src={pdfMatriculadosURL} type="application/pdf" width="100%" height="99%"/> */}
             </Dialog>
         </div>
     );

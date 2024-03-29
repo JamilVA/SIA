@@ -13,7 +13,7 @@ const { sequelize } = require("../config/database");
 const { QueryTypes } = require("sequelize");
 const { Sequelize, Op } = require("sequelize");
 
-const PDF = require("pdfkit-construct");
+const PDF = require("pdfkit-table");
 
 const getMatricula = async (req, res) => {
   try {
@@ -395,12 +395,13 @@ const guardarMatriculas = async (req, res) => {
         EstadoPago: "U",
       },
       {
-      where: {
-        CodigoEstudiante,
-        EstadoPago: "R",
-        CodigoConceptoPago: "0802",
-      },
-    });
+        where: {
+          CodigoEstudiante,
+          EstadoPago: "R",
+          CodigoConceptoPago: "0802",
+        },
+      }
+    );
 
     res.json({
       ok: true,
@@ -589,84 +590,99 @@ const updateObs = async (req, res) => {
   }
 };
 
+const setHeader = (doc) => {
+  doc.image("public/logo-escuela.jpg", 40, 15, { width: 80 });
+  doc.image("public/logo-sunedu.png", doc.page.width - 40 - 80, 15, {
+    width: 80,
+  });
+
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(11)
+    .text("ESCUELA SUPERIOR DE FORMACIÓN ARTÍSTICA PÚBLICA", {
+      align: "center",
+      lineGap: 10,
+    });
+  doc
+    .fontSize(12)
+    .text("MARIO URTEAGA ALVARADO", { align: "center", lineGap: 10 });
+
+  doc
+    .moveTo(40, 70)
+    .lineTo(doc.page.width - 40, 70)
+    .lineWidth(1.5)
+    .stroke("#000000");
+};
+
 const obtenerConstancia = async (req, res) => {
-  const estudiante = await Estudiante.findOne({
-    attributes: ["CodigoSunedu", "AnioIngreso"],
-    include: [
-      {
-        model: Persona,
-        attributes: ["Nombres", "Paterno", "Materno"],
-      },
-      {
-        model: CarreraProfesional,
-        attributes: ["NombreCarrera"],
-      },
-    ],
-    where: { Codigo: req.query.c },
-  });
+  try {
+    const estudiante = await Estudiante.findOne({
+      attributes: ["CodigoSunedu", "AnioIngreso"],
+      include: [
+        {
+          model: Persona,
+          attributes: ["Nombres", "Paterno", "Materno"],
+        },
+        {
+          model: CarreraProfesional,
+          attributes: ["NombreCarrera"],
+        },
+      ],
+      where: { Codigo: req.query.c },
+    });
 
-  const matriculas = await CursoCalificacion.findAll({
-    attributes: ["Codigo"],
-    include: [
-      {
-        model: Curso,
-        attributes: ["Codigo", "Nombre", "Creditos", "Nivel", "Semestre"],
-      },
-      {
-        model: Periodo,
-        where: { Estado: true },
-      },
-      {
-        model: Matricula,
-        attributes: ["FechaMatricula"],
-        where: { CodigoEstudiante: req.query.c },
-      },
-    ],
-  });
+    const matriculas = await CursoCalificacion.findAll({
+      attributes: ["Codigo"],
+      include: [
+        {
+          model: Curso,
+          attributes: ["Codigo", "Nombre", "Creditos", "Nivel", "Semestre"],
+        },
+        {
+          model: Periodo,
+          where: { Estado: true },
+        },
+        {
+          model: Matricula,
+          attributes: ["FechaMatricula"],
+          where: { CodigoEstudiante: req.query.c },
+        },
+      ],
+    });
 
-  const doc = new PDF({
-    size: "A4",
-    margins: { top: 20, left: 10, right: 10, bottom: 20 },
-    bufferPages: true,
-  });
+    let cursos = [];
 
-  const filename = "ConstanciaMatriculaEstudiante.pdf";
+    if (matriculas.length > 0) {
+      cursos = matriculas.map((matricula) => ({
+        Codigo: matricula.dataValues.Curso?.Codigo,
+        Curso: matricula.dataValues.Curso?.Nombre,
+        Nivel: matricula.dataValues.Curso?.Nivel,
+        Semestre: matricula.dataValues.Curso?.Semestre,
+        Creditos: matricula.dataValues.Curso?.Creditos,
+      }));
+    } else {
+      cursos = [
+        {
+          Codigo: "dsaf",
+          Curso: "dasd",
+          Nivel: "asdsa",
+          Semestre: "asd",
+          Creditos: "asd",
+        },
+      ];
+    }
 
-  const stream = res.writeHead(200, {
-    "Content-Type": "application/pdf",
-    "Content-disposition": `attachment;filename=${filename}`,
-  });
+    const doc = new PDF({
+      size: "A4",
+      margins: { top: 20, left: 10, right: 10, bottom: 20 },
+      autoFirstPage: false,
+      bufferPages: true,
+    });
 
-  doc.on("data", (data) => {
-    stream.write(data);
-  });
+    doc.on("pageAdded", () => setHeader(doc));
 
-  doc.on("end", () => {
-    stream.end();
-  });
-
-  doc.setDocumentHeader({ height: "29%" }, () => {
-    doc.image("public/logo-escuela.jpg", 40, 22, { width: 70 });
-
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(11)
-
-      .text("ESCUELA SUPERIOR DE FORMACIÓN ARTÍSTICA PÚBLICA", {
-        align: "center",
-        lineGap: 10,
-      });
-    doc
-      .fontSize(12)
-      .text("MARIO URTEAGA ALVADADO", { align: "center", lineGap: 10 });
-
-    doc
-      .moveTo(50, 75)
-      .lineTo(doc.page.width - 50, 75)
-      .lineWidth(1.5)
-      .stroke("#000000");
-
-    doc.moveDown(2);
+    doc.addPage();
+    doc.moveDown(1);
 
     doc
       .fontSize(16)
@@ -686,6 +702,7 @@ const obtenerConstancia = async (req, res) => {
         })}`,
         { align: "center", lineGap: 5 }
       );
+
     doc
       .fontSize(6)
       .fillColor("red")
@@ -746,68 +763,47 @@ const obtenerConstancia = async (req, res) => {
         indent: 50,
         lineGap: 5,
       });
-  });
 
-  let cursos = [];
+    doc.moveDown(2);
 
-  if (matriculas.length > 0) {
-    cursos = matriculas.map((matricula) => ({
-      Codigo: matricula.dataValues.Curso?.Codigo,
-      Curso: matricula.dataValues.Curso?.Nombre,
-      Nivel: matricula.dataValues.Curso?.Nivel,
-      Semestre: matricula.dataValues.Curso?.Semestre,
-      Creditos: matricula.dataValues.Curso?.Creditos,
-      Fecha: new Date(
-        matricula.dataValues.Matriculas[0]?.FechaMatricula
-      ).toLocaleDateString("es-ES", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      }),
-    }));
-  } else {
-    cursos = [
-      {
-        Codigo: "",
-        Curso: "",
-        Nivel: "",
-        Semestre: "",
-        Creditos: "",
-        Fecha: "",
+    console.log("CCC", cursos);
+
+    const table = {
+      headers: [
+        { key: "Codigo", label: "CÓDIGO", align: "left", width:50 },
+        { key: "Curso", label: "CURSO", align: "left", width:270},
+        { key: "Nivel", label: "NIVEL", align: "left", width:40 },
+        { key: "Semestre", label: "SEMESTRE", align: "left", width:60 },
+        { key: "Creditos", label: "CRÉDITOS", align: "left", width:50 },
+      ],
+      rows: cursos.map((curso) => Object.values(curso)),
+
+      options: {
+        x: 60,
+        divider: {
+          header: { disabled: true },
+          horizontal: { disabled: false },
+        },
+      }
+      
+    };
+
+    doc.table(table, {
+      prepareHeader: () => doc.font("Helvetica-Bold").fontSize(9 ),
+      prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+        doc.font("Helvetica").fontSize(8);
       },
-    ];
+    });
+    
+    
+
+    doc.pipe(res);
+
+    doc.end();
+  } catch (error) {
+    console.error("Error al generar la constancia:", error);
+    res.status(500).send("Error al generar la constancia");
   }
-
-  doc.addTable(
-    [
-      { key: "Codigo", label: "Codigo", align: "left" },
-      { key: "Curso", label: "Curso", align: "left" },
-      { key: "Nivel", label: "Nivel", align: "left" },
-      { key: "Semestre", label: "Semestre", align: "left" },
-      { key: "Creditos", label: "Créditos", align: "left" },
-      { key: "Fecha", label: "Fecha", align: "left" },
-    ],
-    cursos,
-    {
-      border: { size: 0.1, color: "#cdcdcd" },
-      width: "fill_body",
-      cellsPadding: 10,
-      marginLeft: 45,
-      marginRight: 45,
-      headColor: "#ffffff",
-      headAlign: "left",
-      headBackground: "#002479",
-      headHeight: 20,
-      cellsPadding: 5,
-    }
-  );
-
-  doc.render();
-
-  doc.end();
 };
 
 module.exports = {

@@ -15,10 +15,9 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import React, { useEffect, useRef, useState } from 'react';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 
 export default function RegistrarPagoPage() {
-
     const pagoVacio = {
         Codigo: 0,
         NroTransaccion: '',
@@ -26,19 +25,21 @@ export default function RegistrarPagoPage() {
         EstadoPago: '',
         Estudiante: { CodigoSunedu: '' },
         ConceptoPago: { Codigo: 0, Denominacion: '', Monto: 0 }
-    }
+    };
 
-    const [conceptos, setConceptos] = useState<Array<any>>([])
+    const [conceptos, setConceptos] = useState<Array<any>>([]);
 
     const estados = ['r', 'a', 'u'];
 
-    const [pagos, setPagos] = useState([pagoVacio])
+    const [pagos, setPagos] = useState([pagoVacio]);
     const [anularPagoDialog, setAnularPagoDialog] = useState(false);
     const [codigoAnular, setCodigoAnular] = useState(0);
     const [concepto, setConcepto] = useState();
     const [anio, setAnio] = useState(new Date());
     const [filters, setFilters] = useState<DataTableFilterMeta>({});
     const [loading, setLoading] = useState(true);
+    const [pdfURL, setPdfURL] = useState('');
+    const [visible, setVisible] = useState(false);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const { data: session, status } = useSession();
     const [exportDialog, setExportDialog] = useState(false);
@@ -47,44 +48,44 @@ export default function RegistrarPagoPage() {
     const dt = useRef<DataTable<any>>(null);
 
     const fetchPagos = async () => {
-        await axios("/pago")
-            .then(response => {
+        await axios('/pago')
+            .then((response) => {
                 //console.log(response.data.pagos)
-                setPagos(response.data.pagos)
+                setPagos(response.data.pagos);
                 setLoading(false);
             })
-            .catch(error => {
+            .catch((error) => {
                 setLoading(false);
                 setPagos([]);
-                console.error(error)
+                console.error(error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
                     detail: 'Erro en la carga de datos',
                     life: 3000
                 });
-            })
-    }
+            });
+    };
 
     const fetchConceptos = async () => {
-        await axios("/pago/conceptos")
-            .then(response => {
-                setConceptos(response.data.conceptos)
+        await axios('/pago/conceptos')
+            .then((response) => {
+                setConceptos(response.data.conceptos);
             })
-            .catch(error => {
-                console.error(error)
+            .catch((error) => {
+                console.error(error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
                     detail: 'Error al cargar los conceptos de pago',
                     life: 3000
                 });
-            })
-    }
+            });
+    };
 
     useEffect(() => {
         fetchPagos();
-        fetchConceptos()
+        fetchConceptos();
         initFilters();
     }, []);
 
@@ -93,42 +94,44 @@ export default function RegistrarPagoPage() {
     };
 
     const confirmAnularPago = (rowData: any) => {
-        setCodigoAnular(rowData.Codigo)
+        setCodigoAnular(rowData.Codigo);
         setAnularPagoDialog(true);
     };
 
     const anularPago = async () => {
-        await axios.put('/pago', {
-            codigo: codigoAnular
-        }).then(response => {
-            console.log("Pago anulado: ", response.data)
-            const newData = pagos.map(pago => {
-                if (pago.Codigo === codigoAnular) {
-                    return {
-                        ...pago,
-                        EstadoPago: 'A'
-                    };
-                } else {
-                    return pago;
-                }
-
+        await axios
+            .put('/pago', {
+                codigo: codigoAnular
+            })
+            .then((response) => {
+                console.log('Pago anulado: ', response.data);
+                const newData = pagos.map((pago) => {
+                    if (pago.Codigo === codigoAnular) {
+                        return {
+                            ...pago,
+                            EstadoPago: 'A'
+                        };
+                    } else {
+                        return pago;
+                    }
+                });
+                setPagos(newData);
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Operación exitosa',
+                    detail: 'El pago ha sido anulado',
+                    life: 3000
+                });
+            })
+            .catch((error) => {
+                console.log('Ha ocurrido un error: ', error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Operación fallida',
+                    detail: 'Ha ocurrido un error al intentar anular el pago',
+                    life: 3000
+                });
             });
-            setPagos(newData);
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Operación exitosa',
-                detail: 'El pago ha sido anulado',
-                life: 3000
-            });
-        }).catch(error => {
-            console.log("Ha ocurrido un error: ", error);
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Operación fallida',
-                detail: 'Ha ocurrido un error al intentar anular el pago',
-                life: 3000
-            });
-        })
 
         setAnularPagoDialog(false);
     };
@@ -137,7 +140,7 @@ export default function RegistrarPagoPage() {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    <Link href='/tesoreria/pagos/registrar'>
+                    <Link href="/tesoreria/pagos/registrar">
                         <Button label="Registrar pago" icon="pi pi-plus" severity="success" className=" mr-2" />
                     </Link>
                 </div>
@@ -154,7 +157,7 @@ export default function RegistrarPagoPage() {
     };
 
     const actionBodyTemplate = (rowData: any) => {
-        return <Button icon="pi pi-times" rounded severity="warning" onClick={() => confirmAnularPago(rowData)} />
+        return <Button icon="pi pi-times" rounded severity="warning" onClick={() => confirmAnularPago(rowData)} />;
     };
 
     const deleteProductDialogFooter = (
@@ -221,21 +224,13 @@ export default function RegistrarPagoPage() {
             EstadoPago: {
                 operator: FilterOperator.OR,
                 constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-            },
+            }
         });
         setGlobalFilterValue('');
     };
 
     const conceptoFilterTemplate = (options: ColumnFilterElementTemplateOptions) => {
-        return <Dropdown
-            value={options.value}
-            options={conceptos}
-            optionLabel='Denominacion'
-            optionValue='Denominacion'
-            onChange={(e) => options.filterCallback(e.value, options.index)}
-            placeholder="Concepto"
-            className="p-column-filter"
-            showClear />;
+        return <Dropdown value={options.value} options={conceptos} optionLabel="Denominacion" optionValue="Denominacion" onChange={(e) => options.filterCallback(e.value, options.index)} placeholder="Concepto" className="p-column-filter" showClear />;
     };
 
     const dateBodyTemplate = (rowData: any) => {
@@ -275,31 +270,57 @@ export default function RegistrarPagoPage() {
         setExportDialog(false);
     };
 
+    const obtenerListaPagos = async () => {
+        try {
+            await axios
+                .get('/pago/listaPagos', {
+                    params: { c: concepto, a: anio.getFullYear() ? anio : currentYear },
+                    responseType: 'blob'
+                })
+                .then((response) => {
+                    console.log(response);
+                    const blob = new Blob([response.data], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    console.log(url);
+                    setPdfURL(url);
+                    setVisible(true);
+                    //URL.revokeObjectURL(url);
+                })
+                .catch((error) => {
+                    //console.error(error.response);
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Error en la descarga',
+                        detail: error.response ? 'Error al generar el pdf' : error.message,
+                        life: 3000
+                    });
+                });
+        } catch (error) {
+            console.error('Error al descargar la constancia:', error);
+        }
+    };
+
     const currentYear = new Date().getFullYear();
 
     const exportDialogFooter = (
-        
         <>
             <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideExportDialog} />
-            {/* <Button label="Descargar" icon="pi pi-download" onClick={exportCSV} /> */}
-            <Link href={`${axios.defaults.baseURL}/pago/listaPagos?c=${concepto}&a=${anio.getFullYear() ? anio : currentYear}`}>
-                <Button label="Descargar" icon="pi pi-download"/>
-            </Link>
+            <Button label="Descargar" icon="pi pi-download" onClick={obtenerListaPagos} />
         </>
     );
 
-    if (status === "loading") {
+    if (status === 'loading') {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                <div className="flex items-center justify-center align-content-center" style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
-        )
+        );
     }
 
     if (session?.user.nivelUsuario != 5) {
-        redirect('/pages/notfound')
+        redirect('/pages/notfound');
     }
 
     return (
@@ -309,21 +330,10 @@ export default function RegistrarPagoPage() {
                 <Toast ref={toast} />
                 <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
 
-                <DataTable
-                    ref={dt}
-                    value={pagos}
-                    paginator                  
-                    rows={10}
-                    dataKey="Codigo"
-                    filters={filters}
-                    filterDisplay="menu"
-                    loading={loading}
-                    emptyMessage="Ningún pago encontrado"
-                    header={header1}
-                >
-                    <Column field='Codigo' header="Cod." sortable style={{ minWidth: '6rem' }} />
-                    <Column field='NroTransaccion' header="Nro. Transaccion" sortable style={{ minWidth: '12rem' }} />
-                    <Column field='Fecha' header="Fecha" body={dateBodyTemplate} showFilterMenuOptions={false} filterField="Fecha" dataType="date" style={{ minWidth: '13rem' }} filter filterElement={dateFilterTemplate} />
+                <DataTable ref={dt} value={pagos} paginator rows={10} dataKey="Codigo" filters={filters} filterDisplay="menu" loading={loading} emptyMessage="Ningún pago encontrado" header={header1}>
+                    <Column field="Codigo" header="Cod." sortable style={{ minWidth: '6rem' }} />
+                    <Column field="NroTransaccion" header="Nro. Transaccion" sortable style={{ minWidth: '12rem' }} />
+                    <Column field="Fecha" header="Fecha" body={dateBodyTemplate} showFilterMenuOptions={false} filterField="Fecha" dataType="date" style={{ minWidth: '13rem' }} filter filterElement={dateFilterTemplate} />
                     <Column field="EstadoPago" header="Estado" body={estadoBodyTemplate} showFilterMenuOptions={false} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '8rem' }} filter filterElement={estadoFilterTemplate} />
                     <Column field="Estudiante.CodigoSunedu" header="Cód. Estudiante" style={{ minWidth: '10rem' }} />
                     <Column
@@ -332,12 +342,12 @@ export default function RegistrarPagoPage() {
                         showFilterMenuOptions={false}
                         filterMenuStyle={{ width: '14rem' }}
                         style={{ minWidth: '10rem' }}
-                        field='ConceptoPago.Denominacion'
+                        field="ConceptoPago.Denominacion"
                         filter
                         filterElement={conceptoFilterTemplate}
                     />
-                    <Column field='ConceptoPago.Monto' header="Monto" body={montoBodyTemplate} style={{ minWidth: '8rem' }} />
-                    <Column field='Observacion' header="Observación" style={{ minWidth: '8rem' }} />
+                    <Column field="ConceptoPago.Monto" header="Monto" body={montoBodyTemplate} style={{ minWidth: '8rem' }} />
+                    <Column field="Observacion" header="Observación" style={{ minWidth: '8rem' }} />
                     <Column body={actionBodyTemplate} headerStyle={{ minWidth: '4rem' }}></Column>
                 </DataTable>
 
@@ -345,46 +355,50 @@ export default function RegistrarPagoPage() {
                     <div className="flex align-items-center justify-content-center">
                         <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
 
-                        <span>
-                            ¿Está seguro de que desea anular el pago?
-                        </span>
-
+                        <span>¿Está seguro de que desea anular el pago?</span>
                     </div>
                 </Dialog>
 
-                <Dialog visible={exportDialog} style={{ width: '350px' }} header="Exportar lista de pagos" modal className="p-fluid" footer={exportDialogFooter} onHide={hideExportDialog}>
-                        <div className="formgrid grid">
-                            <div className="field col">
-                                <label htmlFor="concepto">Concepto de Pago:</label>
-                                <Dropdown
-                                    id="concepto"
-                                    value={concepto}
-                                    onChange={(e) => {
-                                        onConceptoSelect(e);
-                                    }}
-                                    name="CodigoConceptoPago"
-                                    options={conceptos}
-                                    optionLabel="Denominacion"
-                                    optionValue="Codigo"
-                                    placeholder="Seleccione"
-                                    filterBy='Codigo,Denominacion'
-                                    filter
-                                ></Dropdown>
-                            </div>
-                        </div>
-                        <div className="formgrid grid">
-                            <div className="field col">
-                                <label htmlFor="anio">Año de Pago:</label>
-                                <Calendar value={anio} onChange={(e) => {
-                                    console.log(e.value)
-                                    setAnio(new Date(e.value as string))
-                                }}  view="year" dateFormat="yy" />
-                            </div>
-                        </div>
-                    </Dialog>
+                <Dialog header="Vista PDF de lista de pagos" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
+                    <iframe src={pdfURL} width="100%" height="99%"></iframe>
+                </Dialog>
 
+                <Dialog visible={exportDialog} style={{ width: '350px' }} header="Exportar lista de pagos" modal className="p-fluid" footer={exportDialogFooter} onHide={hideExportDialog}>
+                    <div className="formgrid grid">
+                        <div className="field col">
+                            <label htmlFor="concepto">Concepto de Pago:</label>
+                            <Dropdown
+                                id="concepto"
+                                value={concepto}
+                                onChange={(e) => {
+                                    onConceptoSelect(e);
+                                }}
+                                name="CodigoConceptoPago"
+                                options={conceptos}
+                                optionLabel="Denominacion"
+                                optionValue="Codigo"
+                                placeholder="Seleccione"
+                                filterBy="Codigo,Denominacion"
+                                filter
+                            ></Dropdown>
+                        </div>
+                    </div>
+                    <div className="formgrid grid">
+                        <div className="field col">
+                            <label htmlFor="anio">Año de Pago:</label>
+                            <Calendar
+                                value={anio}
+                                onChange={(e) => {
+                                    console.log(e.value);
+                                    setAnio(new Date(e.value as string));
+                                }}
+                                view="year"
+                                dateFormat="yy"
+                            />
+                        </div>
+                    </div>
+                </Dialog>
             </div>
         </div>
-
     );
-};
+}
