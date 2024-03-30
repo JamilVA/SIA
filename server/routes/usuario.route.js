@@ -1,20 +1,20 @@
 const { Router } = require("express")
 const { crearUsuario, getUsuarios, getNivelesUsuario, eliminarUsuario, editarUsuario, inhabilitarUsuario, getAllUsuarios } = require("../controllers/usuario.controller")
-
+const requireToken = require('../middleware/requireToken');
 const router = Router()
 
-router.post('/', crearUsuario)
+router.post('/', requireToken, crearUsuario)
 
-router.get('/', getUsuarios)
+router.get('/', requireToken, getUsuarios)
 
-router.get('/all', getAllUsuarios)
+router.get('/all', requireToken, getAllUsuarios)
 
-router.get('/niveles', getNivelesUsuario)
+router.get('/niveles', requireToken, getNivelesUsuario)
 
-router.delete('/', eliminarUsuario)
+router.delete('/', requireToken, eliminarUsuario)
 
-router.put('/', editarUsuario)
+router.put('/', requireToken, editarUsuario)
 
-router.put('/inhabilitar', inhabilitarUsuario)
+router.put('/inhabilitar', requireToken, inhabilitarUsuario)
 
 module.exports = router

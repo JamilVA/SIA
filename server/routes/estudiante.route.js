@@ -6,19 +6,19 @@ const { getEstudiante, crearEstudiante, actualizarEstudiante, buscarEstudiante, 
 
 const router = Router();
 
-router.get('/', getEstudiante);
+router.get('/', requireToken, getEstudiante);
 
-router.post('/', crearEstudiante);
+router.post('/', requireToken, crearEstudiante);
 
-router.put('/', actualizarEstudiante);
+router.put('/', requireToken, actualizarEstudiante);
 
-router.get('/buscar', buscarEstudiante);
+router.get('/buscar', requireToken, buscarEstudiante);
 
-router.get('/notas', getNotas)
+router.get('/notas', requireToken, getNotas)
 
-router.get('/getbycod', getEstudianteByCodPersona);
+router.get('/getbycod', requireToken, getEstudianteByCodPersona);
 
-router.get('/obtenerListaEstudiantes', obtenerListaEstudiantes);
+router.get('/obtenerListaEstudiantes', requireToken, obtenerListaEstudiantes);
 
 //router.get('/getbycod', requireToken, getEstudianteByCod)
 

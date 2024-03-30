@@ -5,14 +5,14 @@ const {getJefeDepartamento, crearJefeDepartamento, actualizarJefeDepartamento , 
 
 const router = Router();
 
-router.get('/', getJefeDepartamento);
+router.get('/', requireToken, getJefeDepartamento);
 
-router.post('/', crearJefeDepartamento);
+router.post('/', requireToken, crearJefeDepartamento);
 
-router.put('/', actualizarJefeDepartamento);
+router.put('/', requireToken, actualizarJefeDepartamento);
 
-router.put('/carrera', asignarCarreraProfesional);
+router.put('/carrera', requireToken, asignarCarreraProfesional);
 
-router.put('/asignarDocente', asignarDocente);
+router.put('/asignarDocente', requireToken, asignarDocente);
 
 module.exports = router;

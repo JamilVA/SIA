@@ -6,12 +6,12 @@ const { bodyRegisterValidator, bodyLoginValidator } = require('../middleware/val
 
 const router = Router();
 
-router.post('/register', bodyRegisterValidator, register);
+//router.post('/register', bodyRegisterValidator, register);
 
 router.post('/login', login);
 router.get('/refresh', requireRefreshToken, refreshToken)
 router.get('/logout', logout)
-router.put('/changePassword', changePassword);
-router.put('/auth/changePasswordAdmin', changePasswordAdmin);
+router.put('/changePassword', requireToken, changePassword);
+router.put('/auth/changePasswordAdmin', requireToken, changePasswordAdmin);
 
 module.exports = router;

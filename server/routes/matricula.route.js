@@ -1,32 +1,30 @@
 const { Router } = require('express');
-
 const {getMatricula, crearMatricula, actualizarMatricula, eliminarMatricula, buscarEstudiante, getMatriculaByCurso, updateNotas, obtenerConstancia, getCursosMatriculados, getCursosLlevar, guardarMatriculas, updateObs} = require('../controllers/matricula.controller')
-
-
+const requireToken = require('../middleware/requireToken');
 const router = Router();
 
-router.get('/', getMatricula);
+router.get('/', requireToken, getMatricula);
 
-router.get('/cursosMatriculados', getCursosMatriculados);
+router.get('/cursosMatriculados', requireToken, getCursosMatriculados);
 
-router.get('/cursosLlevar', getCursosLlevar);
+router.get('/cursosLlevar', requireToken, getCursosLlevar);
 
-router.post('/', crearMatricula);
+router.post('/', requireToken, crearMatricula);
 
-router.post('/guardarMatriculas', guardarMatriculas);
+router.post('/guardarMatriculas', requireToken, guardarMatriculas);
 
-router.put('/', actualizarMatricula);
+router.put('/', requireToken, actualizarMatricula);
 
-router.post('/eliminar', eliminarMatricula);
+router.post('/eliminar', requireToken, eliminarMatricula);
 
-router.get('/buscarEstudiante', buscarEstudiante);
+router.get('/buscarEstudiante', requireToken, buscarEstudiante);
 
-router.get('/obtenerConstancia', obtenerConstancia);
+router.get('/obtenerConstancia', requireToken, obtenerConstancia);
 
-router.get('/getMatriculaByCurso', getMatriculaByCurso);
+router.get('/getMatriculaByCurso', requireToken, getMatriculaByCurso);
 
-router.patch('/updateNotas', updateNotas);
+router.patch('/updateNotas', requireToken, updateNotas);
 
-router.patch('/updateNotas', updateObs);
+router.patch('/updateNotas', requireToken, updateObs);
 
 module.exports = router;

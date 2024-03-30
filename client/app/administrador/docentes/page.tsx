@@ -65,12 +65,18 @@ export default function DocentesDemo() {
     const [archivo, setArchivo] = useState<FileUploadFilesEvent | null>(null);
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (status === 'authenticated') {
+            fetchData();
+        }
+    }, [status]);
 
     const fetchData = async () => {
         try {
-            const result = await axios.get('/docente');
+            const result = await axios.get('/docente', {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
 
             const docentesConNombreCompleto = result.data.docentes.map((docente: any) => ({
                 ...docente,
@@ -138,7 +144,7 @@ export default function DocentesDemo() {
                             console.log(cambioImagen)
                             if (archivo?.files) {
                                 subirArchivo(_docente.codigoPersona);
-                            }                            
+                            }
                             toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente creado con éxito', life: 3000 });
                             fetchData();
                         });
@@ -483,7 +489,7 @@ export default function DocentesDemo() {
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>

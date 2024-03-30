@@ -94,7 +94,7 @@ export default function CursoCalificacionPage() {
             .then(response => {
                 const cursos = response.data.cursos
                 let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento === session?.user.codigoJefe)
-                //console.log(_cursos)
+                //console.log(response.data.cursos)
                 //setCursos(_cursos)
                 setTempCursos(_cursos)
             })
@@ -172,7 +172,7 @@ export default function CursoCalificacionPage() {
 
     const fetchCarreras = async () => {
         await axios.get('/curso-calificacion/carreras', {
-            params: { codigoJefe: session?.user.codigoPersona }
+            params: { codigoJefe: session?.user.codigoJefe }
         })
             .then(response => {
                 const _carreras = response.data.carreras
