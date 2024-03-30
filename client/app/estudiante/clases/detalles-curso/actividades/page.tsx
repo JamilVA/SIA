@@ -9,13 +9,14 @@ import { Tooltip } from 'primereact/tooltip';
 import { ProgressBar } from 'primereact/progressbar';
 import { Tag } from 'primereact/tag';
 import { BlockUI } from 'primereact/blockui';
+import { Panel } from 'primereact/panel';
+import { Divider } from 'primereact/divider';
 import React, { useEffect, useRef, useState } from 'react';
 import { redirect, useSearchParams } from 'next/navigation';
 
 import { axiosInstance as axios } from '../../../../../utils/axios.instance';
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { set } from 'date-fns';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function ActividadesPage() {
@@ -103,7 +104,6 @@ export default function ActividadesPage() {
         }
     }, [status]);
 
-
     const onTemplateSelect = (e: FileUploadFilesEvent, actividad: typeof emptyActividad, subido: boolean) => {
         let _totalSize = totalSize;
         let files = e.files;
@@ -125,7 +125,6 @@ export default function ActividadesPage() {
         let _fileName = '';
 
         try {
-
             console.log('Archivo Recibido:', archivo);
             const file = archivo!.files[0];
             const formData = new FormData();
@@ -137,8 +136,7 @@ export default function ActividadesPage() {
                 setArchivo(null);
                 setActividad(emptyActividad);
                 setTotalSize(0);
-                _fileName = response.data.filename
-                
+                _fileName = response.data.filename;
             });
 
             const response = await axios.post('/actividadEstudiante', {
@@ -146,7 +144,6 @@ export default function ActividadesPage() {
                 CodigoEstudiante: session?.user.codigoEstudiante,
                 RutaTarea: _fileName
             });
-
 
             toast.current?.show({
                 severity: 'success',
@@ -163,7 +160,6 @@ export default function ActividadesPage() {
         callback();
     };
 
-
     const onTemplateClear = () => {
         setTotalSize(0);
     };
@@ -175,11 +171,12 @@ export default function ActividadesPage() {
                 responseType: 'arraybuffer'
             })
             .then((response) => {
-                const file = new File([response.data], ruta);
+                //console.log(response); 
+                const file = new File([response.data], ruta);        
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = file.name;
+                link.download = file.name;            
                 link.click();
                 URL.revokeObjectURL(url);
             })
@@ -288,12 +285,23 @@ export default function ActividadesPage() {
                                     />
                                 </BlockUI>
                             </div>
-                            {actividadSubida && <Button icon="pi pi-file" label="Mi archivo registrado" severity="secondary" className="button-sm mr-2" onClick={() => descargarArchivo(actividad?.ActividadEstudiantes[0]?.RutaTarea)} />} <br />
                             <Tag severity={severityArchivo} value={mensajeArchivo}></Tag>
+                            <br />
+                            {actividadSubida && <Button icon="pi pi-file" label="Mi archivo registrado" severity="secondary" className="button-sm mr-2" onClick={() => descargarArchivo(actividad?.ActividadEstudiantes[0]?.RutaTarea)} />} <br />
+                    
+                            {actividad?.ActividadEstudiantes[0]?.Nota && (
+                                <>
+                                    <Panel header={'NOTA: ' + (actividad?.ActividadEstudiantes[0]?.Nota ?? '')} toggleable style={{width: '90%'}}>
+                                        <p className="m-0">{actividad?.ActividadEstudiantes[0]?.Observacion ?? ''}</p>
+                                    </Panel>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
+                <Divider />
             </div>
+            
         );
     };
 
