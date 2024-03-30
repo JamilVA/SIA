@@ -90,7 +90,11 @@ export default function CursoCalificacionPage() {
     const [carreras, setCarreras] = useState<Array<any>>([])
 
     const fetchCursos = async () => {
-        await axios.get('/curso')
+        await axios.get('/curso', {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 const cursos = response.data.cursos
                 let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento === session?.user.codigoJefe)
@@ -111,7 +115,11 @@ export default function CursoCalificacionPage() {
     }
 
     const fetchPeriodoVigente = async () => {
-        await axios.get('/periodo/vigente')
+        await axios.get('/periodo/vigente',{
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 setPeriodoVigente(response.data.periodo)
             })
@@ -131,6 +139,9 @@ export default function CursoCalificacionPage() {
         await axios.get('/curso-calificacion', {
             params: {
                 CodigoJefe: session?.user.codigoJefe
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -152,7 +163,11 @@ export default function CursoCalificacionPage() {
     }
 
     const fetchDocentes = async () => {
-        await axios.get('/docente')
+        await axios.get('/docente', {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 const _docentes = response.data.docentes
                 //console.log(_docentes)
@@ -172,7 +187,10 @@ export default function CursoCalificacionPage() {
 
     const fetchCarreras = async () => {
         await axios.get('/curso-calificacion/carreras', {
-            params: { codigoJefe: session?.user.codigoJefe }
+            params: { codigoJefe: session?.user.codigoJefe },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
         })
             .then(response => {
                 const _carreras = response.data.carreras
@@ -263,6 +281,10 @@ export default function CursoCalificacionPage() {
             ...cursoCalificacion,
             CodigoDocente: null,
             CodigoPeriodo: periodoVigente?.Codigo
+        },{
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
         })
             .then(response => {
                 fetchCursosCalificacion()
@@ -292,7 +314,10 @@ export default function CursoCalificacionPage() {
     const deleteCursoCalificacion = async () => {
         hideDeleteCursoCalificacion()
         await axios.delete('/curso-calificacion/eliminar', {
-            params: { codigo: cursoCalificacion.Codigo }
+            params: { codigo: cursoCalificacion.Codigo },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
         })
             .then(response => {
                 let _cursosCalificacion = cursosCalificacion.filter(curso => curso.Codigo !== cursoCalificacion.Codigo)
@@ -379,6 +404,9 @@ export default function CursoCalificacionPage() {
             params: {
                 campo: campo,
                 codigo: codigo
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -407,6 +435,9 @@ export default function CursoCalificacionPage() {
             params: {
                 campo: campo,
                 codigo: codigo
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -482,6 +513,9 @@ export default function CursoCalificacionPage() {
             params: {
                 periodo: periodoVigente.Codigo,
                 campo: campo
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -509,6 +543,9 @@ export default function CursoCalificacionPage() {
             params: {
                 periodo: periodoVigente.Codigo,
                 campo: campo
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -541,6 +578,9 @@ export default function CursoCalificacionPage() {
             params: {
                 codigo: cursoCalificacion.Codigo,
                 codigoDocente: cursoCalificacion.CodigoDocente
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -590,6 +630,9 @@ export default function CursoCalificacionPage() {
                 codigoPeriodo: periodoVigente.Codigo,
                 codigoCarrera: selectedCarrera,
                 semestre: semestre
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {

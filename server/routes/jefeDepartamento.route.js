@@ -1,5 +1,5 @@
 const { Router } = require('express');
-
+const requireToken = require('../middleware/requireToken');
 const {getJefeDepartamento, crearJefeDepartamento, actualizarJefeDepartamento , asignarCarreraProfesional, asignarDocente} = require('../controllers/jefeDepartamento.controller')
 
 

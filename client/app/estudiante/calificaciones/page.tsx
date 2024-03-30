@@ -29,6 +29,9 @@ export default function Page () {
         await axios.get('/acta/estudiante', {
             params: {
                 CodigoEstudiante: session?.user.codigoEstudiante,
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
             setActas(response.data.actas);

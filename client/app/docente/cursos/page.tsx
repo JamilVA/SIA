@@ -41,6 +41,9 @@ export default function Page () {
             .get('/curso/cursosdp', {
                 params: {
                     CodDocente: session?.user.codigoDocente
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             })
             .then((response) => {

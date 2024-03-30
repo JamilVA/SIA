@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { getCurso, crearCurso , actualizarCurso, buscarCurso, getCursosByDP, obtenerListaCursos} = require('../controllers/curso.controller');
-
+const requireToken = require('../middleware/requireToken');
 const router = Router();
 
 router.get('/', requireToken, getCurso);

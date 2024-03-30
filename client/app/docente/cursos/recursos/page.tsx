@@ -62,8 +62,10 @@ export default function ActividadesPage() {
     };
 
     useEffect(() => {
-        fetchActividades();
-    }, []);
+        if (status === 'authenticated') {
+            fetchActividades();
+        }
+    }, [status]);
 
     const openNew = () => {
         setRecurso(recursoVacio);
@@ -184,7 +186,7 @@ export default function ActividadesPage() {
         setRecurso(recursoVacio);
     };
 
-    const subirArchivo =  async (recurso: typeof recursoVacio) => {
+    const subirArchivo = async (recurso: typeof recursoVacio) => {
 
         try {
             const file = archivo!.files[0];
@@ -196,7 +198,7 @@ export default function ActividadesPage() {
 
             await axios.post('/files/upload', formData).then((response) => {
                 console.log(response.data.path);
-                let _recurso = { ...recurso, Ruta: response.data.filename, Tipo: tipoArchivo};
+                let _recurso = { ...recurso, Ruta: response.data.filename, Tipo: tipoArchivo };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
                 modificarRecurso(_recurso);
                 setRecurso(recursoVacio);
@@ -216,15 +218,15 @@ export default function ActividadesPage() {
     const descargarArchivo = async (ruta: string) => {
         await axios.get('/files/download', {
             params: { fileName: ruta },
-            responseType: 'arraybuffer' 
+            responseType: 'arraybuffer'
         })
             .then(response => {
                 //console.log(response); 
-                const file = new File([response.data], ruta);        
+                const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = file.name;            
+                link.download = file.name;
                 link.click();
                 URL.revokeObjectURL(url);
             })
@@ -239,7 +241,7 @@ export default function ActividadesPage() {
             })
     };
 
-    const handleUpload = (event: FileUploadFilesEvent, rowData: typeof recursoVacio) =>{
+    const handleUpload = (event: FileUploadFilesEvent, rowData: typeof recursoVacio) => {
         setArchivo(event)
         setRecurso(rowData)
     }
@@ -305,7 +307,7 @@ export default function ActividadesPage() {
                             <div className="flex flex-column align-items-center sm:align-items-start gap-3">
                                 <div className="text-2xl font-bold text-900">{recurso.Titulo}</div>
                                 <small>{` (Archivo tipo ${recurso.Tipo} )`}</small>
-                                <Button icon="pi pi-download" label='Descargar' severity="success"  className="mr-2" onClick={() => descargarArchivo(recurso.Ruta)} />
+                                <Button icon="pi pi-download" label='Descargar' severity="success" className="mr-2" onClick={() => descargarArchivo(recurso.Ruta)} />
 
                             </div>
                             <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">

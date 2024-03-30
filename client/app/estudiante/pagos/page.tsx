@@ -36,6 +36,9 @@ export default function Page () {
             .get('/pago/estudiante', {
                 params: {
                     codigo: session?.user.codigoEstudiante
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             })
             .then((response) => {

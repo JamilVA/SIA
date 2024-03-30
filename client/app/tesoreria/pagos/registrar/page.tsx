@@ -42,7 +42,11 @@ export default function RegistroPagoPage() {
     const { data: session, status } = useSession();
 
     const fetchConceptos = async () => {
-        await axios.get('/pago/conceptos')
+        await axios.get('/pago/conceptos', {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 setConceptos(response.data.conceptos)
             })
@@ -58,14 +62,19 @@ export default function RegistroPagoPage() {
     }
 
     useEffect(() => {
-        fetchConceptos()
-    }, [])
+        if (status === 'authenticated') {
+            fetchConceptos();
+        }
+    }, [status]);
 
     const buscarEstudiante = async (dni: string) => {
         setLoading(true)
         await axios.get('/estudiante/buscar', {
             params: {
                 dni: dni
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -129,7 +138,11 @@ export default function RegistroPagoPage() {
             });
         }
 
-        await axios.post('/pago', pago)
+        await axios.post('/pago', pago, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 setInputSearch('');
                 setPago(pagoVacio)
@@ -153,7 +166,7 @@ export default function RegistroPagoPage() {
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, name: string) => {
         const val = (e.target && e.target.value) || '';
-        let _pago = {...pago}
+        let _pago = { ...pago }
 
         switch (name) {
             case 'transaccion':
@@ -224,7 +237,7 @@ export default function RegistroPagoPage() {
                             placeholder="Ingrese DNI"
                             onChange={(e) => { setInputSearch(e.target.value) }}
                             maxLength={8}
-                            
+
                         />
                         <Button loading={loading} className='ml-2' label='Buscar' onClick={() => { buscarEstudiante(inputValue) }} />
                     </span>

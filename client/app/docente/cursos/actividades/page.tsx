@@ -44,7 +44,10 @@ export default function ActividadesPage() {
     const fetchActividades = async () => {
         setLoading(true)
         await axios.get('/actividad', {
-            params: { codigoSesion: codigoSesion }
+            params: { codigoSesion: codigoSesion },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
         })
             .then(response => {
                 setActividades(response.data.actividades)
@@ -99,8 +102,12 @@ export default function ActividadesPage() {
     };
 
     const crearActividad = async () => {
-        await axios.post('/actividad', actividad)
-            .then(response => {         
+        await axios.post('/actividad', actividad, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
+            .then(response => {
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Successful',
@@ -121,7 +128,11 @@ export default function ActividadesPage() {
     }
 
     const modificarActividad = async (actividad: any) => {
-        await axios.put('/actividad', actividad)
+        await axios.put('/actividad', actividad, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 let _actividades = actividades.map(value => {
                     if (value.Codigo === actividad.Codigo) {
@@ -162,7 +173,10 @@ export default function ActividadesPage() {
     const deleteActividad = async () => {
         setDeleteActividadDialog(false);
         await axios.delete('/actividad', {
-            params: { codigo: actividad.Codigo }
+            params: { codigo: actividad.Codigo },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
         })
             .then(response => {
                 let _actividades = actividades.filter(val => val.Codigo !== actividad.Codigo);

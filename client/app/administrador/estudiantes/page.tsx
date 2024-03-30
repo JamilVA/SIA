@@ -65,12 +65,18 @@ export default function Page() {
     //const [actividades, setActividades] = useState<Array<any>>([]);
 
     useEffect(() => {
-        fetchData();
-    }, [])
+        if (status === 'authenticated') {
+            fetchData();
+        }
+    }, [status]);
 
     const fetchData = async () => {
         try {
-            const result = await axios("/estudiante");
+            const result = await axios("/estudiante", {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
             setestudiantes(result.data.estudiantes);
             setCarreras(result.data.carreras);
         } catch (e) {
@@ -106,7 +112,11 @@ export default function Page() {
     const onSubmitChange = async (e: React.MouseEvent<HTMLButtonElement>, data: object) => {
         e.preventDefault();
         try {
-            const result = await axios.post("/estudiante", data);
+            const result = await axios.post("/estudiante", data, {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
             console.log(result);
             subirFoto(result.data.estudiante.CodigoPersona);
             fetchData();
@@ -135,7 +145,11 @@ export default function Page() {
     const onUpdate = async (e: React.MouseEvent<HTMLButtonElement>, data: object) => {
         e.preventDefault();
         try {
-            await axios.put("/estudiante", data).then((response) => {
+            await axios.put("/estudiante", data, {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            }).then((response) => {
                 subirFoto(response.data.persona.Codigo);
             });
             fetchData();
@@ -186,6 +200,10 @@ export default function Page() {
                 .put('/docente/actualizar-foto', {
                     codigoPersona: codigo,
                     rutaFoto: ruta
+                }, {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 }).then((response) => {
                     fetchData();
                 })
@@ -447,7 +465,7 @@ export default function Page() {
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>

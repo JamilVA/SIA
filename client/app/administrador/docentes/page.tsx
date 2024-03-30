@@ -138,6 +138,10 @@ export default function DocentesDemo() {
                             DNI: _docente.DNI,
                             rutaFoto: _docente.rutaFoto,
                             condicionLaboral: _docente.condicionLaboral
+                        }, {
+                            headers: {
+                                Authorization: 'Bearer ' + session?.user.token
+                            }
                         })
                         .then((response) => {
                             console.log(response.data);
@@ -169,6 +173,10 @@ export default function DocentesDemo() {
                         rutaFoto: _docente.rutaFoto,
                         codigoPersona: _docente.codigoPersona,
                         condicionLaboral: _docente.condicionLaboral
+                    }, {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     })
                     .then((response) => {
                         console.log(response);
@@ -270,7 +278,12 @@ export default function DocentesDemo() {
             .put('/docente', {
                 codigo: rowData.Codigo,
                 estado: _estado
-            })
+            },
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
+                })
             .then((response) => {
                 console.log(response.data);
                 fetchData();
@@ -287,6 +300,10 @@ export default function DocentesDemo() {
                 .put('/docente/actualizar-foto', {
                     codigoPersona: codigo,
                     rutaFoto: ruta
+                }, {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 })
                 .then((response) => {
                     console.log('Ruta Actualizada', response);

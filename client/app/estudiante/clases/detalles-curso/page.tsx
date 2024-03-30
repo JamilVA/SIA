@@ -1,25 +1,19 @@
 'use client';
 import React, { useState, useEffect, useRef, use } from 'react';
 import { axiosInstance as axios } from '../../../../utils/axios.instance';
-
 import { TabView, TabPanel } from 'primereact/tabview';
-
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { classNames } from 'primereact/utils';
-
 import 'primeflex/primeflex.css';
-
 import { Tooltip } from 'primereact/tooltip';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-
 import { redirect, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -122,6 +116,9 @@ export default function Curso() {
                 params: {
                     CodigoCursoCalificacion: codigoCurso,
                     CodigoEstudiante: session?.user.codigoEstudiante
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             });
 
@@ -173,6 +170,9 @@ export default function Curso() {
                 params: {
                     codigoCurso: codigoCurso,
                     codigoEstudiante: session?.user.codigoEstudiante
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             })
             .then((response) => {

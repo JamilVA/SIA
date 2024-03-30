@@ -14,7 +14,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { useSession } from "next-auth/react";
 import { TabPanel, TabView } from 'primereact/tabview';
 
-export default function Page () {
+export default function Page() {
 
     const emptyCurso = {
         Codigo: '',
@@ -77,8 +77,10 @@ export default function Page () {
     const [estudiantesDirigido, setEstudiantesDirigido] = useState();
 
     useEffect(() => {
-        fetchData();
-        fetchActas();
+        if (status === 'authenticated') {
+            fetchData();
+            fetchActas();
+        }
     }, [status]);
 
     const fetchData = async () => {
@@ -86,6 +88,9 @@ export default function Page () {
         await axios.get('/matricula/getMatriculaByCurso', {
             params: {
                 codCurso: codigoCursoCal,
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
             setCurso(response.data.curso);
@@ -109,6 +114,9 @@ export default function Page () {
         await axios.get('/acta', {
             params: {
                 CodCursoCal: codigoCursoCal
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
             setActas(response.data.actas);
@@ -126,18 +134,30 @@ export default function Page () {
     }
 
     const apiSaveNotes = async () => {
-        const result = await axios.put('/matricula/updateNotas', notasEstudiante)
+        const result = await axios.put('/matricula/updateNotas', notasEstudiante, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
         fetchData();
         console.log(result);
     }
 
     const apiSaveObs = async (data: any) => {
-        const result = await axios.patch('/matricula/updateObs', { registroMatricula: data })
+        const result = await axios.patch('/matricula/updateObs', { registroMatricula: data }, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
         console.log(result);
     }
 
     const apiSaveActa = async (data: object) => {
-        const result = await axios.post('/acta', data)
+        const result = await axios.post('/acta', data, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
         await fetchActas()
         console.log(result);
     }
@@ -162,11 +182,11 @@ export default function Page () {
                 console.log(arrayNotas);
                 console.log(total);
                 notasEstudiante['NotaFinal'] = Math.round(total / 4);
-            } else if (nota == 'NotaAplazado' ) {
-                if(Number(_n) > data.NotaFinal!){
+            } else if (nota == 'NotaAplazado') {
+                if (Number(_n) > data.NotaFinal!) {
                     console.log('Nfinal: ' + data.NotaFinal)
                     notasEstudiante.NotaFinal = Number(_n);
-                }else{
+                } else {
                     notasEstudiante.NotaFinal = data.NotaFinal;
                 }
             } else {

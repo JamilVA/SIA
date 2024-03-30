@@ -48,7 +48,11 @@ export default function RegistrarPagoPage() {
     const dt = useRef<DataTable<any>>(null);
 
     const fetchPagos = async () => {
-        await axios('/pago')
+        await axios('/pago', {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then((response) => {
                 //console.log(response.data.pagos)
                 setPagos(response.data.pagos);
@@ -68,7 +72,11 @@ export default function RegistrarPagoPage() {
     };
 
     const fetchConceptos = async () => {
-        await axios('/pago/conceptos')
+        await axios('/pago/conceptos', {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then((response) => {
                 setConceptos(response.data.conceptos);
             })
@@ -84,10 +92,12 @@ export default function RegistrarPagoPage() {
     };
 
     useEffect(() => {
-        fetchPagos();
-        fetchConceptos();
-        initFilters();
-    }, []);
+        if (status === 'authenticated') {
+            fetchPagos();
+            fetchConceptos();
+            initFilters();
+        }
+    }, [status]);
 
     const hideDeleteProductDialog = () => {
         setAnularPagoDialog(false);
@@ -102,6 +112,10 @@ export default function RegistrarPagoPage() {
         await axios
             .put('/pago', {
                 codigo: codigoAnular
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
             })
             .then((response) => {
                 console.log('Pago anulado: ', response.data);
@@ -275,6 +289,9 @@ export default function RegistrarPagoPage() {
             await axios
                 .get('/pago/listaPagos', {
                     params: { c: concepto, a: anio.getFullYear() ? anio : currentYear },
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    },
                     responseType: 'blob'
                 })
                 .then((response) => {

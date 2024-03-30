@@ -115,14 +115,19 @@ export default function Curso() {
     const [fechaInicioClases, setFechaInicioClases] = useState<Date>();
 
     useEffect(() => {
-        cargarDatos();
-    }, []);
+        if (status === 'authenticated') {
+            cargarDatos();
+        }
+    }, [status]);
 
     const cargarDatos = async () => {
         try {
             const { data } = await axios.get('/sesion/docente', {
                 params: {
                     CodigoCursoCalificacion: codigoCurso
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             });
 
@@ -160,6 +165,10 @@ export default function Curso() {
                     fecha: _sesion.Fecha,
                     horaInicio: _sesion.HoraInicio,
                     horaFin: _sesion.HoraFin
+                }, {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 })
                 .then((response) => {
                     console.log(response.data);
@@ -179,6 +188,10 @@ export default function Curso() {
                     fecha: _sesion.Fecha,
                     horaInicio: _sesion.HoraInicio,
                     horaFin: _sesion.HoraFin
+                }, {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 })
                 .then((response) => {
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion creada con éxito', life: 3000 });
@@ -224,6 +237,10 @@ export default function Curso() {
                     codigo: _cursoCalificacion.Codigo,
                     competencia: _cursoCalificacion.Competencia,
                     capacidad: _cursoCalificacion.Capacidad
+                }, {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 })
                 .then((response) => {
                     console.log(response);
@@ -349,15 +366,15 @@ export default function Curso() {
     const descargarArchivo = async (ruta: string) => {
         await axios.get('/files/download', {
             params: { fileName: ruta },
-            responseType: 'arraybuffer' 
+            responseType: 'arraybuffer'
         })
             .then(response => {
                 //console.log(response); 
-                const file = new File([response.data], ruta);        
+                const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = file.name;            
+                link.download = file.name;
                 link.click();
                 URL.revokeObjectURL(url);
             })
@@ -423,6 +440,10 @@ export default function Curso() {
                     .put('/curso-calificacion', {
                         codigo: _curso.Codigo,
                         rutaImagenPortada: _curso.RutaImagenPortada
+                    }, {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     })
                     .then((response) => {
                         console.log(response);
@@ -543,7 +564,11 @@ export default function Curso() {
 
     const generarUnidades = async () => {
         setLoading(true)
-        await axios.post('/curso-calificacion/generar-unidades', { codigoCurso: codigoCurso })
+        await axios.post('/curso-calificacion/generar-unidades', { codigoCurso: codigoCurso }, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 cargarDatos()
                 toast.current?.show({

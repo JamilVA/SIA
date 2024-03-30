@@ -47,6 +47,9 @@ export default function CalificarActividadesPage() {
         await axios.get('/sesion/actividades-calificar', {
             params: {
                 codigoActividad: codigoActividad
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -66,8 +69,10 @@ export default function CalificarActividadesPage() {
     }
 
     useEffect(() => {
-        fetchActividades()
-    }, []);
+        if (status === 'authenticated') {
+            fetchActividades();
+        }
+    }, [status]);
 
 
     const hideDialog = () => {
@@ -81,7 +86,11 @@ export default function CalificarActividadesPage() {
             return
         }
         setCalificarDialog(false)
-        await axios.put('/actividad/calificar', actividad)
+        await axios.put('/actividad/calificar', actividad, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 let _actividades = actividades.map(value => {
                     if (value.CodigoEstudiante === actividad.CodigoEstudiante) {
@@ -102,15 +111,15 @@ export default function CalificarActividadesPage() {
     const descargarArchivo = async (ruta: string) => {
         await axios.get('/files/download', {
             params: { fileName: ruta },
-            responseType: 'arraybuffer' 
+            responseType: 'arraybuffer'
         })
             .then(response => {
                 //console.log(response); 
-                const file = new File([response.data], ruta);        
+                const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = file.name;            
+                link.download = file.name;
                 link.click();
                 URL.revokeObjectURL(url);
             })

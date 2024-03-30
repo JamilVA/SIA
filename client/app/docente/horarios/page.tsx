@@ -24,6 +24,9 @@ export default function Page () {
         await axios.get("/horario/docente", {
             params: {
                 CodDocente: session?.user.codigoDocente
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
             console.log(response.data);

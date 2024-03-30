@@ -75,19 +75,24 @@ export default function Curso() {
     const { data: session, status } = useSession();
 
     useEffect(() => {
-        cargarDatos();
-    }, []);
+        if (status === 'authenticated') {
+            cargarDatos();
+        }
+    }, [status]);
 
     const cargarDatos = async () => {
         try {
             const { data } = await axios.get('/sesion/docente', {
                 params: {
                     CodigoCursoCalificacion: codigoCurso
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             });
 
-            const { curso, unidades, semanas, sesiones } = data;         
-    
+            const { curso, unidades, semanas, sesiones } = data;
+
             setCurso(curso.Curso);
             setUnidades(unidades);
             setSemanas(semanas);
@@ -111,6 +116,10 @@ export default function Curso() {
                     fecha: _sesion.Fecha,
                     horaInicio: _sesion.HoraInicio,
                     horaFin: _sesion.HoraFin
+                }, {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 })
                 .then((response) => {
                     console.log(response.data);
@@ -130,6 +139,10 @@ export default function Curso() {
                     fecha: _sesion.Fecha,
                     horaInicio: _sesion.HoraInicio,
                     horaFin: _sesion.HoraFin
+                }, {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 })
                 .then((response) => {
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion creada con éxito', life: 3000 });
@@ -167,10 +180,12 @@ export default function Curso() {
         await axios
             .put(
                 '/sesion/deshabilitar-asistencia',
-                {},
                 {
                     params: {
                         codigo: codigo
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
                     }
                 }
             )
@@ -198,10 +213,12 @@ export default function Curso() {
         await axios
             .put(
                 '/sesion/habilitar-asistencia',
-                {},
                 {
                     params: {
                         codigo: codigo
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
                     }
                 }
             )
@@ -375,7 +392,7 @@ export default function Curso() {
                     {submitted && !sesion.Fecha && <small className="p-error">Ingrese la Fecha.</small>}
                 </div>
             </Dialog>
-            
+
         </div>
     );
 }
