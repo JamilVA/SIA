@@ -8,7 +8,7 @@ import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import { axiosInstance as axios } from '../../../../utils/axios.instance';
 import { Button } from 'primereact/button';
-import { Demo } from '../../../../types/types';
+import { Sia } from '../../../../types/sia';
 import { ProgressBar } from 'primereact/progressbar';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useSession } from "next-auth/react";
@@ -65,13 +65,13 @@ export default function Page() {
     const [actaDialog, setActaDialog] = useState(false);
     const codigoCursoCal = searchParams.get('codigo')
     const [curso, setCurso] = useState(emptyCurso);
-    const [registroMatricula, setRegistroMatricula] = useState<(Demo.RegistroMatricula)[]>([]);
-    const [notasEstudiante, setNotasEstudiante] = useState<Demo.RegistroMatricula>(emptyRegistroMatricula);
+    const [registroMatricula, setRegistroMatricula] = useState<(Sia.RegistroMatricula)[]>([]);
+    const [notasEstudiante, setNotasEstudiante] = useState<Sia.RegistroMatricula>(emptyRegistroMatricula);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     let arrayNotas: number[] = [];
     const acta = emptyActa;
-    const [actas, setActas] = useState<Demo.Acta[]>([]);
+    const [actas, setActas] = useState<Sia.Acta[]>([]);
     const [visible, setVisible] = useState(false)
     const [pdfActasURL, setPdfActasURL] = useState('');
     const [estudiantesDirigido, setEstudiantesDirigido] = useState();
@@ -162,7 +162,7 @@ export default function Page() {
         console.log(result);
     }
 
-    const onUpdateNotas = (data: Demo.RegistroMatricula, nota: string) => {
+    const onUpdateNotas = (data: Sia.RegistroMatricula, nota: string) => {
         let response = true;
         let notaMax = nota == 'NotaAplazado' ? 13 : 20;
         const _n = (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement)?.value;
@@ -208,7 +208,7 @@ export default function Page() {
         return response;
     };
 
-    const saveNotes = (data: Demo.RegistroMatricula) => {
+    const saveNotes = (data: Sia.RegistroMatricula) => {
         notasEstudiante['CodigoCursoCalificacion'] = data.CodigoCursoCalificacion;
         notasEstudiante['CodigoEstudiante'] = data.CodigoEstudiante;
 
@@ -225,7 +225,7 @@ export default function Page() {
         }
     }
 
-    const onUpdateNotesDirigido = (data: Demo.RegistroMatricula, nota: string) => {
+    const onUpdateNotesDirigido = (data: Sia.RegistroMatricula, nota: string) => {
         let response = true;
         const _n = (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement)?.value;
 
@@ -246,13 +246,13 @@ export default function Page() {
         return response;
     }
 
-    const setNoteDefault = (data: Demo.RegistroMatricula, nota: string) => {
+    const setNoteDefault = (data: Sia.RegistroMatricula, nota: string) => {
         if (Number(data[nota] != null)) {
             notasEstudiante[nota] = Number(data[nota]);
         }
     }
 
-    const saveNotesDirigido = (data: Demo.RegistroMatricula, nota: string) => {
+    const saveNotesDirigido = (data: Sia.RegistroMatricula, nota: string) => {
         if (onUpdateNotesDirigido(data, nota)) {
             console.log('success')
             notasEstudiante['CodigoCursoCalificacion'] = data.CodigoCursoCalificacion;
@@ -294,7 +294,7 @@ export default function Page() {
         acta['CodigoCursoCalificacion'] = curso.CursoCalificacion.Codigo;
         apiSaveActa(acta);
 
-        let _registroMatricula = registroMatricula.map((registro: Demo.RegistroMatricula) => ({
+        let _registroMatricula = registroMatricula.map((registro: Sia.RegistroMatricula) => ({
             ...registro,
             Observacion: Number(registro.PorcentajeAsistencia) <= 70 ? 'INHABILITADO' : '',
             NotaF: Number(registro.PorcentajeAsistencia) <= 70 ? 0 : registro.NotaFinal
@@ -304,29 +304,29 @@ export default function Page() {
         setActaDialog(false);
     }
 
-    const actionNFTemplate = (rowData: Demo.RegistroMatricula) => {
+    const actionNFTemplate = (rowData: Sia.RegistroMatricula) => {
         return <p style={Number(rowData.NotaFinal) >= 11 ? { color: 'blue' } : { color: 'red' }}> {String(rowData.NotaFinal) != 'null' ? String(rowData.NotaFinal) + '.00' : ''} </p>
     }
 
-    const actionNotas = (data: Demo.RegistroMatricula, nota: string, estadoNota: boolean) => {
+    const actionNotas = (data: Sia.RegistroMatricula, nota: string, estadoNota: boolean) => {
         const n = (data[nota]);
         return n == null ? <InputText id={String(data.CodigoEstudiante) + nota} autoComplete='off' className='p-inputtext-sm' disabled={estadoNota == false ? true : false} style={{ width: '40px', padding: '1px', textAlign: 'center' }} ></InputText>
             : <p style={Number(n) >= 11 ? { color: 'blue' } : { color: 'red' }}>{n}</p>
     }
 
-    const actionRecuperacion = (data: Demo.RegistroMatricula, nota: string, estadoNota: boolean) => {
+    const actionRecuperacion = (data: Sia.RegistroMatricula, nota: string, estadoNota: boolean) => {
         const n = (data[nota]);
         return n == null ? <InputText id={String(data.CodigoEstudiante) + nota} autoComplete='off' className='p-inputtext-sm' disabled={estadoNota == false || data.NotaFinal! > 10 ? true : false} style={{ width: '40px', padding: '1px', textAlign: 'center' }} ></InputText>
             : <p style={Number(n) >= 11 ? { color: 'blue' } : { color: 'red' }}>{n}</p>
     }
 
-    const actionAplazado = (data: Demo.RegistroMatricula, nota: string, estadoNota: boolean) => {
+    const actionAplazado = (data: Sia.RegistroMatricula, nota: string, estadoNota: boolean) => {
         const n = (data[nota]);
         return n == null ? <InputText id={String(data.CodigoEstudiante) + nota} autoComplete='off' className='p-inputtext-sm' disabled={estadoNota == false || data.NotaFinal! < 8 || data.NotaFinal! > 10 ? true : false} style={{ width: '40px', padding: '1px', textAlign: 'center' }} ></InputText>
             : <p style={Number(n) >= 11 ? { color: 'blue' } : { color: 'red' }}>{n}</p>
     }
 
-    const actionDirigido = (data: Demo.RegistroMatricula, nota: string) => {
+    const actionDirigido = (data: Sia.RegistroMatricula, nota: string) => {
         const n = (data[nota]);
         return n == null ? <InputText id={String(data.CodigoEstudiante) + nota} autoComplete='off' className='p-inputtext-sm' style={{ width: '40px', padding: '1px', textAlign: 'center' }} ></InputText>
             : <p style={Number(n) >= 11 ? { color: 'blue' } : { color: 'red' }}>{n}</p>
@@ -353,7 +353,7 @@ export default function Page() {
     const actionNDTemplate = (rowData: any) => {
         return actionDirigido(rowData, 'NotaDirigido');
     }
-    const percentBodyTemplate = (rowData: Demo.RegistroMatricula) => {
+    const percentBodyTemplate = (rowData: Sia.RegistroMatricula) => {
         if (rowData.PorcentajeAsistencia >= 75) {
             return <ProgressBar color='#16A34A' value={rowData.PorcentajeAsistencia} />
         } else {

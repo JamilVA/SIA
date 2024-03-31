@@ -52,5 +52,59 @@ export declare namespace Sia {
         Curso: Curso | null;
         [key: string]: string | number | boolean | null | Docente | Curso;
     }
+
+    type Student = {
+        Codigo: string;
+        Paterno: string;
+        Materno: string;
+        Nombres: string;
+        Estado: boolean;
+        RutaFoto: string;
+        FechaNacimiento: string | Date;
+        Sexo: string;
+        DNI: string;
+        Email: string;
+        CodigoSunedu: string;
+        CreditosLlevados: number;
+        CreditosAprobados: number;
+        CodigoCarreraProfesional: number | undefined;
+        CodigoPersona: number | undefined;
+        Direccion: stringn | null;
+        EmailPersonal: string | null,
+        Celular: string | null,
+        [key: string]: string | number | boolean | string[{}];
+    }
+
+    type CarreraProfesional = {
+        Codigo: number;
+        NombreCarrera: string;
+        RutaPlanEstudios: string;
+        CodigoJefeDepatamento: number;
+    }
+
+    type RegistroMatricula = {
+        CodigoSunedu: string,
+        CodigoEstudiante: number,
+        CodigoCursoCalificacion: string,
+        Alumno: string,
+        Nota1: number | null,
+        Nota2: number | null,
+        Nota3: number | null,
+        Nota4: number | null,
+        NotaRecuperacion: number | null,
+        NotaAplazado: number | null,
+        NotaDirigido: number | null,
+        NotaFinal: number | null,
+        PorcentajeAsistencia: number,
+        Obs: string,
+        Obs: string,
+        [key: string]: string | string[] | number | boolean | undefined | null;
+    }
+
+    type Acta = {
+        Codigo: string,
+        FechaGeneracion: string,
+        CodigoCursoCalificacion: string,
+    }
 }
 

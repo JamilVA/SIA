@@ -8,7 +8,7 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
-import { Demo } from '../../../types/types';
+import { Sia } from '../../../types/sia';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { AxiosError } from 'axios'
 import { Dropdown } from 'primereact/dropdown';
@@ -23,7 +23,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function Page() {
 
-    let emptyEstudiante: Demo.Student = {
+    let emptyEstudiante: Sia.Student = {
         Codigo: '',
         Paterno: '',
         Materno: '',
@@ -48,7 +48,7 @@ export default function Page() {
     const [estudianteDialog, setEstudianteDialog] = useState(false);
     const [estudianteInfoDialog, setEstudianteInfoDialog] = useState(false);
     const [deleteEstudianteDialog, setDeleteEstudianteDialog] = useState(false);
-    const [estudiante, setEstudiante] = useState<Demo.Student>(emptyEstudiante);
+    const [estudiante, setEstudiante] = useState<Sia.Student>(emptyEstudiante);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
@@ -56,7 +56,7 @@ export default function Page() {
     const [state, setState] = useState('');
     const [imagenURL, setImagenURL] = useState<string | null>(null);
     const [archivo, setArchivo] = useState<FileUploadFilesEvent | null>(null);
-    const [carreras, setCarreras] = useState<Demo.CarreraProfesional[]>([]);
+    const [carreras, setCarreras] = useState<Sia.CarreraProfesional[]>([]);
     const [exportDialog, setExportDialog] = useState(false);
     const [carrera, setCarrera] = useState();
     const [errors, setErrors] = useState('');
@@ -281,8 +281,8 @@ export default function Page() {
         }
     };
 
-    const setTempEstudent = (estudiante: Demo.Student) => {
-        let tempEstudiante: Demo.Student = {
+    const setTempEstudent = (estudiante: Sia.Student) => {
+        let tempEstudiante: Sia.Student = {
             Codigo: estudiante.Codigo,
             Paterno: estudiante.Persona.Paterno,
             Materno: estudiante.Persona.Materno,
@@ -305,7 +305,7 @@ export default function Page() {
         return tempEstudiante
     }
 
-    const editEstudiante = (estudiante: Demo.Student) => {
+    const editEstudiante = (estudiante: Sia.Student) => {
         let tempEstudiante = setTempEstudent(estudiante);
         setEstudiante(tempEstudiante);
         setEstudianteDialog(true);
@@ -313,13 +313,13 @@ export default function Page() {
         obtenerArchivo(estudiante.Persona.RutaFoto);
     };
 
-    const infoEstudiante = (estudiante: Demo.Student) => {
+    const infoEstudiante = (estudiante: Sia.Student) => {
         let tempEstudiante = setTempEstudent(estudiante);
         setEstudiante(tempEstudiante);
         setEstudianteInfoDialog(true);
     }
 
-    const confirmDeleteEstudiante = (estudiante: Demo.Student) => {
+    const confirmDeleteEstudiante = (estudiante: Sia.Student) => {
         setEstudiante(estudiante);
         if (estudiante.Estado == false) {
             setState('habilitar')
@@ -415,11 +415,11 @@ export default function Page() {
         );
     };
 
-    const statusBodyTemplate = (rowData: Demo.Student) => {
+    const statusBodyTemplate = (rowData: Sia.Student) => {
         return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Estado, 'text-red-500 pi-times-circle': !rowData.Estado })}></i>;
     };
 
-    const actionBodyTemplate = (rowData: Demo.Student) => {
+    const actionBodyTemplate = (rowData: Sia.Student) => {
         return (
             <>
                 <Button style={{ width: '2rem', height: '2rem' }} icon="pi pi-pencil" rounded severity="warning" className="mr-2" onClick={() => editEstudiante(rowData)} />

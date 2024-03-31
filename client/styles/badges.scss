@@ -1,0 +1,38 @@
+.pago-badge,
+.curso-c-badge {
+    border-radius: var(--border-radius);
+    padding: .25em .5rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .3px;
+}
+
+.pago-badge {
+    &.status-r {
+        background: #C8E6C9;
+        color: #256029;
+    }
+
+    &.status-a {
+        background: #FFCDD2;
+        color: #C63737;
+    }
+
+    &.status-u {
+        background: #FEEDAF;
+        color: #8A5340;
+    }    
+}
+
+.curso-c-badge {
+    &.status-enabled {
+        background: #C8E6C9;
+        color: #256029;
+    }
+
+    &.status-disabled {
+        background: #FFCDD2;
+        color: #C63737;
+    }
+}

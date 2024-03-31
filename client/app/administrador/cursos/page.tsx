@@ -8,7 +8,7 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
-import { Demo } from '../../../types/types';
+import { Sia } from '../../../types/sia';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
@@ -17,7 +17,7 @@ import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function AdminCursosPage () {
-    let emptyCurso: Demo.Curso = {
+    let emptyCurso: Sia.Curso = {
         Codigo: '',
         Nombre: '',
         HorasTeoria: null,
@@ -32,15 +32,15 @@ export default function AdminCursosPage () {
         CodigoCarreraProfesional: 0
     };
 
-    const [cursos, setCursos] = useState<Demo.Curso[]>([]);
-    const [carreras, setCarreras] = useState<Demo.CarreraProfesional[]>([]);
-    const [prerequisitos, setPrerequisitos] = useState<Demo.Curso[]>([]);
+    const [cursos, setCursos] = useState<Sia.Curso[]>([]);
+    const [carreras, setCarreras] = useState<Sia.CarreraProfesional[]>([]);
+    const [prerequisitos, setPrerequisitos] = useState<Sia.Curso[]>([]);
     const [cursoDialog, setCursoDialog] = useState(false);
     const [visible, setVisible] = useState(false);
     const [pdfURL, setPdfURL] = useState('');
     const [exportDialog, setExportDialog] = useState(false);
     const [deleteCursoDialog, setDeleteCursoDialog] = useState(false);
-    const [curso, setCurso] = useState<Demo.Curso>(emptyCurso);
+    const [curso, setCurso] = useState<Sia.Curso>(emptyCurso);
     const [carrera, setCarrera] = useState();
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -86,13 +86,13 @@ export default function AdminCursosPage () {
     };
 
     const getPrerequisitos = (carrera: number | undefined = 0, nivel: number = 0, semestre: number = 0) => {
-        let _prerequisitos: Demo.Curso[];
+        let _prerequisitos: Sia.Curso[];
 
         if (semestre == 1) {
-            _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel - 1 && a.Semestre == 2);
+            _prerequisitos = cursos.filter((a: Sia.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel - 1 && a.Semestre == 2);
             setPrerequisitos(_prerequisitos);
         } else {
-            _prerequisitos = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel && a.Semestre == 1);
+            _prerequisitos = cursos.filter((a: Sia.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel && a.Semestre == 1);
             setPrerequisitos(_prerequisitos);
         }
     };
@@ -187,7 +187,7 @@ export default function AdminCursosPage () {
     };
 
     const crearCodigo = (carrera: number | undefined, nivel: number, semestre: number) => {
-        let correlativo = cursos.filter((a: Demo.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel && a.Semestre == semestre).length + 1;
+        let correlativo = cursos.filter((a: Sia.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel && a.Semestre == semestre).length + 1;
         let cadena = nivel?.toString();
         cadena += semestre?.toString() + '';
         let c: string;
@@ -233,13 +233,13 @@ export default function AdminCursosPage () {
         }
     };
 
-    const editCurso = (curso: Demo.Curso) => {
+    const editCurso = (curso: Sia.Curso) => {
         setCurso({ ...curso });
         getPrerequisitos(curso.CodigoCarreraProfesional, curso.Nivel, curso.Semestre);
         setCursoDialog(true);
     };
 
-    const confirmDeleteCurso = (curso: Demo.Curso) => {
+    const confirmDeleteCurso = (curso: Sia.Curso) => {
         setCurso(curso);
         if (curso.Estado == false) {
             setState('habilitar');
@@ -364,7 +364,7 @@ export default function AdminCursosPage () {
         return <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Estado, 'text-red-500 pi-times-circle': !rowData.Estado })}></i>;
     };
 
-    const actionBodyTemplate = (rowData: Demo.Curso) => {
+    const actionBodyTemplate = (rowData: Sia.Curso) => {
         return (
             <>
                 <Button icon="pi pi-pencil" rounded severity="warning" className="mr-2" onClick={() => editCurso(rowData)} />
