@@ -150,7 +150,7 @@ const Perfil = () => {
         <div>
             <Toast ref={toastSuccess} />
             <div className='flex items-center justify-content-center'>
-                <img style={{ width: '50px' }} src="/layout/images/avataruser.png" alt="" />
+                <img style={{ width: '50px' }} src="/images/avataruser.png" alt="" />
             </div>
             <div className='flex items-center justify-content-center'>
                 <strong>{user?.Nombres} {user?.Paterno} {user?.Materno}</strong>

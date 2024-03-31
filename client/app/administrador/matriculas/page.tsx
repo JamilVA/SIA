@@ -188,13 +188,13 @@ export default function Matricula() {
 
     const crearMatricula = async (rowData: any) => {
         try {
-            if(creditosMatriculados + rowData.Curso.Creditos <= totalCreditos){
+            if (creditosMatriculados + rowData.Curso.Creditos <= totalCreditos) {
                 axios
                     .post('/matricula', {
                         codigoCursoCalificacion: rowData.Codigo,
                         codigoEstudiante: estudiante.Codigo,
                         fechaMatricula: new Date()
-                    },{
+                    }, {
                         headers: {
                             Authorization: 'Bearer ' + session?.user.token
                         }
@@ -205,10 +205,10 @@ export default function Matricula() {
                         setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
                         setCreditosMatriculados(creditosMatriculados + rowData?.Curso?.Creditos)
                     });
-    
+
                 setMatriculaDialog(false);
                 setCursoCalificaion(cursoCVacio);
-            }else{
+            } else {
                 toast.current!.show({ severity: 'warn', summary: 'Advertencia', detail: 'No puedes superar el total de creditos por ciclo', life: 5000 });
             }
         } catch (error) {
@@ -228,7 +228,7 @@ export default function Matricula() {
                 .post('/matricula/eliminar', {
                     codigoEstudiante: estudiante.Codigo,
                     codigoCursoCalificacion: curso.Codigo
-                },{
+                }, {
                     headers: {
                         Authorization: 'Bearer ' + session?.user.token
                     }
@@ -239,8 +239,8 @@ export default function Matricula() {
                     setCursosLlevar((cursosLlevar) => [...cursosLlevar, curso]);
                     setCreditosMatriculados(creditosMatriculados - curso?.Curso?.Creditos)
                 });
-                setDeleteMatriculaDialog(false);
-                setCursoCalificaion(cursoCVacio)
+            setDeleteMatriculaDialog(false);
+            setCursoCalificaion(cursoCVacio)
         } catch (error) {
             console.error(error);
             toast.current?.show({
@@ -308,7 +308,7 @@ export default function Matricula() {
 
     const header1 = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Cursos a Llevar</h4>
+            <h5 className="m-0">CURSOS A LLEVAR</h5>
             <div className="flex flex-wrap gap-2">
                 <p>
                     Créditos disponibles: <span className="text-primary">{totalCreditos}</span>
@@ -319,7 +319,7 @@ export default function Matricula() {
 
     const header2 = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Cursos Matriculados</h4>
+            <h5 className="m-0">CURSOS MATRICULADOS</h5>
             <div className="flex flex-wrap gap-2">
                 <p>
                     Créditos matriculados: <span className="text-primary">{creditosMatriculados}</span>
@@ -355,7 +355,7 @@ export default function Matricula() {
         )
     }
 
-    if (session?.user.codigoJefe == 0) {
+    if (session?.user.nivelUsuario != 1) {
         redirect('/pages/notfound')
     }
 
@@ -363,13 +363,11 @@ export default function Matricula() {
         <div className="grid">
             <div className="col-12 md:col-3">
                 <div>
-                    <br />
-                    <br />
-                    <h4 className="m-0">Buscar estudiante</h4>
-                    <br />
+                    <h6 className="m-0 mt-5">BUSCAR ESTUDIANTE</h6>
                     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
                         <span className="block mt-2 md:mt-0">
                             <InputText
+                            className='mt-3'
                                 value={inputValue}
                                 autoFocus
                                 maxLength={10}
@@ -379,7 +377,7 @@ export default function Matricula() {
                                     setInputValue(e.target.value);
                                 }}
                             />
-                        </span>
+                            
                         <Button
                             icon="pi pi-search"
                             className="ml-2  p-input-icon-right"
@@ -387,18 +385,21 @@ export default function Matricula() {
                                 buscarEstudiante(inputValue);
                             }}
                         />
+                        </span>
                     </div>
                 </div>
-                <h5 className="mb-3">Datos del estudiante</h5>
-                <div className="col">
-                    <label htmlFor="">Apellidos: </label>
-                    <label>
-                        {estudiante?.Persona?.Paterno} {estudiante?.Persona?.Materno}
-                    </label>
-                </div>
-                <div className="col">
-                    <label htmlFor="">Nombres: </label>
-                    <label>{estudiante?.Persona?.Nombres}</label>
+                <h6 className="mb-3">DATOS DEL ESTUDIANTE</h6>
+                <div className='card m-0 p-0'>
+                    <div className="col">
+                        <label htmlFor=""><strong>Apellidos: </strong></label>
+                        <label>
+                            {estudiante?.Persona?.Paterno} {estudiante?.Persona?.Materno}
+                        </label>
+                    </div>
+                    <div className="col">
+                        <label htmlFor=""><strong>Nombres: </strong></label>
+                        <label>{estudiante?.Persona?.Nombres}</label>
+                    </div>
                 </div>
             </div>
             <div className="col-12 md:col-9">
@@ -414,6 +415,7 @@ export default function Matricula() {
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} cursos a matricular"
                         globalFilter={globalFilter}
+                        emptyMessage="Sin resultados"
                         header={header1}
                     >
                         <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
@@ -436,6 +438,7 @@ export default function Matricula() {
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} cursos matriculados"
                         globalFilter={globalFilter}
+                        emptyMessage="Sin resultados"
                         header={header2}
                     >
                         <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
