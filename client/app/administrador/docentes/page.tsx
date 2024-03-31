@@ -261,7 +261,9 @@ export default function DocentesDemo() {
             email: docente.Persona?.Usuario.Email
         };
 
-        obtenerArchivo(docente.Persona.RutaFoto);
+        if(tempDocente.rutaFoto){
+            obtenerArchivo(docente.Persona.RutaFoto)
+        }
         setDocente(tempDocente);
         console.log('D', tempDocente);
         setDocenteDialog(true);
