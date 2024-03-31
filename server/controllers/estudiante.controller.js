@@ -240,18 +240,6 @@ const getNotas = async (req, res) => {
   }
 }
 
-function addHorizontalRule(doc, spaceFromEdge = 0, linesAboveAndBelow = 0.5) {
-  doc.moveDown(linesAboveAndBelow);
-
-  doc.moveTo(0 + spaceFromEdge, doc.y)
-    .lineTo(doc.page.width - spaceFromEdge, doc.y)
-    .stroke();
-
-  doc.moveDown(linesAboveAndBelow);
-
-  return doc
-}
-
 const obtenerListaEstudiantes = async (req, res) => {
   const carreraprofesional = await CarreraProfesional.findOne({
     attributes: ["NombreCarrera"],
@@ -270,12 +258,10 @@ const obtenerListaEstudiantes = async (req, res) => {
 
   const doc = new PDF({
     size: "A4",
-    layout: "landscape",
+    //layout: "landscape",
     margins: { top: 20, left: 10, right: 10, bottom: 20 },
-    //bufferPages: true,
+    bufferPages: true,
   });
-
-  //addHorizontalRule(doc, 50, 1);
 
   const filename = `ListaEstudiantes${carreraprofesional.dataValues.NombreCarrera}.pdf`;
 
@@ -344,12 +330,12 @@ const obtenerListaEstudiantes = async (req, res) => {
     [
       { key: "CodigoSunedu", label: "Cod. SUNEDU", align: "left" },
       { key: "DNI", label: "DNI", align: "left" },
-      { key: "AnioIngreso", label: "Anio ingreso", align: "left" },
+      { key: "AnioIngreso", label: "Ingreso", align: "left" },
       { key: "Nombres", label: "Apellidos y Nombres", align: "left" },
       { key: "Email", label: "Email", align: "left" },
       { key: "Sexo", label: "Sexo", align: "left" },
-      { key: "EmailPersonal", label: "EmailPersonal", align: "left" },
-      /*{ key: "Direccion", label: "Dirección", align: "left" },
+      /*{ key: "EmailPersonal", label: "EmailPersonal", align: "left" },
+      { key: "Direccion", label: "Dirección", align: "left" },
       { key: "Celular", label: "Celular", align: "left" },
       { key: "Estado", label: "Estado", align: "left" },*/
     ],

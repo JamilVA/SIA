@@ -1,18 +1,18 @@
 const { Router } = require('express');
-
+const requireToken = require('../middleware/requireToken');
 const {getDocente, crearDocente, actualizarDocente, actualizarFoto, getPerfilDocente} = require('../controllers/docente.controller')
 
 
 const router = Router();
 
-router.get('/', getDocente);
+router.get('/', requireToken, getDocente);
 
-router.get('/perfil', getPerfilDocente);
+router.get('/perfil', requireToken, getPerfilDocente);
 
-router.post('/', crearDocente);
+router.post('/', requireToken, crearDocente);
 
-router.put('/', actualizarDocente);
+router.put('/', requireToken, actualizarDocente);
 
-router.put('/actualizar-foto', actualizarFoto);
+router.put('/actualizar-foto', requireToken, actualizarFoto);
 
 module.exports = router;

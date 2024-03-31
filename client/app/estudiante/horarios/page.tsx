@@ -10,7 +10,7 @@ import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 
-export default function Page () {
+export default function Page() {
 
     const paramsHorarioG = {
         CodCarrera: 4,
@@ -49,10 +49,10 @@ export default function Page () {
     const [ciclos, setCiclos] = useState(arrayCiclos);
 
     useEffect(() => {
-        if(status === "authenticated"){
+        if (status === "authenticated") {
             fetchHorariosG();
             fetchHorarioE()
-        }      
+        }
     }, [status]);
 
     const fetchHorariosG = async () => {
@@ -61,6 +61,9 @@ export default function Page () {
                 CodCarrera: paramsHG.CodCarrera,
                 Nivel: paramsHG.Nivel,
                 Semestre: paramsHG.Semestre
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
             console.log(response.data);
@@ -81,6 +84,9 @@ export default function Page () {
         await axios.get("/horario/estudiante", {
             params: {
                 CodEstudiante: session?.user.codigoEstudiante,
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
             console.log(response.data);
@@ -177,7 +183,7 @@ export default function Page () {
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>

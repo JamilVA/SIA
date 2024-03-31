@@ -34,7 +34,10 @@ export default function Page () {
     const fetchCursos = async () => {
         try {
             const { data } = await axios.get('/curso-calificacion/cursos-estudiante', {
-                params: { CodigoEstudiante: session?.user.codigoEstudiante }
+                params: { CodigoEstudiante: session?.user.codigoEstudiante },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
             });
             const { cursosCalificacion } = data;
 

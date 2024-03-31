@@ -42,7 +42,11 @@ export default function PeriodoPage() {
     const { data: session, status } = useSession();
 
     const fetchPeriodos = async () => {
-        await axios.get('/periodo')
+        await axios.get('/periodo', {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 //console.log(response.data.periodos)
                 setPeriodos(response.data.periodos)
@@ -62,8 +66,10 @@ export default function PeriodoPage() {
     }
 
     useEffect(() => {
-        fetchPeriodos()
-    }, []);
+        if (status === 'authenticated') {
+            fetchPeriodos();
+        }
+    }, [status]);
 
     const openNew = () => {
         setPeriodo(periodoVacio);
@@ -105,7 +111,11 @@ export default function PeriodoPage() {
     }
 
     const crearPeriodo = async () => {
-        await axios.post('/periodo', periodo)
+        await axios.post('/periodo', periodo, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 //console.log(response.data)
                 const _periodo = response.data.periodo
@@ -135,7 +145,11 @@ export default function PeriodoPage() {
     }
 
     const editarPeriodo = async () => {
-        await axios.put('/periodo', periodo)
+        await axios.put('/periodo', periodo, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 const _periodos = periodos.map(p => {
                     if (p.Codigo === periodo.Codigo) {
@@ -206,6 +220,9 @@ export default function PeriodoPage() {
         await axios.delete('/periodo', {
             params: {
                 codigo: periodo.Codigo
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -240,6 +257,9 @@ export default function PeriodoPage() {
         await axios.put('/periodo/finalizar', {}, {
             params: {
                 codigo: periodo.Codigo,
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -305,7 +325,7 @@ export default function PeriodoPage() {
                 break;
         }
         setPeriodo(_periodo);
-        
+
     };
 
     const leftToolbarTemplate = () => {
@@ -321,7 +341,7 @@ export default function PeriodoPage() {
 
     const rightToolbarTemplate = () => {
         return (
-            <React.Fragment>              
+            <React.Fragment>
                 <Button label="Exportar" icon="pi pi-upload" severity="help" onClick={exportCSV} />
             </React.Fragment>
         );
@@ -396,7 +416,7 @@ export default function PeriodoPage() {
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>

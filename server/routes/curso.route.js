@@ -1,18 +1,18 @@
 const { Router } = require('express');
 const { getCurso, crearCurso , actualizarCurso, buscarCurso, getCursosByDP, obtenerListaCursos} = require('../controllers/curso.controller');
-
+const requireToken = require('../middleware/requireToken');
 const router = Router();
 
-router.get('/', getCurso);
+router.get('/', requireToken, getCurso);
 
-router.post('/', crearCurso);
+router.post('/', requireToken, crearCurso);
 
-router.put('/', actualizarCurso);
+router.put('/', requireToken, actualizarCurso);
 
-router.get('/buscar', buscarCurso)
+router.get('/buscar', requireToken, buscarCurso)
 
-router.get('/obtenerListaCursos', obtenerListaCursos)
+router.get('/obtenerListaCursos', requireToken, obtenerListaCursos)
 
-router.get('/cursosdp', getCursosByDP);
+router.get('/cursosdp', requireToken, getCursosByDP);
 
 module.exports = router;

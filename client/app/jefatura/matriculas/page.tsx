@@ -73,8 +73,10 @@ export default function Matricula() {
     const { data: session, status } = useSession();
 
     useEffect(() => {
-        cargarPeriodo();
-    }, []);
+        if (status === 'authenticated') {
+            cargarPeriodo();
+        }
+    }, [status]);
 
     useEffect(() => {
         if (estudiante.Codigo != 0) {
@@ -88,6 +90,9 @@ export default function Matricula() {
             .get('/matricula/buscarEstudiante', {
                 params: {
                     CodigoSunedu: CodigoSunedu
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             })
             .then(async (response) => {
@@ -118,6 +123,9 @@ export default function Matricula() {
             const { data } = await axios.get('/matricula/cursosMatriculados', {
                 params: {
                     CodigoEstudiante: estudiante?.Codigo
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             });
             const { cursosMatriculados, creditosMatriculados } = data;
@@ -139,6 +147,9 @@ export default function Matricula() {
             const { data } = await axios.get('/matricula/cursosLlevar', {
                 params: {
                     CodigoEstudiante: estudiante.Codigo
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             });
             const { cursosLlevar, totalCreditos } = data;
@@ -157,7 +168,11 @@ export default function Matricula() {
 
     const cargarPeriodo = async () => {
         try {
-            const { data } = await axios.get('/periodo/vigente', {});
+            const { data } = await axios.get('/periodo/vigente', {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
             const { periodo } = data;
             setPeriodoActual(periodo);
         } catch (e) {
@@ -179,6 +194,10 @@ export default function Matricula() {
                         codigoCursoCalificacion: rowData.Codigo,
                         codigoEstudiante: estudiante.Codigo,
                         fechaMatricula: new Date()
+                    },{
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     })
                     .then((response) => {
                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Matriculado con éxito', life: 3000 });
@@ -209,6 +228,10 @@ export default function Matricula() {
                 .post('/matricula/eliminar', {
                     codigoEstudiante: estudiante.Codigo,
                     codigoCursoCalificacion: curso.Codigo
+                },{
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 })
                 .then((response) => {
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Eliminado con éxito', life: 3000 });

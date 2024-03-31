@@ -1,20 +1,21 @@
 const { Router } = require('express')
 const { crearActividad, getActividades, eliminarActividad, actualizarActividad, actualizarRutaRecursoGuia, calificarActividad, getActividadesEstudiante } = require('../controllers/actividad.controller')
+const requireToken = require('../middleware/requireToken');
 
 const router = Router()
 
-router.get('/', getActividades)
+router.get('/', requireToken, getActividades)
 
-router.get('/estudiante', getActividadesEstudiante)
+router.get('/estudiante', requireToken, getActividadesEstudiante)
 
-router.post('/', crearActividad)
+router.post('/', requireToken, crearActividad)
 
-router.put('/', actualizarActividad)
+router.put('/', requireToken, actualizarActividad)
 
-router.put('/recurso-guia', actualizarRutaRecursoGuia)
+router.put('/recurso-guia', requireToken, actualizarRutaRecursoGuia)
 
-router.delete('/', eliminarActividad)
+router.delete('/', requireToken, eliminarActividad)
 
-router.put('/calificar', calificarActividad)
+router.put('/calificar', requireToken, calificarActividad)
 
 module.exports = router

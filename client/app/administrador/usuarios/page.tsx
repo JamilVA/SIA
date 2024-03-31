@@ -80,7 +80,11 @@ export default function UsuariosPage() {
     const { data: session, status } = useSession();
 
     const fetchUsuarios = async () => {
-        await axios.get('/usuario')
+        await axios.get('/usuario', {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 //console.log(response.data.usuarios)
                 setUsuarios(response.data.usuarios)
@@ -100,7 +104,11 @@ export default function UsuariosPage() {
     }
 
     const fetchUsuariosGen = async () => {
-        await axios.get('/usuario/all').then(response => {
+        await axios.get('/usuario/all', {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        }).then(response => {
             setUsuariosGen(response.data.usuarios);
             console.log(response.data.usuarios)
         }).catch(error => {
@@ -114,7 +122,11 @@ export default function UsuariosPage() {
     }
 
     const fetchNiveles = async () => {
-        await axios.get('/usuario/niveles')
+        await axios.get('/usuario/niveles', {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 //console.log(response.data.usuarios)
                 setNivelesUsuario(response.data.niveles)
@@ -132,10 +144,12 @@ export default function UsuariosPage() {
     }
 
     useEffect(() => {
-        fetchUsuarios();
-        fetchUsuariosGen();
-        fetchNiveles();
-    }, []);
+        if (status === 'authenticated') {
+            fetchUsuarios();
+            fetchUsuariosGen();
+            fetchNiveles();
+        }
+    }, [status]);
 
     const openNew = () => {
         setUsuario(usuarioVacio);
@@ -157,7 +171,11 @@ export default function UsuariosPage() {
     };
 
     const crearUsuario = async () => {
-        await axios.post('/usuario', usuario)
+        await axios.post('/usuario', usuario, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 fetchUsuarios()
                 toast.current?.show({
@@ -182,7 +200,11 @@ export default function UsuariosPage() {
     }
 
     const editarUsuario = async () => {
-        await axios.put('/usuario', usuario)
+        await axios.put('/usuario', usuario, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
             .then(response => {
                 const _usuarios = usuarios.map(u => {
                     if (u.Persona.Codigo === usuario.Persona.Codigo) {
@@ -285,6 +307,9 @@ export default function UsuariosPage() {
         await axios.delete('/usuario', {
             params: {
                 codigoPersona: usuario.Persona.Codigo
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -319,6 +344,9 @@ export default function UsuariosPage() {
         await axios.put('/usuario/inhabilitar', {}, {
             params: {
                 codigo: usuario.Codigo,
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -413,7 +441,11 @@ export default function UsuariosPage() {
         setSubmitted(true);
         if (verifyGeneralInputs()) {
             if (verifyInputs()) {
-                await axios.put("/auth/changePasswordAdmin", dataChang).then(response => {
+                await axios.put("/auth/changePasswordAdmin", dataChang, {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
+                }).then(response => {
                     toast.current?.show({
                         severity: 'success',
                         summary: 'Proceso exitoso',
@@ -523,7 +555,7 @@ export default function UsuariosPage() {
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>

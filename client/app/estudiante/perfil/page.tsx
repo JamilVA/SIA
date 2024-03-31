@@ -12,7 +12,7 @@ import { Skeleton } from 'primereact/skeleton';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 
-export default function Page () {
+export default function Page() {
 
     const { data: session, status } = useSession();
 
@@ -72,7 +72,7 @@ export default function Page () {
     const [params, setParams] = useState(paramsUpdate);
 
     useEffect(() => {
-        if(status === "authenticated") fetchData();
+        if (status === "authenticated") fetchData();
     }, [status]);
 
     const fetchData = async () => {
@@ -80,6 +80,9 @@ export default function Page () {
             const result = await axios.get("/estudiante/getbycod", {
                 params: {
                     CodigoPersona: session?.user.codigoEstudiante
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             });
             setEstudiante(result.data.estudiante);
@@ -97,7 +100,11 @@ export default function Page () {
     const onUpdate = async () => {
         var response = '';
         try {
-            const result = await axios.put("/estudiante", params);
+            const result = await axios.put("/estudiante", params, {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
             response = result.data.Estado;
             fetchData();
 
@@ -167,7 +174,7 @@ export default function Page () {
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
@@ -228,4 +235,3 @@ export default function Page () {
     )
 }
 
-    

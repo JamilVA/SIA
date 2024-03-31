@@ -1,29 +1,28 @@
 const { Router } = require('express');
-
 const {getSesionesEstudiante, crearSesion, actualizarSesion, eliminarSesion, getSesionesDocente, marcarIngresoDocente, marcarSalidaDocente, getActividadesCalificar, deshabilitarAsistencia, habilitarAsistencia, crearSesionV2} = require('../controllers/sesion.controller')
-
+const requireToken = require('../middleware/requireToken');
 const router = Router();
 
-router.get('/docente', getSesionesDocente);
+router.get('/docente', requireToken, getSesionesDocente);
 
-router.get('/estudiante', getSesionesEstudiante);
+router.get('/estudiante', requireToken, getSesionesEstudiante);
 
-router.post('/', crearSesion);
+router.post('/', requireToken, crearSesion);
 
-router.post('/sesionv2', crearSesionV2);
+router.post('/sesionv2', requireToken, crearSesionV2);
 
-router.put('/', actualizarSesion);
+router.put('/', requireToken, actualizarSesion);
 
-router.post('/eliminar', eliminarSesion);
+router.post('/eliminar', requireToken, eliminarSesion);
 
-router.post('/marcar-ingreso', marcarIngresoDocente);
+router.post('/marcar-ingreso', requireToken, marcarIngresoDocente);
 
-router.post('/marcar-salida', marcarSalidaDocente);
+router.post('/marcar-salida', requireToken, marcarSalidaDocente);
 
-router.get('/actividades-calificar', getActividadesCalificar)
+router.get('/actividades-calificar', requireToken, getActividadesCalificar)
 
-router.put('/habilitar-asistencia', habilitarAsistencia)
+router.put('/habilitar-asistencia', requireToken, habilitarAsistencia)
 
-router.put('/deshabilitar-asistencia', deshabilitarAsistencia)
+router.put('/deshabilitar-asistencia', requireToken, deshabilitarAsistencia)
 
 module.exports = router;

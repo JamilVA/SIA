@@ -9,7 +9,6 @@ import { Dialog } from 'primereact/dialog';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import Perfil from '../../../components/Perfil';
-
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
@@ -44,17 +43,14 @@ export default function Matricula() {
     const [deleteMatriculaDialog, setDeleteMatriculaDialog] = useState(false);
     const [matriculaHabilitada, setMatriculaHabilitada] = useState(false);
     const [periodoActual, setPeriodoActual] = useState(periodoVacio);
-
     const [cursoCalificacion, setCursoCalificaion] = useState(cursoCVacio);
     const [pagoMatricula, setPagoMatricula] = useState(0);
-
     const [cursosLlevar, setCursosLlevar] = useState<(typeof cursoCalificacion)[]>([]);
     const [cursosMatriculados, setCursosMatriculados] = useState<(typeof cursoCalificacion)[]>([]);
     const [totalCreditos, setTotalCreditos] = useState(0);
     const [visible, setVisible] = useState(false);
     const [constanciaURL, setConstanciaURL] = useState('');
     const [creditosMatriculados, setCreditosMatriculados] = useState(0);
-
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any[]> | null>(null);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -83,6 +79,9 @@ export default function Matricula() {
             const { data } = await axios.get('/matricula/cursosMatriculados', {
                 params: {
                     CodigoEstudiante: session?.user.codigoEstudiante
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             });
             const { cursosMatriculados, creditosMatriculados } = data;
@@ -105,6 +104,9 @@ export default function Matricula() {
             const { data } = await axios.get('/matricula/cursosLlevar', {
                 params: {
                     CodigoEstudiante: session?.user.codigoEstudiante
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             });
             const { cursosLlevar, totalCreditos } = data;
@@ -124,7 +126,11 @@ export default function Matricula() {
 
     const cargarPeriodo = async () => {
         try {
-            const { data } = await axios.get('/periodo/vigente', {});
+            const { data } = await axios.get('/periodo/vigente', {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
             const { periodo } = data;
             setPeriodoActual(periodo);
             console.log(data);
@@ -144,6 +150,9 @@ export default function Matricula() {
             const result = await axios.get('/pago/pagosEstudiante', {
                 params: {
                     CodigoEstudiante: session?.user.codigoEstudiante
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             });
             setPagoMatricula(result?.data?.pagoMatricula?.cantidad);
@@ -223,6 +232,10 @@ export default function Matricula() {
                 .post('/matricula/guardarMatriculas', {
                     CodigoEstudiante: session?.user.codigoEstudiante,
                     cursosMatriculados: cursosMatriculados
+                }, {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 })
                 .then((response) => {
                 });
@@ -236,6 +249,9 @@ export default function Matricula() {
         try {
             await axios.get('/matricula/obtenerConstancia', {
                 params: { c: session?.user.codigoEstudiante },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                },
                 responseType: 'blob'
             }).then(response => {
                 console.log(response);
@@ -340,18 +356,18 @@ export default function Matricula() {
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Matrícula en el periodo {periodoActual?.Denominacion}</h4>
             <div className="flex flex-wrap gap-2">
-                    <Button
-                        label="Constancia de Matrícula"
-                        icon="pi pi-file-pdf"
-                        className="p-button-warning"
-                        onClick={obtenerConstancia}
-                    />
+                <Button
+                    label="Constancia de Matrícula"
+                    icon="pi pi-file-pdf"
+                    className="p-button-warning"
+                    onClick={obtenerConstancia}
+                />
             </div>
         </div>
     );
 
 
-    
+
 
     const deleteMatriculaDialogFooter = () => {
         return (

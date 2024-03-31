@@ -74,6 +74,9 @@ const Perfil = () => {
                 result = await axios.get('/estudiante/getbycod', {
                     params: {
                         CodigoPersona: session?.user.codigoEstudiante
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
                     }
                 });
                 setEstudiante(result.data.estudiante);
@@ -87,6 +90,9 @@ const Perfil = () => {
                 result = await axios.get('/persona', {
                     params: {
                         codPersona: session?.user.codigoPersona
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
                     }
                 });
                 console.log(result)

@@ -61,12 +61,18 @@ export default function AdminCursosPage () {
     ];
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (status === 'authenticated') {
+            fetchData();
+        }
+    }, [status]);
 
     const fetchData = async () => {
         try {
-            const result = await axios('/curso');
+            const result = await axios('/curso',{
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
             setCursos(result.data.cursos);
             setCarreras(result.data.carreras);
         } catch (e) {
@@ -115,7 +121,11 @@ export default function AdminCursosPage () {
         e.preventDefault();
         var response = '';
         try {
-            const result = await axios.post('/curso', data);
+            const result = await axios.post('/curso', data, {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
             response = result.data.Estado;
             fetchData();
             if (response == 'Error') {
@@ -244,7 +254,10 @@ export default function AdminCursosPage () {
             await axios
                 .get('/curso/obtenerListaCursos', {
                     params: { c: carrera },
-                    responseType: 'blob'
+                    responseType: 'blob',
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 })
                 .then((response) => {
                     console.log(response);

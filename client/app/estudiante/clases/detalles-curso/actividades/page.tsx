@@ -13,7 +13,6 @@ import { Panel } from 'primereact/panel';
 import { Divider } from 'primereact/divider';
 import React, { useEffect, useRef, useState } from 'react';
 import { redirect, useSearchParams } from 'next/navigation';
-
 import { axiosInstance as axios } from '../../../../../utils/axios.instance';
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -58,6 +57,9 @@ export default function ActividadesPage() {
                 params: {
                     codigoSesion: codigoSesion,
                     codigoEstudiante: session?.user.codigoEstudiante
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             })
             .then((response) => {
@@ -82,6 +84,9 @@ export default function ActividadesPage() {
                     params: {
                         codigoActividad: actividad.Codigo,
                         codigoEstudiante: session?.user.codigoEstudiante
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
                     }
                 });
                 console.log('Recurso:', data);
@@ -143,6 +148,11 @@ export default function ActividadesPage() {
                 CodigoActividad: actividad.Codigo,
                 CodigoEstudiante: session?.user.codigoEstudiante,
                 RutaTarea: _fileName
+            },
+            {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
             });
 
             toast.current?.show({

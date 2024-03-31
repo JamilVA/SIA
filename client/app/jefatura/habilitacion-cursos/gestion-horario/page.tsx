@@ -61,6 +61,9 @@ export default function CursoCalificacionPage() {
         await axios.get('/horario/buscar', {
             params: {
                 codigo: codigoCurso
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -79,8 +82,10 @@ export default function CursoCalificacionPage() {
     }
 
     useEffect(() => {
-        fetchHorario()
-    }, []);
+        if (status === 'authenticated') {
+            fetchHorario();
+        }
+    }, [status]);
 
     const openAsignarDia = () => {
         setEditar(false)
@@ -112,7 +117,7 @@ export default function CursoCalificacionPage() {
     };
 
 
-    const onDropDownChange = (value: any) => {    
+    const onDropDownChange = (value: any) => {
         setHorario({
             ...horario,
             Dia: value,
@@ -123,13 +128,13 @@ export default function CursoCalificacionPage() {
         let hora = (value as Date)
         let _hora = hora.getHours() + ':' + hora.getMinutes()
         switch (name) {
-            case 'inicio':              
+            case 'inicio':
                 setHorario({
                     ...horario,
                     HoraInicio: _hora
                 })
                 break;
-            case 'fin':             
+            case 'fin':
                 setHorario({
                     ...horario,
                     HoraFin: _hora
@@ -172,6 +177,10 @@ export default function CursoCalificacionPage() {
         await axios.post('/horario', {
             ...horario,
             CodigoCursoCalificacion: codigoCurso
+        }, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
         })
             .then(response => {
                 let _horarios = [...horarios]
@@ -198,15 +207,18 @@ export default function CursoCalificacionPage() {
     const editarDia = async () => {
         setSubmitted(true)
         hideAsignarHorarioDialog()
-        await axios.put('/horario', {...horario}, {
+        await axios.put('/horario', { ...horario }, {
             params: {
-                codigo: horario.Codigo             
+                codigo: horario.Codigo
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
                 let _horarios = horarios.map(h => {
                     if (h.Codigo === horario.Codigo) {
-                        return {...horario}
+                        return { ...horario }
                     }
                     return h
                 })
@@ -234,6 +246,9 @@ export default function CursoCalificacionPage() {
         await axios.delete('/horario', {
             params: {
                 codigo: horario.Codigo
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -280,7 +295,7 @@ export default function CursoCalificacionPage() {
     }
 
     const formatDate = (value: Date) => {
-        return value.toLocaleString('es-PE', {           
+        return value.toLocaleString('es-PE', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true
@@ -358,7 +373,7 @@ export default function CursoCalificacionPage() {
                         ref={dt}
                         value={horarios}
                         loading={loading}
-                        dataKey="Codigo"                  
+                        dataKey="Codigo"
                         rows={10}
                         className="datatable-responsive"
                         emptyMessage="Horario vacío"

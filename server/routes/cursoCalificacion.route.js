@@ -1,38 +1,38 @@
 const { Router } = require("express");
 const { getCursosCalificacion, crearCursoCalificacion, habilitarIngresos, deshabilitarIngresos, eliminarCursoCalificacion, asignarDocente, habilitarIngreso, deshabilitarIngreso , getAsistentes, editarCursoCalificacion, getCursosEstudiante, contarSesiones, getMatriculados, getCarrerasByJefe, habilitarCursosPorCiclo, generarUnidades } = require("../controllers/cursoCalificacion.controller");
-
+const requireToken = require('../middleware/requireToken');
 const router = Router()
 
-router.get('/carreras', getCarrerasByJefe)
+router.get('/carreras', requireToken, getCarrerasByJefe)
 
-router.get('/', getCursosCalificacion)
+router.get('/', requireToken, getCursosCalificacion)
 
-router.get('/cursos-estudiante', getCursosEstudiante)
+router.get('/cursos-estudiante', requireToken, getCursosEstudiante)
 
-router.post('/', crearCursoCalificacion)
+router.post('/', requireToken, crearCursoCalificacion)
 
-router.post('/habilitar-ciclo', habilitarCursosPorCiclo)
+router.post('/habilitar-ciclo', requireToken, habilitarCursosPorCiclo)
 
-router.put('/', editarCursoCalificacion)
+router.put('/', requireToken, editarCursoCalificacion)
 
-router.put('/habilitar-ingresos', habilitarIngresos)
+router.put('/habilitar-ingresos', requireToken, habilitarIngresos)
 
-router.put('/deshabilitar-ingresos', deshabilitarIngresos)
+router.put('/deshabilitar-ingresos', requireToken, deshabilitarIngresos)
 
-router.put('/habilitar-ingreso', habilitarIngreso)
+router.put('/habilitar-ingreso', requireToken, habilitarIngreso)
 
-router.put('/deshabilitar-ingreso', deshabilitarIngreso)
+router.put('/deshabilitar-ingreso', requireToken, deshabilitarIngreso)
 
-router.delete('/eliminar', eliminarCursoCalificacion)
+router.delete('/eliminar', requireToken, eliminarCursoCalificacion)
 
-router.put('/asignar-docente', asignarDocente)
+router.put('/asignar-docente', requireToken, asignarDocente)
 
-router.get('/asistentes', getAsistentes)
+router.get('/asistentes', requireToken, getAsistentes)
 
-router.get('/sesiones', contarSesiones)
+router.get('/sesiones', requireToken, contarSesiones)
 
-router.get('/matriculados', getMatriculados)
+router.get('/matriculados', requireToken, getMatriculados)
 
-router.post('/generar-unidades', generarUnidades)
+router.post('/generar-unidades', requireToken, generarUnidades)
 
 module.exports = router

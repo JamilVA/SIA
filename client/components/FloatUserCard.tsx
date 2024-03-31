@@ -55,6 +55,9 @@ const Perfil = () => {
             const result = await axios.get('/persona', {
                 params: {
                     codPersona: session?.user.codigoPersona
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
             });
             setUser(result.data.persona);
@@ -91,7 +94,11 @@ const Perfil = () => {
         if (verifyGeneralInputs()) {
             if (verifyInputs()) {
                 try {
-                    await axios.put("/changePassword", dataChang);
+                    await axios.put("/changePassword", dataChang, {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
+                    });
                     toastSuccess.current?.show({
                         severity: 'success',
                         summary: 'Proceso exitoso',

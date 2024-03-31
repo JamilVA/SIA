@@ -97,12 +97,18 @@ export default function JefeDepartamentosDemo() {
     const { data: session, status } = useSession();
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (status === 'authenticated') {
+            fetchData();
+        }
+    }, [status]);
 
     const fetchData = async () => {
         try {
-            const result = await axios.get('/jefeDepartamento');
+            const result = await axios.get('/jefeDepartamento', {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
 
             const jefeDepartamentosConNombreCompleto = result.data.jefesDepartamento.map((jefeDepartamento: any) => ({
                 ...jefeDepartamento,
@@ -118,7 +124,11 @@ export default function JefeDepartamentosDemo() {
 
     const getDocentes = async () => {
         try {
-            const result = await axios.get('/docente');
+            const result = await axios.get('/docente', {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
 
             const docentesConNombreCompleto = result.data.docentes.map((docente: any) => ({
                 ...docente,
@@ -205,6 +215,10 @@ export default function JefeDepartamentosDemo() {
                             sexo: _jefeDepartamento.Sexo,
                             fechaNacimiento: _jefeDepartamento.FechaNacimiento,
                             DNI: _jefeDepartamento.DNI
+                        }, {
+                            headers: {
+                                Authorization: 'Bearer ' + session?.user.token
+                            }
                         })
                         .then((response) => {
                             for (let i = 0; i < codigosCarreras.length; i++) {
@@ -212,6 +226,10 @@ export default function JefeDepartamentosDemo() {
                                     .put('/jefeDepartamento/carrera', {
                                         codigoJefeDepartamento: response.data.jefeDepartamento.Codigo,
                                         codigo: codigosCarreras[i]
+                                    }, {
+                                        headers: {
+                                            Authorization: 'Bearer ' + session?.user.token
+                                        }
                                     })
                                     .then((response) => {
                                         console.log(response);
@@ -246,6 +264,10 @@ export default function JefeDepartamentosDemo() {
                         fechaNacimiento: _jefeDepartamento.FechaNacimiento,
                         DNI: _jefeDepartamento.DNI,
                         codigoPersona: _jefeDepartamento.CodigoPersona
+                    }, {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     })
                     .then((response) => {
                         console.log(response);
@@ -254,6 +276,10 @@ export default function JefeDepartamentosDemo() {
                                 .put('/jefeDepartamento/carrera', {
                                     codigoJefeDepartamento: _jefeDepartamento.Codigo,
                                     codigo: codigosCarreras[i]
+                                }, {
+                                    headers: {
+                                        Authorization: 'Bearer ' + session?.user.token
+                                    }
                                 })
                                 .then((response) => {
                                     console.log(response);
@@ -394,6 +420,10 @@ export default function JefeDepartamentosDemo() {
                 departamento: 'No asignado',
                 estado: _estado,
                 fechaBaja: new Date()
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
             })
             .then((response) => {
                 for (let i = 0; i < codigosCarreras.length; i++) {
@@ -401,6 +431,10 @@ export default function JefeDepartamentosDemo() {
                         .put('/jefeDepartamento/carrera', {
                             codigoJefeDepartamento: null,
                             codigo: codigosCarreras[i]
+                        }, {
+                            headers: {
+                                Authorization: 'Bearer ' + session?.user.token
+                            }
                         })
                         .then((response) => {
                             console.log(response);
@@ -436,6 +470,10 @@ export default function JefeDepartamentosDemo() {
                     .put('/jefeDepartamento/asignarDocente', {
                         Codigo: docenteJefe.CodigoPersona,
                         Departamento: departamento
+                    }, {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     })
                     .then((response) => {
                         for (let i = 0; i < codigosCarreras.length; i++) {
@@ -443,6 +481,10 @@ export default function JefeDepartamentosDemo() {
                                 .put('/jefeDepartamento/carrera', {
                                     codigoJefeDepartamento: response.data.jefeDepartamento.Codigo,
                                     codigo: codigosCarreras[i]
+                                }, {
+                                    headers: {
+                                        Authorization: 'Bearer ' + session?.user.token
+                                    }
                                 })
                                 .then((response) => {
                                     console.log(response);

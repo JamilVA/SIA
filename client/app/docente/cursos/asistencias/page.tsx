@@ -37,6 +37,9 @@ export default function AsistenciasPage() {
             params: {
                 codigoCursoCalificacion: codigoCursoCalificacion,
                 codigoSesion: codigoSesion
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -53,8 +56,10 @@ export default function AsistenciasPage() {
     }
 
     useEffect(() => {
-        fetchMatriculados()
-    }, []);
+        if (status === 'authenticated') {
+            fetchMatriculados();
+        }
+    }, [status]);
 
     const marcarAsistencia = async (rowData: any) => {
         const codEstudiante = rowData.Codigo
@@ -62,6 +67,10 @@ export default function AsistenciasPage() {
             codigoSesion: codigoSesion,
             codigoEstudiante: codEstudiante,
             codigoCurso: codigoCursoCalificacion
+        }, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
         }).
             then(response => {
                 fetchMatriculados()
@@ -90,6 +99,9 @@ export default function AsistenciasPage() {
                 codigoSesion: codigoSesion,
                 codigoEstudiante: codEstudiante,
                 codigoCurso: codigoCursoCalificacion
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -115,6 +127,9 @@ export default function AsistenciasPage() {
         await axios.post('/sesion/marcar-ingreso', {}, {
             params: {
                 codigoSesion: codigoSesion
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {
@@ -139,6 +154,9 @@ export default function AsistenciasPage() {
         await axios.post('/sesion/marcar-salida', {}, {
             params: {
                 codigoSesion: codigoSesion
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
             }
         })
             .then(response => {

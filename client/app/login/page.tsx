@@ -57,10 +57,10 @@ const LoginPage = () => {
                                     style={{ width: '100%' }} />
                                 <label htmlFor="email">Email</label>
                             </span>
-                            <div style={{textAlign:'right'}}>
+                            {/*<div style={{textAlign:'right'}}>
                                 <a style={{ fontSize: '15px' }} href="/auth/password_reset">Olvidaste tu contraseña?</a>
-                            </div>
-                            <span className="p-float-label mt-2 mb-5">
+                            </div>*/}
+                            <span className="p-float-label mt-5 mb-5">
                                 <Password id="password" feedback={false} value={password} required name='password' tabIndex={1} toggleMask onChange={(event) => setPassword(event.target.value)} className="w-full" inputClassName="w-full md:w-30rem" />
                                 <label htmlFor="password">Password</label>
                             </span>
