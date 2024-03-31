@@ -39,7 +39,6 @@ const LoginPage = () => {
     };
 
     return (
-
         <div className="body">
             <div className="card general_container">
                 <div className="grid col-6 p-0 login_container">
@@ -49,7 +48,7 @@ const LoginPage = () => {
 
                     <div className="col-6 form_container">
                         <div className="p-3">
-                            <h4 className="mt-2" style={{ color: '#000142' }}>Bienvenido(a) a<br />la plataforma<br />SIA-ESFAP</h4>
+                            <h4 className="mt-2" style={{ color: '#000142' }}>Bienvenido(a) a<br />la plataforma<br />SIA-ESFAP MUA</h4>
                         </div>
                         <form onSubmit={handleSubmit} className="p-3">
                             <span className="p-float-label mb-3">
