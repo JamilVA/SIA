@@ -24,7 +24,7 @@ const AppMenu = () => {
         {
             label: 'PANEL DE ADMINISTRACIÓN',
             items: [
-                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
                 { label: 'Gestión de Usuarios', icon: 'pi pi-fw pi-user', to: '/administrador/usuarios' },
                 { label: 'Gestión de Estudiantes', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes' },
                 { label: 'Gestión de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
@@ -41,8 +41,8 @@ const AppMenu = () => {
         {
             label: 'PANEL DE TESORERÍA',
             items: [
-                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },
-                { label: 'Gestión de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' },
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
+                { label: 'Gestion de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' },
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
@@ -52,7 +52,7 @@ const AppMenu = () => {
         {
             label: 'PANEL DE ESTUDIANTE',
             items: [
-                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
                 { label: 'Perfil', icon: 'pi pi-fw pi-user', to: '/estudiante/perfil' },
                 { label: 'Calificaciones', icon: 'pi pi-fw pi-check-square', to: '/estudiante/calificaciones' },
                 { label: 'Clases', icon: 'pi pi-fw pi-book', to: '/estudiante/clases' },
@@ -68,7 +68,7 @@ const AppMenu = () => {
         {
             label: 'PANEL DE DOCENTE',
             items: [
-                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
                 { label: 'Cursos', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
                 { label: 'Horarios', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
@@ -81,7 +81,7 @@ const AppMenu = () => {
         {
             label: 'PANEL DE JEFE DE DEPARTAMENTO',
             items: [       
-                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/' },  
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },  
                 { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefatura/habilitacion-cursos' },              
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
