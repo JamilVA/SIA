@@ -412,9 +412,7 @@ export default function DocentesDemo() {
     const rightToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
-                <Button label="Exportar" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
-                <Button type="button" icon="pi pi-file-excel" severity="success" rounded data-pr-tooltip="XLS" />
-                <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded data-pr-tooltip="PDF" />
+                <Button label="Exportar CSV" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />
             </div>
         );
     };
