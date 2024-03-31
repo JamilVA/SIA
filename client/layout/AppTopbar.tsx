@@ -49,7 +49,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     return (
         <div className="layout-topbar custom-topbar">
             <Link href="/" className="layout-topbar-logo">
-                <img src={`/layout/images/esfap.png`} width="75px" height='35px' alt="logo" />
+                <img src={`/images/logoesfap.png`} width="75px" height='35px' alt="logo" />
                 <span>SIA</span>
             </Link>
 
