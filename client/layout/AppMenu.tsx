@@ -30,6 +30,7 @@ const AppMenu = () => {
                 { label: 'Gestión de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
                 { label: 'Gestión de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/administrador/jefesDepartamento' },
                 { label: 'Gestión de Cursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
+                { label: 'Gestión de Matrícula', icon: 'pi pi-fw pi-list', to: '/administrador/matriculas' },
                 { label: 'Gestión de Periodos', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' },
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
@@ -82,7 +83,6 @@ const AppMenu = () => {
             items: [       
                 { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },  
                 { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefatura/habilitacion-cursos' },              
-                { label: 'Gestion de Matricula', icon: 'pi pi-fw pi-list', to: '/jefatura/matriculas' },
                 { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
