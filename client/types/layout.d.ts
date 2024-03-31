@@ -52,11 +52,6 @@ export interface MenuContextProps {
     setActiveMenu: Dispatch<SetStateAction<string>>;
 }
 
-/* AppConfig Types */
-export interface AppConfigProps {
-    simple?: boolean;
-}
-
 /* AppTopbar Types */
 export type NodeRef = MutableRefObject<ReactNode>;
 export interface AppTopbarRef {
