@@ -201,8 +201,8 @@ export default function Page() {
                     <p>{estudiante.Persona.DNI}</p>
                     <h6><i className='pi pi-folder' style={{ marginRight: '3px', color: 'blue' }}></i>Carrera Profesional</h6>
                     <p>{(estudiante.CarreraProfesional.NombreCarrera).toUpperCase()}</p>
-                    <h6><i className='pi pi-file' style={{ marginRight: '3px', color: 'blue' }}></i>Merito</h6>
-                    <p>Puesto 10° <br />Promedio ponderado: 12.32 <br />Fecha de reporte: 29/01/2024 </p>
+                    {/*<h6><i className='pi pi-file' style={{ marginRight: '3px', color: 'blue' }}></i>Merito</h6>
+                    <p>Puesto 10° <br />Promedio ponderado: 12.32 <br />Fecha de reporte: 29/01/2024 </p>*/}
                 </div>
                 <div className='card'>
                     <h5>Otros datos <i className='pi pi-pencil' onClick={() => editEstudiante(estudiante)} style={{ color: 'orange', cursor: 'pointer', fontSize: '1.2rem' }}></i></h5>
