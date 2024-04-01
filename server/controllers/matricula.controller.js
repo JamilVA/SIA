@@ -497,11 +497,11 @@ const getMatriculaByCurso = async (req, res) => {
 
     const registroMatricula = await sequelize.query(
       `select e.CodigoSunedu, m.CodigoEstudiante, m.CodigoCursoCalificacion, concat(p.Paterno,' ', p.Materno,' ', p.Nombres) as Alumno, m.Nota1, m.Nota2, m.Nota3, m.Nota4, m.NotaRecuperacion, m.NotaFinal, m.NotaAplazado, m.NotaDirigido, m.PorcentajeAsistencia 
-    from curso c join cursocalificacion cc
-    on c.Codigo = cc.CodigoCurso join matricula m
-    on cc.Codigo = m.CodigoCursoCalificacion join periodo pd
-    on cc.CodigoPeriodo = pd.Codigo join estudiante e
-    on m.CodigoEstudiante = e.Codigo join persona p
+    from Curso c join CursoCalificacion cc
+    on c.Codigo = cc.CodigoCurso join Matricula m
+    on cc.Codigo = m.CodigoCursoCalificacion join Periodo pd
+    on cc.CodigoPeriodo = pd.Codigo join Estudiante e
+    on m.CodigoEstudiante = e.Codigo join Persona p
     on e.CodigoPersona = p.Codigo
     where cc.Codigo = '${req.query.codCurso}' and pd.Estado = 1
     order by Alumno ASC;`,
