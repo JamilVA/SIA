@@ -173,9 +173,14 @@ export default function Matricula() {
         const finMatricula = new Date(periodoActual?.FinMatricula);
         inicioMatricula.setDate(inicioMatricula.getDate() + 1);
         finMatricula.setDate(finMatricula.getDate() + 1);
+        inicioMatricula.setHours(0, 0, 0, 0);
+        finMatricula.setHours(0, 0, 0, 0);
+    
         const currentDate = new Date();
-
-        // console.log('Matricula Habilitada', currentDate >= inicioMatricula, currentDate <= finMatricula, pagoMatricula);
+        currentDate.setHours(0, 0, 0, 0); // Establecer horas, minutos, segundos y milisegundos a cero
+        
+        //console.log(currentDate, inicioMatricula)
+        //console.log('Matricula Habilitada', currentDate >= inicioMatricula, currentDate <= finMatricula, pagoMatricula);
 
         setMatriculaHabilitada(currentDate >= inicioMatricula && currentDate <= finMatricula && pagoMatricula > 0);
     };
@@ -238,6 +243,9 @@ export default function Matricula() {
                     }
                 })
                 .then((response) => {
+                    cargarPagos();
+                    cargarPeriodo();
+                    cargarCursosMatriculados();
                 });
         } catch (e) {
             // console.error(e);
