@@ -310,7 +310,9 @@ export default function Page() {
         setEstudiante(tempEstudiante);
         setEstudianteDialog(true);
         console.log(estudiante);
-        obtenerArchivo(estudiante.Persona.RutaFoto);
+        if (tempEstudiante.RutaFoto) {
+            obtenerArchivo(estudiante.Persona.RutaFoto);
+        }
     };
 
     const infoEstudiante = (estudiante: Sia.Student) => {
