@@ -32,7 +32,7 @@ const AppMenu = () => {
                 { label: 'Gestión de Cursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
                 { label: 'Gestión de Matrícula', icon: 'pi pi-fw pi-list', to: '/administrador/matriculas' },
                 { label: 'Gestión de Periodos', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' },
-                { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
+                // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
     ];
@@ -43,7 +43,7 @@ const AppMenu = () => {
             items: [
                 { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
                 { label: 'Gestion de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' },
-                { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
+                // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
     ];
@@ -59,7 +59,7 @@ const AppMenu = () => {
                 { label: 'Horarios', icon: 'pi pi-fw pi-calendar', to: '/estudiante/horarios' },
                 { label: 'Matrícula', icon: 'pi pi-fw pi-list', to: '/estudiante/matricula' },
                 { label: 'Pagos', icon: 'pi pi-fw pi-money-bill', to: '/estudiante/pagos' },
-                { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
+                // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
     ];
@@ -71,7 +71,7 @@ const AppMenu = () => {
                 { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
                 { label: 'Cursos', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
                 { label: 'Horarios', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },
-                { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
+                // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         }
 
@@ -83,7 +83,7 @@ const AppMenu = () => {
             items: [       
                 { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },  
                 { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefatura/habilitacion-cursos' },              
-                { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
+                // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
         session?.user.codigoDocente != 0?
