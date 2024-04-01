@@ -14,14 +14,14 @@ const generarAsistencias = async (req, res) => {
 const contarAsistencias = async (codigoCurso, codigoEstudiante, t) => {
     try {
         const QUERY = "select count(*) as `asistencias` " +
-        "from cursocalificacion as c " +
-        "inner join unidadacademica as u " +
+        "from CursoCalificacion as c " +
+        "inner join UnidadAcademica as u " +
         "on c.Codigo = u.CodigoCursoCalificacion and c.Codigo like ? " +
-        "inner join semanaacademica as sa " +
+        "inner join SemanaAcademica as sa " +
         "on u.Codigo = sa.CodigoUnidadAcademica " +
-        "inner join sesion as s " +
+        "inner join Sesion as s " +
         "on sa.Codigo = s.CodigoSemanaAcademica " +
-        "inner join asistencia as a " +
+        "inner join Asistencia as a " +
         "on a.CodigoSesion = s.Codigo and a.CodigoEstudiante = ? "
         const [results, metadata] = await sequelize.query(QUERY, { replacements: [codigoCurso, codigoEstudiante], transaction: t })
         return metadata[0]
@@ -98,12 +98,12 @@ const consolidarAsistencia = async (codigoCurso, codigoEstudiante, t) => {
 const contarSesiones = async (codigoCurso) => {
     try {
         const QUERY = "select count(*) as `sesiones` " +
-            "from cursocalificacion as c " +
-            "inner join unidadacademica as u " +
+            "from CursoCalificacion as c " +
+            "inner join UnidadAcademica as u " +
             "on c.Codigo = u.CodigoCursoCalificacion and c.Codigo like ? " +
-            "inner join semanaacademica as sa " +
+            "inner join SemanaAcademica as sa " +
             "on u.Codigo = sa.CodigoUnidadAcademica " +
-            "inner join sesion as s " +
+            "inner join Sesion as s " +
             "on sa.Codigo = s.CodigoSemanaAcademica"
         const [results, metadata] = await sequelize.query(QUERY, { replacements: [codigoCurso] })
         let numeroSesiones = 0

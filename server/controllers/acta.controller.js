@@ -58,7 +58,7 @@ const getActas = async (req, res) => {
 const getActasByEstudiante = async (req, res) => {
     try {
         const actas = await sequelize.query(`select c.codigo as Codigo, c.nombre as Nombre, m.NotaFinal, c.Nivel, c.Semestre, c.Creditos, a.Codigo as CodActa, a.FechaGeneracion
-        from Acta a join CursoCalificacion cc
+        from Acta a right join CursoCalificacion cc
         on a.CodigoCursoCalificacion = cc.Codigo
         join Curso c on cc.CodigoCurso = c.Codigo
         join Matricula m on cc.Codigo = m.CodigoCursoCalificacion
