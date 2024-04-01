@@ -663,11 +663,11 @@ const obtenerConstancia = async (req, res) => {
     } else {
       cursos = [
         {
-          Codigo: "dsaf",
-          Curso: "dasd",
-          Nivel: "asdsa",
-          Semestre: "asd",
-          Creditos: "asd",
+          Codigo: "",
+          Curso: "",
+          Nivel: "",
+          Semestre: "",
+          Creditos: "",
         },
       ];
     }
