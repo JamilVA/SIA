@@ -200,7 +200,7 @@ export default function RegistrarPagoPage() {
                 <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined onClick={clearFilter1} />
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
-                    <InputText value={globalFilterValue} onChange={onGlobalFilterChange1} placeholder="Keyword Search" />
+                    <InputText value={globalFilterValue} onChange={onGlobalFilterChange1} placeholder="Buscar" />
                 </span>
             </div>
         );
