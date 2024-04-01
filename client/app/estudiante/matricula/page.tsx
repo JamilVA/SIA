@@ -187,7 +187,8 @@ export default function Matricula() {
 
     const crearMatricula = async (rowData: any) => {
         try {
-            if (creditosMatriculados + rowData.Curso.Creditos <= totalCreditos) {
+            // if (creditosMatriculados + rowData.Curso.Creditos <= totalCreditos) {
+            if(true){
                 toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Curso agregado con éxito', life: 3000 });
 
                 setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
@@ -310,7 +311,7 @@ export default function Matricula() {
     };
 
     const nivelBodyTemplate = (rowData: any) => {
-        return rowData.Curso.Nivel;
+        return ((rowData.Curso.Nivel - 1) * 2) +  rowData.Curso.Semestre ;
     };
 
     const semestreBodyTemplate = (rowData: any) => {
@@ -464,7 +465,7 @@ export default function Matricula() {
                             >
                                 <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
-                                <Column header="Nivel" body={nivelBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                                <Column header="Ciclo" body={nivelBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column header="Semestre" body={semestreBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column header="Creditos" body={creditosBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column body={actionBodyTemplate1} exportable={false} style={{ minWidth: '8rem' }}></Column>
@@ -487,7 +488,7 @@ export default function Matricula() {
                             >
                                 <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
-                                <Column header="Nivel" body={nivelBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                                <Column header="Ciclo" body={nivelBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column header="Semestre" body={semestreBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column header="Creditos" body={creditosBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column body={actionBodyTemplate2} exportable={false} style={{ minWidth: '8rem' }}></Column>
@@ -526,7 +527,7 @@ export default function Matricula() {
                             >
                                 <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '6rem' }}></Column>
                                 <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
-                                <Column header="Nivel" body={nivelBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                                <Column header="Ciclo" body={nivelBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column header="Semestre" body={semestreBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column header="Creditos" body={creditosBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                             </DataTable>

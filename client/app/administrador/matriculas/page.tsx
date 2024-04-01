@@ -9,7 +9,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { redirect } from 'next/navigation';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 
 export default function Matricula() {
     const estudianteVacio = {
@@ -188,29 +188,29 @@ export default function Matricula() {
 
     const crearMatricula = async (rowData: any) => {
         try {
-            if (creditosMatriculados + rowData.Curso.Creditos <= totalCreditos) {
-                axios
-                    .post('/matricula', {
+            await axios
+                .post(
+                    '/matricula',
+                    {
                         codigoCursoCalificacion: rowData.Codigo,
                         codigoEstudiante: estudiante.Codigo,
                         fechaMatricula: new Date()
-                    }, {
+                    },
+                    {
                         headers: {
                             Authorization: 'Bearer ' + session?.user.token
                         }
-                    })
-                    .then((response) => {
-                        toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Matriculado con éxito', life: 3000 });
-                        setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
-                        setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
-                        setCreditosMatriculados(creditosMatriculados + rowData?.Curso?.Creditos)
-                    });
+                    }
+                )
+                .then((response) => {
+                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Matriculado con éxito', life: 3000 });
+                    setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
+                    setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
+                    setCreditosMatriculados(creditosMatriculados + rowData?.Curso?.Creditos);
+                });
 
-                setMatriculaDialog(false);
-                setCursoCalificaion(cursoCVacio);
-            } else {
-                toast.current!.show({ severity: 'warn', summary: 'Advertencia', detail: 'No puedes superar el total de creditos por ciclo', life: 5000 });
-            }
+            setMatriculaDialog(false);
+            setCursoCalificaion(cursoCVacio);
         } catch (error) {
             // console.error(error);
             toast.current?.show({
@@ -225,22 +225,26 @@ export default function Matricula() {
     const eliminarMatricula = async (curso: any) => {
         try {
             axios
-                .post('/matricula/eliminar', {
-                    codigoEstudiante: estudiante.Codigo,
-                    codigoCursoCalificacion: curso.Codigo
-                }, {
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
+                .post(
+                    '/matricula/eliminar',
+                    {
+                        codigoEstudiante: estudiante.Codigo,
+                        codigoCursoCalificacion: curso.Codigo
+                    },
+                    {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     }
-                })
+                )
                 .then((response) => {
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Eliminado con éxito', life: 3000 });
                     setCursosMatriculados((cursosMatriculados) => cursosMatriculados.filter((c) => c.Codigo !== curso.Codigo));
                     setCursosLlevar((cursosLlevar) => [...cursosLlevar, curso]);
-                    setCreditosMatriculados(creditosMatriculados - curso?.Curso?.Creditos)
+                    setCreditosMatriculados(creditosMatriculados - curso?.Curso?.Creditos);
                 });
             setDeleteMatriculaDialog(false);
-            setCursoCalificaion(cursoCVacio)
+            setCursoCalificaion(cursoCVacio);
         } catch (error) {
             // console.error(error);
             toast.current?.show({
@@ -345,18 +349,18 @@ export default function Matricula() {
         );
     };
 
-    if (status === "loading") {
+    if (status === 'loading') {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                <div className="flex items-center justify-center align-content-center" style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
-        )
+        );
     }
 
     if (session?.user.nivelUsuario != 1) {
-        redirect('/pages/notfound')
+        redirect('/pages/notfound');
     }
 
     return (
@@ -367,7 +371,7 @@ export default function Matricula() {
                     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
                         <span className="block mt-2 md:mt-0">
                             <InputText
-                            className='mt-3'
+                                className="mt-3"
                                 value={inputValue}
                                 autoFocus
                                 maxLength={10}
@@ -377,27 +381,31 @@ export default function Matricula() {
                                     setInputValue(e.target.value);
                                 }}
                             />
-                            
-                        <Button
-                            icon="pi pi-search"
-                            className="ml-2  p-input-icon-right"
-                            onClick={() => {
-                                buscarEstudiante(inputValue);
-                            }}
-                        />
+
+                            <Button
+                                icon="pi pi-search"
+                                className="ml-2  p-input-icon-right"
+                                onClick={() => {
+                                    buscarEstudiante(inputValue);
+                                }}
+                            />
                         </span>
                     </div>
                 </div>
                 <h6 className="mb-3">DATOS DEL ESTUDIANTE</h6>
-                <div className='card m-0 p-0'>
+                <div className="card m-0 p-0">
                     <div className="col">
-                        <label htmlFor=""><strong>Apellidos: </strong></label>
+                        <label htmlFor="">
+                            <strong>Apellidos: </strong>
+                        </label>
                         <label>
                             {estudiante?.Persona?.Paterno} {estudiante?.Persona?.Materno}
                         </label>
                     </div>
                     <div className="col">
-                        <label htmlFor=""><strong>Nombres: </strong></label>
+                        <label htmlFor="">
+                            <strong>Nombres: </strong>
+                        </label>
                         <label>{estudiante?.Persona?.Nombres}</label>
                     </div>
                 </div>
