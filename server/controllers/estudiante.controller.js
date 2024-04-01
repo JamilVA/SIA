@@ -248,9 +248,9 @@ const obtenerListaEstudiantes = async (req, res) => {
 
   const listaEstudiantes = await sequelize.query(`select e.CodigoSunedu, p.DNI, e.AnioIngreso, concat(p.Paterno,' ',p.Materno,' ',p.Nombres) as Nombres,
   u.Email, p.FechaNacimiento, p.Sexo, p.EmailPersonal, p.Direccion, p.Celular, e.Estado 
-  from usuario u join persona p
+  from Usuario u join Persona p
   on u.CodigoPersona = p.Codigo
-  join estudiante e on p.Codigo = e.CodigoPersona
+  join Estudiante e on p.Codigo = e.CodigoPersona
   where e.CodigoCarreraProfesional = '${req.query.c}'
   order by AnioIngreso ASC, Paterno ASC;`, { type: QueryTypes.SELECT });
 

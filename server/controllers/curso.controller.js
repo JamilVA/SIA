@@ -111,8 +111,8 @@ const getCursosByDP = async (req, res) => {
     _codDocente = req.query.CodDocente;
     const cursos = await sequelize.query(
       `select c.Codigo as CodCurso, cc.Codigo as CodCursoCal, c.Nombre, cp.NombreCarrera as Carrera 
-        from carreraprofesional cp join curso c on cp.Codigo = c.CodigoCarreraProfesional join cursocalificacion cc 
-        on c.Codigo = cc.CodigoCurso join periodo p on p.Codigo = cc.CodigoPeriodo join docente d on cc.CodigoDocente = d.Codigo 
+        from CarreraProfesional cp join Curso c on cp.Codigo = c.CodigoCarreraProfesional join CursoCalificacion cc 
+        on c.Codigo = cc.CodigoCurso join Periodo p on p.Codigo = cc.CodigoPeriodo join Docente d on cc.CodigoDocente = d.Codigo 
         where d.Codigo = ${
           req.query.CodDocente == undefined ? 0 : _codDocente
         } and p.Estado = 1`,
