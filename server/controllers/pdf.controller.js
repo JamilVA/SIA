@@ -169,8 +169,8 @@ const getHistorialNotas = async (codigoEstudiante) => {
             Nivel: item.CursoCalificacion.Curso.Nivel,
             Semestre: item.CursoCalificacion.Curso.Semestre,
             Creditos: item.CursoCalificacion.Curso.Creditos,
-            Acta: item.CursoCalificacion.Actum.Codigo,
-            Fecha: item.CursoCalificacion.Actum.FechaGeneracion,
+            Acta: item.CursoCalificacion.Actum?.Codigo,
+            Fecha: item.CursoCalificacion.Actum?.FechaGeneracion,
         }))
 
         const data = { historial, estudiante }
