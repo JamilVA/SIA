@@ -325,7 +325,7 @@ export default function Matricula() {
     const actionBodyTemplate1 = (rowData: any) => {
         return (
             <React.Fragment>
-                <Button label="Agregar" icon="pi pi-plus" className="p-button-success p-button-sm" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => newMatricula(rowData)} disabled={!totalCreditos > !creditosMatriculados} />
+                <Button label="Agregar" icon="pi pi-plus" className="p-button-success p-button-sm" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => newMatricula(rowData)} />
             </React.Fragment>
         );
     };
@@ -442,7 +442,6 @@ export default function Matricula() {
                         }
                     }}
                     visible={cursosMatriculados?.length > 0 && matriculaHabilitada}
-                    disabled={creditosMatriculados < 12}
                 />
             </div>
             <div className="col-12 md:col-9">
