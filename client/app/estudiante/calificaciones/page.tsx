@@ -110,7 +110,7 @@ export default function Page () {
                     <DataTable
                         ref={dt}
                         value={actas}
-                        dataKey="Codigo"
+                        dataKey="CodMat"
                         className="datatable-responsive"
                         emptyMessage={status != 'authenticated' ? 'Cargando...' : 'Sin datos'}
                     >
