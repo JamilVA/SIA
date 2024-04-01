@@ -49,6 +49,7 @@ export default function Page () {
     }
 
     const obtenerPDFHistorial = async () => {
+        setVisible(true)
         await axios.get('/pdf/historial-notas', {
             params: { codigoEstudiante: session?.user.codigoEstudiante },
             responseType: 'blob'
@@ -59,7 +60,7 @@ export default function Page () {
                 const url = URL.createObjectURL(blob);
                 // console.log(url);
                 setPdfHistorialURL(url);
-                setVisible(true)
+                
                 //URL.revokeObjectURL(url);
             })
             .catch(error => {
