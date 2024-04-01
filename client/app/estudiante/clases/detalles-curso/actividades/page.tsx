@@ -63,11 +63,11 @@ export default function ActividadesPage() {
                 }
             })
             .then((response) => {
-                console.log(response);
+                // console.log(response);
                 setActividades(response.data.actividades);
             })
             .catch((error) => {
-                console.error(error);
+                // console.error(error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -89,9 +89,9 @@ export default function ActividadesPage() {
                         Authorization: 'Bearer ' + session?.user.token
                     }
                 });
-                console.log('Recurso:', data);
+                // console.log('Recurso:', data);
             } catch (error) {
-                console.error(error);
+                // console.error(error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -120,21 +120,21 @@ export default function ActividadesPage() {
         setArchivo(e);
         setActividad(actividad);
 
-        console.log(e);
+        // console.log(e);
 
         setTotalSize(_totalSize);
     };
 
     const crearActividarEstudiante = async (actividad: typeof emptyActividad, callback: any) => {
-        console.log('ActividadRecibida', actividad);
+        // console.log('ActividadRecibida', actividad);
         let _fileName = '';
 
         try {
-            console.log('Archivo Recibido:', archivo);
+            // console.log('Archivo Recibido:', archivo);
             const file = archivo!.files[0];
             const formData = new FormData();
             formData.append('file', file);
-            console.log('Archivo Recibido:', file.name);
+            // console.log('Archivo Recibido:', file.name);
 
             await axios.post('/files/upload', formData).then((response) => {
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
@@ -164,7 +164,7 @@ export default function ActividadesPage() {
 
             fetchActividades();
         } catch (error) {
-            console.error('Error:', error);
+            // console.error('Error:', error);
         }
 
         callback();
@@ -181,7 +181,7 @@ export default function ActividadesPage() {
                 responseType: 'arraybuffer'
             })
             .then((response) => {
-                //console.log(response); 
+                //// console.log(response); 
                 const file = new File([response.data], ruta);        
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
@@ -235,7 +235,7 @@ export default function ActividadesPage() {
     }, []);
 
     const actividadTemplate = (actividad: any) => {
-        console.log(actividad?.ActividadEstudiantes);
+        // console.log(actividad?.ActividadEstudiantes);
         let actividadAbierta = false;
         let actividadSubida = false;
 

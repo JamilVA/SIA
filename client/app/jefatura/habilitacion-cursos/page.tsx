@@ -98,13 +98,13 @@ export default function CursoCalificacionPage() {
             .then(response => {
                 const cursos = response.data.cursos
                 let _cursos = cursos.filter((curso: any) => curso.CarreraProfesional.CodigoJefeDepartamento === session?.user.codigoJefe)
-                //console.log(response.data.cursos)
+                //// console.log(response.data.cursos)
                 //setCursos(_cursos)
                 setTempCursos(_cursos)
             })
             .catch(error => {
                 setCursos([])
-                console.log("Error de carga: ", error)
+                // console.log("Error de carga: ", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -124,7 +124,7 @@ export default function CursoCalificacionPage() {
                 setPeriodoVigente(response.data.periodo)
             })
             .catch(error => {
-                //console.log("Error de carga: ", error)
+                //// console.log("Error de carga: ", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -152,7 +152,7 @@ export default function CursoCalificacionPage() {
             .catch(error => {
                 setCursosCalificacion([])
                 setLoading(false)
-                console.log("Error de carga: ", error)
+                // console.log("Error de carga: ", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -170,12 +170,12 @@ export default function CursoCalificacionPage() {
         })
             .then(response => {
                 const _docentes = response.data.docentes
-                //console.log(_docentes)
+                //// console.log(_docentes)
                 setDocentes(_docentes)
             })
             .catch(error => {
                 setDocentes([])
-                console.log("Error de carga: ", error)
+                // console.log("Error de carga: ", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -198,7 +198,7 @@ export default function CursoCalificacionPage() {
             })
             .catch(error => {
                 setCarreras([])
-                console.log("Error de carga: ", error)
+                // console.log("Error de carga: ", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -296,7 +296,7 @@ export default function CursoCalificacionPage() {
                 });
             })
             .catch(error => {
-                console.log(error)
+                // console.log(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',
@@ -345,7 +345,7 @@ export default function CursoCalificacionPage() {
                 setSelectedCarrera(value)
                 fetchCursos()
                 let _cursos = tempCursos.filter(curso => curso.CodigoCarreraProfesional === value)
-                //console.log(_cursos)
+                //// console.log(_cursos)
                 setCursos(_cursos)
             case 'curso':
                 setCursoCalificacion({
@@ -419,7 +419,7 @@ export default function CursoCalificacionPage() {
                 });
             })
             .catch(error => {
-                console.error(error.data)
+                // console.error(error.data)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',
@@ -450,7 +450,7 @@ export default function CursoCalificacionPage() {
                 });
             })
             .catch(error => {
-                console.error(error.data)
+                // console.error(error.data)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',
@@ -528,7 +528,7 @@ export default function CursoCalificacionPage() {
                 });
             })
             .catch(error => {
-                console.error(error.data)
+                // console.error(error.data)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',
@@ -558,7 +558,7 @@ export default function CursoCalificacionPage() {
                 });
             })
             .catch(error => {
-                console.error(error.data)
+                // console.error(error.data)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',
@@ -593,7 +593,7 @@ export default function CursoCalificacionPage() {
                 });
             })
             .catch(error => {
-                console.error(error.response)
+                // console.error(error.response)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',
@@ -645,7 +645,7 @@ export default function CursoCalificacionPage() {
                 });
             })
             .catch(error => {
-                console.error(error.response)
+                // console.error(error.response)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',

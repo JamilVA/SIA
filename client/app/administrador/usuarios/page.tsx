@@ -86,14 +86,14 @@ export default function UsuariosPage() {
             }
         })
             .then(response => {
-                //console.log(response.data.usuarios)
+                //// console.log(response.data.usuarios)
                 setUsuarios(response.data.usuarios)
                 setLoading(false)
             })
             .catch(error => {
                 setLoading(false)
                 setUsuarios([])
-                //console.log("Error de carga: ", error)
+                //// console.log("Error de carga: ", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -110,7 +110,7 @@ export default function UsuariosPage() {
             }
         }).then(response => {
             setUsuariosGen(response.data.usuarios);
-            console.log(response.data.usuarios)
+            // console.log(response.data.usuarios)
         }).catch(error => {
             toast.current?.show({
                 severity: 'error',
@@ -128,12 +128,12 @@ export default function UsuariosPage() {
             }
         })
             .then(response => {
-                //console.log(response.data.usuarios)
+                //// console.log(response.data.usuarios)
                 setNivelesUsuario(response.data.niveles)
             })
             .catch(error => {
                 setNivelesUsuario([])
-                //console.log("Error de carga: ", error)
+                //// console.log("Error de carga: ", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -186,7 +186,7 @@ export default function UsuariosPage() {
                 });
             })
             .catch(error => {
-                console.log("Ha ocurrido un error", error)
+                // console.log("Ha ocurrido un error", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -224,7 +224,7 @@ export default function UsuariosPage() {
                 fetchUsuarios();
             })
             .catch(error => {
-                console.log("Ha ocurrido un error", error)
+                // console.log("Ha ocurrido un error", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -314,7 +314,7 @@ export default function UsuariosPage() {
         })
             .then(response => {
                 let _periodos = usuarios.filter(p => p.Persona.Codigo !== usuario.Persona.Codigo)
-                console.log(_periodos)
+                // console.log(_periodos)
                 setUsuarios(_periodos)
                 toast.current?.show({
                     severity: 'success',
@@ -324,7 +324,7 @@ export default function UsuariosPage() {
                 });
             })
             .catch(error => {
-                console.log(error)
+                // console.log(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operación fallida',
@@ -369,7 +369,7 @@ export default function UsuariosPage() {
                 });
             })
             .catch(error => {
-                console.log(error)
+                // console.log(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operación fallida',
@@ -402,7 +402,7 @@ export default function UsuariosPage() {
         }
 
         setUsuario(_usuario);
-        //console.log(_usuario)
+        //// console.log(_usuario)
     };
 
     const onInputPassChange = (val: string, name: string) => {

@@ -108,7 +108,7 @@ export default function Matricula() {
                 }
             })
             .catch((error) => {
-                console.log(error)
+                // console.log(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operación fallida',
@@ -132,7 +132,7 @@ export default function Matricula() {
             setCursosMatriculados(cursosMatriculados);
             setCreditosMatriculados(creditosMatriculados);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -156,7 +156,7 @@ export default function Matricula() {
             setCursosLlevar(cursosLlevar);
             setTotalCreditos(totalCreditos);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -176,7 +176,7 @@ export default function Matricula() {
             const { periodo } = data;
             setPeriodoActual(periodo);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -212,7 +212,7 @@ export default function Matricula() {
                 toast.current!.show({ severity: 'warn', summary: 'Advertencia', detail: 'No puedes superar el total de creditos por ciclo', life: 5000 });
             }
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -242,7 +242,7 @@ export default function Matricula() {
             setDeleteMatriculaDialog(false);
             setCursoCalificaion(cursoCVacio)
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',

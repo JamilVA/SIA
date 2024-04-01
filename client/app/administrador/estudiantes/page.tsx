@@ -117,7 +117,7 @@ export default function Page() {
                     Authorization: 'Bearer ' + session?.user.token
                 }
             });
-            console.log(result);
+            // console.log(result);
             subirFoto(result.data.estudiante.CodigoPersona);
             fetchData();
             setEstudianteDialog(false);
@@ -182,19 +182,19 @@ export default function Page() {
             formData.append('file', file)
             await axios.post('/files/upload', formData)
                 .then(response => {
-                    console.log(response.data.path)
+                    // console.log(response.data.path)
                     estudiante.RutaFoto = response.data.filename;
                     modificarRuta(codigo, response.data.filename);
                     setArchivo(null);
                 })
                 .catch(error => {
-                    console.error(error)
+                    // console.error(error)
                 })
         }
     }
 
     const modificarRuta = async (codigo: number, ruta: string) => {
-        console.log('Docente Recibido:', codigo);
+        // console.log('Docente Recibido:', codigo);
         try {
             axios
                 .put('/docente/actualizar-foto', {
@@ -208,13 +208,13 @@ export default function Page() {
                     fetchData();
                 })
         } catch (error) {
-            console.error(error);
+            // console.error(error);
         }
     };
 
     const handleUpload = (event: FileUploadFilesEvent) => {
         setArchivo(event);
-        //console.log(event.files)
+        //// console.log(event.files)
     };
 
     const crearSunedu = (n: number | undefined) => {
@@ -271,7 +271,7 @@ export default function Page() {
 
             setImagenURL(url);
         } catch (error) {
-            console.error('Error al obtener el archivo:', error);
+            // console.error('Error al obtener el archivo:', error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -309,7 +309,7 @@ export default function Page() {
         let tempEstudiante = setTempEstudent(estudiante);
         setEstudiante(tempEstudiante);
         setEstudianteDialog(true);
-        console.log(estudiante);
+        // console.log(estudiante);
         if (tempEstudiante.RutaFoto) {
             obtenerArchivo(estudiante.Persona.RutaFoto);
         }
@@ -391,7 +391,7 @@ export default function Page() {
         const val = (e.target && e.target.value) || '';
         let carrera = val;
         setCarrera(carrera);
-        console.log('Carrera', carrera);
+        // console.log('Carrera', carrera);
     };
 
     const hideExportDialog = () => {

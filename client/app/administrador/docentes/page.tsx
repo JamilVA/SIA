@@ -85,9 +85,9 @@ export default function DocentesDemo() {
 
             // Establecer los docentes en el estado
             setDocentes(docentesConNombreCompleto);
-            console.log(result.data);
+            // console.log(result.data);
         } catch (e) {
-            console.log(e);
+            // console.log(e);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Operacion fallida',
@@ -144,8 +144,8 @@ export default function DocentesDemo() {
                             }
                         })
                         .then((response) => {
-                            console.log(response.data);
-                            console.log(cambioImagen)
+                            // console.log(response.data);
+                            // console.log(cambioImagen)
                             if (archivo?.files) {
                                 subirArchivo(_docente.codigoPersona);
                             }
@@ -179,7 +179,7 @@ export default function DocentesDemo() {
                         }
                     })
                     .then((response) => {
-                        console.log(response);
+                        // console.log(response);
                         if (archivo?.files) {
                             subirArchivo(_docente.codigoPersona);
                         }
@@ -265,7 +265,7 @@ export default function DocentesDemo() {
             obtenerArchivo(docente.Persona.RutaFoto)
         }
         setDocente(tempDocente);
-        console.log('D', tempDocente);
+        // console.log('D', tempDocente);
         setDocenteDialog(true);
     };
 
@@ -287,7 +287,7 @@ export default function DocentesDemo() {
                     }
                 })
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 fetchData();
                 setDeleteDocenteDialog(false);
                 setDocente(emptyDocente);
@@ -296,7 +296,7 @@ export default function DocentesDemo() {
     };
 
     const modificarRuta = async (codigo: string, ruta: string) => {
-        console.log('Docente Recibido:', codigo);
+        // console.log('Docente Recibido:', codigo);
         try {
             axios
                 .put('/docente/actualizar-foto', {
@@ -308,13 +308,13 @@ export default function DocentesDemo() {
                     }
                 })
                 .then((response) => {
-                    console.log('Ruta Actualizada', response);
+                    // console.log('Ruta Actualizada', response);
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Docente actualizado con éxito', life: 3000 });
                     fetchData();
                 });
             setDocente(emptyDocente);
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -325,16 +325,16 @@ export default function DocentesDemo() {
     };
 
     const subirArchivo = async (codigo: string) => {
-        console.log('Docente recibido para ruta', docente)
+        // console.log('Docente recibido para ruta', docente)
         try {
-            console.log('Archivo Recibido:', archivo);
+            // console.log('Archivo Recibido:', archivo);
             const file = archivo!.files[0];
             const formData = new FormData();
             formData.append('file', file);
-            console.log('Archivo Recibido:', file.name);
+            // console.log('Archivo Recibido:', file.name);
 
             await axios.post('/files/upload', formData).then((response) => {
-                console.log(response.data.path);
+                // console.log(response.data.path);
                 let _docente = { ...docente, rutaFoto: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
                 modificarRuta(codigo, response.data.filename);
@@ -342,7 +342,7 @@ export default function DocentesDemo() {
                 setCambioImagen(false);
             });
         } catch (error) {
-            console.error('Error en la carga del archivo:', error);
+            // console.error('Error en la carga del archivo:', error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -460,7 +460,7 @@ export default function DocentesDemo() {
 
             setImagenURL(url);
         } catch (error) {
-            console.error('Error al obtener el archivo:', error);
+            // console.error('Error al obtener el archivo:', error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',

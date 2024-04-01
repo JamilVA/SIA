@@ -54,11 +54,11 @@ export default function CalificarActividadesPage() {
         })
             .then(response => {
                 const actividades = response.data.actividades
-                //console.log(actividades)
+                //// console.log(actividades)
                 setActividades(actividades)
             })
             .catch(error => {
-                console.error(error.message)
+                // console.error(error.message)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -102,7 +102,7 @@ export default function CalificarActividadesPage() {
                 setActividades(_actividades)
             })
             .catch(error => {
-                console.error(error)
+                // console.error(error)
                 toast.current?.show({ severity: 'error', summary: 'Error', detail: error.message });
             })
         setActividad(emptyActividad)
@@ -114,7 +114,7 @@ export default function CalificarActividadesPage() {
             responseType: 'arraybuffer'
         })
             .then(response => {
-                //console.log(response); 
+                //// console.log(response); 
                 const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
@@ -124,7 +124,7 @@ export default function CalificarActividadesPage() {
                 URL.revokeObjectURL(url);
             })
             .catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',

@@ -40,9 +40,9 @@ export default function ActividadesPage() {
             });
             setRecursos(response.data.recursosAcademicos);
             setSesion(response.data.sesion);
-            console.log(response.data)
+            // console.log(response.data)
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -63,7 +63,7 @@ export default function ActividadesPage() {
             responseType: 'arraybuffer' 
         })
             .then(response => {
-                //console.log(response); 
+                //// console.log(response); 
                 const file = new File([response.data], ruta);        
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
@@ -73,7 +73,7 @@ export default function ActividadesPage() {
                 URL.revokeObjectURL(url);
             })
             .catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',

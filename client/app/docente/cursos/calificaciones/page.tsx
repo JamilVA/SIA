@@ -95,12 +95,12 @@ export default function Page() {
         }).then(response => {
             setCurso(response.data.curso);
             setRegistroMatricula(response.data.registroMatricula);
-            console.log(response.data);
+            // console.log(response.data);
             // setCursos(response.data.cursos)
             _estudDirigido = response.data.registroMatricula.filter((x: any) => x.NotaFinal < 11 || x.NotaDirigido);
             setEstudiantesDirigido(_estudDirigido);
         }).catch(error => {
-            console.log("Error en carga de datos: ", error);
+            // console.log("Error en carga de datos: ", error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -120,10 +120,10 @@ export default function Page() {
             }
         }).then(response => {
             setActas(response.data.actas);
-            console.log(response.data);
+            // console.log(response.data);
 
         }).catch(error => {
-            console.log("Error en carga de datos: ", error);
+            // console.log("Error en carga de datos: ", error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -140,7 +140,7 @@ export default function Page() {
             }
         })
         fetchData();
-        console.log(result);
+        // console.log(result);
     }
 
     const apiSaveObs = async (data: any) => {
@@ -149,7 +149,7 @@ export default function Page() {
                 Authorization: 'Bearer ' + session?.user.token
             }
         })
-        console.log(result);
+        // console.log(result);
     }
 
     const apiSaveActa = async (data: object) => {
@@ -159,7 +159,7 @@ export default function Page() {
             }
         })
         await fetchActas()
-        console.log(result);
+        // console.log(result);
     }
 
     const onUpdateNotas = (data: Sia.RegistroMatricula, nota: string) => {
@@ -167,7 +167,7 @@ export default function Page() {
         let notaMax = nota == 'NotaAplazado' ? 13 : 20;
         const _n = (document.getElementById(String(data.CodigoEstudiante) + nota) as HTMLInputElement)?.value;
         //if (nota != 'NotaRecuperacion' && nota != 'NotaAplazado' && (Number(_n) <= notaMax)) arrayNotas.push(Number(data[nota]));
-        //console.log(arrayNotas);
+        //// console.log(arrayNotas);
 
         if (data[nota] == null && _n != '' && (Number(_n) >= 0) && (Number(_n) <= notaMax)) {
             notasEstudiante[nota] = Number(_n);
@@ -179,18 +179,18 @@ export default function Page() {
                 arrayNotas.push(Number(_n));
                 arrayNotas.sort((a, b) => b - a).pop();
                 let total = arrayNotas.reduce((a, b) => a + b, 0);
-                console.log(arrayNotas);
-                console.log(total);
+                // console.log(arrayNotas);
+                // console.log(total);
                 notasEstudiante['NotaFinal'] = Math.round(total / 4);
             } else if (nota == 'NotaAplazado') {
                 if (Number(_n) > data.NotaFinal!) {
-                    console.log('Nfinal: ' + data.NotaFinal)
+                    // console.log('Nfinal: ' + data.NotaFinal)
                     notasEstudiante.NotaFinal = Number(_n);
                 } else {
                     notasEstudiante.NotaFinal = data.NotaFinal;
                 }
             } else {
-                console.log('llega')
+                // console.log('llega')
                 notasEstudiante.NotaFinal = Math.round((Number(notasEstudiante.Nota1) + Number(notasEstudiante.Nota2) + Number(notasEstudiante.Nota3) + Number(notasEstudiante.Nota4)) / 4);
             }
         } else if (data[nota] != undefined) {
@@ -214,13 +214,13 @@ export default function Page() {
 
         if (onUpdateNotas(data, 'Nota1') && onUpdateNotas(data, 'Nota2') && onUpdateNotas(data, 'Nota3') && onUpdateNotas(data, 'Nota4')
             && onUpdateNotas(data, 'NotaRecuperacion') && onUpdateNotas(data, 'NotaAplazado')) {
-            console.log('success')
+            // console.log('success')
 
             if (notasEstudiante.NotaFinal != null) {
-                console.log(notasEstudiante.NotaFinal);
+                // console.log(notasEstudiante.NotaFinal);
                 apiSaveNotes()
                 setNotasEstudiante(emptyRegistroMatricula);
-                console.log(data)
+                // console.log(data)
             }
         }
     }
@@ -254,7 +254,7 @@ export default function Page() {
 
     const saveNotesDirigido = (data: Sia.RegistroMatricula, nota: string) => {
         if (onUpdateNotesDirigido(data, nota)) {
-            console.log('success')
+            // console.log('success')
             notasEstudiante['CodigoCursoCalificacion'] = data.CodigoCursoCalificacion;
             notasEstudiante['CodigoEstudiante'] = data.CodigoEstudiante;
             setNoteDefault(data, 'Nota1');
@@ -271,7 +271,7 @@ export default function Page() {
             }
             apiSaveNotes()
             setNotasEstudiante(emptyRegistroMatricula);
-            console.log(data)
+            // console.log(data)
         }
     }
 
@@ -395,7 +395,7 @@ export default function Page() {
             responseType: 'blob'
         })
             .then(response => {
-                console.log(response);
+                // console.log(response);
                 const blob = new Blob([response.data], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
 
@@ -404,7 +404,7 @@ export default function Page() {
                 //URL.revokeObjectURL(url);
             })
             .catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',

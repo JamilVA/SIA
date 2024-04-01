@@ -116,9 +116,9 @@ export default function JefeDepartamentosDemo() {
             }));
 
             setJefeDepartamentos(jefeDepartamentosConNombreCompleto);
-            console.log(jefeDepartamentosConNombreCompleto);
+            // console.log(jefeDepartamentosConNombreCompleto);
         } catch (e) {
-            console.log(e);
+            // console.log(e);
         }
     };
 
@@ -136,9 +136,9 @@ export default function JefeDepartamentosDemo() {
             }));
 
             setDocentes(docentesConNombreCompleto);
-            console.log(result.data);
+            // console.log(result.data);
         } catch (e) {
-            console.log(e);
+            // console.log(e);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Operacion fallida',
@@ -182,7 +182,7 @@ export default function JefeDepartamentosDemo() {
         setDocenteJefe(emptyDocente)
         setAsignacionDialog(false);
         setGlobalFilter('');
-        console.log('Global filter reset');
+        // console.log('Global filter reset');
     };
 
     const saveJefeDepartamento = () => {
@@ -196,11 +196,11 @@ export default function JefeDepartamentosDemo() {
             if (jefeDepartamento.Departamento == 'Profesionales Pedagógicos') {
                 codigosCarreras[0] = 1;
                 codigosCarreras[1] = 2;
-                console.log(codigosCarreras);
+                // console.log(codigosCarreras);
             } else if (jefeDepartamento.Departamento == 'Artistas Profesionales') {
                 codigosCarreras[0] = 3;
                 codigosCarreras[1] = 4;
-                console.log(codigosCarreras);
+                // console.log(codigosCarreras);
             }
             if (!jefeDepartamento.Codigo) {
                 if (validarDNI(jefeDepartamento.DNI.trim()) && validarEmail(jefeDepartamento.Email.trim()) && validarDepartamento(jefeDepartamento.Departamento.trim())) {
@@ -232,11 +232,11 @@ export default function JefeDepartamentosDemo() {
                                         }
                                     })
                                     .then((response) => {
-                                        console.log(response);
+                                        // console.log(response);
                                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Carrera Profesional asignada con éxito', life: 3000 });
                                     });
                             }
-                            console.log(response.data);
+                            // console.log(response.data);
                             toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Jefe de Departamento creado con éxito', life: 3000 });
                             fetchData();
                         });
@@ -270,7 +270,7 @@ export default function JefeDepartamentosDemo() {
                         }
                     })
                     .then((response) => {
-                        console.log(response);
+                        // console.log(response);
                         for (let i = 0; i < codigosCarreras.length; i++) {
                             axios
                                 .put('/jefeDepartamento/carrera', {
@@ -282,7 +282,7 @@ export default function JefeDepartamentosDemo() {
                                     }
                                 })
                                 .then((response) => {
-                                    console.log(response);
+                                    // console.log(response);
                                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Carrera Profesional actualizada con éxito', life: 3000 });
                                 });
                         }
@@ -304,7 +304,7 @@ export default function JefeDepartamentosDemo() {
             return doc.Departamento === Departamento;
         });
 
-        console.log('Departamento:', departamentoExists);
+        // console.log('Departamento:', departamentoExists);
 
         if (departamentoExists) {
             setAdvertencia({ activo: true, mensaje: 'Este departamento ya tiene un Jefe asignado,<br/>por favor deshabilítelo primero antes de asignar uno nuevo' });
@@ -320,7 +320,7 @@ export default function JefeDepartamentosDemo() {
             return doc.Persona.Usuario.Email === Email;
         });
 
-        console.log('Email:', emailExists);
+        // console.log('Email:', emailExists);
 
         if (emailExists) {
             setAdvertencia({ activo: true, mensaje: 'Este correo ya está registrado. Por favor, ingresa otro.' });
@@ -349,11 +349,11 @@ export default function JefeDepartamentosDemo() {
             return doc.Persona.DNI === DNI;
         });
 
-        console.log('dniExists:', dniExists);
+        // console.log('dniExists:', dniExists);
 
         if (dniExists) {
             setAdvertencia({ activo: true, mensaje: 'Este DNI ya está registrado. Por favor, ingresa otro.' });
-            console.log('El DNI ya existe');
+            // console.log('El DNI ya existe');
             return false;
         }
 
@@ -389,7 +389,7 @@ export default function JefeDepartamentosDemo() {
         };
 
         setJefeDepartamento(tempJefeDepartamento);
-        console.log(jefeDepartamento);
+        // console.log(jefeDepartamento);
         setJefeDepartamentoDialog(true);
     };
 
@@ -399,18 +399,18 @@ export default function JefeDepartamentosDemo() {
     };
 
     const deleteJefeDepartamento = (rowData: any) => {
-        console.log(rowData.Codigo);
+        // console.log(rowData.Codigo);
 
         const codigosCarreras = [0, 0];
 
         if (rowData.Departamento == 'Profesionales Pedagógicos') {
             codigosCarreras[0] = 1;
             codigosCarreras[1] = 2;
-            console.log(codigosCarreras);
+            // console.log(codigosCarreras);
         } else if (rowData.Departamento == 'Artistas Profesionales') {
             codigosCarreras[0] = 3;
             codigosCarreras[1] = 4;
-            console.log(codigosCarreras);
+            // console.log(codigosCarreras);
         }
 
         const _estado = rowData.Estado ? false : true;
@@ -437,7 +437,7 @@ export default function JefeDepartamentosDemo() {
                             }
                         })
                         .then((response) => {
-                            console.log(response);
+                            // console.log(response);
                             toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Carrera Profesional desasignada con éxito', life: 3000 });
                         });
                 }
@@ -449,8 +449,8 @@ export default function JefeDepartamentosDemo() {
     };
 
     const asignarDocente = () => {
-        console.log('Docente a asignar', docenteJefe);
-        console.log('Departamento a asignar', departamento);
+        // console.log('Docente a asignar', docenteJefe);
+        // console.log('Departamento a asignar', departamento);
 
         if (docenteJefe.Codigo && departamento != '') {
             if (validarDepartamento(departamento)) {
@@ -459,11 +459,11 @@ export default function JefeDepartamentosDemo() {
                 if (departamento == 'Profesionales Pedagógicos') {
                     codigosCarreras[0] = 1;
                     codigosCarreras[1] = 2;
-                    console.log(codigosCarreras);
+                    // console.log(codigosCarreras);
                 } else if (departamento == 'Artistas Profesionales') {
                     codigosCarreras[0] = 3;
                     codigosCarreras[1] = 4;
-                    console.log(codigosCarreras);
+                    // console.log(codigosCarreras);
                 }
 
                 axios
@@ -487,7 +487,7 @@ export default function JefeDepartamentosDemo() {
                                     }
                                 })
                                 .then((response) => {
-                                    console.log(response);
+                                    // console.log(response);
                                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Carrera Profesional actualizada con éxito', life: 3000 });
                                 });
                         }
@@ -513,37 +513,37 @@ export default function JefeDepartamentosDemo() {
 
         _jefeDepartamento['Sexo'] = e.value;
         setJefeDepartamento(_jefeDepartamento);
-        console.log(jefeDepartamento);
+        // console.log(jefeDepartamento);
     };
 
     const onFileSelect = (e: any) => {
         // Aquí se puede manejar el archivo seleccionado
-        console.log(e.files);
+        // console.log(e.files);
     };
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, name: keyof typeof emptyJefeDepartamento) => {
         const val = (e.target && e.target.value) || '';
         let _jefeDepartamento = { ...jefeDepartamento };
 
-        console.log(name);
+        // console.log(name);
 
         if (name == 'Email') {
             _jefeDepartamento[`${name}`] = val;
             setCambioEmail(true);
-            console.log('Email Cambio: ' + cambioEmail);
-            console.log(cambioEmail);
+            // console.log('Email Cambio: ' + cambioEmail);
+            // console.log(cambioEmail);
         } else {
             _jefeDepartamento[`${name}`] = val.toUpperCase();
         }
 
         if (name == 'DNI') {
             setCambioDNI(true);
-            console.log('DNI Cambio: ' + cambioDNI);
-            console.log(cambioDNI);
+            // console.log('DNI Cambio: ' + cambioDNI);
+            // console.log(cambioDNI);
         }
 
         setJefeDepartamento(_jefeDepartamento);
-        console.log(jefeDepartamento);
+        // console.log(jefeDepartamento);
     };
 
     const onDropdownChange = (e: any, name: keyof typeof emptyJefeDepartamento) => {
@@ -557,7 +557,7 @@ export default function JefeDepartamentosDemo() {
             setCambioDepartamento(true);
 
             setJefeDepartamento(_jefeDepartamento);
-            console.log(jefeDepartamento);
+            // console.log(jefeDepartamento);
         } else return;
     };
 
@@ -566,7 +566,7 @@ export default function JefeDepartamentosDemo() {
 
         if (val != 'Seleccione') {
             setDepartamento(val);
-            console.log(departamento);
+            // console.log(departamento);
         } else return;
     };
 
@@ -575,7 +575,7 @@ export default function JefeDepartamentosDemo() {
         let _jefeDepartamento = { ...jefeDepartamento };
         _jefeDepartamento['FechaNacimiento'] = selectedDate;
         setJefeDepartamento(_jefeDepartamento);
-        console.log(jefeDepartamento);
+        // console.log(jefeDepartamento);
     };
 
     const leftToolbarTemplate = () => {
@@ -639,7 +639,7 @@ export default function JefeDepartamentosDemo() {
                     severity={rowData.Codigo === docenteJefe.Codigo ? 'success' : 'warning'}
                     onClick={() => {
                         setDocenteJefe(rowData);
-                        console.log(rowData);
+                        // console.log(rowData);
                     }}
                 />
             </React.Fragment>

@@ -48,14 +48,14 @@ export default function PeriodoPage() {
             }
         })
             .then(response => {
-                //console.log(response.data.periodos)
+                //// console.log(response.data.periodos)
                 setPeriodos(response.data.periodos)
                 setLoading(false)
             })
             .catch(error => {
                 setLoading(false)
                 setPeriodos([])
-                //console.log("Error de carga: ", error)
+                //// console.log("Error de carga: ", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -117,7 +117,7 @@ export default function PeriodoPage() {
             }
         })
             .then(response => {
-                //console.log(response.data)
+                //// console.log(response.data)
                 const _periodo = response.data.periodo
 
                 periodos.push(_periodo)
@@ -131,7 +131,7 @@ export default function PeriodoPage() {
                 });
             })
             .catch(error => {
-                console.log("Ha ocurrido un error", error)
+                // console.log("Ha ocurrido un error", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -168,7 +168,7 @@ export default function PeriodoPage() {
                 });
             })
             .catch(error => {
-                console.log("Ha ocurrido un error", error)
+                // console.log("Ha ocurrido un error", error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -227,7 +227,7 @@ export default function PeriodoPage() {
         })
             .then(response => {
                 let _periodos = periodos.filter(p => p.Codigo !== periodo.Codigo)
-                console.log(_periodos)
+                // console.log(_periodos)
                 setPeriodos(_periodos)
                 toast.current?.show({
                     severity: 'success',
@@ -237,7 +237,7 @@ export default function PeriodoPage() {
                 });
             })
             .catch(error => {
-                console.log(error)
+                // console.log(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operación fallida',
@@ -282,7 +282,7 @@ export default function PeriodoPage() {
                 });
             })
             .catch(error => {
-                console.log(error)
+                // console.log(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operación fallida',
@@ -302,11 +302,11 @@ export default function PeriodoPage() {
         let _periodo = { ...periodo };
         _periodo.Denominacion = val.toUpperCase();
         setPeriodo(_periodo);
-        console.log(_periodo)
+        // console.log(_periodo)
     };
 
     const onCalendarChange = (value: any, fechaName: string) => {
-        //console.log(selectedDate)
+        //// console.log(selectedDate)
         let _periodo = { ...periodo };
         switch (fechaName) {
             case 'inicio':

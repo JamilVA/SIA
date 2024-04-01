@@ -16,14 +16,14 @@ export async function POST(req: NextRequest) {
             react: EmailTemplate({ firstName: 'Jhan' }),
             text: '',
         });
-        console.log(data)
+        // console.log(data)
 
         return NextResponse.json(
             { message: 'Email sent' },
             { status: 200 }
         );
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return NextResponse.json(
             { message: 'Error' },
         );

@@ -84,7 +84,7 @@ export default function Page() {
                 }
             });
             setEstudiante(result.data.estudiante);
-            console.log(result.data.estudiante)
+            // console.log(result.data.estudiante)
         } catch (e) {
             toast.current?.show({
                 severity: 'error',

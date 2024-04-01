@@ -53,7 +53,7 @@ export default function ActividadesPage() {
                 setActividades(response.data.actividades)
             })
             .catch(error => {
-                console.error(error)
+                // console.error(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -117,7 +117,7 @@ export default function ActividadesPage() {
                 fetchActividades()
             })
             .catch(error => {
-                console.error(error)
+                // console.error(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -149,7 +149,7 @@ export default function ActividadesPage() {
                 });
             })
             .catch(error => {
-                console.error(error)
+                // console.error(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -205,14 +205,14 @@ export default function ActividadesPage() {
         formData.append('file', file)
         await axios.post('/files/upload', formData)
             .then(response => {
-                console.log(response.data.path)
+                // console.log(response.data.path)
                 let _actividad = { ...rowData, RutaRecursoGuia: response.data.filename }
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
                 modificarActividad(_actividad)
                 setActividad(emptyActividad)
             })
             .catch(error => {
-                console.error(error)
+                // console.error(error)
                 toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Error de petición' });
             })
 
@@ -224,7 +224,7 @@ export default function ActividadesPage() {
             responseType: 'arraybuffer'
         })
             .then(response => {
-                //console.log(response); 
+                //// console.log(response); 
                 const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
@@ -234,7 +234,7 @@ export default function ActividadesPage() {
                 URL.revokeObjectURL(url);
             })
             .catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',

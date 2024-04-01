@@ -51,7 +51,7 @@ export default function ActividadesPage() {
             setRecursos(response.data.recursosAcademicos);
             setSesion(response.data.sesion);
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -116,7 +116,7 @@ export default function ActividadesPage() {
             });
             fetchActividades();
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -139,7 +139,7 @@ export default function ActividadesPage() {
             });
             fetchActividades();
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -193,11 +193,11 @@ export default function ActividadesPage() {
             const tipoArchivo = file.name.split('.')[1];
             const formData = new FormData();
             formData.append('file', file);
-            console.log('Archivo Recibido:', file.name);
-            console.log('Tipo de Archivo:', file.name.split('.')[1]);
+            // console.log('Archivo Recibido:', file.name);
+            // console.log('Tipo de Archivo:', file.name.split('.')[1]);
 
             await axios.post('/files/upload', formData).then((response) => {
-                console.log(response.data.path);
+                // console.log(response.data.path);
                 let _recurso = { ...recurso, Ruta: response.data.filename, Tipo: tipoArchivo };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
                 modificarRecurso(_recurso);
@@ -205,7 +205,7 @@ export default function ActividadesPage() {
                 setArchivo(null);
             });
         } catch (error) {
-            console.error('Error en la carga del archivo:', error);
+            // console.error('Error en la carga del archivo:', error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -221,7 +221,7 @@ export default function ActividadesPage() {
             responseType: 'arraybuffer'
         })
             .then(response => {
-                //console.log(response); 
+                //// console.log(response); 
                 const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
@@ -231,7 +231,7 @@ export default function ActividadesPage() {
                 URL.revokeObjectURL(url);
             })
             .catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',

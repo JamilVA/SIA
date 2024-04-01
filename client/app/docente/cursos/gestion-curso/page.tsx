@@ -134,7 +134,7 @@ export default function Curso() {
             const { curso, unidades, semanas, sesiones } = data;
             const fechaInicio = new Date(curso.Periodo.FechaInicio);
 
-            console.log(data);
+            // console.log(data);
 
             setFechaInicioClases(fechaInicio); // 4 de marzo de 2024 (meses en JavaScript son 0-indexados)
             setCursoCalificaion(curso);
@@ -149,7 +149,7 @@ export default function Curso() {
                 setImagenURL('/images/banner.jpg');
             }
         } catch (e) {
-            console.error(e);
+            // console.error(e);
         }
     };
 
@@ -171,7 +171,7 @@ export default function Curso() {
                     }
                 })
                 .then((response) => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion modificada con éxito', life: 3000 });
                     cargarDatos();
                 });
@@ -218,7 +218,7 @@ export default function Curso() {
             setImagenURL(url);
         } catch (error) {
             setImagenURL('/images/banner.jpg');
-            console.error('Error al obtener el archivo:', error);
+            // console.error('Error al obtener el archivo:', error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -243,7 +243,7 @@ export default function Curso() {
                     }
                 })
                 .then((response) => {
-                    console.log(response);
+                    // console.log(response);
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso actualizado con éxito', life: 3000 });
                     cargarDatos();
                 });
@@ -263,7 +263,7 @@ export default function Curso() {
                 subirArchivo('RutaPresentacionDocente');
             }
         } catch (error) {
-            console.error('Error al editar información del curso:', error);
+            // console.error('Error al editar información del curso:', error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -275,8 +275,8 @@ export default function Curso() {
 
     const openNew = (rowData: any) => {
         if (horarios.length > 1) {
-            console.log('Rowdada', rowData);
-            console.log('Horarios', horarios);
+            // console.log('Rowdada', rowData);
+            // console.log('Horarios', horarios);
 
             const cantidadSesionesSemana = sesiones.filter((s) => s.CodigoSemanaAcademica == rowData.Codigo).length;
             if (cantidadSesionesSemana == 2) {
@@ -290,8 +290,8 @@ export default function Curso() {
                 _sesion[`HoraInicio`] = horarios[cantidadSesionesSemana].HoraInicio;
                 _sesion[`HoraFin`] = horarios[cantidadSesionesSemana].HoraFin;
                 setSesion(_sesion);
-                console.log('Sesion:', _sesion);
-                console.log('Rowdata:', rowData);
+                // console.log('Sesion:', _sesion);
+                // console.log('Rowdata:', rowData);
                 setSemana(rowData);
                 setSesionDialog(true);
             }
@@ -359,7 +359,7 @@ export default function Curso() {
             year: 'numeric'
         });
 
-        console.log(`Fecha para ${dia} de la semana ${numeroSemana}: ${formatoFecha}`);
+        // console.log(`Fecha para ${dia} de la semana ${numeroSemana}: ${formatoFecha}`);
         return fechaFinal;
     };
 
@@ -369,7 +369,7 @@ export default function Curso() {
             responseType: 'arraybuffer'
         })
             .then(response => {
-                //console.log(response); 
+                //// console.log(response); 
                 const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
@@ -379,7 +379,7 @@ export default function Curso() {
                 URL.revokeObjectURL(url);
             })
             .catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',
@@ -430,10 +430,10 @@ export default function Curso() {
             const file = imagen!.files[0];
             const formData = new FormData();
             formData.append('file', file);
-            console.log('Archivo Recibido:', file.name);
+            // console.log('Archivo Recibido:', file.name);
 
             await axios.post('/files/upload', formData).then((response) => {
-                console.log(response.data.path);
+                // console.log(response.data.path);
                 let _curso = { ...cursoCalificacion, RutaImagenPortada: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
                 axios
@@ -446,7 +446,7 @@ export default function Curso() {
                         }
                     })
                     .then((response) => {
-                        console.log(response);
+                        // console.log(response);
                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Imagen actualizada con éxito', life: 3000 });
                         cargarDatos();
                     });
@@ -454,7 +454,7 @@ export default function Curso() {
                 hideImagenDialog();
             });
         } catch (error) {
-            console.error('Error en la carga del archivo:', error);
+            // console.error('Error en la carga del archivo:', error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -465,7 +465,7 @@ export default function Curso() {
     };
 
     const subirArchivo = async (key: keyof typeof cursoCVacio) => {
-        console.log('Subir ', key);
+        // console.log('Subir ', key);
 
         let file: File | undefined; // Declara file fuera del bloque try
 
@@ -494,10 +494,10 @@ export default function Curso() {
 
             const formData = new FormData();
             formData.append('file', file);
-            console.log('Archivo Recibido:', file.name);
+            // console.log('Archivo Recibido:', file.name);
 
             await axios.post('/files/upload', formData).then((response) => {
-                console.log(response.data.path);
+                // console.log(response.data.path);
                 let _curso = { ...cursoCalificacion, [key]: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'ArchivoSubido' });
                 axios
@@ -509,7 +509,7 @@ export default function Curso() {
                         rutaPresentacionDocente: _curso.RutaPresentacionDocente
                     })
                     .then((response) => {
-                        console.log(response);
+                        // console.log(response);
                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Imagen actualizada con éxito', life: 3000 });
                         cargarDatos();
                     });
@@ -532,7 +532,7 @@ export default function Curso() {
                 }
             });
         } catch (error) {
-            console.error('Error en la carga del archivo:', error);
+            // console.error('Error en la carga del archivo:', error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -543,7 +543,7 @@ export default function Curso() {
     };
 
     const handleUpload = (event: FileUploadFilesEvent, key: keyof typeof cursoCVacio) => {
-        console.log(event);
+        // console.log(event);
         switch (key) {
             case 'RutaImagenPortada':
                 setImagen(event);

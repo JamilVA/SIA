@@ -97,9 +97,9 @@ export default function Curso() {
             setUnidades(unidades);
             setSemanas(semanas);
             setSesiones(sesiones);
-            console.log(data);
+            // console.log(data);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             toast.current!.show({ severity: 'error', summary: 'Error', detail: 'Ha ocurrido un error al cargar los datos', life: 3000 });
         }
     };
@@ -122,7 +122,7 @@ export default function Curso() {
                     }
                 })
                 .then((response) => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion modificada con éxito', life: 3000 });
                     cargarDatos();
                 });
@@ -199,7 +199,7 @@ export default function Curso() {
                 cargarDatos();
             })
             .catch((error) => {
-                console.error(error.data);
+                // console.error(error.data);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',
@@ -232,7 +232,7 @@ export default function Curso() {
                 cargarDatos();
             })
             .catch((error) => {
-                console.error(error.data);
+                // console.error(error.data);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',
@@ -258,7 +258,7 @@ export default function Curso() {
         _sesion.Fecha = selectedDate;
 
         setSesion(_sesion);
-        console.log(_sesion);
+        // console.log(_sesion);
     };
 
     const sesionDialogFooter = (

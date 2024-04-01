@@ -260,16 +260,16 @@ export default function AdminCursosPage () {
                     }
                 })
                 .then((response) => {
-                    console.log(response);
+                    // console.log(response);
                     const blob = new Blob([response.data], { type: 'application/pdf' });
                     const url = URL.createObjectURL(blob);
-                    console.log(url);
+                    // console.log(url);
                     setPdfURL(url);
                     setVisible(true);
                     //URL.revokeObjectURL(url);
                 })
                 .catch((error) => {
-                    //console.error(error.response);
+                    //// console.error(error.response);
                     toast.current?.show({
                         severity: 'error',
                         summary: 'Error en la descarga',
@@ -278,7 +278,7 @@ export default function AdminCursosPage () {
                     });
                 });
         } catch (error) {
-            console.error('Error al descargar la constancia:', error);
+            // console.error('Error al descargar la constancia:', error);
         }
     };
 
@@ -332,7 +332,7 @@ export default function AdminCursosPage () {
         const val = (e.target && e.target.value) || '';
         let carrera = val;
         setCarrera(carrera);
-        console.log('Carrera', carrera);
+        // console.log('Carrera', carrera);
     };
 
     const leftToolbarTemplate = () => {

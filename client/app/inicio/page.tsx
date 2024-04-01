@@ -26,7 +26,7 @@ export default function Page() {
             }
         });
         setPersona(result.data.persona)
-        console.log(result)
+        // console.log(result)
     }
 
     useEffect(() => {
