@@ -66,11 +66,11 @@ export default function Page() {
                 Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
-            console.log(response.data);
+            // console.log(response.data);
             setHorarios(response.data.horarios);
 
         }).catch(error => {
-            console.log("Error en carga de horarios: ", error);
+            // console.log("Error en carga de horarios: ", error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -89,11 +89,11 @@ export default function Page() {
                 Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
-            console.log(response.data);
+            // console.log(response.data);
             setHorarioE(response.data.horario)
 
         }).catch(error => {
-            console.log("Error en la carga de horario: ", error);
+            // console.log("Error en la carga de horario: ", error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -156,8 +156,8 @@ export default function Page() {
 
     const setHorarioEstudiante = () => {
         setI(1);
-        console.log(i)
-        console.log(horarioE)
+        // console.log(i)
+        // console.log(horarioE)
     }
 
     const headerTable = () => {

@@ -70,7 +70,7 @@ export default function CursoCalificacionPage() {
                 setHorarios(response.data.horarios)
             })
             .catch(error => {
-                console.error(error.response)
+                // console.error(error.response)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la carga de datos',
@@ -194,7 +194,7 @@ export default function CursoCalificacionPage() {
                 });
             })
             .catch(error => {
-                console.error(error.response)
+                // console.error(error.response)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',
@@ -231,7 +231,7 @@ export default function CursoCalificacionPage() {
                 });
             })
             .catch(error => {
-                console.error(error.response)
+                // console.error(error.response)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operacion fallida',

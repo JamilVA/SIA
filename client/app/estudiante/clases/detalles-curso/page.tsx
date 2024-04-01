@@ -133,9 +133,9 @@ export default function Curso() {
                 setImagenURL('/images/banner.jpg');
             }
 
-            console.log(data);
+            // console.log(data);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
         }
     };
 
@@ -145,7 +145,7 @@ export default function Curso() {
             responseType: 'arraybuffer' 
         })
             .then(response => {
-                //console.log(response); 
+                //// console.log(response); 
                 const file = new File([response.data], ruta);        
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
@@ -155,7 +155,7 @@ export default function Curso() {
                 URL.revokeObjectURL(url);
             })
             .catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',
@@ -180,7 +180,7 @@ export default function Curso() {
                 setMatricula(matricula);
             })
             .catch((error) => {
-                console.error(error);
+                // console.error(error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -206,7 +206,7 @@ export default function Curso() {
             setImagenURL(url);
         } catch (error) {
             setImagenURL('/images/banner.jpg');
-            console.error('Error al obtener el archivo:', error);
+            // console.error('Error al obtener el archivo:', error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -251,9 +251,9 @@ export default function Curso() {
     };
 
     const estadoBodyTemplate = (rowData: any) => {
-        console.log('Rowdata para Asitencia', rowData);
+        // console.log('Rowdata para Asitencia', rowData);
         if (rowData.Asistencia && rowData.Asistencia.length > 0) {
-            console.log('Rowdata Para Estado:', rowData.Asistencia[0].Estado);
+            // console.log('Rowdata Para Estado:', rowData.Asistencia[0].Estado);
             const icono = (
                 <span className={`icono-${rowData.Asistencia[0].Estado}`}>
                     <i className={classNames('pi', { 'text-green-500 pi-check-circle': rowData.Asistencia[0].Estado, 'text-red-500 pi-times-circle': !rowData.Asistencia[0].Estado })}></i>

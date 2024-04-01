@@ -51,7 +51,7 @@ export default function RegistroPagoPage() {
                 setConceptos(response.data.conceptos)
             })
             .catch(error => {
-                console.log(error)
+                // console.log(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Carga fallida',
@@ -79,7 +79,7 @@ export default function RegistroPagoPage() {
         })
             .then(response => {
                 let value = response.data.estudiante
-                //console.log("Estudiante:", response.data.estudiante)
+                //// console.log("Estudiante:", response.data.estudiante)
                 if (value !== null) {
                     let _estudiante = {
                         ...estudiante,
@@ -101,7 +101,7 @@ export default function RegistroPagoPage() {
                 }
             })
             .catch(error => {
-                console.log(error)
+                // console.log(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operación fallida',
@@ -154,7 +154,7 @@ export default function RegistroPagoPage() {
                 });
             })
             .catch(error => {
-                console.log(error)
+                // console.log(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operación fallida',

@@ -35,10 +35,10 @@ export default function Page () {
             }
         }).then(response => {
             setActas(response.data.actas);
-            console.log(response.data);
+            // console.log(response.data);
 
         }).catch(error => {
-            console.log("Error en carga de datos: ", error);
+            // console.log("Error en carga de datos: ", error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -54,16 +54,16 @@ export default function Page () {
             responseType: 'blob'
         })
             .then(response => {
-                console.log(response);
+                // console.log(response);
                 const blob = new Blob([response.data], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
-                console.log(url);
+                // console.log(url);
                 setPdfHistorialURL(url);
                 setVisible(true)
                 //URL.revokeObjectURL(url);
             })
             .catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',

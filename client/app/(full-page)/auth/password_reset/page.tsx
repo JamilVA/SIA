@@ -28,8 +28,8 @@ export default function Page () {
                 }),
               })
               const data = await res.json()
-              console.log(data)
-              console.log('send')
+              // console.log(data)
+              // console.log('send')
               setLoading(false)
             }} loading={loading} className='mt-3 w-full'>Enviar correo electrónico para restablecer contraseña</Button>
         </div>

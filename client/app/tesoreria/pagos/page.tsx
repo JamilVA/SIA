@@ -54,14 +54,14 @@ export default function RegistrarPagoPage() {
             }
         })
             .then((response) => {
-                //console.log(response.data.pagos)
+                //// console.log(response.data.pagos)
                 setPagos(response.data.pagos);
                 setLoading(false);
             })
             .catch((error) => {
                 setLoading(false);
                 setPagos([]);
-                console.error(error);
+                // console.error(error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -81,7 +81,7 @@ export default function RegistrarPagoPage() {
                 setConceptos(response.data.conceptos);
             })
             .catch((error) => {
-                console.error(error);
+                // console.error(error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -118,7 +118,7 @@ export default function RegistrarPagoPage() {
                 }
             })
             .then((response) => {
-                console.log('Pago anulado: ', response.data);
+                // console.log('Pago anulado: ', response.data);
                 const newData = pagos.map((pago) => {
                     if (pago.Codigo === codigoAnular) {
                         return {
@@ -138,7 +138,7 @@ export default function RegistrarPagoPage() {
                 });
             })
             .catch((error) => {
-                console.log('Ha ocurrido un error: ', error);
+                // console.log('Ha ocurrido un error: ', error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Operación fallida',
@@ -277,7 +277,7 @@ export default function RegistrarPagoPage() {
         const val = (e.target && e.target.value) || '';
         let concepto = val;
         setConcepto(concepto);
-        console.log('Carrera', concepto);
+        // console.log('Carrera', concepto);
     };
 
     const hideExportDialog = () => {
@@ -295,16 +295,16 @@ export default function RegistrarPagoPage() {
                     responseType: 'blob'
                 })
                 .then((response) => {
-                    console.log(response);
+                    // console.log(response);
                     const blob = new Blob([response.data], { type: 'application/pdf' });
                     const url = URL.createObjectURL(blob);
-                    console.log(url);
+                    // console.log(url);
                     setPdfURL(url);
                     setVisible(true);
                     //URL.revokeObjectURL(url);
                 })
                 .catch((error) => {
-                    //console.error(error.response);
+                    //// console.error(error.response);
                     toast.current?.show({
                         severity: 'error',
                         summary: 'Error en la descarga',
@@ -313,7 +313,7 @@ export default function RegistrarPagoPage() {
                     });
                 });
         } catch (error) {
-            console.error('Error al descargar la constancia:', error);
+            // console.error('Error al descargar la constancia:', error);
         }
     };
 
@@ -406,7 +406,7 @@ export default function RegistrarPagoPage() {
                             <Calendar
                                 value={anio}
                                 onChange={(e) => {
-                                    console.log(e.value);
+                                    // console.log(e.value);
                                     setAnio(new Date(e.value as string));
                                 }}
                                 view="year"

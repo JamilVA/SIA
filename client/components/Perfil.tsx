@@ -86,7 +86,7 @@ const Perfil = () => {
                     setImagenURL('/images/usuario.png');
                 }
             } else {
-                console.log(session?.user.codigoPersona)
+                // console.log(session?.user.codigoPersona)
                 result = await axios.get('/persona', {
                     params: {
                         codPersona: session?.user.codigoPersona
@@ -95,7 +95,7 @@ const Perfil = () => {
                         Authorization: 'Bearer ' + session?.user.token
                     }
                 });
-                console.log(result)
+                // console.log(result)
                 setPersona(result.data.persona);
                 if (result.data.persona.RutaFoto) {
                     await obtenerArchivo(result.data.docente.Persona.RutaFoto);

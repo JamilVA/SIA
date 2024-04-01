@@ -47,11 +47,11 @@ export default function Page () {
                 }
             })
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 setCursos(response.data.cursos);
             })
             .catch((error) => {
-                console.log('Error en carga de pagos: ', error);
+                // console.log('Error en carga de pagos: ', error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -67,16 +67,16 @@ export default function Page () {
             responseType: 'blob'
         })
             .then(response => {
-                console.log(response);
+                // console.log(response);
                 const blob = new Blob([response.data], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
-                console.log(url);
+                // console.log(url);
                 setPdfMatriculadosURL(url);
                 setVisible(true)
                 //URL.revokeObjectURL(url);
             })
             .catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',

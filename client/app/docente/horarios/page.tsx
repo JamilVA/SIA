@@ -29,11 +29,11 @@ export default function Page () {
                 Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
-            console.log(response.data);
+            // console.log(response.data);
             setHorarios(response.data.horario);
 
         }).catch(error => {
-            console.log("Error en carga de horarios: ", error);
+            // console.log("Error en carga de horarios: ", error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',

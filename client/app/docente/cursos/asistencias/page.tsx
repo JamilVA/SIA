@@ -82,7 +82,7 @@ export default function AsistenciasPage() {
                 })
             })
             .catch(error => {
-                console.error(error)
+                // console.error(error)
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
@@ -183,7 +183,7 @@ export default function AsistenciasPage() {
             responseType: 'blob'
         })
             .then(response => {
-                console.log(response);
+                // console.log(response);
                 const blob = new Blob([response.data], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
 
@@ -192,7 +192,7 @@ export default function AsistenciasPage() {
                 //URL.revokeObjectURL(url);
             })
             .catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',

@@ -87,9 +87,9 @@ export default function Matricula() {
             const { cursosMatriculados, creditosMatriculados } = data;
             setCursosMatriculados(cursosMatriculados);
             setCreditosMatriculados(creditosMatriculados);
-            console.log('Cursos Matriculados', data);
+            // console.log('Cursos Matriculados', data);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -112,9 +112,9 @@ export default function Matricula() {
             const { cursosLlevar, totalCreditos } = data;
             setCursosLlevar(cursosLlevar);
             setTotalCreditos(totalCreditos);
-            console.log('Cursos Llevar', data);
+            // console.log('Cursos Llevar', data);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -133,9 +133,9 @@ export default function Matricula() {
             });
             const { periodo } = data;
             setPeriodoActual(periodo);
-            console.log(data);
+            // console.log(data);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -156,9 +156,9 @@ export default function Matricula() {
                 }
             });
             setPagoMatricula(result?.data?.pagoMatricula?.cantidad);
-            console.log('Pagos del Estudiante', result.data);
+            // console.log('Pagos del Estudiante', result.data);
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -175,7 +175,7 @@ export default function Matricula() {
         finMatricula.setDate(finMatricula.getDate() + 1);
         const currentDate = new Date();
 
-        console.log('Matricula Habilitada', currentDate >= inicioMatricula, currentDate <= finMatricula, pagoMatricula);
+        // console.log('Matricula Habilitada', currentDate >= inicioMatricula, currentDate <= finMatricula, pagoMatricula);
 
         setMatriculaHabilitada(currentDate >= inicioMatricula && currentDate <= finMatricula && pagoMatricula > 0);
     };
@@ -197,7 +197,7 @@ export default function Matricula() {
                 setCursoCalificaion(cursoCVacio);
             }
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -216,7 +216,7 @@ export default function Matricula() {
             setDeleteMatriculaDialog(false);
             setCursoCalificaion(cursoCVacio);
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
@@ -240,7 +240,7 @@ export default function Matricula() {
                 .then((response) => {
                 });
         } catch (e) {
-            console.error(e);
+            // console.error(e);
         }
     };
 
@@ -254,15 +254,15 @@ export default function Matricula() {
                 },
                 responseType: 'blob'
             }).then(response => {
-                console.log(response);
+                // console.log(response);
                 const blob = new Blob([response.data], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
-                console.log(url);
+                // console.log(url);
                 setConstanciaURL(url);
                 setVisible(true)
                 //URL.revokeObjectURL(url);
             }).catch(error => {
-                //console.error(error.response);           
+                //// console.error(error.response);           
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',
@@ -271,7 +271,7 @@ export default function Matricula() {
                 })
             })
         } catch (error) {
-            console.error('Error al descargar la constancia:', error);
+            // console.error('Error al descargar la constancia:', error);
         }
     };
 
@@ -423,7 +423,7 @@ export default function Matricula() {
                                 life: 3000
                             });
                         } catch (error) {
-                            console.error(error);
+                            // console.error(error);
                             toast.current?.show({
                                 severity: 'error',
                                 summary: 'Error',

@@ -42,14 +42,14 @@ export default function Page () {
                 }
             })
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 let _pagosM = response.data.pagos.filter((x: any) => x.CodigoConceptoPago == '0802');
                 let _pagosO = response.data.pagos.filter((x: any) => x.ConceptoPago.Codigo != '0802');
                 setPagosM(_pagosM);
                 setPagosO(_pagosO);
             })
             .catch((error) => {
-                console.log('Error en carga de pagos: ', error);
+                // console.log('Error en carga de pagos: ', error);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
