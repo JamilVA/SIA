@@ -19,11 +19,11 @@ const crearActa = async (req, res) => {
     try {
 
         const countActas = await sequelize.query(`select count(*)
-        from acta a join cursocalificacion cc
+        from Acta a join CursoCalificacion cc
         on a.CodigoCursoCalificacion = cc.Codigo
-        join periodo p on cc.CodigoPeriodo = p.Codigo
-        join curso c on cc.CodigoCurso = c.Codigo
-        join carreraprofesional cp on c.CodigoCarreraProfesional = cp.Codigo
+        join Periodo p on cc.CodigoPeriodo = p.Codigo
+        join Curso c on cc.CodigoCurso = c.Codigo
+        join CarreraProfesional cp on c.CodigoCarreraProfesional = cp.Codigo
         where p.Codigo = '${req.body.CodigoPeriodo}' and cp.Codigo = ${req.body.CodigoCarrera};`, { type: QueryTypes.SELECT })
 
         const acta = await Acta.create({
@@ -58,11 +58,11 @@ const getActas = async (req, res) => {
 const getActasByEstudiante = async (req, res) => {
     try {
         const actas = await sequelize.query(`select c.codigo as Codigo, c.nombre as Nombre, m.NotaFinal, c.Nivel, c.Semestre, c.Creditos, a.Codigo as CodActa, a.FechaGeneracion
-        from acta a join cursocalificacion cc
+        from Acta a join CursoCalificacion cc
         on a.CodigoCursoCalificacion = cc.Codigo
-        join curso c on cc.CodigoCurso = c.Codigo
-        join matricula m on cc.Codigo = m.CodigoCursoCalificacion
-        join estudiante e on m.CodigoEstudiante = e.Codigo
+        join Curso c on cc.CodigoCurso = c.Codigo
+        join Matricula m on cc.Codigo = m.CodigoCursoCalificacion
+        join Estudiante e on m.CodigoEstudiante = e.Codigo
         where e.Codigo = '${req.query.CodigoEstudiante}';`, { type: QueryTypes.SELECT })
         res.json({ actas })
     } catch (error) {
