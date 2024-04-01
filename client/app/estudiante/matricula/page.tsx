@@ -243,6 +243,9 @@ export default function Matricula() {
                     }
                 })
                 .then((response) => {
+                    cargarPagos();
+                    cargarPeriodo();
+                    cargarCursosMatriculados();
                 });
         } catch (e) {
             // console.error(e);
