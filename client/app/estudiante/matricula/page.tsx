@@ -494,19 +494,20 @@ export default function Matricula() {
                 {!matriculaHabilitada && (
                     <>
                         {cursosMatriculados.length <= 0 && (
-                            <Message
-                                style={{
-                                    border: 'solid',
-                                    borderWidth: '0 0 0 6px'
-                                }}
-                                className="w-full justify-content-start"
-                                severity="error"
-                                content={'Su matrícula no esta habilitada, revisar fechas de matricula y pagos correspondientes'}
-                            />
+                            <>
+                                <Message
+                                    style={{
+                                        border: 'solid',
+                                        borderWidth: '0 0 0 6px'
+                                    }}
+                                    className="w-full justify-content-start"
+                                    severity="error"
+                                    content={'Su matrícula no esta habilitada, revisar fechas de matricula y pagos correspondientes'}
+                                />
+                                <br /><br />
+                            </>
+                            
                         )}
-
-                        <br />
-                        <br />
 
                         <div className="card">
                             <DataTable
