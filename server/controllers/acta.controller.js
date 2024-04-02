@@ -63,7 +63,7 @@ const getActasByEstudiante = async (req, res) => {
         join Curso c on cc.CodigoCurso = c.Codigo
         join Matricula m on cc.Codigo = m.CodigoCursoCalificacion
         join Estudiante e on m.CodigoEstudiante = e.Codigo
-        where e.Codigo = '${req.query.CodigoEstudiante}';`, { type: QueryTypes.SELECT })
+        where e.Codigo = ${req.query.CodigoEstudiante} and m.NotaFinal is not null;`, { type: QueryTypes.SELECT })
         res.json({ actas })
     } catch (error) {
         console.error(error)
