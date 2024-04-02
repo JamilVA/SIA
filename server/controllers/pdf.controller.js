@@ -148,7 +148,7 @@ const getActa = async (codigoCurso) => {
 const getHistorialNotas = async (codigoEstudiante) => {
     try {
         const matriculas = await Matricula.findAll({
-            where: { CodigoEstudiante: codigoEstudiante, NotaFinal: { [Op.is]: null }},
+            where: { CodigoEstudiante: codigoEstudiante, NotaFinal: { [Op.not]: null }},
             include: {
                 model: CursoCalificacion,
                 attributes: ["Codigo"],
