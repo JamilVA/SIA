@@ -1,6 +1,6 @@
 const { generarPDFMatriculados, generarPDFAsistencia, generarPDFActa, generarPDFHistorialNotas } = require("../helpers/pdf")
 const { Matricula, Estudiante, Persona, CursoCalificacion, Curso, CarreraProfesional, Asistencia, Sesion, Acta } = require("../config/relations")
-
+const { Op } = require("sequelize")
 
 const getMatriculados = async (codigoCurso) => {
     try {
@@ -148,7 +148,7 @@ const getActa = async (codigoCurso) => {
 const getHistorialNotas = async (codigoEstudiante) => {
     try {
         const matriculas = await Matricula.findAll({
-            where: { codigoEstudiante: codigoEstudiante },
+            where: { CodigoEstudiante: codigoEstudiante, NotaFinal: { [Op.is]: null }},
             include: {
                 model: CursoCalificacion,
                 attributes: ["Codigo"],
