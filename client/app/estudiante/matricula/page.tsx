@@ -73,7 +73,6 @@ export default function Matricula() {
         }
     }, [matriculaHabilitada]);
 
-
     const cargarCursosMatriculados = async () => {
         try {
             const { data } = await axios.get('/matricula/cursosMatriculados', {
@@ -175,10 +174,10 @@ export default function Matricula() {
         finMatricula.setDate(finMatricula.getDate() + 1);
         inicioMatricula.setHours(0, 0, 0, 0);
         finMatricula.setHours(0, 0, 0, 0);
-    
+
         const currentDate = new Date();
         currentDate.setHours(0, 0, 0, 0); // Establecer horas, minutos, segundos y milisegundos a cero
-        
+
         //console.log(currentDate, inicioMatricula)
         //console.log('Matricula Habilitada', currentDate >= inicioMatricula, currentDate <= finMatricula, pagoMatricula);
 
@@ -188,7 +187,7 @@ export default function Matricula() {
     const crearMatricula = async (rowData: any) => {
         try {
             // if (creditosMatriculados + rowData.Curso.Creditos <= totalCreditos) {
-            if(true){
+            if (true) {
                 toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Curso agregado con éxito', life: 3000 });
 
                 setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
@@ -235,14 +234,18 @@ export default function Matricula() {
     const finalizarMatricula = async () => {
         try {
             axios
-                .post('/matricula/guardarMatriculas', {
-                    CodigoEstudiante: session?.user.codigoEstudiante,
-                    cursosMatriculados: cursosMatriculados
-                }, {
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
+                .post(
+                    '/matricula/guardarMatriculas',
+                    {
+                        CodigoEstudiante: session?.user.codigoEstudiante,
+                        cursosMatriculados: cursosMatriculados
+                    },
+                    {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     }
-                })
+                )
                 .then((response) => {
                     cargarPagos();
                     cargarPeriodo();
@@ -254,31 +257,33 @@ export default function Matricula() {
     };
 
     const obtenerConstancia = async () => {
-
         try {
-            await axios.get('/matricula/obtenerConstancia', {
-                params: { c: session?.user.codigoEstudiante },
-                headers: {
-                    Authorization: 'Bearer ' + session?.user.token
-                },
-                responseType: 'blob'
-            }).then(response => {
-                // console.log(response);
-                const blob = new Blob([response.data], { type: 'application/pdf' });
-                const url = URL.createObjectURL(blob);
-                // console.log(url);
-                setConstanciaURL(url);
-                setVisible(true)
-                //URL.revokeObjectURL(url);
-            }).catch(error => {
-                //// console.error(error.response);           
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error en la descarga',
-                    detail: error.response ? "Error al generar el pdf" : error.message,
-                    life: 3000
+            await axios
+                .get('/matricula/obtenerConstancia', {
+                    params: { c: session?.user.codigoEstudiante },
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    },
+                    responseType: 'blob'
                 })
-            })
+                .then((response) => {
+                    // console.log(response);
+                    const blob = new Blob([response.data], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    // console.log(url);
+                    setConstanciaURL(url);
+                    setVisible(true);
+                    //URL.revokeObjectURL(url);
+                })
+                .catch((error) => {
+                    //// console.error(error.response);
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Error en la descarga',
+                        detail: error.response ? 'Error al generar el pdf' : error.message,
+                        life: 3000
+                    });
+                });
         } catch (error) {
             // console.error('Error al descargar la constancia:', error);
         }
@@ -311,7 +316,7 @@ export default function Matricula() {
     };
 
     const nivelBodyTemplate = (rowData: any) => {
-        return ((rowData.Curso.Nivel - 1) * 2) +  rowData.Curso.Semestre ;
+        return (rowData.Curso.Nivel - 1) * 2 + rowData.Curso.Semestre;
     };
 
     const semestreBodyTemplate = (rowData: any) => {
@@ -360,23 +365,14 @@ export default function Matricula() {
         </div>
     );
 
-
     const header3 = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Matrícula en el periodo {periodoActual?.Denominacion}</h4>
             <div className="flex flex-wrap gap-2">
-                <Button
-                    label="Constancia de Matrícula"
-                    icon="pi pi-file-pdf"
-                    className="p-button-warning"
-                    onClick={obtenerConstancia}
-                />
+                <Button label="Constancia de Matrícula" icon="pi pi-file-pdf" className="p-button-warning" onClick={obtenerConstancia} />
             </div>
         </div>
     );
-
-
-
 
     const deleteMatriculaDialogFooter = () => {
         return (
@@ -407,7 +403,7 @@ export default function Matricula() {
     }
 
     if (session?.user.nivelUsuario != 4) {
-        redirect('/pages/notfound')
+        redirect('/pages/notfound');
     }
 
     return (
@@ -488,7 +484,7 @@ export default function Matricula() {
                                 <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
                                 <Column header="Ciclo" body={nivelBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                                <Column header="Semestre" body={semestreBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                                {/* <Column header="Semestre" body={semestreBodyTemplate} style={{ minWidth: '4rem' }}></Column> */}
                                 <Column header="Creditos" body={creditosBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                                 <Column body={actionBodyTemplate2} exportable={false} style={{ minWidth: '8rem' }}></Column>
                             </DataTable>
@@ -497,15 +493,17 @@ export default function Matricula() {
                 )}
                 {!matriculaHabilitada && (
                     <>
-                        <Message
-                            style={{
-                                border: 'solid',
-                                borderWidth: '0 0 0 6px'
-                            }}
-                            className="w-full justify-content-start"
-                            severity="error"
-                            content={'Su matrícula no esta habilitada, revisar fechas de matricula y pagos correspondientes'}
-                        />
+                        {cursosMatriculados.length <= 0 && (
+                            <Message
+                                style={{
+                                    border: 'solid',
+                                    borderWidth: '0 0 0 6px'
+                                }}
+                                className="w-full justify-content-start"
+                                severity="error"
+                                content={'Su matrícula no esta habilitada, revisar fechas de matricula y pagos correspondientes'}
+                            />
+                        )}
 
                         <br />
                         <br />
@@ -527,7 +525,7 @@ export default function Matricula() {
                                 <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '6rem' }}></Column>
                                 <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
                                 <Column header="Ciclo" body={nivelBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                                <Column header="Semestre" body={semestreBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                                {/* <Column header="Semestre" body={semestreBodyTemplate} style={{ minWidth: '4rem' }}></Column> */}
                                 <Column header="Creditos" body={creditosBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                             </DataTable>
                         </div>
