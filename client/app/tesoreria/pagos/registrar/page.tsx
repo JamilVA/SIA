@@ -276,7 +276,7 @@ export default function RegistroPagoPage() {
                     <br />
                     <div className="flex flex-column gap-2">
                         <label htmlFor="">Nro. Transacción: </label>
-                        <InputText value={pago.NroTransaccion} onChange={(e) => onInputChange(e, 'transaccion')} maxLength={8} />
+                        <InputText value={pago.NroTransaccion} onChange={(e) => onInputChange(e, 'transaccion')} maxLength={15} />
                     </div>
                     <br />
                     <div className="flex flex-column gap-2">
