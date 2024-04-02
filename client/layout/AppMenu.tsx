@@ -25,11 +25,8 @@ const AppMenu = () => {
             label: 'PANEL DE ADMINISTRACIÓN',
             items: [
                 { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
-                { label: 'Gestión de Usuarios', icon: 'pi pi-fw pi-user', to: '/administrador/usuarios' },
                 { label: 'Gestión de Estudiantes', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes' },
                 { label: 'Gestión de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
-                { label: 'Gestión de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/administrador/jefesDepartamento' },
-                { label: 'Gestión de Cursos', icon: 'pi pi-fw pi-book', to: '/administrador/cursos' },
                 { label: 'Gestión de Matrícula', icon: 'pi pi-fw pi-list', to: '/administrador/matriculas' },
                 { label: 'Gestión de Periodos', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' },
                 // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
@@ -43,6 +40,19 @@ const AppMenu = () => {
             items: [
                 { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
                 { label: 'Gestion de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/tesoreria/pagos' },
+                // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
+            ]
+        },
+    ];
+
+    const modelSoporte: AppMenuItem[] = [
+        {
+            label: 'PANEL DE SOPORTE',
+            items: [
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
+                { label: 'Gestión de Usuarios', icon: 'pi pi-fw pi-user', to: '/soporte/usuarios' },
+                { label: 'Gestión de Jefes de Dep.', icon: 'pi pi-fw pi-users', to: '/soporte/jefesDepartamento' },
+                { label: 'Gestión de Cursos', icon: 'pi pi-fw pi-book', to: '/soporte/cursos' },
                 // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
@@ -80,25 +90,25 @@ const AppMenu = () => {
     const modelJefe: AppMenuItem[] = [
         {
             label: 'PANEL DE JEFE DE DEPARTAMENTO',
-            items: [       
-                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },  
-                { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefatura/habilitacion-cursos' },              
+            items: [
+                { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
+                { label: 'Habilitación de cursos', icon: 'pi pi-fw pi-book', to: '/jefatura/habilitacion-cursos' },
                 // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
-        session?.user.codigoDocente != 0?
-        {
-            label: 'PANEL DE DOCENTE',
-            items: [
-                { label: 'Cursos', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
-                { label: 'Horarios', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },
-            ]
-        }:{
-            label: ''
-        }
+        session?.user.codigoDocente != 0 ?
+            {
+                label: 'PANEL DE DOCENTE',
+                items: [
+                    { label: 'Cursos', icon: 'pi pi-fw pi-book', to: '/docente/cursos' },
+                    { label: 'Horarios', icon: 'pi pi-fw pi-calendar', to: '/docente/horarios' },
+                ]
+            } : {
+                label: ''
+            }
 
     ];
-    
+
     if (status === 'authenticated' && i == 0) {
         switch (session?.user.nivelUsuario) {
             case 1:
@@ -111,6 +121,8 @@ const AppMenu = () => {
                 setUser(modelStudent); break;
             case 5:
                 setUser(modelTesoreria); break;
+            case 6:
+                setUser(modelSoporte); break;
         }
         setI(i + 1);
     }

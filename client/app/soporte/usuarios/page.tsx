@@ -562,7 +562,7 @@ export default function UsuariosPage() {
         )
     }
 
-    if (session?.user.nivelUsuario != 1) {
+    if (session?.user.nivelUsuario != 6) {
         redirect('/pages/notfound')
     }
 
