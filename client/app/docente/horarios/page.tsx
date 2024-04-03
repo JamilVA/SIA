@@ -9,15 +9,20 @@ import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 
-export default function Page () {
+export default function Page() {
+
+    const _periodo = {
+        Denominacion: ''
+    }
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [horarios, setHorarios] = useState([]);
     const { data: session, status } = useSession();
+    const [periodoA, setPeriodoA] = useState(_periodo);
 
     useEffect(() => {
-        if(status === "authenticated") fetchHorarios();
+        if (status === "authenticated") fetchHorarios();
     }, [status]);
 
     const fetchHorarios = async () => {
@@ -31,6 +36,7 @@ export default function Page () {
         }).then(response => {
             // console.log(response.data);
             setHorarios(response.data.horario);
+            setPeriodoA(response.data.periodoActual);
 
         }).catch(error => {
             // console.log("Error en carga de horarios: ", error);
@@ -63,14 +69,16 @@ export default function Page () {
         )
     }
 
-    if (session?.user.codigoDocente == 0) {
+    if (!session) {
+        redirect('/')
+    } else if (session?.user.codigoDocente == 0) {
         redirect('/pages/notfound')
     }
 
     return (
         <div className='grid'>
             <div className='col-12'>
-                <h5 className='m-3 mt-4'>HORARIOS - CICLO</h5>
+                <h5 className='m-3 mt-4'>HORARIOS - PERIODO {periodoA.Denominacion}</h5>
             </div>
             <div className="col-12 md:col-3">
                 <Perfil></Perfil>

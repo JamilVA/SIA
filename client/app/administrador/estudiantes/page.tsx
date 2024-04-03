@@ -474,7 +474,9 @@ export default function Page() {
         )
     }
 
-    if (session?.user.nivelUsuario != 1) {
+    if (!session) {
+        redirect('/')
+    } else if (session?.user.nivelUsuario != 1) {
         redirect('/pages/notfound')
     }
 

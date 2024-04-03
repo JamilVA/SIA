@@ -1,6 +1,7 @@
-const { Acta } = require("../config/relations")
+const { Acta, Matricula, CursoCalificacion, Curso, Periodo } = require("../config/relations")
 const { sequelize } = require('../config/database')
 const { QueryTypes } = require("sequelize");
+const { Op } = require("sequelize");
 
 const middCodigoActa = (n) => {
     let c = '';
@@ -57,14 +58,29 @@ const getActas = async (req, res) => {
 
 const getActasByEstudiante = async (req, res) => {
     try {
-        const actas = await sequelize.query(`select concat(m.CodigoCursoCalificacion, m.CodigoEstudiante) as CodMat, c.codigo as Codigo, c.nombre as Nombre, m.NotaFinal, c.Nivel, c.Semestre, c.Creditos, a.Codigo as CodActa, a.FechaGeneracion
-        from Acta a right join CursoCalificacion cc
-        on a.CodigoCursoCalificacion = cc.Codigo
-        join Curso c on cc.CodigoCurso = c.Codigo
-        join Matricula m on cc.Codigo = m.CodigoCursoCalificacion
-        join Estudiante e on m.CodigoEstudiante = e.Codigo
-        where e.Codigo = ${req.query.CodigoEstudiante} and m.NotaFinal is not null;`, { type: QueryTypes.SELECT })
-        res.json({ actas })
+        const matriculas = await Matricula.findAll({
+            where: { CodigoEstudiante: req.query.CodigoEstudiante, NotaFinal: { [Op.not]: null }, '$CursoCalificacion.Periodo.Estado$' : false},
+            include: {
+                model: CursoCalificacion,
+                attributes: ["Codigo"],
+                include: [Curso, Acta, Periodo]
+            }
+        })
+
+        const historial = matriculas.map(item => ({
+            CodigoMat: item.CursoCalificacion.Curso.Codigo + item.CodigoEstudiante,
+            Codigo: item.CursoCalificacion.Curso.Codigo,
+            Curso: item.CursoCalificacion.Curso.Nombre,
+            Nota: item.NotaFinal,
+            Nivel: item.CursoCalificacion.Curso.Nivel,
+            Semestre: item.CursoCalificacion.Curso.Semestre,
+            Creditos: item.CursoCalificacion.Curso.Creditos,
+            Acta: item.CursoCalificacion.Actum?.Codigo,
+            Fecha: item.CursoCalificacion.Actum?.FechaGeneracion,
+            Periodo: item.CursoCalificacion.Periodo.Estado,
+        }))
+
+        res.json({ historial })
     } catch (error) {
         console.error(error)
         res.status(500).json({ error: 'Error al cargar la lista de actas' })

@@ -11,7 +11,7 @@ import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 
-export default function Page () {
+export default function Page() {
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
@@ -34,8 +34,8 @@ export default function Page () {
                 Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
-            setActas(response.data.actas);
-            // console.log(response.data);
+            setActas(response.data.historial);
+            console.log(response.data);
 
         }).catch(error => {
             // console.log("Error en carga de datos: ", error);
@@ -60,7 +60,7 @@ export default function Page () {
                 const url = URL.createObjectURL(blob);
                 // console.log(url);
                 setPdfHistorialURL(url);
-                
+
                 //URL.revokeObjectURL(url);
             })
             .catch(error => {
@@ -75,20 +75,22 @@ export default function Page () {
     }
 
     const actionNFTemplate = (rowData: any) => {
-        return <p style={Number(rowData.NotaFinal) >= 11 ? { color: 'blue' } : { color: 'red' }}> {rowData.NotaFinal} </p>
+        return <p style={Number(rowData.Nota) >= 11 ? { color: 'blue' } : { color: 'red' }}> {rowData.Nota} </p>
     }
 
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
         )
     }
 
-    if (session?.user.nivelUsuario != 4) {
+    if (!session) {
+        redirect('/')
+    } else if (session?.user.nivelUsuario != 4) {
         redirect('/pages/notfound')
     }
 
@@ -111,18 +113,18 @@ export default function Page () {
                     <DataTable
                         ref={dt}
                         value={actas}
-                        dataKey="CodMat"
+                        dataKey="CodigoMat"
                         className="datatable-responsive"
-                        emptyMessage={status != 'authenticated' ? 'Cargando...' : 'Sin datos'}
+                        emptyMessage={status != 'authenticated' ? 'Cargando...' : 'Sin registros'}
                     >
                         <Column field="Codigo" header="Codigo" />
-                        <Column field="Nombre" header="Nombre" />
-                        <Column field="NotaFinal" header="Nota" body={actionNFTemplate} />
+                        <Column field="Curso" header="Nombre" />
+                        <Column field="Nota" header="Nota" body={actionNFTemplate} />
                         <Column field="Nivel" header="Nivel" />
                         <Column field="Semestre" header="Semestre" />
                         <Column field="Creditos" header="Creditos" />
-                        <Column field="CodActa" header="Acta" />
-                        <Column field="FechaGeneracion" header="Fecha" />
+                        <Column field="Acta" header="Acta" />
+                        <Column field="Fecha" header="Fecha" />
                     </DataTable>
                 </div>
                 <Dialog header="Vista PDF de historial de notas" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
@@ -134,4 +136,3 @@ export default function Page () {
     )
 }
 
-    

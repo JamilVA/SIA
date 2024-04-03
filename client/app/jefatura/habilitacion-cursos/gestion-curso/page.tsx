@@ -372,7 +372,9 @@ export default function Curso() {
         )
     }
 
-    if (session?.user.codigoJefe == 0) {
+    if (!session) {
+        redirect('/')
+    } else if (session?.user.codigoJefe == 0) {
         redirect('/pages/notfound')
     }
 

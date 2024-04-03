@@ -18,6 +18,10 @@ export default function Page() {
         Semestre: 0
     }
 
+    const _periodo = {
+        Denominacion: ''
+    }
+
     const { data: session, status } = useSession();
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
@@ -27,6 +31,8 @@ export default function Page() {
     const [nivel, setNivel] = useState(0);
     const [ciclo, setCiclo] = useState();
     const [paramsHG, setParamsHG] = useState(paramsHorarioG);
+    const [periodoA, setPeriodoA] = useState(_periodo);
+
     const niveles = [
         { name: 'Primer año', value: 1 },
         { name: 'Segundo año', value: 2 },
@@ -68,6 +74,7 @@ export default function Page() {
         }).then(response => {
             // console.log(response.data);
             setHorarios(response.data.horarios);
+            setPeriodoA(response.data.periodoActual)
 
         }).catch(error => {
             // console.log("Error en carga de horarios: ", error);
@@ -190,14 +197,16 @@ export default function Page() {
         )
     }
 
-    if (session?.user.nivelUsuario != 4) {
+    if (!session) {
+        redirect('/')
+    } else if (session?.user.nivelUsuario != 4) {
         redirect('/pages/notfound')
     }
 
     return (
         <div className='grid'>
             <div className='col-12'>
-                <h5 className='m-3 mt-4'>HORARIOS - CICLO</h5>
+                <h5 className='m-3 mt-4'>HORARIOS - PERIODO {periodoA.Denominacion}</h5>
             </div>
             <div className='col-12 md:col-3'>
                 <div className='card'>

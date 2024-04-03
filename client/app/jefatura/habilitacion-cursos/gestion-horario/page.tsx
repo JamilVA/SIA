@@ -359,7 +359,9 @@ export default function CursoCalificacionPage() {
         )
     }
 
-    if (session?.user.codigoJefe == 0) {
+    if (!session) {
+        redirect('/')
+    } else if (session?.user.codigoJefe == 0) {
         redirect('/pages/notfound')
     }
 

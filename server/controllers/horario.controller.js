@@ -1,7 +1,8 @@
 const Horario = require('../models/horario.model')
 const CursoCalificacion = require('../models/cursoCalificacion.model')
 const { sequelize } = require('../config/database')
-const { QueryTypes } = require("sequelize");
+const { QueryTypes, where } = require("sequelize");
+const { Periodo } = require("../config/relations")
 
 CursoCalificacion.hasMany(Horario, { foreignKey: 'CodigoCursoCalificacion' })
 Horario.belongsTo(CursoCalificacion, { foreignKey: 'CodigoCursoCalificacion' })
@@ -71,7 +72,12 @@ const getHorariosGenerales = async (req, res) => {
         join Curso c on cc.CodigoCurso = c.Codigo
         join CarreraProfesional cp on c.CodigoCarreraProfesional = cp.Codigo
         where cp.Codigo = '${req.query.CodCarrera}' and c.Nivel = '${req.query.Nivel}' and c.Semestre = '${req.query.Semestre}' and p.Estado = 1`, { type: QueryTypes.SELECT })
-        res.json({ horarios })
+
+        const periodoActual = await Periodo.findOne(
+            { where: { 'Estado': true } }
+        )
+
+        res.json({ horarios, periodoActual })
     } catch (error) {
         console.error(error)
         res.status(500).json({ error: 'Error al obtener horarios' })
@@ -104,7 +110,12 @@ const getHorarioByDocente = async (req, res) => {
         join Curso c on cc.CodigoCurso = c.Codigo
         join Docente d on cc.CodigoDocente = d.Codigo
         where d.Codigo = '${req.query.CodDocente}' and p.Estado = 1;`, { type: QueryTypes.SELECT })
-        res.json({ horario })
+        
+        const periodoActual = await Periodo.findOne(
+            { where: { 'Estado': true } }
+        )
+        
+        res.json({ horario, periodoActual })
     } catch (error) {
         console.error(error)
         res.status(500).json({ error: 'Error al obtener horario' })

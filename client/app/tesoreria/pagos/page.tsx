@@ -336,7 +336,9 @@ export default function RegistrarPagoPage() {
         );
     }
 
-    if (session?.user.nivelUsuario != 5) {
+    if (!session) {
+        redirect('/')
+    } else if (session?.user.nivelUsuario != 5) {
         redirect('/pages/notfound');
     }
 

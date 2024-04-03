@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from 'react';
 import '../../styles/startpage.css';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
     const { data: session, status } = useSession();
@@ -43,6 +44,10 @@ export default function Page() {
                 </div>
             </>
         )
+    }
+
+    if (!session) {
+        redirect('/')
     }
 
     return (
