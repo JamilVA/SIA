@@ -60,7 +60,7 @@ export default function Page() {
         }
     }
 
-    const fetchDataEstudiantes = async () => {
+    const fetchDataEstudiantes = async (codigoCurso: string) => {
         try {
             const result = await axios("/estudiante/estudiantesMatriculadosCurso", {
                 headers: {
@@ -86,7 +86,7 @@ export default function Page() {
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = (e.target && e.target.value) || '';
         if (val.length === 6) {
-            fetchDataEstudiantes()
+            fetchDataEstudiantes(val)
         }
         setCodigoCurso(val)
     };
