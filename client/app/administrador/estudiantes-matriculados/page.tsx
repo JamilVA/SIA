@@ -24,9 +24,9 @@ export default function Page() {
 
     const carreras = [
         { nombre: 'Docencia en Artes Visuales', codigo: 1 },
-        { nombre: 'Docencia en Artes Música', codigo: 2 },
-        { nombre: 'Artista Profesional en Escultura', codigo: 3 },
-        { nombre: 'Docencia en Artes Pintura', codigo: 4 },
+        { nombre: 'Docencia en Música', codigo: 2 },
+        { nombre: 'Artista Profesional en Pintura', codigo: 3 },
+        { nombre: 'Artista Profesional en Escultura', codigo: 4 }
     ]
     const [carrera, setCarrera] = useState(0);
 
