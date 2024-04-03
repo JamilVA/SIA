@@ -35,7 +35,7 @@ export default function Page() {
             }
         }).then(response => {
             setActas(response.data.historial);
-            console.log(response.data);
+            //console.log(response.data);
 
         }).catch(error => {
             // console.log("Error en carga de datos: ", error);

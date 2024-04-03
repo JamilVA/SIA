@@ -89,6 +89,7 @@ export default function Curso() {
         Nota4: 0,
         NotaRecuperacion: 0,
         NotaAplazado: 0,
+        NotaDirigido: 0,
         NotaFinal: 0
     };
 
@@ -142,15 +143,15 @@ export default function Curso() {
     const descargarArchivo = async (ruta: string) => {
         await axios.get('/files/download', {
             params: { fileName: ruta },
-            responseType: 'arraybuffer' 
+            responseType: 'arraybuffer'
         })
             .then(response => {
                 //// console.log(response); 
-                const file = new File([response.data], ruta);        
+                const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = file.name;            
+                link.download = file.name;
                 link.click();
                 URL.revokeObjectURL(url);
             })
@@ -365,7 +366,7 @@ export default function Curso() {
     if (status === "loading") {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%'}}>
+                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
@@ -575,7 +576,7 @@ export default function Curso() {
                             </div>
                             <div className="grid mb-2">
                                 <div className="col-fixed">
-                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                    <div className="text-center p-2">
                                         <i className="pi pi-book" style={{ color: 'green' }}></i>
                                     </div>
                                 </div>
@@ -587,13 +588,25 @@ export default function Curso() {
                             </div>
                             <div className="grid mb-2">
                                 <div className="col-fixed">
-                                    <div className="text-center p-2" style={{ backgroundColor: 'var(--gray-300)', borderRadius: '50%' }}>
+                                    <div className="text-center p-2">
                                         <i className="pi pi-book" style={{ color: 'green' }}></i>
                                     </div>
                                 </div>
                                 <div className="col">
                                     <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
                                         APLAZADO: <span style={matricula.NotaAplazado < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.NotaAplazado}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid mb-2">
+                                <div className="col-fixed">
+                                    <div className="text-center p-2">
+                                        <i className="pi pi-book" style={{ color: 'green' }}></i>
+                                    </div>
+                                </div>
+                                <div className="col">
+                                    <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
+                                        DIRIGIDO: <span style={matricula.NotaDirigido < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.NotaDirigido}</span>
                                     </div>
                                 </div>
                             </div>
@@ -605,7 +618,7 @@ export default function Curso() {
                                 </div>
                                 <div className="col">
                                     <div className="p-2 border-round-sm font-bold" style={{ backgroundColor: 'var(--gray-200)' }}>
-                                        NOTA FINAL: <span style={matricula.NotaFinal < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.NotaFinal}</span>
+                                        NOTA FINAL: {matricula.Nota4 != null ? <span style={matricula.NotaFinal < 11 ? { color: 'red' } : { color: 'blue' }}>{matricula.NotaFinal}</span> : <></>}
                                     </div>
                                 </div>
                             </div>
