@@ -2,64 +2,38 @@
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
-import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
-import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Sia } from '../../../types/sia';
 import { axiosInstance as axios } from '../../../utils/axios.instance';
-import { AxiosError } from 'axios'
 import { Dropdown } from 'primereact/dropdown';
-import { Calendar, CalendarChangeEvent } from 'primereact/calendar';
-import { RadioButton } from 'primereact/radiobutton';
-import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
-import { Image } from 'primereact/image';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function Page() {
 
-    let emptyEstudiante: Sia.Student = {
-        Codigo: '',
-        Paterno: '',
-        Materno: '',
-        Nombres: '',
-        Estado: true,
-        RutaFoto: '',
-        FechaNacimiento: '',
-        Sexo: '',
-        DNI: '',
-        Email: '',
-        CodigoSunedu: '',
-        CreditosLlevados: 0,
-        CreditosAprobados: 0,
-        CodigoCarreraProfesional: 0,
-        CodigoPersona: 0,
-        Direccion: null,
-        EmailPersonal: null,
-        Celular: null,
-    };
-
-    const [estudiantes, setestudiantes] = useState(null);
-    const [estudianteDialog, setEstudianteDialog] = useState(false);
-    const [estudianteInfoDialog, setEstudianteInfoDialog] = useState(false);
-    const [estudiante, setEstudiante] = useState<Sia.Student>(emptyEstudiante);
+    const [estudiantes, setestudiantes] = useState<Array<any>>([]);
+    const [tempEstudiantes, setTempEstudiantes] = useState<Array<any>>([]);
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
-    const [state, setState] = useState('');
-    const [archivo, setArchivo] = useState<FileUploadFilesEvent | null>(null);
-    const [carreras, setCarreras] = useState<Sia.CarreraProfesional[]>([]);
-    const [exportDialog, setExportDialog] = useState(false);
-    const [carrera, setCarrera] = useState();
-    const [errors, setErrors] = useState('');
+
     const { data: session, status } = useSession();
 
-    //const [actividades, setActividades] = useState<Array<any>>([]);
+    const carreras = [
+        { nombre: 'Docencia en Artes Visuales', codigo: 1 },
+        { nombre: 'Docencia en Artes Música', codigo: 2 },
+        { nombre: 'Artista Profesional en Escultura', codigo: 3 },
+        { nombre: 'Docencia en Artes Pintura', codigo: 4 },
+    ]
+    const [carrera, setCarrera] = useState(0);
+
+    const [codigoCurso, setCodigoCurso] = useState('')
+
+    const [periodo, setPeriodo] = useState('')
 
     useEffect(() => {
         if (status === 'authenticated') {
@@ -69,13 +43,14 @@ export default function Page() {
 
     const fetchData = async () => {
         try {
-            const result = await axios("/estudiante", {
+            const result = await axios("/estudiante/estudiantesMatriculados", {
                 headers: {
                     Authorization: 'Bearer ' + session?.user.token
                 }
             });
             setestudiantes(result.data.estudiantes);
-            setCarreras(result.data.carreras);
+            setTempEstudiantes(result.data.estudiantes)
+            setPeriodo(result.data.periodoVigente.Denominacion)
         } catch (e) {
             toast.current?.show({
                 severity: 'error',
@@ -86,82 +61,86 @@ export default function Page() {
         }
     }
 
-
-    const setTempEstudent = (estudiante: Sia.Student) => {
-        let tempEstudiante: Sia.Student = {
-            Codigo: estudiante.Codigo,
-            Paterno: estudiante.Persona.Paterno,
-            Materno: estudiante.Persona.Materno,
-            Nombres: estudiante.Persona.Nombres,
-            Estado: estudiante.Estado,
-            RutaFoto: estudiante.Persona.RutaFoto,
-            FechaNacimiento: new Date(estudiante.Persona.FechaNacimiento),
-            Sexo: estudiante.Persona.Sexo,
-            DNI: estudiante.Persona.DNI,
-            Email: estudiante.Persona.Usuario.Email,
-            CodigoSunedu: estudiante.CodigoSunedu,
-            CreditosLlevados: estudiante.CreditosLlevados,
-            CreditosAprobados: estudiante.CreditosAprobados,
-            CodigoCarreraProfesional: estudiante.CodigoCarreraProfesional,
-            CodigoPersona: estudiante.CodigoPersona,
-            Direccion: estudiante.Persona.Direccion,
-            EmailPersonal: estudiante.Persona.EmailPersonal,
-            Celular: estudiante.Persona.Celular,
+    const fetchDataEstudiantes = async () => {
+        try {
+            const result = await axios("/estudiante/estudiantesMatriculadosCurso", {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }, params: { codigoCurso: codigoCurso }
+            });
+            setTempEstudiantes(result.data.estudiantes)
+            console.log(result.data.estudiantes)
+        } catch (e) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Data no encontrada',
+                life: 3000
+            });
         }
-        return tempEstudiante
-    }
-
-    const infoEstudiante = (estudiante: Sia.Student) => {
-        let tempEstudiante = setTempEstudent(estudiante);
-        setEstudiante(tempEstudiante);
-        setEstudianteInfoDialog(true);
     }
 
     const exportCSV = () => {
         dt.current?.exportCSV();
     };
 
-    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
+    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = (e.target && e.target.value) || '';
-        let _estudiante = { ...estudiante };
-        _estudiante[`${name}`] = (val.toUpperCase());
-
-        setEstudiante(_estudiante);
+        if (val.length === 6) {
+            fetchDataEstudiantes()
+        }
+        setCodigoCurso(val)
     };
 
-    const onDropdownChange = (e: any, name: keyof typeof emptyEstudiante) => {
-        const val = (e.target && e.target.value) || '';
-        let _estudiante = { ...estudiante };
-        _estudiante[`${name}`] = val;
-        setEstudiante(_estudiante);
-    };
+    const onDropdownChange = (e: any, name: string) => {
+        const val = (e.target && e.target.value) || null;
+        setCodigoCurso('')
 
-    const onCarreraSelect = (e: any) => {
-        const val = (e.target && e.target.value) || '';
-        let carrera = val;
-        setCarrera(carrera);
-        // console.log('Carrera', carrera);
-    };
-
-    const hideExportDialog = () => {
-        setExportDialog(false);
-        setCarrera(undefined);
+        const tempEstudiantes = estudiantes.filter(estudiante => estudiante.CodigoCarreraProfesional === val)
+        setTempEstudiantes(tempEstudiantes)
+        setCarrera(val)
     };
 
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <div className="my-2">
-                    <Button label="Nuevo" icon="pi pi-plus" severity="success" className=" mr-2" onClick={()=>{}} />
+                <div className="my-2 mr-3">
+                    <Dropdown
+                        value={carrera}
+                        options={carreras}
+                        optionValue='codigo'
+                        optionLabel='nombre'
+                        onChange={(e) => {
+                            onDropdownChange(e, 'carrera');
+                        }}
+                        placeholder="Seleccione carrera"
+                        showClear
+                    />
                 </div>
+                <InputText maxLength={6} value={codigoCurso} onChange={(e) => onInputChange(e)} placeholder="Código de curso" />
             </React.Fragment>
         );
+    };
+
+    const dateBodyTemplate = (rowData: any) => {
+        return formatDate(new Date(rowData.Fecha));
+    };
+
+    const formatDate = (value: Date) => {
+        return value.toLocaleString("es-PE", {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            hour12: true,
+            minute: '2-digit',
+        });
     };
 
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <Button label="Exportar" icon="pi pi-upload" severity="help" onClick={() => setExportDialog(true)} />
+                <Button label="Exportar" icon="pi pi-upload" severity="help" onClick={exportCSV} />
             </React.Fragment>
         );
     };
@@ -169,22 +148,12 @@ export default function Page() {
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">GESTIÓN DE ESTUDIANTES</h5>
+            <h5 className="m-0">ESTUDIANTES MATRICULADOS <strong>PERIODO {periodo}</strong></h5>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Buscar..." />
             </span>
         </div>
-    );
-
-    const exportDialogFooter = (
-        <>
-            <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideExportDialog} />
-            {/* <Button label="Descargar" icon="pi pi-download" onClick={exportCSV} /> */}
-            <Link href={`${axios.defaults.baseURL}/estudiante/obtenerListaEstudiantes?c=${carrera}`}>
-                <Button label="Descargar" icon="pi pi-download" onClick={hideExportDialog} />
-            </Link>
-        </>
     );
 
     if (status === "loading") {
@@ -209,8 +178,8 @@ export default function Page() {
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
                     <DataTable
                         ref={dt}
-                        value={estudiantes}
-                        dataKey="Codigo"
+                        value={tempEstudiantes}
+                        key="CodigoSunedu"
                         paginator
                         rows={10}
                         rowsPerPageOptions={[5, 10, 25]}
@@ -218,49 +187,16 @@ export default function Page() {
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando de {first} a {last} de {totalRecords} estudiantes"
                         globalFilter={globalFilter}
-                        emptyMessage="Sin estudiantes registrados"
+                        emptyMessage="Sin estudiantes matriculados"
                         header={header}
                     >
-                        <Column field="CodigoSunedu" header="COD" sortable />
-                        <Column field="CarreraProfesional.NombreCarrera" header="Carrera" sortable />
-                        <Column field="Persona.DNI" header="DNI" sortable />
-                        <Column field="Persona.Paterno" header="Paterno" sortable />
-                        <Column field="Persona.Materno" header="Materno" sortable />
-                        <Column field="Persona.Nombres" header="Nombres" sortable />
-                        <Column field="AnioIngreso" header="Ingreso" sortable />
+                        <Column field="CodigoSunedu" header="Código Sunedu" sortable />
+                        <Column field="Paterno" header="Paterno" sortable />
+                        <Column field="Materno" header="Materno" sortable />
+                        <Column field="Nombres" header="Nombres" sortable />
+                        <Column field="Fecha" header="Fecha" sortable body={dateBodyTemplate} />
                     </DataTable>
 
-                    
-                    <Dialog visible={estudianteInfoDialog} style={{ width: '400px' }} header="Otros datos del estudiante" modal className="p-fluid" onHide={()=>{setEstudianteInfoDialog(false)}}>
-                        <p><strong>Código:</strong> {estudiante.CodigoSunedu}</p>
-                        <p><strong>Nombre:</strong> {estudiante.Nombres + ' ' + estudiante.Paterno + ' ' + estudiante.Materno}</p>
-                        <p><strong>Email:</strong> {estudiante.Email}</p>
-                        <p><strong>Dirección:</strong> {estudiante.Direccion}</p>
-                        <p><strong>Email personal:</strong> {estudiante.EmailPersonal}</p>
-                        <p><strong>Celular:</strong> {estudiante.Celular}</p>
-                    </Dialog>
-
-
-                    <Dialog visible={exportDialog} style={{ width: '350px' }} header="Exportar lista de cursos" modal className="p-fluid" footer={exportDialogFooter} onHide={hideExportDialog}>
-                        <div className="formgrid grid">
-                            <div className="field col">
-                                <label htmlFor="Carrera">Carrera</label>
-                                <Dropdown
-                                    id="carrera"
-                                    value={carrera}
-                                    onChange={(e) => {
-                                        onCarreraSelect(e);
-                                    }}
-                                    name="CodigoCarreraProfesional"
-                                    options={carreras}
-                                    optionLabel="NombreCarrera"
-                                    optionValue="Codigo"
-                                    placeholder="Selecciona"
-                                    className={classNames({ 'p-invalid': !carrera })}
-                                ></Dropdown>
-                            </div>
-                        </div>
-                    </Dialog>
                 </div>
             </div>
         </div>

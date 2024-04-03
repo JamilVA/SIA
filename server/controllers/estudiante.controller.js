@@ -1,6 +1,7 @@
 const { sequelize } = require("../config/database");
 const { QueryTypes } = require("sequelize");
-const { Estudiante, Persona, Usuario, CarreraProfesional, Matricula, Periodo } = require("../config/relations")
+const { Op } = require('sequelize')
+const { Estudiante, Persona, Usuario, CarreraProfesional, Matricula, Periodo, CursoCalificacion } = require("../config/relations")
 const bcrypt = require('bcryptjs');
 const PDF = require("pdfkit-construct");
 
@@ -37,36 +38,87 @@ const getEstudiante = async (req, res) => {
 
 const getEstudiantesMatriculados = async (req, res) => {
   try {
-    const estudiantes = await Estudiante.findAll({
+    const data = await Estudiante.findAll({
       include: [
         {
           model: Matricula,
-          attributes:['CodigoEstudiante'],
-          include:[
+          attributes: ['CodigoEstudiante', 'FechaMatricula'],
+          include: [
             {
-              model: Periodo,
-              attributes:['Codigo'],
-              where:{Estado: true}
+              model: CursoCalificacion,
+              attributes: ['Codigo'],
+              include: {
+                model: Periodo,
+                attributes: ['Codigo', 'Estado']
+              }
             }
           ]
         },
         {
           model: Persona,
-          attributes:['Codigo'],
-          include: [
-            {
-              model: Usuario,
-              attributes: ['Email']
-            }
-          ]
-        },
-        {
-          model: CarreraProfesional,
-          attributes:['NombreCarrera'],
+          attributes: ['Paterno', 'Materno', 'Nombres'],
         }
-      ],
+      ], where: { '$Matriculas.CursoCalificacion.Periodo.Estado$': true }
     });
 
+    const periodoVigente = await Periodo.findOne({
+      where: { Estado: true }
+    })
+
+    const estudiantes = data.map(estudiante => ({
+      CodigoSunedu: estudiante.CodigoSunedu,
+      Paterno: estudiante.Persona.Paterno,
+      Materno: estudiante.Persona.Materno,
+      Nombres: estudiante.Persona.Nombres,
+      Fecha: estudiante.Matriculas[0].FechaMatricula,
+      CodigoCarreraProfesional: estudiante.CodigoCarreraProfesional
+    }))
+    res.json({
+      ok: true,
+      estudiantes,
+      periodoVigente
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error en la carga de datos" });
+  }
+};
+
+const getEstudiantesMatriculadosCurso = async (req, res) => {
+  try {
+    const matriculas = await Matricula.findAll({
+      include: [
+        {
+          model: Estudiante,
+          attributes: ['CodigoSunedu'],
+          include:
+          {
+            model: Persona,
+            attributes: ['Paterno', 'Materno', 'Nombres'],
+          }
+        }
+        ,
+        {
+          model: CursoCalificacion,
+          attributes: ['Codigo'],
+          include: {
+            model: Periodo,
+            attributes: ['Codigo', 'Estado']
+          }
+        }
+      ],
+      where: {
+        '$CursoCalificacion.Periodo.Estado$': true,
+        '$CursoCalificacion.Codigo$': { [Op.like]: `${req.query.codigoCurso}%` }
+      }
+    });
+    const estudiantes = matriculas.map((matricula) => ({
+      CodigoSunedu: matricula.Estudiante.CodigoSunedu,
+      Paterno: matricula.Estudiante.Persona.Paterno,
+      Materno: matricula.Estudiante.Persona.Materno,
+      Nombres: matricula.Estudiante.Persona.Nombres,
+      Fecha: matricula.FechaMatricula,
+    }))
     res.json({
       ok: true,
       estudiantes,
@@ -403,6 +455,7 @@ const obtenerListaEstudiantes = async (req, res) => {
 module.exports = {
   getEstudiante,
   getEstudiantesMatriculados,
+  getEstudiantesMatriculadosCurso,
   crearEstudiante,
   actualizarEstudiante,
   buscarEstudiante,

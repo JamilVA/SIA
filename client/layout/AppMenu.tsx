@@ -28,6 +28,7 @@ const AppMenu = () => {
                 { label: 'Gestión de Estudiantes', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes' },
                 { label: 'Gestión de Docentes', icon: 'pi pi-fw pi-users', to: '/administrador/docentes' },
                 { label: 'Gestión de Matrícula', icon: 'pi pi-fw pi-list', to: '/administrador/matriculas' },
+                { label: 'Lista de Matriculados', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes-matriculados' },
                 { label: 'Gestión de Periodos', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' },
                 // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
