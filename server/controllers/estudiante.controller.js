@@ -1,6 +1,6 @@
 const { sequelize } = require("../config/database");
 const { QueryTypes } = require("sequelize");
-const { Estudiante, Persona, Usuario, CarreraProfesional, Matricula } = require("../config/relations")
+const { Estudiante, Persona, Usuario, CarreraProfesional, Matricula, Periodo } = require("../config/relations")
 const bcrypt = require('bcryptjs');
 const PDF = require("pdfkit-construct");
 
@@ -33,6 +33,48 @@ const getEstudiante = async (req, res) => {
     estudiantes,
     carreras
   });
+};
+
+const getEstudiantesMatriculados = async (req, res) => {
+  try {
+    const estudiantes = await Estudiante.findAll({
+      include: [
+        {
+          model: Matricula,
+          attributes:['CodigoEstudiante'],
+          include:[
+            {
+              model: Periodo,
+              attributes:['Codigo'],
+              where:{Estado: true}
+            }
+          ]
+        },
+        {
+          model: Persona,
+          attributes:['Codigo'],
+          include: [
+            {
+              model: Usuario,
+              attributes: ['Email']
+            }
+          ]
+        },
+        {
+          model: CarreraProfesional,
+          attributes:['NombreCarrera'],
+        }
+      ],
+    });
+
+    res.json({
+      ok: true,
+      estudiantes,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error en la carga de datos" });
+  }
 };
 
 const getEstudianteByCodPersona = async (req, res) => {
@@ -360,6 +402,7 @@ const obtenerListaEstudiantes = async (req, res) => {
 
 module.exports = {
   getEstudiante,
+  getEstudiantesMatriculados,
   crearEstudiante,
   actualizarEstudiante,
   buscarEstudiante,
