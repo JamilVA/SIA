@@ -119,13 +119,15 @@ export default function Page() {
             </div>
             <div className="col-12 md:col-3">
                 <div className="card shadow-1">
-                    <InputText type="search" maxLength={8} onChange={(e) => setDni(e.currentTarget.value)} placeholder="Ingrese el DNI" />
-                    <Button loading={loading} className='ml-2' label='Buscar' onClick={() => { fetchHistorial() }} />
+                    <div className="flex flex-row w-full">
+                        <InputText type="search" size={15} onKeyDown={(e) => {e.key === 'Enter' ? fetchHistorial(): {}}} maxLength={8} onChange={(e) => setDni(e.currentTarget.value)} placeholder="Ingrese el DNI" />
+                        <Button icon='pi pi-search' loading={loading} className='ml-2' onClick={() => { fetchHistorial() }} />
+                    </div>
                     <div className='mt-5'>
                         <p><strong>PATERNO: </strong>{estudiante?.Persona?.Paterno}</p>
                         <p><strong>MATERNO: </strong>{estudiante?.Persona?.Materno}</p>
                         <p><strong>NOMBRES: </strong>{estudiante?.Persona?.Nombres}</p>
-                        <h6 className="mt-0" style={{ color: 'var(--surface-500)' }}>
+                        <h6 className="mt-0 text-center" style={{ color: 'var(--surface-500)' }}>
                             {estudiante?.CarreraProfesional.NombreCarrera.toLocaleUpperCase()}
                         </h6>
                     </div>
