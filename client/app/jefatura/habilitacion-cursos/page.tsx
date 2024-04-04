@@ -928,7 +928,8 @@ export default function CursoCalificacionPage() {
                                 optionValue='Codigo'
                                 placeholder='Seleccione un docente'
                                 onChange={(e) => onDropDownChange(e.value, 'docente')}
-                                required
+                                filterBy='Persona.Nombres,Persona.Paterno'
+                                filter
                                 autoFocus
                                 showClear
                                 className={classNames({
