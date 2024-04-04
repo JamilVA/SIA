@@ -27,10 +27,6 @@ export default function Page() {
     const [estudiante, setEstudiante] = useState<any>()
     const [dni, setDni] = useState('')
 
-    // useEffect(() => {
-    //     if (status === "authenticated") fetchHistorial();
-    // }, [status]);
-
     const fetchHistorial = async () => {
         setLoading(true)
         await axios.get('/estudiante/buscar-historial-dni', {

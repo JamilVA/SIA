@@ -9,4 +9,6 @@ router.post('/marcar', requireToken, marcarAsistencia),
 
 router.delete('/desmarcar', requireToken, desmarcarAsistencia)
 
+router.post('/marcar-todo', requireToken, generarAsistencias)
+
 module.exports = router

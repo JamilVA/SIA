@@ -6,7 +6,7 @@ import { DataTable } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { use, useEffect, useRef, useState } from 'react';
 import { axiosInstance as axios } from '../../../../utils/axios.instance';
 import { classNames } from 'primereact/utils';
 import { ProgressBar } from 'primereact/progressbar';
@@ -32,6 +32,12 @@ export default function AsistenciasPage() {
     const [pdfAsistenciaURL, setPdfAsistenciaURL] = useState('')
     const { data: session, status } = useSession();
 
+    const [sesion, setSesion] = useState({
+        Codigo: 0,
+        EntradaDocente: '',
+        SalidaDocente: ''
+    })
+
     const fetchMatriculados = async () => {
         await axios.get('/curso-calificacion/asistentes', {
             params: {
@@ -44,6 +50,7 @@ export default function AsistenciasPage() {
         })
             .then(response => {
                 setEstudiantes(response.data.matriculados)
+                setSesion(response.data.sesion)
             })
             .catch(error => {
                 toast.current?.show({
@@ -148,6 +155,7 @@ export default function AsistenciasPage() {
                     life: 3000
                 })
             })
+        await fetchMatriculados()
     }
 
     const marcarSalida = async () => {
@@ -175,6 +183,7 @@ export default function AsistenciasPage() {
                     life: 3000
                 })
             })
+        await fetchMatriculados()
     }
 
     const obtenerPDFAsistencias = async () => {
@@ -202,12 +211,47 @@ export default function AsistenciasPage() {
             })
     }
 
+    const marcarTodo = async () => {
+        const asistencias = estudiantes.map(estudiante => ({
+            CodigoSesion: codigoSesion,
+            CodigoEstudiante: estudiante.Codigo
+        }))
+
+        await axios.post('/asistencia/marcar-todo', {
+            asistencias: asistencias
+        }, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        }).
+            then(response => {
+                fetchMatriculados()
+                toast.current?.show({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: response.data.message,
+                    life: 3000
+                })
+            })
+            .catch(error => {
+                // console.error(error)
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: !error.response ? error.message : error.response.data.message,
+                    life: 3000
+                })
+            })
+    }
+
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    <Button label="Marcar mi ingreso" size='small' icon="pi pi-clock" onClick={marcarIngreso} severity="success" className=" mr-2" />
-                    <Button label="Marcar mi salida" size='small' icon="pi pi-clock" onClick={marcarSalida} severity="warning" className=" mr-2" />
+                    {sesion.EntradaDocente && <InputText className='mr-2' size={14} value={"Ingreso:  " + sesion.EntradaDocente} disabled/>}
+                    {!sesion.EntradaDocente && <Button label="Marcar mi ingreso" size='small' icon="pi pi-clock" onClick={marcarIngreso} severity="success" className=" mr-2" />}
+                    {sesion.SalidaDocente && <InputText className='mr-2' size={14} value={"Salida:  " + sesion.SalidaDocente} disabled/>}
+                    {!sesion.SalidaDocente && <Button label="Marcar mi salida" size='small' icon="pi pi-clock" onClick={marcarSalida} severity="warning" className=" mr-2" />}
                 </div>
             </React.Fragment>
         );
@@ -234,6 +278,14 @@ export default function AsistenciasPage() {
             <>
                 <Button icon="pi pi-check" label='Marcar' size='small' severity="success" className="mr-2 px-2 py-1" onClick={() => marcarAsistencia(rowData)} />
                 <Button icon="pi pi-times" label='Desmarcar' size='small' severity="warning" className="mr-2 px-2 py-1" onClick={() => desmarcarAsistencia(rowData)} />
+            </>
+        );
+    };
+
+    const headerActionBodyTemplate = (rowData: any) => {
+        return (
+            <>
+                <Button icon="pi pi-check" label='Marcar todo' size='small' severity="success" className="mr-2 px-2 py-1" onClick={() => marcarTodo()} />             
             </>
         );
     };
@@ -298,7 +350,7 @@ export default function AsistenciasPage() {
                         <Column field="Asistencias" header="Asistencias" body={asistenciasBodyTemplate} headerStyle={{ minWidth: '9rem' }}></Column>
                         <Column field="Habilitado" align='center' header="Habilitado" body={habilitadoBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
                         <Column field="Estado" align='center' header="Asistencia" body={asistenciaBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column align='center' header={headerActionBodyTemplate} body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
                     <Dialog header="Vista PDF de asistencias" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
                         <iframe src={pdfAsistenciaURL} width="100%" height="99%"></iframe>
