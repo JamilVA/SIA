@@ -25,6 +25,6 @@ router.get('/getMatriculaByCurso', requireToken, getMatriculaByCurso);
 
 router.patch('/updateNotas', requireToken, updateNotas);
 
-router.patch('/updateNotas', requireToken, updateObs);
+router.patch('/updateObs', requireToken, updateObs);
 
 module.exports = router;

@@ -16,8 +16,10 @@ import 'primeicons/primeicons.css';
 import { CalendarChangeEvent } from 'primereact/calendar';
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/saga-blue/theme.css';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { Toolbar } from 'primereact/toolbar';
+import Link from 'next/link';
 
 export default function Curso() {
     const searchParamas = useSearchParams();
@@ -109,18 +111,22 @@ export default function Curso() {
 
         if (modified) {
             axios
-                .put('/sesion', {
-                    codigo: _sesion.Codigo,
-                    descripcion: _sesion.Descripcion,
-                    linkClaseVirtual: _sesion.LinkClaseVirtual,
-                    fecha: _sesion.Fecha,
-                    horaInicio: _sesion.HoraInicio,
-                    horaFin: _sesion.HoraFin
-                }, {
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
+                .put(
+                    '/sesion',
+                    {
+                        codigo: _sesion.Codigo,
+                        descripcion: _sesion.Descripcion,
+                        linkClaseVirtual: _sesion.LinkClaseVirtual,
+                        fecha: _sesion.Fecha,
+                        horaInicio: _sesion.HoraInicio,
+                        horaFin: _sesion.HoraFin
+                    },
+                    {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     }
-                })
+                )
                 .then((response) => {
                     // console.log(response.data);
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion modificada con éxito', life: 3000 });
@@ -130,20 +136,24 @@ export default function Curso() {
             setSesion(sesionVacia);
         } else {
             axios
-                .post('/sesion', {
-                    codigo: _sesion.Codigo,
-                    numero: _sesion.Numero,
-                    descripcion: _sesion.Descripcion,
-                    codigoSemanaAcademica: _sesion.CodigoSemanaAcademica,
-                    linkClaseVirtual: _sesion.LinkClaseVirtual,
-                    fecha: _sesion.Fecha,
-                    horaInicio: _sesion.HoraInicio,
-                    horaFin: _sesion.HoraFin
-                }, {
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
+                .post(
+                    '/sesion',
+                    {
+                        codigo: _sesion.Codigo,
+                        numero: _sesion.Numero,
+                        descripcion: _sesion.Descripcion,
+                        codigoSemanaAcademica: _sesion.CodigoSemanaAcademica,
+                        linkClaseVirtual: _sesion.LinkClaseVirtual,
+                        fecha: _sesion.Fecha,
+                        horaInicio: _sesion.HoraInicio,
+                        horaFin: _sesion.HoraFin
+                    },
+                    {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     }
-                })
+                )
                 .then((response) => {
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion creada con éxito', life: 3000 });
                     cargarDatos();
@@ -178,17 +188,14 @@ export default function Curso() {
 
     const deshabilitarAsistencia = async (codigo: string) => {
         await axios
-            .put(
-                '/sesion/deshabilitar-asistencia',
-                {
-                    params: {
-                        codigo: codigo
-                    },
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
-                    }
+            .put('/sesion/deshabilitar-asistencia', {
+                params: {
+                    codigo: codigo
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
-            )
+            })
             .then((response) => {
                 toast.current?.show({
                     severity: 'success',
@@ -211,17 +218,14 @@ export default function Curso() {
     };
     const habilitarAsistencia = async (codigo: string) => {
         await axios
-            .put(
-                '/sesion/habilitar-asistencia',
-                {
-                    params: {
-                        codigo: codigo
-                    },
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
-                    }
+            .put('/sesion/habilitar-asistencia', {
+                params: {
+                    codigo: codigo
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
                 }
-            )
+            })
             .then((response) => {
                 toast.current?.show({
                     severity: 'success',
@@ -268,7 +272,6 @@ export default function Curso() {
         </React.Fragment>
     );
 
-
     const filtrarSemanas = (Semanas: (typeof semanaVacia)[], Codigo: string) => {
         return Semanas.filter((s) => s.CodigoUnidadAcademica === Codigo);
     };
@@ -304,7 +307,11 @@ export default function Curso() {
         return (
             <React.Fragment>
                 <InputSwitch tooltip={rowData.EstadoAsistencia ? 'Deshabilitar asistencia' : 'Habilitar asistencia'} checked={!!rowData.EstadoAsistencia} onChange={() => handleClick(rowData)} />
-                <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm ml-5 mr-8" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => editSesion(rowData)} />
+                <Link href={`/jefatura/habilitacion-cursos/gestion-curso/asistencias?codigo=${rowData.Codigo}`}>
+                    <Button tooltip="Ver asistencias" icon="pi pi-list" className="p-button-info p-button-sm ml-3 mr-2" style={{ padding: '0.75em', fontSize: '0.75em' }} />
+                </Link>
+                <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm mr-8" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => editSesion(rowData)} />
+
             </React.Fragment>
         );
     };
@@ -355,34 +362,47 @@ export default function Curso() {
     const title = (curso: typeof cursoVacio) => {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-                <h4>
-                    {curso.Nombre}
-                </h4>
+                <h4>{curso.Nombre}</h4>
             </div>
         );
     };
 
-    if (status === "loading") {
+    const leftToolbarTemplate = () => {
+        return (
+            <React.Fragment>
+                <div className="my-2">
+                    <Link href={`/jefatura/habilitacion-cursos/gestion-curso/calificaciones?codigo=${codigoCurso}`}>
+                        <Button label="Ver notas" size="small" icon="pi pi-list" severity="info" className=" mr-2" />
+                    </Link>
+                </div>
+            </React.Fragment>
+        );
+    };
+
+    if (status === 'loading') {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                <div className="flex items-center justify-center align-content-center" style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
-        )
+        );
     }
 
     if (!session) {
-        redirect('/')
+        redirect('/');
     } else if (session?.user.codigoJefe == 0) {
-        redirect('/pages/notfound')
+        redirect('/pages/notfound');
     }
 
     return (
         <div>
             <Toast ref={toast} />
+            <Toolbar className="mb-4" start={leftToolbarTemplate}></Toolbar>
+
             <Card title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
-            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado cursos a matricular">
+
+            <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado registros de sesiones">
                 <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
             </DataTable>
             <Dialog visible={sesionDialog} style={{ width: '40rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Datos de la sesión" modal className="p-fluid" footer={sesionDialogFooter} onHide={hideSesionDialog}>
@@ -394,7 +414,6 @@ export default function Curso() {
                     {submitted && !sesion.Fecha && <small className="p-error">Ingrese la Fecha.</small>}
                 </div>
             </Dialog>
-
         </div>
     );
 }
