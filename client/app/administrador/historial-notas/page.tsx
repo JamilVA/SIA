@@ -32,6 +32,7 @@ export default function Page() {
     // }, [status]);
 
     const fetchHistorial = async () => {
+        setLoading(true)
         await axios.get('/estudiante/buscar-historial-dni', {
             params: {
                 dni: dni,
@@ -53,6 +54,7 @@ export default function Page() {
                 life: 3000
             });
         })
+        setLoading(false)
     }
 
     const obtenerPDFHistorial = async () => {

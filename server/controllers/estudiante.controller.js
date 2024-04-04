@@ -345,8 +345,9 @@ const getHistorialByDNI = async (req, res) => {
         {
           model: CarreraProfesional
         }
-      ] 
+      ]
     })
+    if (!estudiante) return res.json({ message: 'Estudiante no encontrado' })
     const matriculas = await Matricula.findAll({
       where: { CodigoEstudiante: estudiante.Codigo, NotaFinal: { [Op.not]: null } },
       include: {
