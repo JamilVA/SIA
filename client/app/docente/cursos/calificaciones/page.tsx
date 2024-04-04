@@ -134,7 +134,7 @@ export default function Page() {
     }
 
     const apiSaveNotes = async () => {
-        const result = await axios.put('/matricula/updateNotas', notasEstudiante, {
+        const result = await axios.patch('/matricula/updateNotas', notasEstudiante, {
             headers: {
                 Authorization: 'Bearer ' + session?.user.token
             }
