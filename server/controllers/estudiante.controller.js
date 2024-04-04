@@ -1,7 +1,7 @@
 const { sequelize } = require("../config/database");
 const { QueryTypes } = require("sequelize");
 const { Op } = require('sequelize')
-const { Estudiante, Persona, Usuario, CarreraProfesional, Matricula, Periodo, CursoCalificacion } = require("../config/relations")
+const { Estudiante, Persona, Usuario, CarreraProfesional, Matricula, Periodo, CursoCalificacion, Curso, Acta } = require("../config/relations")
 const bcrypt = require('bcryptjs');
 const PDF = require("pdfkit-construct");
 
@@ -334,6 +334,45 @@ const getNotas = async (req, res) => {
   }
 }
 
+const getHistorialByDNI = async (req, res) => {
+  try {
+    const estudiante = await Estudiante.findOne({
+      include: [
+        {
+          model: Persona,
+          where: { DNI: req.query.dni }
+        },
+        {
+          model: CarreraProfesional
+        }
+      ] 
+    })
+    const matriculas = await Matricula.findAll({
+      where: { CodigoEstudiante: estudiante.Codigo, NotaFinal: { [Op.not]: null } },
+      include: {
+        model: CursoCalificacion,
+        attributes: ["Codigo"],
+        include: [Curso, Acta]
+      }
+    })
+
+    const historial = matriculas.map(item => ({
+      Codigo: item.CursoCalificacion.Curso.Codigo,
+      Curso: item.CursoCalificacion.Curso.Nombre,
+      Nota: item.NotaFinal,
+      Nivel: item.CursoCalificacion.Curso.Nivel,
+      Semestre: item.CursoCalificacion.Curso.Semestre,
+      Creditos: item.CursoCalificacion.Curso.Creditos,
+      Acta: item.CursoCalificacion.Actum?.Codigo,
+      Fecha: item.CursoCalificacion.Actum?.FechaGeneracion,
+    }))
+    res.json({ estudiante: estudiante, historial: historial })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Error al obtener las notas' })
+  }
+}
+
 const obtenerListaEstudiantes = async (req, res) => {
   const carreraprofesional = await CarreraProfesional.findOne({
     attributes: ["NombreCarrera"],
@@ -461,5 +500,6 @@ module.exports = {
   buscarEstudiante,
   getNotas,
   getEstudianteByCodPersona,
-  obtenerListaEstudiantes
+  obtenerListaEstudiantes,
+  getHistorialByDNI
 };
