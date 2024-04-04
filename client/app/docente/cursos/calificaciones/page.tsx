@@ -362,16 +362,8 @@ export default function Page() {
     }
 
     const actionSaveTemplate = (rowData: any) => {
-        if (curso.CursoCalificacion.EstadoNotas || curso.CursoCalificacion.EstadoRecuperacion) {
+        if (curso.CursoCalificacion.EstadoNotas || curso.CursoCalificacion.EstadoAplazado || curso.CursoCalificacion.EstadoRecuperacion) {
             return <i className='pi pi-save' style={{ cursor: 'pointer' }} onClick={() => saveNotes(rowData)}></i>
-        } else {
-            return <i className='pi pi-save' style={{ color: '#D4D4D4' }}></i>
-        }
-    }
-
-    const actionSaveAplazadoTemplate = (rowData: any) => {
-        if (curso.CursoCalificacion.EstadoAplazado) {
-            return <i className='pi pi-save' style={{ cursor: 'pointer' }} onClick={() => saveNotesDirigido(rowData, 'NotaAplazado')}></i>
         } else {
             return <i className='pi pi-save' style={{ color: '#D4D4D4' }}></i>
         }
@@ -504,7 +496,7 @@ export default function Page() {
                                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                                     {(
                                         <span style={{ textAlign: 'justify', width: '20rem' }}>
-                                            <b>¿Estás seguro de generar el acta?</b> Ten en cuenta que luego de generarlo, no podrás editar ningun registro de calificaciones de este curso.
+                                            <b>¿Está seguro(a) de generar el acta?</b> Tener en cuenta que luego de generarlo, no podrás editar ningun registro de calificaciones de este curso.
                                         </span>
                                     )}
                                 </div>
