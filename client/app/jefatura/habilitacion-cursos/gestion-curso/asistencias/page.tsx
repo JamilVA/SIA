@@ -14,46 +14,53 @@ import { Checkbox } from 'primereact/checkbox';
 import { redirect, useSearchParams } from 'next/navigation';
 import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function AsistenciasPage() {
-
     const searchParams = useSearchParams();
     const codigoSesion = searchParams.get('codigo');
-    const codigoCursoCalificacion = codigoSesion?.slice(-9)
+    const codigoCursoCalificacion = codigoSesion?.slice(-9);
 
-    const [estudiantes, setEstudiantes] = useState<Array<any>>([])
+    const [estudiantes, setEstudiantes] = useState<Array<any>>([]);
     const [globalFilter, setGlobalFilter] = useState('');
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
-    const [visible, setVisible] = useState(false)
-    const [pdfAsistenciaURL, setPdfAsistenciaURL] = useState('')
+    const [visible, setVisible] = useState(false);
+    const [pdfAsistenciaURL, setPdfAsistenciaURL] = useState('');
     const { data: session, status } = useSession();
 
+    const [sesion, setSesion] = useState({
+        Codigo: 0,
+        EntradaDocente: '',
+        SalidaDocente: ''
+    });
+
     const fetchMatriculados = async () => {
-        await axios.get('/curso-calificacion/asistentes', {
-            params: {
-                codigoCursoCalificacion: codigoCursoCalificacion,
-                codigoSesion: codigoSesion
-            },
-            headers: {
-                Authorization: 'Bearer ' + session?.user.token
-            }
-        })
-            .then(response => {
-                setEstudiantes(response.data.matriculados)
+        await axios
+            .get('/curso-calificacion/asistentes', {
+                params: {
+                    codigoCursoCalificacion: codigoCursoCalificacion,
+                    codigoSesion: codigoSesion
+                },
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
             })
-            .catch(error => {
+            .then((response) => {
+                setEstudiantes(response.data.matriculados);
+                setSesion(response.data.sesion);
+            })
+            .catch((error) => {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
                     detail: 'La lista de estudiantes matriculados no se ha podido cargar',
                     life: 3000
-                })
-            })
-    }
+                });
+            });
+    };
 
     useEffect(() => {
         if (status === 'authenticated') {
@@ -62,36 +69,50 @@ export default function AsistenciasPage() {
     }, [status]);
 
     const obtenerPDFAsistencias = async () => {
-        await axios.get('/pdf/lista-asistencia', {
-            params: { codigoCurso: codigoCursoCalificacion, codigoSesion: codigoSesion },
-            responseType: 'blob'
-        })
-            .then(response => {
+        await axios
+            .get('/pdf/lista-asistencia', {
+                params: { codigoCurso: codigoCursoCalificacion, codigoSesion: codigoSesion },
+                responseType: 'blob'
+            })
+            .then((response) => {
                 // console.log(response);
                 const blob = new Blob([response.data], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
 
                 setPdfAsistenciaURL(url);
-                setVisible(true)
+                setVisible(true);
                 //URL.revokeObjectURL(url);
             })
-            .catch(error => {
-                //// console.error(error.response);           
+            .catch((error) => {
+                //// console.error(error.response);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',
-                    detail: error.response ? "Error al generar el pdf" : error.message,
+                    detail: error.response ? 'Error al generar el pdf' : error.message,
                     life: 3000
-                })
-            })
+                });
+            });
+    };
+
+    function formatTime(fecha: string) {
+        const [hours, minutes, seconds] = fecha.split(':');
+
+        let formattedHours = parseInt(hours, 10);
+        const ampm = formattedHours >= 12 ? 'pm' : 'am';
+        formattedHours %= 12;
+        formattedHours = formattedHours ? formattedHours : 12; 
+
+        const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
+
+        return formattedTime;
     }
 
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    <Button label={"Hora de ingreso: " + '0'} size='small' icon="pi pi-clock" disabled={true} severity="success" className=" mr-2" />
-                    <Button label={"Hora de salida: " + '0'} size='small' icon="pi pi-clock" disabled={true}  severity="warning" className=" mr-2" />
+                    {(sesion.EntradaDocente && <InputText className="mr-2" size={14} value={'Ingreso:  ' + formatTime(sesion.EntradaDocente)} disabled />) || <InputText className="mr-2" size={18} value={'Ingreso no registrado'} disabled />}
+                    {(sesion.SalidaDocente && <InputText className="mr-2" size={14} value={'Salida:  ' + formatTime(sesion.SalidaDocente)} disabled />) || <InputText className="mr-2" size={18} value={'Salida no registrada'} disabled />}
                 </div>
             </React.Fragment>
         );
@@ -100,7 +121,7 @@ export default function AsistenciasPage() {
     const asistenciasBodyTemplate = (rowData: any) => {
         return (
             <>
-                <ProgressBar value={rowData.Asistencias} ></ProgressBar>
+                <ProgressBar value={rowData.Asistencias}></ProgressBar>
             </>
         );
     };
@@ -110,20 +131,14 @@ export default function AsistenciasPage() {
     };
 
     const asistenciaBodyTemplate = (rowData: any) => {
-        return <Checkbox checked={rowData.Asistencia} disabled={true}></Checkbox>
+        return <Checkbox checked={rowData.Asistencia} disabled={true}></Checkbox>;
     };
-
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
             <div>
                 <h5 className="m-0 mb-2">Registro de asistencias</h5>
-                <Button className='px-2 py-1 border-none'
-                    size='small'
-                    label="Vista PDF"
-                    icon="pi pi-file-pdf"
-                    onClick={() => obtenerPDFAsistencias()}
-                />
+                <Button className="px-2 py-1 border-none" size="small" label="Vista PDF" icon="pi pi-file-pdf" onClick={() => obtenerPDFAsistencias()} />
             </div>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
@@ -134,20 +149,20 @@ export default function AsistenciasPage() {
 
     const footer = `${estudiantes ? estudiantes.length : 0} estudiantes matriculados`;
 
-    if (status === "loading") {
+    if (status === 'loading') {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                <div className="flex items-center justify-center align-content-center" style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
-        )
+        );
     }
 
     if (!session) {
-        redirect('/')
-    } else if (session?.user.codigoDocente == 0) {
-        redirect('/pages/notfound')
+        redirect('/');
+    } else if (session?.user.codigoJefe == 0) {
+        redirect('/pages/notfound');
     }
 
     return (
@@ -166,14 +181,14 @@ export default function AsistenciasPage() {
                         emptyMessage="No se han encontrado estudiantes"
                         header={header}
                         footer={footer}
-                        sortField='Estudiante.Persona.Paterno'
+                        sortField="Estudiante.Persona.Paterno"
                         sortOrder={1}
                     >
                         <Column field="Numero" header="#" headerStyle={{ minWidth: '3rem' }}></Column>
                         <Column field="Estudiante" header="Estudiante" headerStyle={{ minWidth: '15rem' }}></Column>
                         <Column field="Asistencias" header="Asistencias" body={asistenciasBodyTemplate} headerStyle={{ minWidth: '9rem' }}></Column>
-                        <Column field="Habilitado" align='center' header="Habilitado" body={habilitadoBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
-                        <Column field="Estado" align='center' header="Asistencia" body={asistenciaBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="Habilitado" align="center" header="Habilitado" body={habilitadoBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
+                        <Column field="Estado" align="center" header="Asistencia" body={asistenciaBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
                     <Dialog header="Vista PDF de asistencias" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
                         <iframe src={pdfAsistenciaURL} width="100%" height="99%"></iframe>
@@ -182,4 +197,4 @@ export default function AsistenciasPage() {
             </div>
         </div>
     );
-};
+}
