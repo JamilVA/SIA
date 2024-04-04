@@ -52,7 +52,7 @@ export default function Page() {
 
     return (
         <div className='mt-3 container_img' style={{height:'75vh', display:'flex', justifyContent:'center'}}>
-            <h3 className="text-center text" style={{height:'min-content', width:'60%', marginTop:'20%'}}>Hola {persona?.Nombres + ' ' + persona?.Paterno}, bienvenido(a) al Sistema Informático Académico de la Escuela Superior de Formación Artística Mario Urteaga Alvarado</h3>
+            <h3 className="text-center text" style={{height:'min-content', width:'60%', marginTop:'20%'}}>Hola {persona?.Nombres}, bienvenido(a) al Sistema Informático Académico de la Escuela Superior de Formación Artística Mario Urteaga Alvarado</h3>
         </div>
     )
 }
