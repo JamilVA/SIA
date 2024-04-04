@@ -43,6 +43,7 @@ const crearCurso = async (req, res) => {
       curso,
     });
   } catch (error) {
+    console.log(error)
     res.json({
       Estado: "Error",
       Error: error,

@@ -16,7 +16,7 @@ import { redirect } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
-export default function AdminCursosPage () {
+export default function AdminCursosPage() {
     let emptyCurso: Sia.Curso = {
         Codigo: '',
         Nombre: '',
@@ -68,7 +68,7 @@ export default function AdminCursosPage () {
 
     const fetchData = async () => {
         try {
-            const result = await axios('/curso',{
+            const result = await axios('/curso', {
                 headers: {
                     Authorization: 'Bearer ' + session?.user.token
                 }
@@ -157,7 +157,11 @@ export default function AdminCursosPage () {
         e.preventDefault();
         var response = '';
         try {
-            const result = await axios.put('/curso', data);
+            const result = await axios.put('/curso', data, {
+                headers: {
+                    Authorization: 'Bearer ' + session?.user.token
+                }
+            });
             response = result.data.Estado;
             fetchData();
 
@@ -187,7 +191,9 @@ export default function AdminCursosPage () {
     };
 
     const crearCodigo = (carrera: number | undefined, nivel: number, semestre: number) => {
-        let correlativo = cursos.filter((a: Sia.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel && a.Semestre == semestre).length + 1;
+        let listaCursos = cursos.filter((a: Sia.Curso) => a.CodigoCarreraProfesional == carrera && a.Nivel == nivel && a.Semestre == semestre);
+        let codLastCurso = listaCursos[listaCursos.length - 1].Codigo;
+        let correlativo = Number(codLastCurso?.substr(-2)) + 1;
         let cadena = nivel?.toString();
         cadena += semestre?.toString() + '';
         let c: string;
