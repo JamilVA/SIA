@@ -12,14 +12,12 @@ import { redirect } from 'next/navigation';
 
 export default function Page() {
 
-    const paramsHorarioG = {
-        CodCarrera: 4,
-        Nivel: 0,
-        Semestre: 0
-    }
-
     const _periodo = {
         Denominacion: ''
+    }
+
+    const _estudiante = {
+        CodigoCarreraProfesional: 0
     }
 
     const { data: session, status } = useSession();
@@ -27,10 +25,11 @@ export default function Page() {
     const dt = useRef<DataTable<any>>(null);
     const [horarios, setHorarios] = useState([]);
     const [horarioE, setHorarioE] = useState([]);
+    const [estudiante, setEstudiante] = useState(_estudiante);
     const [i, setI] = useState(0);
     const [nivel, setNivel] = useState(0);
-    const [ciclo, setCiclo] = useState();
-    const [paramsHG, setParamsHG] = useState(paramsHorarioG);
+    const [ciclo, setCiclo] = useState(0);
+    let _ciclo: Number;
     const [periodoA, setPeriodoA] = useState(_periodo);
 
     const niveles = [
@@ -48,7 +47,7 @@ export default function Page() {
         { name: 'V ciclo', value: 5 },
         { name: 'VI ciclo', value: 6 },
         { name: 'VII ciclo', value: 7 },
-        { name: 'VII ciclo', value: 8 },
+        { name: 'VIII ciclo', value: 8 },
         { name: 'IX ciclo', value: 9 },
         { name: 'X ciclo', value: 10 },
     ]
@@ -56,23 +55,38 @@ export default function Page() {
 
     useEffect(() => {
         if (status === "authenticated") {
+            fechEstudiante();
             fetchHorariosG();
-            fetchHorarioE()
+            fetchHorarioE();
         }
     }, [status]);
 
-    const fetchHorariosG = async () => {
-        await axios.get("/horario/generales", {
+    const fechEstudiante = async () => {
+        await axios.get("/estudiante/getbycod", {
             params: {
-                CodCarrera: paramsHG.CodCarrera,
-                Nivel: paramsHG.Nivel,
-                Semestre: paramsHG.Semestre
+                CodigoPersona: session?.user.codigoPersona
             },
             headers: {
                 Authorization: 'Bearer ' + session?.user.token
             }
         }).then(response => {
-            // console.log(response.data);
+            setEstudiante(response.data.estudiante)
+            //console.log(response.data)
+        })
+    }
+
+    const fetchHorariosG = async () => {
+        await axios.get("/horario/generales", {
+            params: {
+                CodCarrera: estudiante.CodigoCarreraProfesional,
+                Nivel: nivel,
+                Semestre: _ciclo
+            },
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        }).then(response => {
+            //console.log(response.data);
             setHorarios(response.data.horarios);
             setPeriodoA(response.data.periodoActual)
 
@@ -127,19 +141,18 @@ export default function Page() {
                 _ciclos = arrayCiclos.filter((x) => (x.value == 9 || x.value == 10)); break
         }
         setCiclos(_ciclos);
-        paramsHG['Nivel'] = val;
     };
 
     const onDropdownCiclosChange = (e: any) => {
         const val = (e.target && e.target.value) || '';
-        setCiclo(val);
-        paramsHG['Semestre'] = val;
+        _ciclo = Number(val);
+        setCiclo(Number(val));
         fetchHorariosG();
         setI(0);
     }
 
     const bodyCiclos = () => {
-        if (nivel > 0) {
+        if (nivel! > 0) {
             return (
                 <div className="grid mt-3">
                     <label className='col-12' htmlFor="Ciclo">Ciclo</label>
@@ -153,7 +166,6 @@ export default function Page() {
                             onDropdownCiclosChange(e);
                         }}
                         placeholder="Seleccione..."
-                        id="Ciclo"
                         className='w-full'
                     />
                 </div>
@@ -161,17 +173,11 @@ export default function Page() {
         }
     }
 
-    const setHorarioEstudiante = () => {
-        setI(1);
-        // console.log(i)
-        // console.log(horarioE)
-    }
-
     const headerTable = () => {
         if (horarioE?.length > 0) {
             return (
                 <div style={{ display: 'flex', justifyContent: 'end' }}>
-                    <Button onClick={setHorarioEstudiante} style={{ height: '30px', marginBlock: '10px' }}>Ver mi horario</Button>
+                    <Button onClick={() => setI(1)} style={{ height: '30px', marginBlock: '10px' }}>Ver mi horario</Button>
                 </div>
             )
         }
@@ -222,7 +228,6 @@ export default function Page() {
                                 onDropdownChange(e);
                             }}
                             placeholder="Seleccione..."
-                            id="Nivel"
                             className='w-full'
                         />
                     </div>

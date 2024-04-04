@@ -492,7 +492,7 @@ export default function Page() {
                                 <Column field="Nota2" body={actionN2Template} header="N2" />
                                 <Column field="Nota3" body={actionN3Template} header="N3" />
                                 <Column field="Nota4" body={actionN4Template} header="N4" />
-                                <Column field="NotaRecuperacion" body={actionNRTemplate} header="R" />
+                                <Column field="NotaRecuperacion" body={actionNRTemplate} header="S" />
                                 <Column field="NotaAplazado" body={actionNATemplate} header="A" />
                                 <Column field="NotaFinal" body={actionNFTemplate} header="NF" />
                                 <Column body={actionSaveTemplate} />
