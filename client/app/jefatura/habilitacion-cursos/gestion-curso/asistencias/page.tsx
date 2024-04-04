@@ -6,8 +6,8 @@ import { DataTable } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
-import React, { use, useEffect, useRef, useState } from 'react';
-import { axiosInstance as axios } from '../../../../utils/axios.instance';
+import React, { useEffect, useRef, useState } from 'react';
+import { axiosInstance as axios } from '../../../../../utils/axios.instance';
 import { classNames } from 'primereact/utils';
 import { ProgressBar } from 'primereact/progressbar';
 import { Checkbox } from 'primereact/checkbox';
@@ -68,140 +68,6 @@ export default function AsistenciasPage() {
         }
     }, [status]);
 
-    const marcarAsistencia = async (rowData: any) => {
-        const codEstudiante = rowData.Codigo;
-        await axios
-            .post(
-                '/asistencia/marcar',
-                {
-                    codigoSesion: codigoSesion,
-                    codigoEstudiante: codEstudiante,
-                    codigoCurso: codigoCursoCalificacion
-                },
-                {
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
-                    }
-                }
-            )
-            .then((response) => {
-                fetchMatriculados();
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                // console.error(error)
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Error al marcar la asistencia',
-                    life: 3000
-                });
-            });
-    };
-
-    const desmarcarAsistencia = async (rowData: any) => {
-        const codEstudiante = rowData.Codigo;
-        await axios
-            .delete('/asistencia/desmarcar', {
-                params: {
-                    codigoSesion: codigoSesion,
-                    codigoEstudiante: codEstudiante,
-                    codigoCurso: codigoCursoCalificacion
-                },
-                headers: {
-                    Authorization: 'Bearer ' + session?.user.token
-                }
-            })
-            .then((response) => {
-                fetchMatriculados();
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Error al desmarcar la asistencia',
-                    life: 3000
-                });
-            });
-    };
-
-    const marcarIngreso = async () => {
-        await axios
-            .post(
-                '/sesion/marcar-ingreso',
-                {},
-                {
-                    params: {
-                        codigoSesion: codigoSesion
-                    },
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
-                    }
-                }
-            )
-            .then((response) => {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: error.response.data.message,
-                    life: 3000
-                });
-            });
-        await fetchMatriculados();
-    };
-
-    const marcarSalida = async () => {
-        await axios
-            .post(
-                '/sesion/marcar-salida',
-                {},
-                {
-                    params: {
-                        codigoSesion: codigoSesion
-                    },
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
-                    }
-                }
-            )
-            .then((response) => {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: error.response.data.message,
-                    life: 3000
-                });
-            });
-        await fetchMatriculados();
-    };
-
     const obtenerPDFAsistencias = async () => {
         await axios
             .get('/pdf/lista-asistencia', {
@@ -228,51 +94,13 @@ export default function AsistenciasPage() {
             });
     };
 
-    const marcarTodo = async () => {
-        const asistencias = estudiantes.map((estudiante) => ({
-            CodigoSesion: codigoSesion,
-            CodigoEstudiante: estudiante.Codigo
-        }));
-
-        await axios
-            .post(
-                '/asistencia/marcar-todo',
-                {
-                    asistencias: asistencias
-                },
-                {
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
-                    }
-                }
-            )
-            .then((response) => {
-                fetchMatriculados();
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: response.data.message,
-                    life: 3000
-                });
-            })
-            .catch((error) => {
-                // console.error(error)
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: !error.response ? error.message : error.response.data.message,
-                    life: 3000
-                });
-            });
-    };
-
     function formatTime(fecha: string) {
         const [hours, minutes, seconds] = fecha.split(':');
 
         let formattedHours = parseInt(hours, 10);
         const ampm = formattedHours >= 12 ? 'pm' : 'am';
         formattedHours %= 12;
-        formattedHours = formattedHours ? formattedHours : 12;
+        formattedHours = formattedHours ? formattedHours : 12; 
 
         const formattedTime = `${formattedHours}:${minutes} ${ampm}`;
 
@@ -283,10 +111,8 @@ export default function AsistenciasPage() {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    {sesion.EntradaDocente && <InputText className="mr-2" size={14} value={'Ingreso:  ' + formatTime(sesion.EntradaDocente)} disabled />}
-                    {!sesion.EntradaDocente && <Button label="Marcar mi ingreso" size="small" icon="pi pi-clock" onClick={marcarIngreso} severity="success" className=" mr-2" />}
-                    {sesion.SalidaDocente && <InputText className="mr-2" size={14} value={'Salida:  ' + formatTime(sesion.SalidaDocente)} disabled />}
-                    {!sesion.SalidaDocente && <Button label="Marcar mi salida" size="small" icon="pi pi-clock" onClick={marcarSalida} severity="warning" className=" mr-2" />}
+                    {(sesion.EntradaDocente && <InputText className="mr-2" size={14} value={'Ingreso:  ' + formatTime(sesion.EntradaDocente)} disabled />) || <InputText className="mr-2" size={18} value={'Ingreso no registrado'} disabled />}
+                    {(sesion.SalidaDocente && <InputText className="mr-2" size={14} value={'Salida:  ' + formatTime(sesion.SalidaDocente)} disabled />) || <InputText className="mr-2" size={18} value={'Salida no registrada'} disabled />}
                 </div>
             </React.Fragment>
         );
@@ -305,24 +131,7 @@ export default function AsistenciasPage() {
     };
 
     const asistenciaBodyTemplate = (rowData: any) => {
-        return <Checkbox checked={rowData.Asistencia}></Checkbox>;
-    };
-
-    const actionBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <Button icon="pi pi-check" label="Marcar" size="small" severity="success" className="mr-2 px-2 py-1" onClick={() => marcarAsistencia(rowData)} />
-                <Button icon="pi pi-times" label="Desmarcar" size="small" severity="warning" className="mr-2 px-2 py-1" onClick={() => desmarcarAsistencia(rowData)} />
-            </>
-        );
-    };
-
-    const headerActionBodyTemplate = (rowData: any) => {
-        return (
-            <>
-                <Button icon="pi pi-check" label="Marcar todo" size="small" severity="success" className="mr-2 px-2 py-1" onClick={() => marcarTodo()} />
-            </>
-        );
+        return <Checkbox checked={rowData.Asistencia} disabled={true}></Checkbox>;
     };
 
     const header = (
@@ -352,7 +161,7 @@ export default function AsistenciasPage() {
 
     if (!session) {
         redirect('/');
-    } else if (session?.user.codigoDocente == 0) {
+    } else if (session?.user.codigoJefe == 0) {
         redirect('/pages/notfound');
     }
 
@@ -380,7 +189,6 @@ export default function AsistenciasPage() {
                         <Column field="Asistencias" header="Asistencias" body={asistenciasBodyTemplate} headerStyle={{ minWidth: '9rem' }}></Column>
                         <Column field="Habilitado" align="center" header="Habilitado" body={habilitadoBodyTemplate} headerStyle={{ minWidth: '8rem' }}></Column>
                         <Column field="Estado" align="center" header="Asistencia" body={asistenciaBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column align="center" header={headerActionBodyTemplate} body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
                     <Dialog header="Vista PDF de asistencias" visible={visible} style={{ width: '80vw', height: '90vh' }} onHide={() => setVisible(false)}>
                         <iframe src={pdfAsistenciaURL} width="100%" height="99%"></iframe>

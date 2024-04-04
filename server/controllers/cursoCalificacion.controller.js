@@ -1,5 +1,5 @@
 const { sequelize } = require('../config/database')
-const { Curso, CursoCalificacion, Docente, Estudiante, Matricula, Periodo, Persona, UnidadAcademica, SemanaAcademica, Asistencia, CarreraProfesional } = require('../config/relations')
+const { Curso, CursoCalificacion, Docente, Estudiante, Matricula, Periodo, Persona, UnidadAcademica, SemanaAcademica, Asistencia, CarreraProfesional, Sesion } = require('../config/relations')
 
 const getCarrerasByJefe = async (req, res) => {
     try {
@@ -423,6 +423,8 @@ const getAsistentes = async (req, res) => {
 
         })
 
+        const sesion = await Sesion.findByPk(req.query.codigoSesion)
+
         const data = matriculas.sort((a, b) => {
             if (a.Estudiante.Persona.Paterno < b.Estudiante.Persona.Paterno) {
                 return -1;
@@ -442,7 +444,7 @@ const getAsistentes = async (req, res) => {
             Asistencia: matricula.Estudiante.Asistencia[0] === undefined ? false : matricula.Estudiante.Asistencia[0].Estado
         }))
         console.log(matriculados)
-        res.json({ matriculados })
+        res.json({ matriculados, sesion })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Error al obtener la lista de asistentes' })

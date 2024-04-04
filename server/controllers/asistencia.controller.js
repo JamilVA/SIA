@@ -3,11 +3,18 @@ const { sequelize } = require("../config/database");
 
 const generarAsistencias = async (req, res) => {
     try {
-        await Asistencia.bulkCreate(req.body.asistencias)
+        const data = req.body.asistencias
+        const asistencias = data.map(asistencia => ({
+            ...asistencia,
+            Estado: true,
+            Fecha: new Date(),
+            Hora: new Date()
+        }))
+        await Asistencia.bulkCreate(asistencias, { ignoreDuplicates: true })
         res.json({message: 'Asistencias generadas correctamente'})
     } catch (error) {
         console.error(error)
-        res.status(500).json({message: 'Error al generar las asitencias'})
+        res.status(500).json({message: 'Error al generar las asistencias'})
     }
 }
 
