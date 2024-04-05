@@ -85,17 +85,18 @@ export default function Matricula() {
         }
     }, [estudiante]);
 
-    const buscarEstudiante = async (CodigoSunedu: string) => {
+    const buscarEstudiante = async (DNI: string) => {
         await axios
             .get('/matricula/buscarEstudiante', {
                 params: {
-                    CodigoSunedu: CodigoSunedu
+                    DNI: DNI
                 },
                 headers: {
                     Authorization: 'Bearer ' + session?.user.token
                 }
             })
             .then(async (response) => {
+                console.log('Estudiante',response.data)
                 if (response.data.estudiante !== null) {
                     setEstudiante(response.data.estudiante);
                 } else {
@@ -129,6 +130,7 @@ export default function Matricula() {
                 }
             });
             const { cursosMatriculados, creditosMatriculados } = data;
+            console.log('CM',data)
             setCursosMatriculados(cursosMatriculados);
             setCreditosMatriculados(creditosMatriculados);
         } catch (e) {
@@ -153,6 +155,7 @@ export default function Matricula() {
                 }
             });
             const { cursosLlevar, totalCreditos } = data;
+            console.log('CL',data)
             setCursosLlevar(cursosLlevar);
             setTotalCreditos(totalCreditos);
         } catch (e) {
@@ -371,14 +374,14 @@ export default function Matricula() {
                 <div>
                     <h6 className="m-0 mt-5">BUSCAR ESTUDIANTE</h6>
                     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-                        <span className="block mt-2 md:mt-0">
+                        <span className="mt-2 md:mt-0">
                             <InputText
                                 className="mt-3"
                                 value={inputValue}
                                 autoFocus
-                                maxLength={10}
+                                maxLength={8}
                                 type="search"
-                                placeholder="Ingrese Codigo Sunedu del estudiante"
+                                placeholder="Ingrese DNI"
                                 onChange={(e) => {
                                     setInputValue(e.target.value);
                                 }}
@@ -386,7 +389,7 @@ export default function Matricula() {
 
                             <Button
                                 icon="pi pi-search"
-                                className="ml-2  p-input-icon-right"
+                                className="p-input-icon-right"
                                 onClick={() => {
                                     buscarEstudiante(inputValue);
                                 }}
