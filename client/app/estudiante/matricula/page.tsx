@@ -187,9 +187,7 @@ export default function Matricula() {
     const crearMatricula = async (rowData: any) => {
         try {
             // if (creditosMatriculados + rowData.Curso.Creditos <= totalCreditos) {
-            if (true) {
-                toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Curso agregado con éxito', life: 3000 });
-
+            if (true) { // Habilitar la linea anterior cuando se regularicen todas las notas
                 setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
                 setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
                 setCreditosMatriculados(creditosMatriculados + rowData?.Curso?.Creditos);
@@ -214,7 +212,7 @@ export default function Matricula() {
 
     const eliminarMatricula = async (curso: any) => {
         try {
-            toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso eliminado con éxito', life: 3000 });
+            toast.current!.show({ severity: 'warn', summary: 'Successful', detail: 'Curso eliminado', life: 3000 });
             setCursosMatriculados((cursosMatriculados) => cursosMatriculados.filter((c) => c.Codigo !== curso.Codigo));
             setCursosLlevar((cursosLlevar) => [...cursosLlevar, curso]);
             setCreditosMatriculados(creditosMatriculados - curso?.Curso?.Creditos);

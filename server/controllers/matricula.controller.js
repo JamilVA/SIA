@@ -332,17 +332,18 @@ const getCursosLlevar = async (req, res) => {
 
 const buscarEstudiante = async (req, res) => {
   try {
-    const { CodigoSunedu } = req.query;
+    const { DNI } = req.query;
     let estudiante = await Estudiante.findOne({
       include: [
         {
           model: Persona,
           attributes: {
-            exclude: ["DNI", "FechaNacimiento", "Sexo", "RutaFoto"],
+            exclude: ["FechaNacimiento", "Sexo", "RutaFoto"],
           },
+          where: { DNI },
         },
       ],
-      where: { CodigoSunedu: CodigoSunedu },
+      
     });
 
     res.json({
