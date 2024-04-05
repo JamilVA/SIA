@@ -832,13 +832,13 @@ export default function Curso() {
                                         <label htmlFor="nivel" className="font-bold">
                                             Año
                                         </label>
-                                        <InputText id="nivel" value={curso?.Nivel.toString()} disabled />
+                                        <InputText id="nivel" value={curso?.Nivel?.toString()} disabled />
                                     </div>
                                     <div className="field col">
                                         <label htmlFor="semestre" className="font-bold">
                                             Semestre
                                         </label>
-                                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
+                                        <InputText id="semestre" value={curso?.Semestre?.toString()} disabled />
                                     </div>
                                 </div>
                                 <div className="formgrid grid">
@@ -846,19 +846,19 @@ export default function Curso() {
                                         <label htmlFor="horasTeoria" className="font-bold">
                                             Horas Teoria
                                         </label>
-                                        <InputText id="horasTeoria" value={curso?.HorasTeoria.toString()} disabled />
+                                        <InputText id="horasTeoria" value={curso?.HorasTeoria?.toString()} disabled />
                                     </div>
                                     <div className="field col">
                                         <label htmlFor="horasPractica" className="font-bold">
                                             Horas Práctica
                                         </label>
-                                        <InputText id="horasPractica" value={curso?.HorasPractica.toString()} disabled />
+                                        <InputText id="horasPractica" value={curso?.HorasPractica?.toString()} disabled />
                                     </div>
                                     <div className="field col">
                                         <label htmlFor="semestre" className="font-bold">
                                             Créditos
                                         </label>
-                                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
+                                        <InputText id="semestre" value={curso?.Semestre?.toString()} disabled />
                                     </div>
                                 </div>
                                 <div className="formgrid grid">
@@ -872,8 +872,8 @@ export default function Curso() {
                                                 label="Descargar"
                                                 severity="info"
                                                 className="mr-2"
-                                                onClick={() => descargarArchivo(cursoCalificacion.RutaSyllabus)}
-                                                disabled={cursoCalificacion.RutaSyllabus == ''}
+                                                onClick={() => descargarArchivo(cursoCalificacion?.RutaSyllabus)}
+                                                disabled={cursoCalificacion?.RutaSyllabus == ''}
                                                 style={{ width: '150px' }}
                                             />
                                         </div>{' '}
