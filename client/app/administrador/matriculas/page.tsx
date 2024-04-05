@@ -96,7 +96,7 @@ export default function Matricula() {
                 }
             })
             .then(async (response) => {
-                console.log('Estudiante',response.data)
+                // console.log('Estudiante',response.data)
                 if (response.data.estudiante !== null) {
                     setEstudiante(response.data.estudiante);
                 } else {
@@ -130,7 +130,7 @@ export default function Matricula() {
                 }
             });
             const { cursosMatriculados, creditosMatriculados } = data;
-            console.log('CM',data)
+            // console.log('CM',data)
             setCursosMatriculados(cursosMatriculados);
             setCreditosMatriculados(creditosMatriculados);
         } catch (e) {
@@ -155,7 +155,7 @@ export default function Matricula() {
                 }
             });
             const { cursosLlevar, totalCreditos } = data;
-            console.log('CL',data)
+            // console.log('CL',data)
             setCursosLlevar(cursosLlevar);
             setTotalCreditos(totalCreditos);
         } catch (e) {

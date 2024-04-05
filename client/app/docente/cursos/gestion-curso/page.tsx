@@ -11,7 +11,7 @@ import 'primeflex/primeflex.css';
 import { Toast } from 'primereact/toast';
 import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
-import { SpeedDial } from 'primereact/speeddial';
+import { Tooltip } from 'primereact/tooltip';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { redirect, useSearchParams } from 'next/navigation';
@@ -22,7 +22,7 @@ import 'primeicons/primeicons.css';
 import { InputTextarea } from 'primereact/inputtextarea';
 import Perfil from '../../../../components/Perfil';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 
 export default function Curso() {
     const searchParamas = useSearchParams();
@@ -53,7 +53,7 @@ export default function Curso() {
         Semestre: 0,
         CarreraProfesional: {
             Codigo: 0,
-            NombreCarrera: '',
+            NombreCarrera: ''
         }
     };
 
@@ -65,7 +65,8 @@ export default function Curso() {
         LinkClaseVirtual: '',
         Fecha: new Date(),
         HoraInicio: '',
-        HoraFin: ''
+        HoraFin: '',
+        EstadoAsistencia: false
     };
 
     const semanaVacia = {
@@ -158,18 +159,22 @@ export default function Curso() {
 
         if (modified) {
             axios
-                .put('/sesion', {
-                    codigo: _sesion.Codigo,
-                    descripcion: _sesion.Descripcion,
-                    linkClaseVirtual: _sesion.LinkClaseVirtual,
-                    fecha: _sesion.Fecha,
-                    horaInicio: _sesion.HoraInicio,
-                    horaFin: _sesion.HoraFin
-                }, {
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
+                .put(
+                    '/sesion',
+                    {
+                        codigo: _sesion.Codigo,
+                        descripcion: _sesion.Descripcion,
+                        linkClaseVirtual: _sesion.LinkClaseVirtual,
+                        fecha: _sesion.Fecha,
+                        horaInicio: _sesion.HoraInicio,
+                        horaFin: _sesion.HoraFin
+                    },
+                    {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     }
-                })
+                )
                 .then((response) => {
                     // console.log(response.data);
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion modificada con éxito', life: 3000 });
@@ -179,20 +184,24 @@ export default function Curso() {
             setSesion(sesionVacia);
         } else {
             axios
-                .post('/sesion', {
-                    codigo: _sesion.Codigo,
-                    numero: _sesion.Numero,
-                    descripcion: _sesion.Descripcion,
-                    codigoSemanaAcademica: _sesion.CodigoSemanaAcademica,
-                    linkClaseVirtual: _sesion.LinkClaseVirtual,
-                    fecha: _sesion.Fecha,
-                    horaInicio: _sesion.HoraInicio,
-                    horaFin: _sesion.HoraFin
-                }, {
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
+                .post(
+                    '/sesion',
+                    {
+                        codigo: _sesion.Codigo,
+                        numero: _sesion.Numero,
+                        descripcion: _sesion.Descripcion,
+                        codigoSemanaAcademica: _sesion.CodigoSemanaAcademica,
+                        linkClaseVirtual: _sesion.LinkClaseVirtual,
+                        fecha: _sesion.Fecha,
+                        horaInicio: _sesion.HoraInicio,
+                        horaFin: _sesion.HoraFin
+                    },
+                    {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     }
-                })
+                )
                 .then((response) => {
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion creada con éxito', life: 3000 });
                     cargarDatos();
@@ -233,15 +242,19 @@ export default function Curso() {
             let _cursoCalificacion = { ...cursoCalificacion };
 
             axios
-                .put('/curso-calificacion', {
-                    codigo: _cursoCalificacion.Codigo,
-                    competencia: _cursoCalificacion.Competencia,
-                    capacidad: _cursoCalificacion.Capacidad
-                }, {
-                    headers: {
-                        Authorization: 'Bearer ' + session?.user.token
+                .put(
+                    '/curso-calificacion',
+                    {
+                        codigo: _cursoCalificacion.Codigo,
+                        competencia: _cursoCalificacion.Competencia,
+                        capacidad: _cursoCalificacion.Capacidad
+                    },
+                    {
+                        headers: {
+                            Authorization: 'Bearer ' + session?.user.token
+                        }
                     }
-                })
+                )
                 .then((response) => {
                     // console.log(response);
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso actualizado con éxito', life: 3000 });
@@ -314,7 +327,8 @@ export default function Curso() {
             Numero: sesion.Numero,
             Fecha: sesion.Fecha,
             HoraInicio: sesion.HoraInicio,
-            HoraFin: sesion.HoraFin
+            HoraFin: sesion.HoraFin,
+            EstadoAsistencia: sesion.EstadoAsistencia
         };
 
         setSesion(tempSesion);
@@ -364,12 +378,13 @@ export default function Curso() {
     };
 
     const descargarArchivo = async (ruta: string) => {
-        await axios.get('/files/download', {
-            params: { fileName: ruta },
-            responseType: 'arraybuffer'
-        })
-            .then(response => {
-                //// console.log(response); 
+        await axios
+            .get('/files/download', {
+                params: { fileName: ruta },
+                responseType: 'arraybuffer'
+            })
+            .then((response) => {
+                //// console.log(response);
                 const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
@@ -378,21 +393,21 @@ export default function Curso() {
                 link.click();
                 URL.revokeObjectURL(url);
             })
-            .catch(error => {
-                //// console.error(error.response);           
+            .catch((error) => {
+                //// console.error(error.response);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',
-                    detail: error.response ? "El archivo no existe" : error.message,
+                    detail: error.response ? 'El archivo no existe' : error.message,
                     life: 3000
-                })
-            })
+                });
+            });
     };
 
     const onInputSesionChange = (e: React.ChangeEvent<HTMLInputElement>, name: keyof typeof sesionVacia) => {
         const val = (e.target && e.target.value) || '';
         let _sesion = { ...sesion };
-        if (name === 'Fecha') {
+        if (name === 'Fecha' || name === 'EstadoAsistencia') {
             return;
         } else {
             _sesion[name] = val;
@@ -405,10 +420,6 @@ export default function Curso() {
         let _cursoCalificacion = { ...cursoCalificacion };
         _cursoCalificacion[name] = val;
         setCursoCalificaion(_cursoCalificacion);
-    };
-
-    const onUpload = () => {
-        toast.current!.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
     };
 
     const hideSesionDialog = () => {
@@ -430,21 +441,23 @@ export default function Curso() {
             const file = imagen!.files[0];
             const formData = new FormData();
             formData.append('file', file);
-            // console.log('Archivo Recibido:', file.name);
 
             await axios.post('/files/upload', formData).then((response) => {
-                // console.log(response.data.path);
                 let _curso = { ...cursoCalificacion, RutaImagenPortada: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
                 axios
-                    .put('/curso-calificacion', {
-                        codigo: _curso.Codigo,
-                        rutaImagenPortada: _curso.RutaImagenPortada
-                    }, {
-                        headers: {
-                            Authorization: 'Bearer ' + session?.user.token
+                    .put(
+                        '/curso-calificacion',
+                        {
+                            codigo: _curso.Codigo,
+                            rutaImagenPortada: _curso.RutaImagenPortada
+                        },
+                        {
+                            headers: {
+                                Authorization: 'Bearer ' + session?.user.token
+                            }
                         }
-                    })
+                    )
                     .then((response) => {
                         // console.log(response);
                         toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Imagen actualizada con éxito', life: 3000 });
@@ -563,14 +576,19 @@ export default function Curso() {
     };
 
     const generarUnidades = async () => {
-        setLoading(true)
-        await axios.post('/curso-calificacion/generar-unidades', { codigoCurso: codigoCurso }, {
-            headers: {
-                Authorization: 'Bearer ' + session?.user.token
-            }
-        })
-            .then(response => {
-                cargarDatos()
+        setLoading(true);
+        await axios
+            .post(
+                '/curso-calificacion/generar-unidades',
+                { codigoCurso: codigoCurso },
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
+                }
+            )
+            .then((response) => {
+                cargarDatos();
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Operación exitosa',
@@ -578,16 +596,16 @@ export default function Curso() {
                     life: 3000
                 });
             })
-            .catch(error => {
+            .catch((error) => {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
                     detail: !error.response ? error.message : error.response.message,
                     life: 3000
                 });
-            })
-        setLoading(false)
-    }
+            });
+        setLoading(false);
+    };
 
     const sesionDialogFooter = (
         <React.Fragment>
@@ -644,7 +662,33 @@ export default function Curso() {
         }
     };
 
+    const verificarFecha = (sesion: typeof sesionVacia) => {
+        const fechaActual = new Date();
+        const fechaSesion = new Date(sesion.Fecha);
+        fechaSesion.setDate(fechaSesion.getDate() + 1); // Incrementar la fecha en 1 día
+    
+        const horaInicio = sesion.HoraInicio.split(':');
+        const horaFin = sesion.HoraFin.split(':');
+    
+        const horaApertura = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate(), parseInt(horaInicio[0]), parseInt(horaInicio[1]) - 10);
+        const horaCierre = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate(), parseInt(horaFin[0]), parseInt(horaFin[1]) + 10);
+    
+        console.log('Fecha Actual:', fechaActual);
+        console.log('Fecha Sesion:', fechaSesion);
+        console.log('Hora Inicio:', horaApertura);
+        console.log('Hora Fin:', horaCierre);
+    
+        const mismaFecha = fechaActual.toDateString() === fechaSesion.toDateString();
+    
+        const actividadAbierta = mismaFecha && fechaActual >= horaApertura && fechaActual <= horaCierre;
+    
+        console.log('ActividadAbierta:', actividadAbierta);
+        return actividadAbierta;
+    };
+    
+
     const actionBodyTemplate = (rowData: any) => {
+        verificarFecha(rowData);
         return (
             <React.Fragment>
                 <Link href={`/docente/cursos/recursos?codigo=${rowData.Codigo}`}>
@@ -655,9 +699,12 @@ export default function Curso() {
                     <Button tooltip="Actividades" icon="pi pi-book" className="p-button-success p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} />
                 </Link>
 
-                <Link href={`/docente/cursos/asistencias?codigo=${rowData.Codigo}`}>
-                    <Button tooltip="Asistencia" icon="pi pi-list" className="p-button-info p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} />
-                </Link>
+                {(rowData.EstadoAsistencia == 1 || verificarFecha(rowData)) && (
+                    <Link href={`/docente/cursos/asistencias?codigo=${rowData.Codigo}`}>
+                        <Button tooltip="Asistencia" icon="pi pi-list" className="p-button-info p-button-sm mr-1" style={{ padding: '0.75em', fontSize: '0.75em' }} />
+                    </Link>
+                )}
+                {rowData.EstadoAsistencia == 0 && !verificarFecha(rowData) && <Button tooltip="Asistencia inhabilitada" icon="pi pi-list" className="p-button p-button-sm mr-1" severity="secondary" style={{ padding: '0.75em', fontSize: '0.75em' }} />}
 
                 <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm mr-3" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => editSesion(rowData)} />
             </React.Fragment>
@@ -732,20 +779,20 @@ export default function Curso() {
         );
     };
 
-    if (status === "loading") {
+    if (status === 'loading') {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                <div className="flex items-center justify-center align-content-center" style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
-        )
+        );
     }
 
     if (!session) {
-        redirect('/')
+        redirect('/');
     } else if (session?.user.codigoDocente == 0) {
-        redirect('/pages/notfound')
+        redirect('/pages/notfound');
     }
 
     return (
@@ -899,7 +946,7 @@ export default function Curso() {
                             </div>
                         </TabPanel>
                         <TabPanel header="Sesiones" leftIcon="pi pi-list mr-2">
-                            {unidades.length === 0 && <Button loading={loading} label="Generar Unidades Académicas" className='px-2 py-1' severity="secondary" onClick={generarUnidades} />}
+                            {unidades.length === 0 && <Button loading={loading} label="Generar Unidades Académicas" className="px-2 py-1" severity="secondary" onClick={generarUnidades} />}
                             <DataTable ref={dt} value={unidades} dataKey="Codigo" emptyMessage="No se han encontrado unidades académicas">
                                 <Column headerStyle={{ display: 'none' }} body={unidadBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                             </DataTable>

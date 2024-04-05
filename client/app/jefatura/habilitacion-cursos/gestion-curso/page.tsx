@@ -188,14 +188,17 @@ export default function Curso() {
 
     const deshabilitarAsistencia = async (codigo: string) => {
         await axios
-            .put('/sesion/deshabilitar-asistencia', {
-                params: {
+            .put(
+                '/sesion/deshabilitar-asistencia',
+                {
                     codigo: codigo
                 },
-                headers: {
-                    Authorization: 'Bearer ' + session?.user.token
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 }
-            })
+            )
             .then((response) => {
                 toast.current?.show({
                     severity: 'success',
@@ -218,14 +221,17 @@ export default function Curso() {
     };
     const habilitarAsistencia = async (codigo: string) => {
         await axios
-            .put('/sesion/habilitar-asistencia', {
-                params: {
+            .put(
+                '/sesion/habilitar-asistencia',
+                {
                     codigo: codigo
                 },
-                headers: {
-                    Authorization: 'Bearer ' + session?.user.token
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + session?.user.token
+                    }
                 }
-            })
+            )
             .then((response) => {
                 toast.current?.show({
                     severity: 'success',
@@ -311,7 +317,6 @@ export default function Curso() {
                     <Button tooltip="Ver asistencias" icon="pi pi-list" className="p-button-info p-button-sm ml-3 mr-2" style={{ padding: '0.75em', fontSize: '0.75em' }} />
                 </Link>
                 <Button tooltip="Editar" icon="pi pi-pencil" className="p-button-warning p-button-sm mr-8" style={{ padding: '0.75em', fontSize: '0.75em' }} onClick={() => editSesion(rowData)} />
-
             </React.Fragment>
         );
     };

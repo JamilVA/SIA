@@ -183,7 +183,7 @@ const crearSesion = async (req, res) => {
       Codigo: req.body.codigo,
       Numero: parseInt(req.body.numero),
       Descripcion: req.body.descripcion,
-      EstadoAsistencia: true,
+      EstadoAsistencia: false,
       CodigoSemanaAcademica: req.body.codigoSemanaAcademica,
       LinkClaseVirtual: req.body.linkClaseVirtual,
       Fecha: req.body.fecha,
@@ -367,7 +367,7 @@ const deshabilitarAsistencia = async (req, res) => {
     await Sesion.update(
       { EstadoAsistencia: false },
       {
-        where: { Codigo: req.query.codigo },
+        where: { Codigo: req.body.codigo },
       }
     );
 
@@ -385,7 +385,7 @@ const habilitarAsistencia = async (req, res) => {
     await Sesion.update(
       { EstadoAsistencia: true },
       {
-        where: { Codigo: req.query.codigo },
+        where: { Codigo: req.body.codigo },
       }
     );
 
