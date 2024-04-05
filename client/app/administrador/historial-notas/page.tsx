@@ -26,6 +26,7 @@ export default function Page() {
 
     const [estudiante, setEstudiante] = useState<any>()
     const [dni, setDni] = useState('')
+    const [globalFilter, setGlobalFilter] = useState('');
 
     const fetchHistorial = async () => {
         setLoading(true)
@@ -88,6 +89,25 @@ export default function Page() {
         return !fecha || fecha === 'undefined' ? '' : formatDate(new Date(fecha));
     };
 
+    const renderHeader = () => {
+        return (
+            <div className="flex justify-content-between">
+                <Button className='px-2 py-1 border-none mb-2'
+                        size='small'
+                        label="Vista PDF"
+                        icon="pi pi-file-pdf"
+                        onClick={() => obtenerPDFHistorial()}
+                    />
+                <span className="p-input-icon-left">
+                    <i className="pi pi-search" />
+                    <InputText type='search' value={globalFilter} onInput={(e) => setGlobalFilter(e.currentTarget.value)}  placeholder="Buscar..." />
+                </span>
+            </div>
+        );
+    };
+
+    const header = renderHeader();
+
     const formatDate = (value: Date) => {
         return value.toLocaleDateString();
     };
@@ -131,18 +151,15 @@ export default function Page() {
             </div>
             <div className='col-12 md:col-9'>
                 <div className='card'>
-                    <Button className='px-2 py-1 border-none mb-2'
-                        size='small'
-                        label="Vista PDF"
-                        icon="pi pi-file-pdf"
-                        onClick={() => obtenerPDFHistorial()}
-                    />
                     <DataTable
                         ref={dt}
                         value={actas}
                         key="Acta"
                         className="datatable-responsive"
-                        emptyMessage={status != 'authenticated' ? 'Cargando...' : 'Sin registros'}
+                        header={header}
+                        emptyMessage="Historial vacío"
+                        globalFilter={globalFilter}
+                        loading={loading}
                     >
                         <Column field="Codigo" header="Codigo" />
                         <Column field="Curso" header="Nombre" />

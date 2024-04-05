@@ -10,6 +10,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
+import { InputText } from 'primereact/inputtext';
 
 export default function Page() {
 
@@ -20,12 +21,16 @@ export default function Page() {
 
     const [pdfHistorialURL, setPdfHistorialURL] = useState('')
     const [visible, setVisible] = useState(false);
+    const [loading, setLoading] = useState(false)
+
+    const [globalFilter, setGlobalFilter] = useState('');
 
     useEffect(() => {
         if (status === "authenticated") fetchActas();
     }, [status]);
 
     const fetchActas = async () => {
+        setLoading(true)
         await axios.get('/acta/estudiante', {
             params: {
                 CodigoEstudiante: session?.user.codigoEstudiante,
@@ -46,6 +51,7 @@ export default function Page() {
                 life: 3000
             });
         })
+        setLoading(false)
     }
 
     const obtenerPDFHistorial = async () => {
@@ -78,6 +84,25 @@ export default function Page() {
         return <p style={Number(rowData.Nota) >= 11 ? { color: 'blue' } : { color: 'red' }}> {rowData.Nota} </p>
     }
 
+    const renderHeader = () => {
+        return (
+            <div className="flex justify-content-between">
+                <Button className='px-2 py-1 border-none mb-2'
+                        size='small'
+                        label="Vista PDF"
+                        icon="pi pi-file-pdf"
+                        onClick={() => obtenerPDFHistorial()}
+                    />
+                <span className="p-input-icon-left">
+                    <i className="pi pi-search" />
+                    <InputText type='search' value={globalFilter} onInput={(e) => setGlobalFilter(e.currentTarget.value)}  placeholder="Buscar..." />
+                </span>
+            </div>
+        );
+    };
+
+    const header = renderHeader();
+
     if (status === "loading") {
         return (
             <>
@@ -104,18 +129,16 @@ export default function Page() {
             </div>
             <div className='col-12 md:col-9'>
                 <div className='card'>
-                    <Button className='px-2 py-1 border-none mb-2'
-                        size='small'
-                        label="Vista PDF"
-                        icon="pi pi-file-pdf"
-                        onClick={() => obtenerPDFHistorial()}
-                    />
+                    
                     <DataTable
                         ref={dt}
+                        header={header}
                         value={actas}
                         dataKey="CodigoMat"
                         className="datatable-responsive"
-                        emptyMessage={status != 'authenticated' ? 'Cargando...' : 'Sin registros'}
+                        emptyMessage='Historial vacío'
+                        loading={loading}
+                        globalFilter={globalFilter}
                     >
                         <Column field="Codigo" header="Codigo" />
                         <Column field="Curso" header="Nombre" />

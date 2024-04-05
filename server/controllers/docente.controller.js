@@ -9,11 +9,11 @@ const getDocente = async (req, res) => {
           model: Persona,
           include: [
             {
-              model: Usuario
-            }
-          ]
+              model: Usuario,
+            },
+          ],
         },
-      ]
+      ],
     });
 
     res.json({
@@ -37,13 +37,7 @@ const getPerfilDocente = async (req, res) => {
       include: [
         {
           model: Persona,
-          attributes: [
-            "Nombres",
-            "Paterno",
-            "Materno",
-            "RutaFoto",
-            "DNI",
-          ],
+          attributes: ["Nombres", "Paterno", "Materno", "RutaFoto", "DNI"],
         },
       ],
       where: { CodigoPersona: CodigoDocente },
@@ -121,11 +115,21 @@ const actualizarDocente = async (req, res) => {
         FechaNacimiento: req.body.fechaNacimiento,
         Sexo: req.body.sexo,
         DNI: req.body.DNI,
-        Email: req.body.email,
       },
       {
         where: {
           Codigo: req.body.codigoPersona,
+        },
+      }
+    );
+
+    const usuario = await Usuario.update(
+      {
+        Email: req.body.email,
+      },
+      {
+        where: {
+          CodigoPersona: req.body.codigoPersona,
         },
       }
     );
@@ -144,6 +148,7 @@ const actualizarDocente = async (req, res) => {
 
     res.json({
       Estado: "Actualizado con éxito",
+      usuario,
       persona,
       docente,
     });
@@ -172,7 +177,9 @@ const actualizarFoto = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error en la actualización de foto docente" });
+    res
+      .status(500)
+      .json({ error: "Error en la actualización de foto docente" });
   }
 };
 
