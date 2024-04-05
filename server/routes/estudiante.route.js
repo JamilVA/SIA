@@ -2,7 +2,7 @@ const { Router } = require('express');
 const requireToken = require('../middleware/requireToken');
 //const { check } =  require('express-validator');
 //const { validarCampos } = require('../middlewares/validar-campos');
-const { getEstudiante, crearEstudiante, actualizarEstudiante, buscarEstudiante, getNotas, getEstudianteByCodPersona, obtenerListaEstudiantes, getEstudiantesMatriculados, getEstudiantesMatriculadosCurso, getHistorialByDNI } = require('../controllers/estudiante.controller');
+const { getEstudiante, crearEstudiante, actualizarEstudiante, buscarEstudiante, getNotas, getEstudianteByCodPersona, obtenerListaEstudiantes, getEstudiantesMatriculados, getEstudiantesMatriculadosCurso, getHistorialByDNI, actualizarDatosPersonales } = require('../controllers/estudiante.controller');
 
 const router = Router();
 
@@ -11,6 +11,8 @@ router.get('/', requireToken, getEstudiante);
 router.post('/', requireToken, crearEstudiante);
 
 router.put('/', requireToken, actualizarEstudiante);
+
+router.patch('/upDatosPersonales', requireToken, actualizarDatosPersonales);
 
 router.get('/buscar', requireToken, buscarEstudiante);
 

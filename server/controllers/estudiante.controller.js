@@ -295,8 +295,30 @@ const actualizarEstudiante = async (req, res) => {
     res.status(403).json({
       error: error,
     });
+    console.log(error)
   }
 };
+
+const actualizarDatosPersonales = async (req, res) => {
+  console.log(req)
+  try {
+    await Persona.update({
+      Direccion: req.body.Direccion,
+      EmailPersonal: req.body.EmailPersonal,
+      Celular: req.body.Celular
+    }, {
+      where: {
+        Codigo: req.body.CodigoPersona
+      }
+    })
+    res.json({
+      Estado: "Actualizado con éxito",
+    })
+  } catch (error) {
+    res.status(403).json({ error: error })
+    console.log(error)
+  }
+}
 
 const buscarEstudiante = async (req, res) => {
   try {
@@ -502,5 +524,6 @@ module.exports = {
   getNotas,
   getEstudianteByCodPersona,
   obtenerListaEstudiantes,
-  getHistorialByDNI
+  getHistorialByDNI,
+  actualizarDatosPersonales
 };

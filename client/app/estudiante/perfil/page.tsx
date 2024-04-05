@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import Perfil from "../../../components/Perfil"
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
+import { AxiosError } from 'axios';
 
 export default function Page() {
 
@@ -84,7 +85,7 @@ export default function Page() {
                 }
             });
             setEstudiante(result.data.estudiante);
-            // console.log(result.data.estudiante)
+            console.log(result.data.estudiante)
         } catch (e) {
             toast.current?.show({
                 severity: 'error',
@@ -96,41 +97,34 @@ export default function Page() {
     }
 
     const onUpdate = async () => {
-        var response = '';
         try {
-            const result = await axios.put("/estudiante", params, {
+            await axios.patch("/estudiante/upDatosPersonales", params, {
                 headers: {
                     Authorization: 'Bearer ' + session?.user.token
                 }
             });
-            response = result.data.Estado;
-            fetchData();
 
-            if (response == "Error") {
+            fetchData()
+            setEstudianteDialog(false);
+            setParams(paramsUpdate);
+
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Successful',
+                detail: 'Registro actualizado',
+                life: 3000
+            });
+
+        } catch (error) {
+            if (error instanceof AxiosError) {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error',
                     detail: 'Error al actualizar',
                     life: 3000
                 });
-            } else {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Registro actualizado',
-                    life: 3000
-                });
             }
-        } catch (e) {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error al actualizar',
-                life: 3000
-            });
         }
-        setEstudianteDialog(false);
-        setParams(paramsUpdate);
     }
 
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
@@ -207,11 +201,11 @@ export default function Page() {
                 <div className='card'>
                     <h5>Otros datos <i className='pi pi-pencil' onClick={() => editEstudiante(estudiante)} style={{ color: 'orange', cursor: 'pointer', fontSize: '1.2rem' }}></i></h5>
                     <h6><i className='pi pi-home' style={{ marginRight: '3px', color: 'blue' }}></i>Dirección</h6>
-                    <p>{estudiante.Persona.Direccion != null ? estudiante.Persona.Direccion : '...'}</p>
+                    <p>{estudiante.Persona.Direccion != null && estudiante.Persona.Direccion != '' ? estudiante.Persona.Direccion : '...'}</p>
                     <h6><i className='pi pi-at' style={{ marginRight: '3px', color: 'blue' }}></i>Correo Personal</h6>
-                    <p>{estudiante.Persona.EmailPersonal != null ? estudiante.Persona.EmailPersonal : '...'}</p>
+                    <p>{estudiante.Persona.EmailPersonal != null && estudiante.Persona.EmailPersonal != '' ? estudiante.Persona.EmailPersonal : '...'}</p>
                     <h6><i className='pi pi-phone' style={{ marginRight: '3px', color: 'blue' }}></i>Telef. Móvil</h6>
-                    <p>{estudiante.Persona.Celular != null ? estudiante.Persona.Celular : '...'}</p>
+                    <p>{estudiante.Persona.Celular != null && estudiante.Persona.Celular != '' ? estudiante.Persona.Celular : '...'}</p>
                 </div>
             </div>
 
