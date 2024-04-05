@@ -133,19 +133,19 @@ export default function Curso() {
             });
 
             const { curso, unidades, semanas, sesiones } = data;
-            const fechaInicio = new Date(curso.Periodo.FechaInicio);
+            const fechaInicio = new Date(curso?.Periodo.FechaInicio);
 
             // console.log(data);
 
             setFechaInicioClases(fechaInicio); // 4 de marzo de 2024 (meses en JavaScript son 0-indexados)
             setCursoCalificaion(curso);
-            setHorarios(curso.Horarios);
-            setCurso(curso.Curso);
+            setHorarios(curso?.Horarios);
+            setCurso(curso?.Curso);
             setUnidades(unidades);
             setSemanas(semanas);
             setSesiones(sesiones);
-            if (curso.RutaImagenPortada) {
-                obtenerArchivo(curso.RutaImagenPortada);
+            if (curso?.RutaImagenPortada) {
+                obtenerArchivo(curso?.RutaImagenPortada);
             } else {
                 setImagenURL('/images/banner.jpg');
             }
@@ -1014,19 +1014,19 @@ export default function Curso() {
                         <label htmlFor="horasTeoria" className="font-bold">
                             Horas Teoria
                         </label>
-                        <InputText id="horasTeoria" value={curso.HorasTeoria.toString()} disabled />
+                        <InputText id="horasTeoria" value={curso?.HorasTeoria.toString()} disabled />
                     </div>
                     <div className="field col">
                         <label htmlFor="horasPractica" className="font-bold">
                             Horas Práctica
                         </label>
-                        <InputText id="horasPractica" value={curso.HorasPractica.toString()} disabled />
+                        <InputText id="horasPractica" value={curso?.HorasPractica.toString()} disabled />
                     </div>
                     <div className="field col">
                         <label htmlFor="semestre" className="font-bold">
                             Créditos
                         </label>
-                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
                     </div>
                 </div>
                 <div className="formgrid grid">

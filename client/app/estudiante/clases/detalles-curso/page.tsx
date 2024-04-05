@@ -128,8 +128,8 @@ export default function Curso() {
             setUnidades(unidades);
             setSemanas(semanas);
             setSesiones(sesiones);
-            if (curso.RutaImagenPortada) {
-                obtenerArchivo(curso.RutaImagenPortada);
+            if (curso?.RutaImagenPortada) {
+                obtenerArchivo(curso?.RutaImagenPortada);
             } else {
                 setImagenURL('/images/banner.jpg');
             }
@@ -358,7 +358,7 @@ export default function Curso() {
     const title = (curso: typeof cursoVacio) => {
         return (
             <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-                <h4>{curso.Nombre}</h4>
+                <h4>{curso?.Nombre}</h4>
             </div>
         );
     };
@@ -387,16 +387,16 @@ export default function Curso() {
             </div>
             <div className="col-12 md:col-9">
                 <div>
-                    <Card header={header} title={title(curso)} subTitle={'Codigo (' + curso.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
+                    <Card header={header} title={title(curso)} subTitle={'Codigo (' + curso?.Codigo + ')'} style={{ border: 'none', borderRadius: 0, boxShadow: 'none' }}></Card>
                     <TabView>
                         <TabPanel header="Datos del curso" leftIcon="pi pi-info-circle mr-2">
                             <div className="p-fluid">
                                 <div className="field">
                                     <div className="text-center">
                                         <span className="text-primary" style={{ fontWeight: 'bold' }}>
-                                            {curso.Nombre}
+                                            {curso?.Nombre}
                                         </span>
-                                        <span className="text-primary"> ({curso.Codigo})</span>
+                                        <span className="text-primary"> ({curso?.Codigo})</span>
                                         <br />
                                         <small className="text-muted">{curso?.CarreraProfesional?.NombreCarrera}</small>
                                     </div>
@@ -406,13 +406,13 @@ export default function Curso() {
                                         <label htmlFor="nivel" className="font-bold">
                                             Año
                                         </label>
-                                        <InputText id="nivel" value={curso.Nivel.toString()} disabled />
+                                        <InputText id="nivel" value={curso?.Nivel.toString()} disabled />
                                     </div>
                                     <div className="field col">
                                         <label htmlFor="semestre" className="font-bold">
                                             Semestre
                                         </label>
-                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
                                     </div>
                                 </div>
                                 <div className="formgrid grid">
@@ -420,19 +420,19 @@ export default function Curso() {
                                         <label htmlFor="horasTeoria" className="font-bold">
                                             Horas Teoria
                                         </label>
-                                        <InputText id="horasTeoria" value={curso.HorasTeoria.toString()} disabled />
+                                        <InputText id="horasTeoria" value={curso?.HorasTeoria.toString()} disabled />
                                     </div>
                                     <div className="field col">
                                         <label htmlFor="horasPractica" className="font-bold">
                                             Horas Práctica
                                         </label>
-                                        <InputText id="horasPractica" value={curso.HorasPractica.toString()} disabled />
+                                        <InputText id="horasPractica" value={curso?.HorasPractica.toString()} disabled />
                                     </div>
                                     <div className="field col">
                                         <label htmlFor="semestre" className="font-bold">
                                             Créditos
                                         </label>
-                                        <InputText id="semestre" value={curso.Semestre.toString()} disabled />
+                                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
                                     </div>
                                 </div>
 
