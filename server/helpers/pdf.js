@@ -221,10 +221,9 @@ const generarPDFHistorialNotas = async (data, res) => {
     const table = {
         headers: [
             { property: 'Codigo', label: 'CÓDIGO', width: 60, align: 'center' },
-            { property: 'Curso', label: 'CURSO', width: 120, align: 'left', headerAlign: 'center' },
+            { property: 'Curso', label: 'CURSO', width: 150, align: 'left', headerAlign: 'center' },
             { property: 'Nota', label: 'NOTA', width: 50, align: 'center' },
-            { property: 'Nivel', label: 'NIVEL', width: 50, align: 'center' },
-            { property: 'Semestre', label: 'SEMESTRE', width: 55, align: 'center' },
+            { property: 'Ciclo', label: 'CICLO', width: 50, align: 'center' },
             { property: 'Creditos', label: 'CRÉDITOS', width: 60, align: 'center' },
             { property: 'Acta', label: 'ACTA', width: 60, align: 'center' },
             { property: 'Fecha', label: 'FECHA', width: 60, align: 'center',
