@@ -227,7 +227,10 @@ const generarPDFHistorialNotas = async (data, res) => {
             { property: 'Creditos', label: 'CRÉDITOS', width: 60, align: 'center' },
             { property: 'Acta', label: 'ACTA', width: 60, align: 'center' },
             { property: 'Fecha', label: 'FECHA', width: 60, align: 'center',
-                renderer: (value, indexColumn, indexRow, row, rectRow, rectCell) => { return new Date(value).toLocaleDateString() } 
+                renderer: (value, indexColumn, indexRow, row, rectRow, rectCell) => { 
+                    if(value === undefined) return ''
+                    return new Date(value).toLocaleDateString() 
+                } 
             }
         ],
         datas: data.historial,
