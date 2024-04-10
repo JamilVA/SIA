@@ -156,14 +156,14 @@ const getCursosLlevar = async (req, res) => {
         },
         {
           model: Periodo,
-          attributes: [],
+          attributes: ['Estado'],
           where: { Estado: true },
         },
       ],
     });
 
     const ultimaMatricula = await Matricula.findAll({
-      attributes: [],
+      attributes: ['CodigoEstudiante','NotaFinal', 'CodigoCursoCalificacion'],
       where: {
         CodigoEstudiante,
         "$CursoCalificacion.Periodo.Estado$": false,
@@ -205,7 +205,7 @@ const getCursosLlevar = async (req, res) => {
         },
         {
           model: Matricula,
-          attributes: [],
+          attributes: ['CodigoEstudiante'],
           where: { CodigoEstudiante },
         },
       ],

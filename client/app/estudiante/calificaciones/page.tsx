@@ -88,18 +88,22 @@ export default function Page() {
         return (
             <div className="flex justify-content-between">
                 <Button className='px-2 py-1 border-none mb-2'
-                        size='small'
-                        label="Vista PDF"
-                        icon="pi pi-file-pdf"
-                        onClick={() => obtenerPDFHistorial()}
-                    />
+                    size='small'
+                    label="Vista PDF"
+                    icon="pi pi-file-pdf"
+                    onClick={() => obtenerPDFHistorial()}
+                />
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
-                    <InputText type='search' value={globalFilter} onInput={(e) => setGlobalFilter(e.currentTarget.value)}  placeholder="Buscar..." />
+                    <InputText type='search' value={globalFilter} onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Buscar..." />
                 </span>
             </div>
         );
     };
+
+    const cicloTemplate = (rowData: any) => {
+        return (rowData.Nivel - 1) * 2 + rowData.Semestre;
+    }
 
     const header = renderHeader();
 
@@ -129,7 +133,7 @@ export default function Page() {
             </div>
             <div className='col-12 md:col-9'>
                 <div className='card'>
-                    
+
                     <DataTable
                         ref={dt}
                         header={header}
@@ -143,8 +147,7 @@ export default function Page() {
                         <Column field="Codigo" header="Codigo" />
                         <Column field="Curso" header="Nombre" />
                         <Column field="Nota" header="Nota" body={actionNFTemplate} />
-                        <Column field="Nivel" header="Nivel" />
-                        <Column field="Semestre" header="Semestre" />
+                        <Column body={cicloTemplate} header="Ciclo" />
                         <Column field="Creditos" header="Creditos" />
                         <Column field="Acta" header="Acta" />
                         <Column field="Fecha" header="Fecha" />
