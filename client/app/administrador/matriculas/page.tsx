@@ -293,6 +293,10 @@ export default function Matricula() {
         return rowData.Curso.Semestre;
     };
 
+    const cicloBodyTemplate = (rowData: any) => {
+        return (rowData.Curso.Nivel - 1) * 2 + rowData.Curso.Semestre;
+    };
+
     const creditosBodyTemplate = (rowData: any) => {
         return rowData.Curso.Creditos;
     };
@@ -433,8 +437,7 @@ export default function Matricula() {
                     >
                         <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                         <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
-                        <Column header="Nivel" body={nivelBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                        <Column header="Semestre" body={semestreBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                        <Column header="Ciclo" body={cicloBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                         <Column header="Creditos" body={creditosBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                         <Column body={actionBodyTemplate1} exportable={false} style={{ minWidth: '8rem' }}></Column>
                     </DataTable>
@@ -456,8 +459,7 @@ export default function Matricula() {
                     >
                         <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                         <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
-                        <Column header="Nivel" body={nivelBodyTemplate} style={{ minWidth: '4rem' }}></Column>
-                        <Column header="Semestre" body={semestreBodyTemplate} style={{ minWidth: '4rem' }}></Column>
+                        <Column header="Ciclo" body={cicloBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                         <Column header="Creditos" body={creditosBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                         <Column body={actionBodyTemplate2} exportable={false} style={{ minWidth: '8rem' }}></Column>
                     </DataTable>
