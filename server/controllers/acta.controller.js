@@ -59,7 +59,7 @@ const getActas = async (req, res) => {
 const getActasByEstudiante = async (req, res) => {
     try {
         const matriculas = await Matricula.findAll({
-            where: { CodigoEstudiante: req.query.CodigoEstudiante, NotaFinal: { [Op.not]: null }, '$CursoCalificacion.Periodo.Estado$' : false},
+            where: { CodigoEstudiante: req.query.CodigoEstudiante, NotaFinal: { [Op.not]: null }, '$CursoCalificacion.Periodo.Estado$': false },
             include: {
                 model: CursoCalificacion,
                 attributes: ["Codigo"],
@@ -73,6 +73,7 @@ const getActasByEstudiante = async (req, res) => {
             Curso: item.CursoCalificacion.Curso.Nombre,
             Nota: item.NotaFinal,
             Nivel: item.CursoCalificacion.Curso.Nivel,
+            Ciclo: (item.CursoCalificacion.Curso.Nivel - 1) * 2 + item.CursoCalificacion.Curso.Semestre,
             Semestre: item.CursoCalificacion.Curso.Semestre,
             Creditos: item.CursoCalificacion.Curso.Creditos,
             Acta: item.CursoCalificacion.Actum?.Codigo,
