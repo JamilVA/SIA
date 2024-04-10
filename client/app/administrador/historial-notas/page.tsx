@@ -164,8 +164,7 @@ export default function Page() {
                         <Column field="Codigo" header="Codigo" />
                         <Column field="Curso" header="Nombre" />
                         <Column field="Nota" header="Nota" body={actionNFTemplate} />
-                        <Column field="Nivel" header="Nivel" />
-                        <Column field="Semestre" header="Semestre" />
+                        <Column field="Ciclo" header="Ciclo" />
                         <Column field="Creditos" header="Creditos" />
                         <Column field="Acta" header="Acta" />
                         <Column field="Fecha" header="Fecha" body={dateBodyTemplate} />
