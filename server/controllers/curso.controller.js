@@ -43,7 +43,7 @@ const crearCurso = async (req, res) => {
       curso,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.json({
       Estado: "Error",
       Error: error,
@@ -184,17 +184,15 @@ const obtenerListaCursos = async (req, res) => {
 
     if (listaCursos.length > 0) {
       cursos = listaCursos.map((curso) => ({
-        Codigo: curso.dataValues.Codigo,
-        Curso: curso.dataValues.Nombre,
-        Nivel: curso.dataValues.Nivel,
-        Semestre: curso.dataValues.Semestre,
-        Creditos: curso.dataValues.Creditos,
-        Tipo: curso.dataValues.Tipo,
-        HorasTeoria: curso.dataValues.HorasTeoria,
-        HorasPractica: curso.dataValues.HorasPractica,
-        Prerequisito: curso.dataValues.CodigoCurso
-          ? curso.dataValues.CodigoCurso
-          : "NO",
+        Codigo: curso.dataValues.Codigo ?? "NO",
+        Curso: curso.dataValues.Nombre ?? "NO",
+        Nivel: curso.dataValues.Nivel ?? "NO",
+        Semestre: curso.dataValues.Semestre ?? "NO",
+        Creditos: curso.dataValues.Creditos ?? "NO",
+        Tipo: curso.dataValues.Tipo ?? "NO",
+        HorasTeoria: curso.dataValues.HorasTeoria ?? "NO",
+        HorasPractica: curso.dataValues.HorasPractica ?? "NO",
+        Prerequisito: curso.dataValues.CodigoCurso ?? "NO",
       }));
     } else {
       cursos = [
@@ -222,7 +220,6 @@ const obtenerListaCursos = async (req, res) => {
     doc.on("pageAdded", () => {
       setHeader(doc, carreraprofesional);
       doc.page.margins = { top: 120, left: 10, right: 10, bottom: 20 };
-
     });
 
     doc.addPage();
@@ -271,7 +268,6 @@ const obtenerListaCursos = async (req, res) => {
     res.status(500).send("Error al generar la lista de cursos");
   }
 };
-
 
 module.exports = {
   getCurso,
