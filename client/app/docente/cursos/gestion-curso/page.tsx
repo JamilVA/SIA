@@ -827,20 +827,7 @@ export default function Curso() {
                                         <small className="text-muted">{curso?.CarreraProfesional?.NombreCarrera}</small>
                                     </div>
                                 </div>
-                                <div className="formgrid grid">
-                                    <div className="field col">
-                                        <label htmlFor="nivel" className="font-bold">
-                                            Año
-                                        </label>
-                                        <InputText id="nivel" value={curso?.Nivel?.toString()} disabled />
-                                    </div>
-                                    <div className="field col">
-                                        <label htmlFor="semestre" className="font-bold">
-                                            Semestre
-                                        </label>
-                                        <InputText id="semestre" value={curso?.Semestre?.toString()} disabled />
-                                    </div>
-                                </div>
+
                                 <div className="formgrid grid">
                                     <div className="field col">
                                         <label htmlFor="horasTeoria" className="font-bold">
@@ -873,7 +860,7 @@ export default function Curso() {
                                                 severity="info"
                                                 className="mr-2"
                                                 onClick={() => descargarArchivo(cursoCalificacion?.RutaSyllabus)}
-                                                disabled={cursoCalificacion?.RutaSyllabus == ''}
+                                                disabled={cursoCalificacion.RutaSyllabus == ''}
                                                 style={{ width: '150px' }}
                                             />
                                         </div>{' '}
@@ -993,20 +980,6 @@ export default function Curso() {
                         <span className="text-primary"> ({curso?.Codigo})</span>
                         <br />
                         <small className="text-muted">{curso?.CarreraProfesional?.NombreCarrera}</small>
-                    </div>
-                </div>
-                <div className="formgrid grid">
-                    <div className="field col">
-                        <label htmlFor="nivel" className="font-bold">
-                            Año
-                        </label>
-                        <InputText id="nivel" value={curso?.Nivel.toString()} disabled />
-                    </div>
-                    <div className="field col">
-                        <label htmlFor="semestre" className="font-bold">
-                            Semestre
-                        </label>
-                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
                     </div>
                 </div>
                 <div className="formgrid grid">

@@ -403,20 +403,6 @@ export default function Curso() {
                                 </div>
                                 <div className="formgrid grid">
                                     <div className="field col">
-                                        <label htmlFor="nivel" className="font-bold">
-                                            Año
-                                        </label>
-                                        <InputText id="nivel" value={curso?.Nivel.toString()} disabled />
-                                    </div>
-                                    <div className="field col">
-                                        <label htmlFor="semestre" className="font-bold">
-                                            Semestre
-                                        </label>
-                                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
-                                    </div>
-                                </div>
-                                <div className="formgrid grid">
-                                    <div className="field col">
                                         <label htmlFor="horasTeoria" className="font-bold">
                                             Horas Teoria
                                         </label>
