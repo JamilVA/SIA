@@ -38,6 +38,13 @@ const getEstudiante = async (req, res) => {
 
 const getEstudiantesMatriculados = async (req, res) => {
   try {
+
+    const periodoVigente = await Periodo.findOne({
+      where: { Estado: true }
+    })
+
+    if (!periodoVigente) return res.json({estudiantes: [], periodoVigente: { Denominacion: 'INACTIVO'}})
+
     const data = await Estudiante.findAll({
       include: [
         {
@@ -61,9 +68,7 @@ const getEstudiantesMatriculados = async (req, res) => {
       ], where: { '$Matriculas.CursoCalificacion.Periodo.Estado$': true }
     });
 
-    const periodoVigente = await Periodo.findOne({
-      where: { Estado: true }
-    })
+    if(data.length <= 0) return res.json({estudiantes: [], periodoVigente: periodoVigente})
 
     const estudiantes = data.map(estudiante => ({
       CodigoSunedu: estudiante.CodigoSunedu,
@@ -371,11 +376,11 @@ const getHistorialByDNI = async (req, res) => {
     })
     if (!estudiante) return res.json({ message: 'Estudiante no encontrado' })
     const matriculas = await Matricula.findAll({
-      where: { CodigoEstudiante: estudiante.Codigo, NotaFinal: { [Op.not]: null } },
+      where: { CodigoEstudiante: estudiante.Codigo, NotaFinal: { [Op.not]: null }, '$CursoCalificacion.Periodo.Estado$': false },
       include: {
         model: CursoCalificacion,
         attributes: ["Codigo"],
-        include: [Curso, Acta]
+        include: [Curso, Acta, Periodo]
       }
     })
 

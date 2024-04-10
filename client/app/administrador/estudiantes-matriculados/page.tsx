@@ -41,23 +41,25 @@ export default function Page() {
     }, [status]);
 
     const fetchData = async () => {
-        try {
-            const result = await axios("/estudiante/estudiantesMatriculados", {
-                headers: {
-                    Authorization: 'Bearer ' + session?.user.token
-                }
-            });
-            setestudiantes(result.data.estudiantes);
-            setTempEstudiantes(result.data.estudiantes)
-            setPeriodo(result.data.periodoVigente.Denominacion)
-        } catch (e) {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Data no encontrada',
-                life: 3000
-            });
-        }
+
+        await axios("/estudiante/estudiantesMatriculados", {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        })
+            .then(response => {
+                setestudiantes(response.data.estudiantes);
+                setTempEstudiantes(response.data.estudiantes)
+                setPeriodo(response.data.periodoVigente.Denominacion)
+            })
+            .catch(error => {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: !error.response ? error.message : error.response.data.error,
+                    life: 3000
+                });
+            })
     }
 
     const fetchDataEstudiantes = async (codigoCurso: string) => {
