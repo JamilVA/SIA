@@ -11,7 +11,6 @@ import 'primeflex/primeflex.css';
 import { Toast } from 'primereact/toast';
 import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
 import { Button } from 'primereact/button';
-import { Tooltip } from 'primereact/tooltip';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { redirect, useSearchParams } from 'next/navigation';
@@ -604,6 +603,7 @@ export default function Curso() {
                     life: 3000
                 });
             });
+        cargarDatos();
         setLoading(false);
     };
 
