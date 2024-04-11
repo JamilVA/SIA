@@ -98,7 +98,7 @@ const Perfil = () => {
                 // console.log(result)
                 setPersona(result.data.persona);
                 if (result.data.persona.RutaFoto) {
-                    await obtenerArchivo(result.data.docente.Persona.RutaFoto);
+                    await obtenerArchivo(result.data.persona.RutaFoto);
                 } else {
                     setImagenURL('/images/usuario.png');
                 }
