@@ -1,3 +1,4 @@
+const { sequelize } = require("../config/database");
 const { Docente, Persona, Usuario } = require("../config/relations");
 const bcrypt = require("bcryptjs");
 
@@ -65,32 +66,37 @@ const hash = (password) => {
 
 const crearDocente = async (req, res) => {
   try {
-    const persona = await Persona.create({
-      Codigo: null,
-      Paterno: req.body.paterno,
-      Materno: req.body.materno,
-      Nombres: req.body.nombres,
-      RutaFoto: req.body.rutaFoto,
-      FechaNacimiento: req.body.fechaNacimiento,
-      Sexo: req.body.sexo,
-      DNI: req.body.DNI,
-    });
+    let persona = null
+    let docente = null
+    let usuario = null
+    await sequelize.transaction(async (t) => {
+      persona = await Persona.create({
+        Codigo: null,
+        Paterno: req.body.paterno,
+        Materno: req.body.materno,
+        Nombres: req.body.nombres,
+        RutaFoto: req.body.rutaFoto,
+        FechaNacimiento: req.body.fechaNacimiento,
+        Sexo: req.body.sexo,
+        DNI: req.body.DNI,
+      }, { transaction: t });
 
-    const docente = await Docente.create({
-      Codigo: null,
-      CondicionLaboral: req.body.condicionLaboral,
-      Estado: true,
-      CodigoPersona: persona.Codigo,
-    });
+      docente = await Docente.create({
+        Codigo: null,
+        CondicionLaboral: req.body.condicionLaboral,
+        Estado: true,
+        CodigoPersona: persona.Codigo,
+      }, { transaction: t });
 
-    const usuario = await Usuario.create({
-      Codigo: null,
-      Estado: true,
-      CodigoPersona: persona.Codigo,
-      CodigoNivelUsuario: 3,
-      Email: req.body.email,
-      Password: hash(req.body.DNI),
-    });
+      usuario = await Usuario.create({
+        Codigo: null,
+        Estado: true,
+        CodigoPersona: persona.Codigo,
+        CodigoNivelUsuario: 3,
+        Email: req.body.email,
+        Password: hash(req.body.DNI),
+      }, { transaction: t });
+    })
 
     res.json({
       Estado: "Guardado con éxito",
@@ -106,45 +112,50 @@ const crearDocente = async (req, res) => {
 
 const actualizarDocente = async (req, res) => {
   try {
-    const persona = await Persona.update(
-      {
-        Paterno: req.body.paterno,
-        Materno: req.body.materno,
-        Nombres: req.body.nombres,
-        RutaFoto: req.body.rutaFoto,
-        FechaNacimiento: req.body.fechaNacimiento,
-        Sexo: req.body.sexo,
-        DNI: req.body.DNI,
-      },
-      {
-        where: {
-          Codigo: req.body.codigoPersona,
+    let persona = null
+    let usuario = null
+    let docente = null
+    await sequelize.transaction(async (t) => {
+      persona = await Persona.update(
+        {
+          Paterno: req.body.paterno,
+          Materno: req.body.materno,
+          Nombres: req.body.nombres,
+          RutaFoto: req.body.rutaFoto,
+          FechaNacimiento: req.body.fechaNacimiento,
+          Sexo: req.body.sexo,
+          DNI: req.body.DNI,
         },
-      }
-    );
+        {
+          where: {
+            Codigo: req.body.codigoPersona,
+          }, transaction: t
+        }
+      );
 
-    const usuario = await Usuario.update(
-      {
-        Email: req.body.email,
-      },
-      {
-        where: {
-          CodigoPersona: req.body.codigoPersona,
+      usuario = await Usuario.update(
+        {
+          Email: req.body.email,
         },
-      }
-    );
+        {
+          where: {
+            CodigoPersona: req.body.codigoPersona,
+          }, transaction: t
+        }
+      );
 
-    const docente = await Docente.update(
-      {
-        CondicionLaboral: req.body.condicionLaboral,
-        Estado: req.body.estado,
-      },
-      {
-        where: {
-          Codigo: req.body.codigo,
+      docente = await Docente.update(
+        {
+          CondicionLaboral: req.body.condicionLaboral,
+          Estado: req.body.estado,
         },
-      }
-    );
+        {
+          where: {
+            Codigo: req.body.codigo,
+          }, transaction: t
+        }
+      );
+    })
 
     res.json({
       Estado: "Actualizado con éxito",
