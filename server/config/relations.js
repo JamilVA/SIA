@@ -30,6 +30,9 @@ Pago.belongsTo(Estudiante, { foreignKey: "CodigoEstudiante" });
 Persona.hasOne(Estudiante, { foreignKey: "CodigoPersona" });
 Estudiante.belongsTo(Persona, { foreignKey: "CodigoPersona" });
 
+CarreraProfesional.hasMany(Estudiante, { foreignKey: "CodigoCarreraProfesional"})
+Estudiante.belongsTo(CarreraProfesional, { foreignKey: "CodigoCarreraProfesional"});
+
 Sesion.hasMany(Actividad, { foreignKey: 'CodigoSesion' })
 Actividad.belongsTo(Sesion, { foreignKey: 'CodigoSesion' })
 
