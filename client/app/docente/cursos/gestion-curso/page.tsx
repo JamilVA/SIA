@@ -513,16 +513,22 @@ export default function Curso() {
                 let _curso = { ...cursoCalificacion, [key]: response.data.filename };
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'ArchivoSubido' });
                 axios
-                    .put('/curso-calificacion', {
-                        codigo: _curso.Codigo,
-                        rutaSyllabus: _curso.RutaSyllabus,
-                        rutaNormas: _curso.RutaNormas,
-                        rutaPresentacionCurso: _curso.RutaPresentacionCurso,
-                        rutaPresentacionDocente: _curso.RutaPresentacionDocente
-                    })
+                    .put(
+                        '/curso-calificacion',
+                        {
+                            codigo: _curso.Codigo,
+                            rutaSyllabus: _curso.RutaSyllabus,
+                            rutaNormas: _curso.RutaNormas,
+                            rutaPresentacionCurso: _curso.RutaPresentacionCurso,
+                            rutaPresentacionDocente: _curso.RutaPresentacionDocente
+                        },
+                        {
+                            headers: {
+                                Authorization: 'Bearer ' + session?.user.token
+                            }
+                        }
+                    )
                     .then((response) => {
-                        // console.log(response);
-                        toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Imagen actualizada con éxito', life: 3000 });
                         cargarDatos();
                     });
                 setCursoCalificaion(cursoCVacio);
@@ -666,26 +672,25 @@ export default function Curso() {
         const fechaActual = new Date();
         const fechaSesion = new Date(sesion.Fecha);
         fechaSesion.setDate(fechaSesion.getDate() + 1); // Incrementar la fecha en 1 día
-    
+
         const horaInicio = sesion.HoraInicio.split(':');
         const horaFin = sesion.HoraFin.split(':');
-    
+
         const horaApertura = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate(), parseInt(horaInicio[0]), parseInt(horaInicio[1]) - 10);
         const horaCierre = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate(), parseInt(horaFin[0]), parseInt(horaFin[1]) + 10);
-    
+
         console.log('Fecha Actual:', fechaActual);
         console.log('Fecha Sesion:', fechaSesion);
         console.log('Hora Inicio:', horaApertura);
         console.log('Hora Fin:', horaCierre);
-    
+
         const mismaFecha = fechaActual.toDateString() === fechaSesion.toDateString();
-    
+
         const actividadAbierta = mismaFecha && fechaActual >= horaApertura && fechaActual <= horaCierre;
-    
+
         console.log('ActividadAbierta:', actividadAbierta);
         return actividadAbierta;
     };
-    
 
     const actionBodyTemplate = (rowData: any) => {
         verificarFecha(rowData);
