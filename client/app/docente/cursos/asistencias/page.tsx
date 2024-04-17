@@ -238,7 +238,8 @@ export default function AsistenciasPage() {
             .post(
                 '/asistencia/marcar-todo',
                 {
-                    asistencias: asistencias
+                    asistencias: asistencias,
+                    codigoCursoCalificacion: codigoCursoCalificacion
                 },
                 {
                     headers: {

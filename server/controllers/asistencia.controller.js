@@ -4,13 +4,21 @@ const { sequelize } = require("../config/database");
 const generarAsistencias = async (req, res) => {
     try {
         const data = req.body.asistencias
+        const codigoCurso =req.body.codigoCursoCalificacion
         const asistencias = data.map(asistencia => ({
             ...asistencia,
             Estado: true,
             Fecha: new Date(),
             Hora: new Date()
         }))
-        await Asistencia.bulkCreate(asistencias, { ignoreDuplicates: true })
+        
+        await sequelize.transaction(async(t) => {   
+            await Asistencia.bulkCreate(asistencias, { ignoreDuplicates: true, transaction: t })
+            for( const asistencia of asistencias){
+                await consolidarAsistencia(codigoCurso, asistencia.CodigoEstudiante, t)
+            }    
+        })
+        
         res.json({message: 'Asistencias generadas correctamente'})
     } catch (error) {
         console.error(error)
@@ -96,7 +104,7 @@ const consolidarAsistencia = async (codigoCurso, codigoEstudiante, t) => {
             }, 
             transaction: t
         })
-        console.log(asistencias, " ", numeroSesiones, " ", porcentaje)        
+        console.log(asistencias, "\t", numeroSesiones, "\t", porcentaje)        
     } catch (error) {
         throw new Error(error.message)
     }
