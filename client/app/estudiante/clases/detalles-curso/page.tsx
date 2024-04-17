@@ -51,7 +51,7 @@ export default function Curso() {
         Semestre: 0,
         CarreraProfesional: {
             Codigo: 0,
-            NombreCarrera: '',
+            NombreCarrera: ''
         }
     };
 
@@ -105,7 +105,7 @@ export default function Curso() {
     const [matricula, setMatricula] = useState(matriculaVacia);
 
     useEffect(() => {
-        if (status === "authenticated") {
+        if (status === 'authenticated') {
             cargarDatos();
             cargarNotas();
         }
@@ -141,12 +141,13 @@ export default function Curso() {
     };
 
     const descargarArchivo = async (ruta: string) => {
-        await axios.get('/files/download', {
-            params: { fileName: ruta },
-            responseType: 'arraybuffer'
-        })
-            .then(response => {
-                //// console.log(response); 
+        await axios
+            .get('/files/download', {
+                params: { fileName: ruta },
+                responseType: 'arraybuffer'
+            })
+            .then((response) => {
+                //// console.log(response);
                 const file = new File([response.data], ruta);
                 const url = URL.createObjectURL(file);
                 const link = document.createElement('a');
@@ -155,15 +156,15 @@ export default function Curso() {
                 link.click();
                 URL.revokeObjectURL(url);
             })
-            .catch(error => {
-                //// console.error(error.response);           
+            .catch((error) => {
+                //// console.error(error.response);
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Error en la descarga',
-                    detail: error.response ? "El archivo no existe" : error.message,
+                    detail: error.response ? 'El archivo no existe' : error.message,
                     life: 3000
-                })
-            })
+                });
+            });
     };
     const cargarNotas = async () => {
         await axios
@@ -323,7 +324,7 @@ export default function Curso() {
     const semanaBodyTempalte = (rowData: typeof semanaVacia) => {
         return (
             <React.Fragment>
-                <DataTable ref={dt} value={filtrarSesiones(sesiones, rowData.Codigo)} header={headerSemana(rowData)} dataKey="Codigo">
+                <DataTable ref={dt} value={filtrarSesiones(sesiones, rowData.Codigo)} header={headerSemana(rowData)} dataKey="Codigo" emptyMessage="No hay sesiones creadas">
                     <Column headerStyle={{ display: 'none' }} body={numeroBodyTemplate} style={{ minWidth: '1rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} body={sesionBodyTemplate} style={{ minWidth: '14rem' }}></Column>
                     <Column headerStyle={{ display: 'none' }} body={fechaBodyTemplate} style={{ minWidth: '8rem' }}></Column>
@@ -363,20 +364,20 @@ export default function Curso() {
         );
     };
 
-    if (status === "loading") {
+    if (status === 'loading') {
         return (
             <>
-                <div className='flex items-center justify-center align-content-center' style={{ marginTop: '20%' }}>
+                <div className="flex items-center justify-center align-content-center" style={{ marginTop: '20%' }}>
                     <ProgressSpinner style={{ width: '50px', height: '50px' }} strokeWidth="4" />
                 </div>
             </>
-        )
+        );
     }
 
     if (!session) {
-        redirect('/')
+        redirect('/');
     } else if (session?.user.nivelUsuario != 4) {
-        redirect('/pages/notfound')
+        redirect('/pages/notfound');
     }
 
     return (
@@ -418,7 +419,7 @@ export default function Curso() {
                                         <label htmlFor="semestre" className="font-bold">
                                             Créditos
                                         </label>
-                                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
+                                        <InputText id="semestre" value={curso?.Creditos.toString()} disabled />
                                     </div>
                                 </div>
 
@@ -433,8 +434,8 @@ export default function Curso() {
                                                 label="Descargar"
                                                 severity="info"
                                                 className="mr-2"
-                                                onClick={() => descargarArchivo(cursoCalificacion.RutaSyllabus)}
-                                                disabled={cursoCalificacion.RutaSyllabus == ''}
+                                                onClick={() => descargarArchivo(cursoCalificacion?.RutaSyllabus)}
+                                                disabled={cursoCalificacion.RutaSyllabus == '' || cursoCalificacion.RutaSyllabus == null}
                                                 style={{ width: '150px' }}
                                             />
                                         </div>{' '}
@@ -450,7 +451,7 @@ export default function Curso() {
                                                 severity="info"
                                                 className="mr-2"
                                                 onClick={() => descargarArchivo(cursoCalificacion.RutaNormas)}
-                                                disabled={cursoCalificacion.RutaNormas == ''}
+                                                disabled={cursoCalificacion.RutaNormas == '' || cursoCalificacion.RutaNormas == null}
                                                 style={{ width: '150px' }}
                                             />
                                         </div>{' '}
@@ -468,7 +469,7 @@ export default function Curso() {
                                                 severity="info"
                                                 className="mr-2"
                                                 onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionCurso)}
-                                                disabled={cursoCalificacion.RutaPresentacionCurso == ''}
+                                                disabled={cursoCalificacion.RutaPresentacionCurso == '' || cursoCalificacion.RutaPresentacionCurso == null}
                                                 style={{ width: '150px' }}
                                             />
                                         </div>{' '}
@@ -484,7 +485,7 @@ export default function Curso() {
                                                 severity="info"
                                                 className="mr-2"
                                                 onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)}
-                                                disabled={cursoCalificacion.RutaPresentacionDocente == ''}
+                                                disabled={cursoCalificacion.RutaPresentacionDocente == '' || cursoCalificacion.RutaPresentacionDocente == null}
                                                 style={{ width: '150px' }}
                                             />
                                         </div>

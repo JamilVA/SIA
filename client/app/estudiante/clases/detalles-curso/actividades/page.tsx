@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import { Button } from 'primereact/button';
-import { DataTable } from 'primereact/datatable';
 import { DataView } from 'primereact/dataview';
 import { FileUpload, FileUploadFilesEvent } from 'primereact/fileupload';
 import { Toast } from 'primereact/toast';

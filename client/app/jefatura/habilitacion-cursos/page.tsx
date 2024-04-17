@@ -776,14 +776,14 @@ export default function CursoCalificacionPage() {
 
     const productDialogFooter = (
         <>
-            <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={saveCursoCalificacion} />
+            <Button label="Cancelar" icon="pi pi-times" text onClick={hideDialog} />
+            <Button label="Guardar" icon="pi pi-check" text onClick={saveCursoCalificacion} />
         </>
     );
     const deleteProductDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideDeleteCursoCalificacion} />
-            <Button label="Yes" icon="pi pi-check" text onClick={deleteCursoCalificacion} />
+            <Button label="Si" icon="pi pi-check" text onClick={deleteCursoCalificacion} />
         </>
     );
 
