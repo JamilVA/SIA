@@ -5,10 +5,6 @@ const { Estudiante, Persona, Usuario, CarreraProfesional, Matricula, Periodo, Cu
 const bcrypt = require('bcryptjs');
 const PDF = require("pdfkit-construct");
 
-Estudiante.belongsTo(CarreraProfesional, {
-  foreignKey: "CodigoCarreraProfesional",
-});
-
 const getEstudiante = async (req, res) => {
   const estudiantes = await Estudiante.findAll({
     include: [
@@ -43,7 +39,7 @@ const getEstudiantesMatriculados = async (req, res) => {
       where: { Estado: true }
     })
 
-    if (!periodoVigente) return res.json({estudiantes: [], periodoVigente: { Denominacion: 'INACTIVO'}})
+    if (!periodoVigente) return res.json({ estudiantes: [], periodoVigente: { Denominacion: 'INACTIVO' } })
 
     const data = await Estudiante.findAll({
       include: [
@@ -68,7 +64,7 @@ const getEstudiantesMatriculados = async (req, res) => {
       ], where: { '$Matriculas.CursoCalificacion.Periodo.Estado$': true }
     });
 
-    if(data.length <= 0) return res.json({estudiantes: [], periodoVigente: periodoVigente})
+    if (data.length <= 0) return res.json({ estudiantes: [], periodoVigente: periodoVigente })
 
     const estudiantes = data.map(estudiante => ({
       CodigoSunedu: estudiante.CodigoSunedu,
@@ -175,40 +171,46 @@ const crearEstudiante = async (req, res) => {
       return res.status(403).json({ error: "El email ya existe" });
     }
 
-    const persona = await Persona.create({
-      Codigo: null,
-      Paterno: req.body.Paterno,
-      Materno: req.body.Materno,
-      Nombres: req.body.Nombres,
-      RutaFoto: req.body.RutaFoto,
-      FechaNacimiento: req.body.FechaNacimiento,
-      Sexo: req.body.Sexo,
-      DNI: req.body.DNI,
-      Direccion: req.body.Direccion,
-      EmailPersonal: req.body.EmailPersonal,
-      Celular: req.body.Celular
-    });
+    let persona = null
+    let estudiante = null
+    let usuario = null
 
-    const estudiante = await Estudiante.create({
-      Codigo: null,
-      CodigoSunedu: req.body.CodigoSunedu,
-      CreditosLlevados: req.body.CreditosLlevados,
-      CreditosAprobados: req.body.CreditosAprobados,
-      AnioIngreso: new Date().getFullYear().toString(),
-      Estado: req.body.Estado,
-      CodigoPersona: persona.Codigo,
-      CodigoCarreraProfesional: req.body.CodigoCarreraProfesional,
-    });
-
-    const usuario = await Usuario.create(
-      {
+    await sequelize.transaction(async (t) => {
+      persona = await Persona.create({
         Codigo: null,
-        Estado: true,
+        Paterno: req.body.Paterno,
+        Materno: req.body.Materno,
+        Nombres: req.body.Nombres,
+        RutaFoto: req.body.RutaFoto,
+        FechaNacimiento: req.body.FechaNacimiento,
+        Sexo: req.body.Sexo,
+        DNI: req.body.DNI,
+        Direccion: req.body.Direccion,
+        EmailPersonal: req.body.EmailPersonal,
+        Celular: req.body.Celular
+      }, { transaction: t });
+
+      estudiante = await Estudiante.create({
+        Codigo: null,
+        CodigoSunedu: req.body.CodigoSunedu,
+        CreditosLlevados: req.body.CreditosLlevados,
+        CreditosAprobados: req.body.CreditosAprobados,
+        AnioIngreso: new Date().getFullYear().toString(),
+        Estado: req.body.Estado,
         CodigoPersona: persona.Codigo,
-        CodigoNivelUsuario: 4,
-        Email: req.body.Email,
-        Password: hash(req.body.DNI)
-      });
+        CodigoCarreraProfesional: req.body.CodigoCarreraProfesional,
+      }, { transaction: t });
+
+      usuario = await Usuario.create(
+        {
+          Codigo: null,
+          Estado: true,
+          CodigoPersona: persona.Codigo,
+          CodigoNivelUsuario: 4,
+          Email: req.body.Email,
+          Password: hash(req.body.DNI)
+        }, { transaction: t });
+    })
 
     res.json({
       Estado: "Guardado con éxito",
@@ -236,60 +238,65 @@ const actualizarEstudiante = async (req, res) => {
       return res.status(403).json({ error: "El email ya existe" });
     }
 
-    await Persona.update(
-      {
-        Paterno: req.body.Paterno,
-        Materno: req.body.Materno,
-        Nombres: req.body.Nombres,
-        RutaFoto: req.body.RutaFoto,
-        FechaNacimiento: req.body.FechaNacimiento,
-        Sexo: req.body.Sexo,
-        DNI: req.body.DNI,
-        Direccion: req.body.Direccion,
-        EmailPersonal: req.body.EmailPersonal,
-        Celular: req.body.Celular
-      },
-      {
-        where: {
-          Codigo: req.body.CodigoPersona,
+    let persona = null
+    let estudiante = null
+
+    await sequelize.transaction(async (t) => {
+      await Persona.update(
+        {
+          Paterno: req.body.Paterno,
+          Materno: req.body.Materno,
+          Nombres: req.body.Nombres,
+          RutaFoto: req.body.RutaFoto,
+          FechaNacimiento: req.body.FechaNacimiento,
+          Sexo: req.body.Sexo,
+          DNI: req.body.DNI,
+          Direccion: req.body.Direccion,
+          EmailPersonal: req.body.EmailPersonal,
+          Celular: req.body.Celular
         },
-      }
-    );
+        {
+          where: {
+            Codigo: req.body.CodigoPersona,
+          }, transaction: t
+        }
+      );
 
-    const estudiante = await Estudiante.update(
-      {
-        CodigoSunedu: req.body.CodigoSunedu,
-        CreditosLlevados: req.body.CreditosLlevados,
-        CreditosAprobados: req.body.CreditosAprobados,
-        AnioIngreso: new Date().getFullYear().toString(),
-        Estado: req.body.Estado,
-        CodigoCarreraProfesional: req.body.CodigoCarreraProfesional,
-      },
-      {
-        where: {
-          Codigo: req.body.Codigo,
+      estudiante = await Estudiante.update(
+        {
+          CodigoSunedu: req.body.CodigoSunedu,
+          CreditosLlevados: req.body.CreditosLlevados,
+          CreditosAprobados: req.body.CreditosAprobados,
+          AnioIngreso: new Date().getFullYear().toString(),
+          Estado: req.body.Estado,
+          CodigoCarreraProfesional: req.body.CodigoCarreraProfesional,
         },
-      }
-    );
-
-    await Usuario.update(
-      {
-        Email: req.body.Email
-      },
-      {
-        where: {
-          CodigoPersona: req.body.CodigoPersona,
+        {
+          where: {
+            Codigo: req.body.Codigo,
+          }, transaction: t
         }
-      }
-    );
+      );
 
-    const persona = await Persona.findOne(
-      {
-        where: {
-          Codigo: req.body.CodigoPersona,
+      await Usuario.update(
+        {
+          Email: req.body.Email
+        },
+        {
+          where: {
+            CodigoPersona: req.body.CodigoPersona,
+          }, transaction: t
         }
-      }
-    )
+      );
+
+      persona = await Persona.findOne(
+        {
+          where: {
+            Codigo: req.body.CodigoPersona,
+          }, transaction: t
+        }
+      )
+    })
 
     res.json({
       Estado: "Actualizado con éxito",
@@ -388,7 +395,7 @@ const getHistorialByDNI = async (req, res) => {
       Codigo: item.CursoCalificacion.Curso.Codigo,
       Curso: item.CursoCalificacion.Curso.Nombre,
       Nota: item.NotaFinal,
-      Ciclo: (item.CursoCalificacion.Curso.Nivel -1) * 2 + item.CursoCalificacion.Curso.Semestre,
+      Ciclo: (item.CursoCalificacion.Curso.Nivel - 1) * 2 + item.CursoCalificacion.Curso.Semestre,
       Creditos: item.CursoCalificacion.Curso.Creditos,
       Acta: item.CursoCalificacion.Actum?.Codigo,
       Fecha: item.CursoCalificacion.Actum?.FechaGeneracion,
