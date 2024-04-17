@@ -345,7 +345,7 @@ export default function CursoCalificacionPage() {
     const deleteDiaDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideConfirmDeleteDia} />
-            <Button label="Yes" icon="pi pi-check" text onClick={deleteDia} />
+            <Button label="Si" icon="pi pi-check" text onClick={deleteDia} />
         </>
     );
 

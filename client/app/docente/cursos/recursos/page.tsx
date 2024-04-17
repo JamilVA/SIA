@@ -110,7 +110,7 @@ export default function ActividadesPage() {
             setRecursos(_recursos);
             toast.current?.show({
                 severity: 'success',
-                summary: 'Successful',
+                summary: 'Correcto',
                 detail: response.data.message,
                 life: 3000
             });
@@ -131,12 +131,6 @@ export default function ActividadesPage() {
             const response = await axios.put('/recursoAcademico', recurso);
             let _recursos = recursos.map((value) => (value.Codigo === recurso.Codigo ? recurso : value));
             setRecursos(_recursos);
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Successful',
-                detail: response.data.message,
-                life: 3000
-            });
             fetchActividades();
         } catch (error) {
             // console.error(error);
@@ -199,7 +193,7 @@ export default function ActividadesPage() {
             await axios.post('/files/upload', formData).then((response) => {
                 // console.log(response.data.path);
                 let _recurso = { ...recurso, Ruta: response.data.filename, Tipo: tipoArchivo };
-                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
+                toast.current?.show({ severity: 'success', summary: 'Correcto', detail: 'Archivo Subido' });
                 modificarRecurso(_recurso);
                 setRecurso(recursoVacio);
                 setArchivo(null);
@@ -265,15 +259,15 @@ export default function ActividadesPage() {
 
     const productDialogFooter = (
         <>
-            <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={saveActividad} />
+            <Button label="Cancelar" icon="pi pi-times" text onClick={hideDialog} />
+            <Button label="Guardar" icon="pi pi-check" text onClick={saveActividad} />
         </>
     );
 
     const deleteProductDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideDeleteProductDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={deleteRecurso} />
+            <Button label="Si" icon="pi pi-check" text onClick={deleteRecurso} />
         </>
     );
 
@@ -338,7 +332,7 @@ export default function ActividadesPage() {
                     {submitted && !recurso.Titulo && <small className="p-invalid">Título es requerido.</small>}
                 </div>
                 <div className="field">
-                    <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" mode="basic" maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e, recurso)} />
+                    <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" mode="basic" auto customUpload={true} uploadHandler={(e) => handleUpload(e, recurso)} />
                 </div>
             </Dialog>
 

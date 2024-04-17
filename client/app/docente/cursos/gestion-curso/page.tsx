@@ -176,7 +176,7 @@ export default function Curso() {
                 )
                 .then((response) => {
                     // console.log(response.data);
-                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion modificada con éxito', life: 3000 });
+                    toast.current!.show({ severity: 'success', summary: 'Correcto', detail: 'Sesion modificada con éxito', life: 3000 });
                     cargarDatos();
                 });
             setSesionDialog(false);
@@ -202,7 +202,7 @@ export default function Curso() {
                     }
                 )
                 .then((response) => {
-                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Sesion creada con éxito', life: 3000 });
+                    toast.current!.show({ severity: 'success', summary: 'Correcto', detail: 'Sesion creada con éxito', life: 3000 });
                     cargarDatos();
                 });
             setSesionDialog(false);
@@ -256,7 +256,7 @@ export default function Curso() {
                 )
                 .then((response) => {
                     // console.log(response);
-                    toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Curso actualizado con éxito', life: 3000 });
+                    toast.current!.show({ severity: 'success', summary: 'Correcto', detail: 'Curso actualizado con éxito', life: 3000 });
                     cargarDatos();
                 });
             setCursoCDialog(false);
@@ -286,13 +286,13 @@ export default function Curso() {
     };
 
     const openNew = (rowData: any) => {
-        if (horarios.length > 1) {
+        if (horarios.length >= 1) {
             // console.log('Rowdada', rowData);
             // console.log('Horarios', horarios);
 
             const cantidadSesionesSemana = sesiones.filter((s) => s.CodigoSemanaAcademica == rowData.Codigo).length;
-            if (cantidadSesionesSemana == 2) {
-                toast.current!.show({ severity: 'error', summary: 'Advertencia', detail: 'El límite de sesiones por semana es de 2', life: 3000 });
+            if (cantidadSesionesSemana == horarios.length) {
+                toast.current!.show({ severity: 'warn', summary: 'Advertencia', detail: `Su horario solo tiene asignado ${horarios.length} días a la semana`, life: 3000 });
             } else {
                 let _sesion = sesionVacia;
                 _sesion[`Codigo`] = cantidadSesionesSemana + 1 + rowData.Codigo;
@@ -443,7 +443,7 @@ export default function Curso() {
 
             await axios.post('/files/upload', formData).then((response) => {
                 let _curso = { ...cursoCalificacion, RutaImagenPortada: response.data.filename };
-                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'File Uploaded' });
+                toast.current?.show({ severity: 'success', summary: 'Correcto', detail: 'Archivo subido' });
                 axios
                     .put(
                         '/curso-calificacion',
@@ -459,7 +459,7 @@ export default function Curso() {
                     )
                     .then((response) => {
                         // console.log(response);
-                        toast.current!.show({ severity: 'success', summary: 'Successful', detail: 'Imagen actualizada con éxito', life: 3000 });
+                        toast.current!.show({ severity: 'success', summary: 'Correcto', detail: 'Imagen actualizada con éxito', life: 3000 });
                         cargarDatos();
                     });
                 setImagen(null);
@@ -511,7 +511,7 @@ export default function Curso() {
             await axios.post('/files/upload', formData).then((response) => {
                 // console.log(response.data.path);
                 let _curso = { ...cursoCalificacion, [key]: response.data.filename };
-                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'ArchivoSubido' });
+                toast.current?.show({ severity: 'success', summary: 'Correcto', detail: 'Archivo Subido' });
                 axios
                     .put(
                         '/curso-calificacion',
@@ -679,16 +679,16 @@ export default function Curso() {
         const horaApertura = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate(), parseInt(horaInicio[0]), parseInt(horaInicio[1]) - 10);
         const horaCierre = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate(), parseInt(horaFin[0]), parseInt(horaFin[1]) + 10);
 
-        console.log('Fecha Actual:', fechaActual);
-        console.log('Fecha Sesion:', fechaSesion);
-        console.log('Hora Inicio:', horaApertura);
-        console.log('Hora Fin:', horaCierre);
+        // console.log('Fecha Actual:', fechaActual);
+        // console.log('Fecha Sesion:', fechaSesion);
+        // console.log('Hora Inicio:', horaApertura);
+        // console.log('Hora Fin:', horaCierre);
 
         const mismaFecha = fechaActual.toDateString() === fechaSesion.toDateString();
 
         const actividadAbierta = mismaFecha && fechaActual >= horaApertura && fechaActual <= horaCierre;
 
-        console.log('ActividadAbierta:', actividadAbierta);
+        // console.log('ActividadAbierta:', actividadAbierta);
         return actividadAbierta;
     };
 
@@ -850,7 +850,7 @@ export default function Curso() {
                                         <label htmlFor="semestre" className="font-bold">
                                             Créditos
                                         </label>
-                                        <InputText id="semestre" value={curso?.Semestre?.toString()} disabled />
+                                        <InputText id="semestre" value={curso?.Creditos?.toString()} disabled />
                                     </div>
                                 </div>
                                 <div className="formgrid grid">
@@ -865,7 +865,7 @@ export default function Curso() {
                                                 severity="info"
                                                 className="mr-2"
                                                 onClick={() => descargarArchivo(cursoCalificacion?.RutaSyllabus)}
-                                                disabled={cursoCalificacion.RutaSyllabus == ''}
+                                                disabled={cursoCalificacion.RutaSyllabus == '' || cursoCalificacion.RutaSyllabus == null}
                                                 style={{ width: '150px' }}
                                             />
                                         </div>{' '}
@@ -881,7 +881,7 @@ export default function Curso() {
                                                 severity="info"
                                                 className="mr-2"
                                                 onClick={() => descargarArchivo(cursoCalificacion.RutaNormas)}
-                                                disabled={cursoCalificacion.RutaNormas == ''}
+                                                disabled={cursoCalificacion.RutaNormas == '' || cursoCalificacion.RutaNormas == null}
                                                 style={{ width: '150px' }}
                                             />
                                         </div>{' '}
@@ -899,7 +899,7 @@ export default function Curso() {
                                                 severity="info"
                                                 className="mr-2"
                                                 onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionCurso)}
-                                                disabled={cursoCalificacion.RutaPresentacionCurso == ''}
+                                                disabled={cursoCalificacion.RutaPresentacionCurso == '' || cursoCalificacion.RutaPresentacionCurso == null}
                                                 style={{ width: '150px' }}
                                             />
                                         </div>{' '}
@@ -915,7 +915,7 @@ export default function Curso() {
                                                 severity="info"
                                                 className="mr-2"
                                                 onClick={() => descargarArchivo(cursoCalificacion.RutaPresentacionDocente)}
-                                                disabled={cursoCalificacion.RutaPresentacionDocente == ''}
+                                                disabled={cursoCalificacion.RutaPresentacionDocente == '' || cursoCalificacion.RutaPresentacionDocente == null}
                                                 style={{ width: '150px' }}
                                             />
                                         </div>
@@ -963,12 +963,8 @@ export default function Curso() {
                         id="linkClaseVirtual"
                         value={sesion.LinkClaseVirtual}
                         onChange={(e) => onInputSesionChange(e, 'LinkClaseVirtual')}
-                        required
-                        autoFocus
-                        maxLength={100}
-                        className={classNames({ 'p-invalid': submitted && !sesion.LinkClaseVirtual })}
+                        maxLength={60}
                     />
-                    {submitted && !sesion.LinkClaseVirtual && <small className="p-error">Ingrese el nombre de la sesión.</small>}
                 </div>
             </Dialog>
             <Dialog visible={imagenDialog} style={{ width: '40rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Imagen de fondo" modal className="p-fluid" footer={imagenDialogFooter} onHide={hideImagenDialog}>
@@ -1004,7 +1000,7 @@ export default function Curso() {
                         <label htmlFor="semestre" className="font-bold">
                             Créditos
                         </label>
-                        <InputText id="semestre" value={curso?.Semestre.toString()} disabled />
+                        <InputText id="semestre" value={curso?.Creditos.toString()} disabled />
                     </div>
                 </div>
                 <div className="formgrid grid">
@@ -1016,7 +1012,6 @@ export default function Curso() {
                             chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
                             chooseLabel="Subir archivo"
                             accept="application/pdf"
-                            maxFileSize={5000000}
                             auto
                             customUpload={true}
                             uploadHandler={(e) => handleUpload(e, 'RutaSyllabus')}
@@ -1026,7 +1021,7 @@ export default function Curso() {
                         <label htmlFor="rutaNormas" className="font-bold">
                             Normas de convivencia
                         </label>
-                        <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" accept="application/pdf" maxFileSize={5000000} auto customUpload={true} uploadHandler={(e) => handleUpload(e, 'RutaNormas')} />
+                        <FileUpload chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }} chooseLabel="Subir archivo" accept="application/pdf" auto customUpload={true} uploadHandler={(e) => handleUpload(e, 'RutaNormas')} />
                     </div>
                 </div>
                 <div className="formgrid grid">
@@ -1038,7 +1033,6 @@ export default function Curso() {
                             chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
                             chooseLabel="Subir archivo"
                             accept="application/pdf"
-                            maxFileSize={5000000}
                             auto
                             customUpload={true}
                             uploadHandler={(e) => handleUpload(e, 'RutaPresentacionCurso')}
@@ -1052,7 +1046,6 @@ export default function Curso() {
                             chooseOptions={{ icon: 'pi pi-upload', className: 'p-2' }}
                             chooseLabel="Subir archivo"
                             accept="application/pdf"
-                            maxFileSize={5000000}
                             auto
                             customUpload={true}
                             uploadHandler={(e) => handleUpload(e, 'RutaPresentacionDocente')}
