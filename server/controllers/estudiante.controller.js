@@ -424,7 +424,7 @@ const insertarNotaCurso = async (req, res) => {
 
     const matricula = await Matricula.findOne({
       where: {
-        CodigoCursoCalificacion: `${codigocurso}241`,
+        CodigoCursoCalificacion: `${codigocurso}240`,
         CodigoEstudiante: estudiante.Codigo,
       }
     })
@@ -436,7 +436,7 @@ const insertarNotaCurso = async (req, res) => {
       res.json({ message: "Nota actualizada correctamente" })
     } else {
       await Matricula.create({
-        CodigoCursoCalificacion: `${codigocurso}241`,
+        CodigoCursoCalificacion: `${codigocurso}240`,
         CodigoEstudiante: estudiante.Codigo,
         NotaFinal: notaFinal
       })
