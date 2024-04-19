@@ -170,7 +170,7 @@ export default function RegistroPagoPage() {
 
         switch (name) {
             case 'transaccion':
-                _pago = { ...pago, NroTransaccion: val };
+                _pago = { ...pago, NroTransaccion: val.toUpperCase() };
                 break;
             case 'obs':
                 _pago = { ...pago, Observacion: val };
