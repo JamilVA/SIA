@@ -60,6 +60,19 @@ export default function AdminCursosPage() {
         { name: 'Formación artística obligatoria', value: 'FAO' }
     ];
 
+    const ciclos = [
+        { name: 1, nivel: 1, semestre: 1 },
+        { name: 2, nivel: 1, semestre: 2 },
+        { name: 3, nivel: 2, semestre: 1 },
+        { name: 4, nivel: 2, semestre: 2 },
+        { name: 5, nivel: 3, semestre: 1 },
+        { name: 6, nivel: 3, semestre: 2 },
+        { name: 7, nivel: 4, semestre: 1 },
+        { name: 8, nivel: 4, semestre: 2 },
+        { name: 9, nivel: 5, semestre: 1 },
+        { name: 10, nivel: 5, semestre: 2 },
+    ]
+
     useEffect(() => {
         if (status === 'authenticated') {
             fetchData();
@@ -334,6 +347,15 @@ export default function AdminCursosPage() {
         getPrerequisitos(_curso.CodigoCarreraProfesional, _curso.Nivel, _curso.Semestre);
     };
 
+    const onCicloChange = (e: any) => {
+        const val = (e.target && e.target.value) || '';
+        let _curso = { ...curso };
+        _curso['Nivel'] = ciclos[val].nivel;
+        _curso['Semestre'] = ciclos[val].semestre;
+        setCurso(_curso);
+        getPrerequisitos(_curso.CodigoCarreraProfesional, _curso.Nivel, _curso.Semestre);
+    }
+
     const onCarreraSelect = (e: any) => {
         const val = (e.target && e.target.value) || '';
         let carrera = val;
@@ -411,6 +433,12 @@ export default function AdminCursosPage() {
         </>
     );
 
+    const bodyCiclo = (rowData: any) => {
+        return (
+            <>{(rowData.Nivel - 1) * 2 + rowData.Semestre}</>
+        )
+    }
+
     if (status === 'loading') {
         return (
             <>
@@ -451,12 +479,11 @@ export default function AdminCursosPage() {
                         <Column field="Nombre" header="Nombre" sortable />
                         <Column field="CodigoCurso" header="Prerequisito" />
                         <Column field="CarreraProfesional.NombreCarrera" header="Carrera" sortable />
-                        <Column field="Nivel" header="Nivel" sortable />
-                        <Column field="Semestre" header="Semestre" sortable />
-                        <Column field="Creditos" header="Créditos" sortable />
-                        <Column field="Tipo" header="Tipo" sortable />
-                        <Column field="HorasTeoria" header="HT" sortable />
-                        <Column field="HorasPractica" header="HP" sortable />
+                        <Column body={bodyCiclo} header="Ciclo" sortable />
+                        <Column field="Creditos" header="Créditos" />
+                        <Column field="Tipo" header="Tipo" />
+                        <Column field="HorasTeoria" header="HT" />
+                        <Column field="HorasPractica" header="HP" />
                         <Column field="Estado" body={statusBodyTemplate} header="Estado" sortable />
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
@@ -500,6 +527,23 @@ export default function AdminCursosPage() {
                                     className={classNames({ 'p-invalid': submitted && !curso.Nivel })}
                                 />
                             </div>
+                            {/*<div className="field col">
+                                <label htmlFor="Ciclo">Ciclo</label>
+                                <Dropdown
+                                    value={(curso.Nivel - 1) * 2 + curso.Semestre}
+                                    options={ciclos}
+                                    optionLabel="name"
+                                    optionValue="name"
+                                    name="Ciclo"
+                                    onChange={(e) => {
+                                        onCicloChange(e);
+                                    }}
+                                    placeholder="Seleccione el Ciclo"
+                                    id="Ciclo"
+                                    required
+                                    className={classNames({ 'p-invalid': submitted && !curso.Nivel })}
+                                />
+                                </div>*/}
                         </div>
                         <div className="formgrid grid">
                             <div className="field col">

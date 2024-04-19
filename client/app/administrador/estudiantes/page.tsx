@@ -127,7 +127,7 @@ export default function Page() {
             toast.current?.show({
                 severity: 'success',
                 summary: 'Successful',
-                detail: 'Registro creado',
+                detail: 'Estudiante registrado',
                 life: 3000
             });
 
@@ -160,7 +160,7 @@ export default function Page() {
             toast.current?.show({
                 severity: 'success',
                 summary: 'Successful',
-                detail: 'Registro actualizado',
+                detail: 'Datos de estudiante actualizados',
                 life: 3000
             });
 

@@ -114,9 +114,8 @@ const getCursosByDP = async (req, res) => {
       `select c.Codigo as CodCurso, cc.Codigo as CodCursoCal, c.Nombre, cp.NombreCarrera as Carrera 
         from CarreraProfesional cp join Curso c on cp.Codigo = c.CodigoCarreraProfesional join CursoCalificacion cc 
         on c.Codigo = cc.CodigoCurso join Periodo p on p.Codigo = cc.CodigoPeriodo join Docente d on cc.CodigoDocente = d.Codigo 
-        where d.Codigo = ${
-          req.query.CodDocente == undefined ? 0 : _codDocente
-        } and p.Estado = 1`,
+        where d.Codigo = ${req.query.CodDocente == undefined ? 0 : _codDocente
+      } and p.Estado = 1`,
       { type: QueryTypes.SELECT }
     );
 
@@ -186,8 +185,7 @@ const obtenerListaCursos = async (req, res) => {
       cursos = listaCursos.map((curso) => ({
         Codigo: curso.dataValues.Codigo ?? "NO",
         Curso: curso.dataValues.Nombre ?? "NO",
-        Nivel: curso.dataValues.Nivel ?? "NO",
-        Semestre: curso.dataValues.Semestre ?? "NO",
+        Ciclo: ((curso.dataValues.Nivel - 1) * 2 + curso.dataValues.Semestre) ?? "NO",
         Creditos: curso.dataValues.Creditos ?? "NO",
         Tipo: curso.dataValues.Tipo ?? "NO",
         HorasTeoria: curso.dataValues.HorasTeoria ?? "NO",
@@ -199,8 +197,7 @@ const obtenerListaCursos = async (req, res) => {
         {
           Codigo: "",
           Curso: "",
-          Nivel: "",
-          Semestre: "",
+          Ciclo: "",
           Tipo: "",
           HorasTeoria: "",
           HorasPractica: "",
@@ -228,8 +225,7 @@ const obtenerListaCursos = async (req, res) => {
       headers: [
         { key: "Codigo", label: "CÓDIGO", align: "left", width: 50 },
         { key: "Curso", label: "CURSO", align: "left", width: 200 },
-        { key: "Nivel", label: "N", align: "left", width: 20 },
-        { key: "Semestre", label: "S", align: "left", width: 20 },
+        { key: "Ciclo", label: "Ciclo", align: "left", width: 50 },
         { key: "Creditos", label: "CR", align: "left", width: 20 },
         { key: "Tipo", label: "TIPO", align: "left", width: 40 },
         { key: "HorasTeoria", label: "HT", align: "left", width: 30 },
