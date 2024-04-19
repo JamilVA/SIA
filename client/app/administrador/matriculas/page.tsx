@@ -84,6 +84,11 @@ export default function Matricula() {
         if (estudiante.Codigo != 0) {
             cargarCursosMatriculados();
             cargarCursosLlevar();
+        }else{
+            setCursosMatriculados([]);
+            setCreditosMatriculados(0);
+            setCursosLlevar([]);
+            setTotalCreditos(0);
         }
     }, [estudiante]);
 
@@ -102,6 +107,7 @@ export default function Matricula() {
                 if (response.data.estudiante !== null) {
                     setEstudiante(response.data.estudiante);
                 } else {
+                    setEstudiante(estudianteVacio)
                     toast.current?.show({
                         severity: 'warn',
                         summary: 'No encontrado',
