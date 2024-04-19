@@ -224,7 +224,7 @@ export default function RegistroPagoPage() {
     return (
         <div className="card">
             <Toast ref={toast} />
-            <h2>Registrar nuevo pago</h2>
+            <h4>REGISTRAR NUEVO PAGO</h4>
             <hr />
             <div className='grid'>
                 <div className="col-12 md:col-6 px-5">

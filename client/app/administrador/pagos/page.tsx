@@ -154,7 +154,7 @@ export default function RegistrarPagoPage() {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    <Link href="/tesoreria/pagos/registrar">
+                    <Link href="/administrador/pagos/registrar">
                         <Button label="Registrar pago" icon="pi pi-plus" severity="success" className=" mr-2" />
                     </Link>
                 </div>
@@ -344,7 +344,7 @@ export default function RegistrarPagoPage() {
 
     return (
         <div className="col-12">
-            <h2>Gestión de Pagos</h2>
+            <h4 className='mt-3'>GESTIÓN DE PAGOS</h4>
             <div>
                 <Toast ref={toast} />
                 <Toolbar className="mb-4" start={leftToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
