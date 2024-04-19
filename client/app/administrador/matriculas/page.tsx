@@ -104,9 +104,9 @@ export default function Matricula() {
                     setEstudiante(response.data.estudiante);
                 } else {
                     toast.current?.show({
-                        severity: 'info',
+                        severity: 'warn',
                         summary: 'No encontrado',
-                        detail: 'No se ha encontrado ningún estudiante con Codigo: ' + inputValue,
+                        detail: 'No se ha encontrado ningún estudiante con DNI: ' + inputValue,
                         life: 3000
                     });
                 }
@@ -393,7 +393,7 @@ export default function Matricula() {
                     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
                         <span className="mt-2 md:mt-0">
                             <InputText
-                                className="mt-3"
+                                className="mt-3 mr-2"
                                 value={inputValue}
                                 autoFocus
                                 maxLength={8}
@@ -436,7 +436,7 @@ export default function Matricula() {
 
                 <span className="mt-2 md:mt-0">
                     <InputText
-                        className="mt-3"
+                        className="mt-3 mr-2"
                         value={cursoExtra}
                         maxLength={6}
                         type="search"
@@ -450,7 +450,7 @@ export default function Matricula() {
                     <Button
                         tooltip="Agregar"
                         icon="pi pi-plus"
-                        className="p-button-success"
+                        className="p-button-success p-button-sm"
                         disabled={estudiante.Codigo == 0}
                         loading={loading}
                         onClick={() =>
