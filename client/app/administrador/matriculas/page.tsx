@@ -60,6 +60,8 @@ export default function Matricula() {
     const [cursoCalificacion, setCursoCalificaion] = useState(cursoCVacio);
     const [estudiante, setEstudiante] = useState(estudianteVacio);
     const [inputValue, setInputValue] = useState('');
+    const [cursoExtra, setCursoExtra] = useState('');
+    const [loading, setLoading] = useState(false);
     const [periodoActual, setPeriodoActual] = useState(periodoVacio);
 
     const [cursosLlevar, setCursosLlevar] = useState<(typeof cursoCalificacion)[]>([]);
@@ -86,6 +88,7 @@ export default function Matricula() {
     }, [estudiante]);
 
     const buscarEstudiante = async (DNI: string) => {
+        setLoading(true);
         await axios
             .get('/matricula/buscarEstudiante', {
                 params: {
@@ -117,9 +120,11 @@ export default function Matricula() {
                     life: 3000
                 });
             });
+        setLoading(false);
     };
 
     const cargarCursosMatriculados = async () => {
+        setLoading(true);
         try {
             const { data } = await axios.get('/matricula/cursosMatriculados', {
                 params: {
@@ -142,9 +147,11 @@ export default function Matricula() {
                 life: 3000
             });
         }
+        setLoading(false);
     };
 
     const cargarCursosLlevar = async () => {
+        setLoading(true);
         try {
             const { data } = await axios.get('/matricula/cursosLlevar', {
                 params: {
@@ -167,6 +174,7 @@ export default function Matricula() {
                 life: 3000
             });
         }
+        setLoading(false);
     };
 
     const cargarPeriodo = async () => {
@@ -189,7 +197,7 @@ export default function Matricula() {
         }
     };
 
-    const crearMatricula = async (rowData: any) => {
+    const crearMatricula = async (rowData: typeof cursoCalificacion) => {
         try {
             await axios
                 .post(
@@ -207,9 +215,14 @@ export default function Matricula() {
                 )
                 .then((response) => {
                     toast.current!.show({ severity: 'success', summary: 'Successful', detail: ' Matriculado con éxito', life: 3000 });
-                    setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
-                    setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
-                    setCreditosMatriculados(creditosMatriculados + rowData?.Curso?.Creditos);
+                    if (rowData?.Curso?.Nombre != '') {
+                        setCursosLlevar((cursosLlevar) => cursosLlevar.filter((curso) => curso.Codigo !== rowData.Codigo));
+                        setCursosMatriculados((cursosMatriculados) => [...cursosMatriculados, rowData]);
+                        setCreditosMatriculados(creditosMatriculados + rowData?.Curso?.Creditos);
+                    } else {
+                        cargarCursosMatriculados();
+                        cargarCursosLlevar();
+                    }
                 });
 
             setMatriculaDialog(false);
@@ -219,7 +232,7 @@ export default function Matricula() {
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Error al registrar matricula',
+                detail: 'No se pudo registrar la matricula en ese curso',
                 life: 3000
             });
         }
@@ -367,7 +380,7 @@ export default function Matricula() {
     }
 
     if (!session) {
-        redirect('/')
+        redirect('/');
     } else if (session?.user.nivelUsuario != 1) {
         redirect('/pages/notfound');
     }
@@ -394,9 +407,11 @@ export default function Matricula() {
                             <Button
                                 icon="pi pi-search"
                                 className="p-input-icon-right"
+                                loading={loading}
                                 onClick={() => {
                                     buscarEstudiante(inputValue);
                                 }}
+                                tooltip="Buscar estudiante"
                             />
                         </span>
                     </div>
@@ -418,7 +433,47 @@ export default function Matricula() {
                         <label>{estudiante?.Persona?.Nombres}</label>
                     </div>
                 </div>
+
+                <span className="mt-2 md:mt-0">
+                    <InputText
+                        className="mt-3"
+                        value={cursoExtra}
+                        maxLength={6}
+                        type="search"
+                        placeholder="Codigo del curso"
+                        onChange={(e) => {
+                            setCursoExtra(e.target.value.toUpperCase());
+                        }}
+                        disabled={estudiante.Codigo == 0}
+                    />
+
+                    <Button
+                        tooltip="Agregar"
+                        icon="pi pi-plus"
+                        className="p-button-success"
+                        disabled={estudiante.Codigo == 0}
+                        loading={loading}
+                        onClick={() =>
+                            newMatricula({
+                                Codigo: cursoExtra + periodoActual.Codigo,
+                                Curso: {
+                                    Codigo: '',
+                                    CodigoCurso: '',
+                                    Nombre: '',
+                                    Creditos: 0,
+                                    Nivel: 0,
+                                    Semestre: 0,
+                                    CodigoCarreraProfesional: ''
+                                },
+                                Periodo: {
+                                    Codigo: ''
+                                }
+                            })
+                        }
+                    />
+                </span>
             </div>
+
             <div className="col-12 md:col-9">
                 <Toast ref={toast} />
                 <div className="card">
@@ -434,6 +489,7 @@ export default function Matricula() {
                         globalFilter={globalFilter}
                         emptyMessage="Sin resultados"
                         header={header1}
+                        loading={loading}
                     >
                         <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                         <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
@@ -456,6 +512,7 @@ export default function Matricula() {
                         globalFilter={globalFilter}
                         emptyMessage="Sin resultados"
                         header={header2}
+                        loading={loading}
                     >
                         <Column field="Codigo" header="Codigo" body={codigoBodyTemplate} style={{ minWidth: '4rem' }}></Column>
                         <Column field="Curso.Nombre" header="Curso" body={cursoBodyTemplate} sortable style={{ minWidth: '16rem' }}></Column>
