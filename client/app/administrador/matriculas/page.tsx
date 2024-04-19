@@ -454,7 +454,7 @@ export default function Matricula() {
                     <Button
                         tooltip="Agregar"
                         icon="pi pi-plus"
-                        className="p-button-success p-button-sm"
+                        className="p-button-success"
                         disabled={estudiante.Codigo == 0}
                         loading={loading}
                         onClick={() =>
