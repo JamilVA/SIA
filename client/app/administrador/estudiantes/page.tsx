@@ -42,6 +42,7 @@ export default function Page() {
         Direccion: null,
         EmailPersonal: null,
         Celular: null,
+        AnioIngreso: new Date().getFullYear().toString()
     };
 
     const [estudiantes, setestudiantes] = useState(null);
@@ -235,7 +236,7 @@ export default function Page() {
 
     const verifyInputs = () => {
         if (estudiante.Paterno.trim() && estudiante.DNI.trim() && isNumeric(estudiante.DNI) && estudiante.DNI.length == 8 && estudiante.Nombres.trim() && estudiante.FechaNacimiento != ''
-            && estudiante.CodigoCarreraProfesional != undefined && estudiante.Email!.trim() && estudiante.Sexo.trim()) {
+            && estudiante.CodigoCarreraProfesional != 0 && estudiante.Email!.trim() && estudiante.Sexo.trim() && isNumeric(estudiante.AnioIngreso) && estudiante.AnioIngreso.length == 4) {
             return true
         } else {
             return false
@@ -301,6 +302,7 @@ export default function Page() {
             Direccion: estudiante.Persona.Direccion,
             EmailPersonal: estudiante.Persona.EmailPersonal,
             Celular: estudiante.Persona.Celular,
+            AnioIngreso: estudiante.AnioIngreso
         }
         return tempEstudiante
     }
@@ -532,6 +534,11 @@ export default function Page() {
                             </div>
                         </div>
                         <div className='formgrid grid'>
+                            <div className="field col">
+                                <label htmlFor="anio">Año de ingreso</label>
+                                <InputText autoFocus id="anio" maxLength={4} value={estudiante.AnioIngreso} onChange={(e) => onInputChange(e, 'AnioIngreso')} required
+                                    className={classNames({ 'p-invalid': submitted && !estudiante.AnioIngreso })} />
+                            </div>
                             <div className="field col">
                                 <label htmlFor="DNI">DNI</label>
                                 <InputText autoFocus id="DNI" maxLength={8} value={estudiante.DNI} onChange={(e) => onInputChange(e, 'DNI')} required

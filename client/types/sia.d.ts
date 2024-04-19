@@ -3,7 +3,7 @@ export declare namespace Sia {
         Codigo: number;
         Paterno: string;
         Materno: string;
-        Nombres: string;       
+        Nombres: string;
     }
 
     type Periodo = {
@@ -35,7 +35,7 @@ export declare namespace Sia {
         CodigoPersona: number;
         Persona: Persona | null;
     }
-    
+
     type CursoCalificacion = {
         Codigo: string;
         EstadoAplazado: boolean;
@@ -72,6 +72,7 @@ export declare namespace Sia {
         Direccion: stringn | null;
         EmailPersonal: string | null,
         Celular: string | null,
+        AnioIngreso: string,
         [key: string]: string | number | boolean | string[{}];
     }
 
