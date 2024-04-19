@@ -17,6 +17,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <html lang="es" suppressHydrationWarning>
             <head>
                 <link id="theme-css" href={`/css/theme.css`} rel="stylesheet"></link>
+                <title>Académico ESFAPMUA</title>
             </head>
             <body>
                 <SessionAutProvider>
