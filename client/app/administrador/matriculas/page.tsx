@@ -88,7 +88,6 @@ export default function Matricula() {
     }, [estudiante]);
 
     const buscarEstudiante = async (DNI: string) => {
-        setLoading(true);
         await axios
             .get('/matricula/buscarEstudiante', {
                 params: {
@@ -120,7 +119,6 @@ export default function Matricula() {
                     life: 3000
                 });
             });
-        setLoading(false);
     };
 
     const cargarCursosMatriculados = async () => {
@@ -531,7 +529,7 @@ export default function Matricula() {
             <Dialog visible={matriculaDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirmar" modal footer={matriculaDialogFooter()} onHide={hideMatriculaDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-check-circle mr-3" style={{ fontSize: '2rem' }} />
-                    {<span>¿Esta seguro de que desea agrregar la Matricula?</span>}
+                    {<span>¿Esta seguro de que desea agregar la Matricula?</span>}
                 </div>
             </Dialog>
         </div>
