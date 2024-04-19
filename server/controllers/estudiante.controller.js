@@ -407,6 +407,48 @@ const getHistorialByDNI = async (req, res) => {
   }
 }
 
+const insertarNotaCurso = async (req, res) => {
+  try {
+    const codigocurso = req.body.codigoCurso
+    const dni = req.body.dni
+    const notaFinal = req.body.nota
+
+    const curso = await Curso.findByPk(codigocurso)
+    if (!curso) return res.json({ message: "Curso no encontrado" })
+
+    const estudiante = await Estudiante.findOne({
+      include: Persona,
+      where: { "$Persona.DNI$": dni }
+    })
+    if (!estudiante) return res.json({ message: "Estudiante no encontrado" })
+
+    const matricula = await Matricula.findOne({
+      where: {
+        CodigoCursoCalificacion: `${codigocurso}241`,
+        CodigoEstudiante: estudiante.Codigo,
+      }
+    })
+
+    if (matricula) {
+      await matricula.update({
+        NotaFinal: notaFinal
+      })
+      res.json({ message: "Nota actualizada correctamente" })
+    } else {
+      await Matricula.create({
+        CodigoCursoCalificacion: `${codigocurso}241`,
+        CodigoEstudiante: estudiante.Codigo,
+        NotaFinal: notaFinal
+      })
+      res.json({ message: "Nota ingresada correctamente" })
+    }
+    
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Error al insertar la nota' })
+  }
+}
+
 const obtenerListaEstudiantes = async (req, res) => {
   const carreraprofesional = await CarreraProfesional.findOne({
     attributes: ["NombreCarrera"],
@@ -536,5 +578,6 @@ module.exports = {
   getEstudianteByCodPersona,
   obtenerListaEstudiantes,
   getHistorialByDNI,
-  actualizarDatosPersonales
+  actualizarDatosPersonales,
+  insertarNotaCurso
 };
