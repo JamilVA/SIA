@@ -12,6 +12,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 import { Sia } from '../../../types/sia';
 import { InputText } from 'primereact/inputtext';
+import { InputNumber } from 'primereact/inputnumber';
 
 export default function Page() {
 
@@ -27,6 +28,9 @@ export default function Page() {
     const [estudiante, setEstudiante] = useState<any>()
     const [dni, setDni] = useState('')
     const [globalFilter, setGlobalFilter] = useState('');
+
+    const [codigoCurso, setCodigoCurso] = useState('')
+    const [notaFinal, setNotaFinal] = useState<number>(0)
 
     const fetchHistorial = async () => {
         setLoading(true)
@@ -80,6 +84,36 @@ export default function Page() {
             })
     }
 
+    const insertarNota = async () => {
+        //setLoading(true)
+        await axios.post('/estudiante/insertar-nota', {
+            codigoCurso: codigoCurso,
+            dni: dni,
+            nota: notaFinal
+        }, {
+            headers: {
+                Authorization: 'Bearer ' + session?.user.token
+            }
+        }).then(response => {
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Mensaje',
+                detail: response.data.message,
+                life: 3000
+            });
+            fetchHistorial()
+        }).catch(error => {
+            // console.log("Error en carga de datos: ", error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: !error.response ? error.message : error.response.error,
+                life: 3000
+            });
+        })
+        //setLoading(false)
+    }
+
     const actionNFTemplate = (rowData: any) => {
         return <p style={Number(rowData.Nota) >= 11 ? { color: 'blue' } : { color: 'red' }}> {rowData.Nota} </p>
     }
@@ -93,14 +127,14 @@ export default function Page() {
         return (
             <div className="flex justify-content-between">
                 <Button className='px-2 py-1 border-none mb-2'
-                        size='small'
-                        label="Vista PDF"
-                        icon="pi pi-file-pdf"
-                        onClick={() => obtenerPDFHistorial()}
-                    />
+                    size='small'
+                    label="Vista PDF"
+                    icon="pi pi-file-pdf"
+                    onClick={() => obtenerPDFHistorial()}
+                />
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
-                    <InputText type='search' value={globalFilter} onInput={(e) => setGlobalFilter(e.currentTarget.value)}  placeholder="Buscar..." />
+                    <InputText type='search' value={globalFilter} onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Buscar..." />
                 </span>
             </div>
         );
@@ -136,7 +170,7 @@ export default function Page() {
             <div className="col-12 md:col-3">
                 <div className="card shadow-1">
                     <div className="flex flex-row w-full">
-                        <InputText type="search" size={15} onKeyDown={(e) => {e.key === 'Enter' ? fetchHistorial(): {}}} maxLength={8} onChange={(e) => setDni(e.currentTarget.value)} placeholder="Ingrese el DNI" />
+                        <InputText value={dni} type="search" size={15} onKeyDown={(e) => { e.key === 'Enter' ? fetchHistorial() : {} }} maxLength={8} onChange={(e) => setDni(e.currentTarget.value)} placeholder="Ingrese el DNI" />
                         <Button icon='pi pi-search' loading={loading} className='ml-2' onClick={() => { fetchHistorial() }} />
                     </div>
                     <div className='mt-5'>
@@ -150,7 +184,13 @@ export default function Page() {
                 </div>
             </div>
             <div className='col-12 md:col-9'>
+                <Toast ref={toast} />
                 <div className='card'>
+                    <div className="flex flex-row mb-4">
+                        <InputText value={codigoCurso} className='mr-2' maxLength={6} onChange={(e) => setCodigoCurso(e.currentTarget.value)} placeholder="Codigo de curso" />
+                        <InputNumber value={notaFinal} maxLength={8} onValueChange={(e) => setNotaFinal(e.value as number)} placeholder="Nota" />
+                        <Button label='Insertar' severity='success' className='ml-2' onClick={() => { insertarNota() }} />
+                    </div>
                     <DataTable
                         ref={dt}
                         value={actas}
