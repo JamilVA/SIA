@@ -30,7 +30,8 @@ const AppMenu = () => {
                 { label: 'Gestión de Matrícula', icon: 'pi pi-fw pi-list', to: '/administrador/matriculas' },
                 { label: 'Lista de Matriculados', icon: 'pi pi-fw pi-users', to: '/administrador/estudiantes-matriculados' },
                 { label: 'Gestión de Periodos', icon: 'pi pi-fw pi-clock', to: '/administrador/periodo' },
-                { label: 'Buscar Historial de Notas', icon: 'pi pi-fw pi-list', to: '/administrador/historial-notas' }
+                { label: 'Buscar Historial de Notas', icon: 'pi pi-fw pi-list', to: '/administrador/historial-notas' },
+                { label: 'Gestion de Pagos', icon: 'pi pi-fw pi-money-bill', to: '/administrador/pagos' },
                 // { label: 'Manuales de Usuario', icon: 'pi pi-fw pi-file', to: '/manuales-usuario' },
             ]
         },
