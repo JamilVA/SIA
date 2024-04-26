@@ -4,7 +4,6 @@ const pdfOptions = {
     size: "A4",
     margins: { top: 20, left: 40, right: 40, bottom: 20 },
     font: 'Helvetica',
-    autoFirstPage: false,
     bufferPages: true //Mejora rendimiento en documentos grandes
 }
 
@@ -30,8 +29,7 @@ const setHeader = (doc) => {
 
 const generarPDFMatriculados = async (data, res) => {
     const doc = new PDFDocument(pdfOptions);
-    doc.on('pageAdded', () => setHeader(doc)); //Establece el encabezado
-    doc.addPage()
+    setHeader(doc); //Establece el encabezado
     doc.moveDown(1)
     doc.font("Helvetica")
     doc.fontSize(12).text(`${data.curso.CarreraProfesional.NombreCarrera}`, { align: "center", lineGap: 5 });
@@ -46,6 +44,7 @@ const generarPDFMatriculados = async (data, res) => {
         ],
         datas: data.lista,
         options: {
+            minRowHeight: 10,
             divider: {
                 header: { disabled: true },
                 horizontal: { disabled: true },
@@ -63,9 +62,7 @@ const generarPDFMatriculados = async (data, res) => {
 
 const generarPDFAsistencia = async (data, res) => {
     const doc = new PDFDocument(pdfOptions);
-
-    doc.on('pageAdded', () => setHeader(doc)); //Establece el encabezado
-    doc.addPage()
+    setHeader(doc); //Establece el encabezado
     doc.moveDown(1)
     doc.font("Helvetica").fontSize(12)
     doc.text(`${data.curso.CarreraProfesional.NombreCarrera}`, { align: "center", lineGap: 5 });
@@ -84,6 +81,7 @@ const generarPDFAsistencia = async (data, res) => {
         ],
         datas: data.lista,
         options: {
+            minRowHeight: 10,
             divider: {
                 header: { disabled: true },
                 horizontal: { disabled: true },
@@ -101,8 +99,7 @@ const generarPDFAsistencia = async (data, res) => {
 
 const generarPDFActa = async (data, res) => {
     const doc = new PDFDocument(pdfOptions);
-    doc.on('pageAdded', () => setHeader(doc)); //Establece el encabezado
-    doc.addPage()
+    setHeader(doc); //Establece el encabezado
     doc.moveDown(1)
     doc.font("Helvetica")
     doc.fontSize(11).text(`ACTA DE EVALUACIÓN ${data.acta.Codigo}`, { align: 'center' })
@@ -120,6 +117,7 @@ const generarPDFActa = async (data, res) => {
             // title: { label: 'Acta', fontSize: 11, fontFamily: "Helvetica", align: 'center' },
             // subtitle: "Subtitle",
             x: 40,
+            minRowHeight: 10,
             divider: {
                 header: { disabled: true },
                 horizontal: { disabled: true },
@@ -208,8 +206,7 @@ const generarPDFActa = async (data, res) => {
 
 const generarPDFHistorialNotas = async (data, res) => {
     const doc = new PDFDocument(pdfOptions);
-    doc.on('pageAdded', () => setHeader(doc)); //Establece el encabezado
-    doc.addPage()
+    setHeader(doc); //Establece el encabezado
     doc.moveDown(1)
     doc.font("Helvetica").fontSize(10)
     doc.text("HISTORIAL DE NOTAS", { align: "center", lineGap: 5 });
@@ -235,6 +232,7 @@ const generarPDFHistorialNotas = async (data, res) => {
         ],
         datas: data.historial,
         options: {
+            minRowHeight: 10,
             divider: {
                 header: { disabled: true },
                 horizontal: { disabled: true },
@@ -243,7 +241,7 @@ const generarPDFHistorialNotas = async (data, res) => {
         }
     }
 
-    doc.table(table);
+    await doc.table(table);
 
     // Enviamos el PDF al cliente como respuesta HTTP
     doc.pipe(res);
