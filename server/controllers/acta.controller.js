@@ -1,4 +1,4 @@
-const { Acta, Matricula, CursoCalificacion, Curso, Periodo } = require("../config/relations")
+const { Acta, Matricula, CursoCalificacion, Curso, Periodo, CarreraProfesional } = require("../config/relations")
 const { sequelize } = require('../config/database')
 const { QueryTypes } = require("sequelize");
 const { Op } = require("sequelize");
@@ -59,7 +59,11 @@ const getActas = async (req, res) => {
 const getActasByEstudiante = async (req, res) => {
     try {
         const matriculas = await Matricula.findAll({
-            where: { CodigoEstudiante: req.query.CodigoEstudiante, NotaFinal: { [Op.not]: null }, '$CursoCalificacion.Periodo.Estado$': false },
+            where: { 
+                CodigoEstudiante: req.query.CodigoEstudiante, 
+                NotaFinal: { [Op.not]: null }, 
+                '$CursoCalificacion.Periodo.Estado$': false 
+            },
             include: {
                 model: CursoCalificacion,
                 attributes: ["Codigo"],
@@ -81,7 +85,19 @@ const getActasByEstudiante = async (req, res) => {
             Periodo: item.CursoCalificacion.Periodo.Estado,
         }))
 
-        res.json({ historial })
+        const [result, metadata] = await sequelize.query(`
+        SELECT SUBSTRING(CodigoCursoCalificacion, 1, 2) AS Siglas
+        FROM Matricula
+        where CodigoEstudiante = ${req.query.CodigoEstudiante}
+        GROUP BY SUBSTRING(CodigoCursoCalificacion, 1, 2)`)
+
+        const siglas = result.map(item => (item.Siglas))
+
+        const carreras = await CarreraProfesional.findAll({
+            where: { Siglas: { [Op.in]: siglas } }
+        })
+
+        res.json({ historial, carreras })
     } catch (error) {
         console.error(error)
         res.status(500).json({ error: 'Error al cargar la lista de actas' })

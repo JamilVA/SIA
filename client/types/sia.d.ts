@@ -79,6 +79,7 @@ export declare namespace Sia {
     type CarreraProfesional = {
         Codigo: number;
         NombreCarrera: string;
+        Siglas: string;
         RutaPlanEstudios: string;
         CodigoJefeDepatamento: number;
     }
