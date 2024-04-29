@@ -64,7 +64,7 @@ export default function Page() {
     const fechEstudiante = async () => {
         await axios.get("/estudiante/getbycod", {
             params: {
-                CodigoPersona: session?.user.codigoPersona
+                CodigoPersona: session?.user.codigoEstudiante
             },
             headers: {
                 Authorization: 'Bearer ' + session?.user.token
