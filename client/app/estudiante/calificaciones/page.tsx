@@ -11,12 +11,15 @@ import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
 import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
+import { Sia } from '../../../types/sia';
 
 export default function Page() {
 
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [actas, setActas] = useState(Object);
+    const [actasF, setActasF] = useState(Object);
     const { data: session, status } = useSession();
 
     const [pdfHistorialURL, setPdfHistorialURL] = useState('')
@@ -24,6 +27,15 @@ export default function Page() {
     const [loading, setLoading] = useState(false)
 
     const [globalFilter, setGlobalFilter] = useState('');
+
+    const [carreras, setCarreras] = useState<Array<Sia.CarreraProfesional>>([])
+    const [carrera, setCarrera] = useState<Sia.CarreraProfesional>({
+        Codigo: 0,
+        NombreCarrera: "",
+        Siglas: "",
+        RutaPlanEstudios: "",
+        CodigoJefeDepatamento: 0
+    })
 
     useEffect(() => {
         if (status === "authenticated") fetchActas();
@@ -40,7 +52,9 @@ export default function Page() {
             }
         }).then(response => {
             setActas(response.data.historial);
-            //console.log(response.data);
+            const _carreras = response.data.carreras
+            setCarreras(_carreras);
+            setActasF(response.data.historial)
 
         }).catch(error => {
             // console.log("Error en carga de datos: ", error);
@@ -79,6 +93,14 @@ export default function Page() {
                 })
             })
     }
+
+    const onCarreraSelect = (e: any) => {
+        const val = (e.target && e.target.value) || '';
+        let _carrera = { ...carrera, Siglas: val }
+        setCarrera(_carrera);
+        let _historial = actas.filter((acta: any) => acta.Codigo.substring(0, 2) === val)
+        setActasF(_historial)
+    };
 
     const actionNFTemplate = (rowData: any) => {
         return <p style={Number(rowData.Nota) >= 11 ? { color: 'blue' } : { color: 'red' }}> {rowData.Nota} </p>
@@ -130,14 +152,22 @@ export default function Page() {
             </div>
             <div className="col-12 md:col-3">
                 <Perfil></Perfil>
+                {carreras.length > 1 && <Dropdown
+                    value={carrera.Siglas}
+                    onChange={(e) => onCarreraSelect(e)}
+                    name="CodigoCarreraProfesional"
+                    options={carreras}
+                    optionLabel="NombreCarrera"
+                    optionValue="Siglas"
+                    placeholder="Carrera"
+                ></Dropdown>}
             </div>
             <div className='col-12 md:col-9'>
                 <div className='card'>
-
                     <DataTable
                         ref={dt}
                         header={header}
-                        value={actas}
+                        value={actasF}
                         dataKey="CodigoMat"
                         className="datatable-responsive"
                         emptyMessage='Historial vacío'

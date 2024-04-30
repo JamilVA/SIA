@@ -67,7 +67,7 @@ const AppMenu = () => {
             items: [
                 { label: 'Inicio', icon: 'pi pi-fw pi-home', to: '/inicio' },
                 { label: 'Perfil', icon: 'pi pi-fw pi-user', to: '/estudiante/perfil' },
-                // { label: 'Calificaciones', icon: 'pi pi-fw pi-check-square', to: '/estudiante/calificaciones' },
+                { label: 'Calificaciones', icon: 'pi pi-fw pi-check-square', to: '/estudiante/calificaciones' },
                 { label: 'Clases', icon: 'pi pi-fw pi-book', to: '/estudiante/clases' },
                 { label: 'Horarios', icon: 'pi pi-fw pi-calendar', to: '/estudiante/horarios' },
                 { label: 'Matrícula', icon: 'pi pi-fw pi-list', to: '/estudiante/matricula' },
