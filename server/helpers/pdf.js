@@ -210,9 +210,9 @@ const generarPDFHistorialNotas = async (data, res) => {
     doc.moveDown(1)
     doc.font("Helvetica").fontSize(10)
     doc.text("HISTORIAL DE NOTAS", { align: "center", lineGap: 5 });
-    doc.text(`Código Estudiante: ${data.estudiante.CodigoSunedu}`, { align: "left", lineGap: 5 });
+    doc.text(`Código Estudiante: ${data.carrera.Siglas + data.estudiante.CodigoSunedu.substring(2, 10)}`, { align: "left", lineGap: 5 });
     doc.text(`Apellidos y nombres: ${data.estudiante.Persona.Paterno} ${data.estudiante.Persona.Materno} ${data.estudiante.Persona.Nombres}`, { align: "left", lineGap: 5 });
-    doc.text(`Especialidad: ${data.estudiante.CarreraProfesional.NombreCarrera}`, { align: "left", lineGap: 5 });
+    doc.text(`Especialidad: ${data.carrera.NombreCarrera}`, { align: "left", lineGap: 5 });
     doc.moveDown(1)
 
     const table = {

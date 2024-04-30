@@ -145,7 +145,7 @@ const getActa = async (codigoCurso) => {
     }
 }
 
-const getHistorialNotas = async (codigoEstudiante) => {
+const getHistorialNotas = async (codigoEstudiante, carrera) => {
     try {
         const matriculas = await Matricula.findAll({
             where: { CodigoEstudiante: codigoEstudiante, NotaFinal: { [Op.not]: null }, '$CursoCalificacion.Periodo.Estado$': false},
@@ -162,7 +162,7 @@ const getHistorialNotas = async (codigoEstudiante) => {
 
         estudiante = estudiante.toJSON()
 
-        const historial = matriculas.map(item => ({
+        const _historial = matriculas.map(item => ({
             Codigo: item.CursoCalificacion.Curso.Codigo,
             Curso: item.CursoCalificacion.Curso.Nombre,
             Nota: item.NotaFinal,
@@ -172,7 +172,10 @@ const getHistorialNotas = async (codigoEstudiante) => {
             Fecha: item.CursoCalificacion.Actum?.FechaGeneracion,
         }))
 
-        const data = { historial, estudiante }
+        const historial = _historial.filter((acta) => acta.Codigo.substring(0, 2) === carrera.Siglas);
+
+
+        const data = { historial, estudiante, carrera }
 
         return data
     } catch (error) {
@@ -212,7 +215,7 @@ const getPDFActa = async (req, res) => {
 
 const getPDFHistorialNotas = async (req, res) => {
     try {
-        const data = await getHistorialNotas(req.query.codigoEstudiante)
+        const data = await getHistorialNotas(req.query.codigoEstudiante, req.query.carrera)
         console.log(data)
         await generarPDFHistorialNotas(data, res)
 
