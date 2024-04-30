@@ -56,12 +56,12 @@ export default function Matricula() {
     const [globalFilter, setGlobalFilter] = useState('');
 
     useEffect(() => {
-        if (session?.user) {
+        if (status === "authenticated") {
             cargarPagos();
             cargarPeriodo();
             cargarCursosMatriculados();
         }
-    }, [session?.user]);
+    }, [status]);
 
     useEffect(() => {
         comprobarMatricula();
@@ -506,7 +506,7 @@ export default function Matricula() {
                                 />
                                 <br /><br />
                             </>
-                            
+
                         )}
 
                         <div className="card">
