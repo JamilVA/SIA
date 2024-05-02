@@ -258,7 +258,7 @@ export default function Page() {
                 <div className="card">
                     <div className="flex flex-row mb-4">
                         <InputText value={codigoCurso} className="mr-2" maxLength={6} onChange={(e) => setCodigoCurso(e.currentTarget.value)} placeholder="Codigo de curso" />
-                        <InputNumber value={notaFinal} maxLength={8} onValueChange={(e) => setNotaFinal(e.value as number)} placeholder="Nota" />
+                        <InputNumber value={notaFinal} maxLength={2} onValueChange={(e) => setNotaFinal(e.value as number)} placeholder="Nota" />
                         <Button
                             label="Insertar"
                             severity="success"
