@@ -12,6 +12,7 @@ import { Toast } from 'primereact/toast';
 import React, { useEffect, useRef, useState } from 'react';
 import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { classNames } from 'primereact/utils';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 export default function CalificarActividadesPage() {
@@ -85,6 +86,12 @@ export default function CalificarActividadesPage() {
         if (!actividad.Nota) {
             return
         }
+
+        if (actividad.Nota < 0 || actividad.Nota > 20) {
+            toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Ingrese una nota entre 0 y 20' });
+            return
+        }
+
         setCalificarDialog(false)
         await axios.put('/actividad/calificar', actividad, {
             headers: {
@@ -98,7 +105,7 @@ export default function CalificarActividadesPage() {
                     }
                     return value
                 })
-                toast.current?.show({ severity: 'success', summary: 'Éxisot', detail: response.data.message });
+                toast.current?.show({ severity: 'success', summary: 'Éxito', detail: response.data.message });
                 setActividades(_actividades)
             })
             .catch(error => {
@@ -179,8 +186,8 @@ export default function CalificarActividadesPage() {
 
     const calificarDialogFooter = (
         <>
-            <Button label="Cancelar" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Guardar" icon="pi pi-check" text onClick={saveActividad} />
+            <Button label="Cancelar" icon="pi pi-times" outlined onClick={hideDialog} />
+            <Button label="Guardar" icon="pi pi-check" onClick={saveActividad} />
         </>
     );
 
@@ -219,8 +226,8 @@ export default function CalificarActividadesPage() {
             <Dialog visible={calificarDialog} position='right' style={{ width: '400px' }} header="Calificar" modal className="p-fluid" footer={calificarDialogFooter} onHide={hideDialog}>
                 <div className="field">
                     <label htmlFor="nota">Nota</label>
-                    <InputNumber id='nota' value={actividad.Nota} onValueChange={(e) => onInputNumberChange(e, 'nota')} />
-                    {submitted && !actividad.Nota && <small className="p-invalid">Name is required.</small>}
+                    <InputNumber maxLength={2} id='nota' value={actividad.Nota} onValueChange={(e) => onInputNumberChange(e, 'nota')} className={classNames({ 'p-invalid': submitted && !actividad.Nota })}/>
+                    {submitted && !actividad.Nota && <small className="p-error">La nota es requerida.</small>}
                 </div>
                 <div className="field">
                     <label htmlFor="observacion">Observación</label>
