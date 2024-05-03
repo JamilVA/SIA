@@ -291,6 +291,13 @@ export default function Curso() {
     const actionBodyTemplate = (rowData: any) => {
         return (
             <React.Fragment>
+                <>
+                    {(rowData.LinkClaseVirtual != ''  && (
+                        <Link href={rowData.LinkClaseVirtual ?? ''} target='_blank'>
+                            <Button tooltip="Link clase virtual" icon="pi pi-desktop" className="p-button-info mr-1" />
+                        </Link>
+                    ))}
+                </>
                 <Link href={`/estudiante/clases/detalles-curso/recursos?codigo=${rowData.Codigo}`}>
                     <Button tooltip="Recursos" icon="pi pi-folder-open" className="p-button-help mr-1" />
                 </Link>
