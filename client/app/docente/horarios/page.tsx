@@ -8,6 +8,7 @@ import Perfil from "../../../components/Perfil";
 import { useSession } from "next-auth/react";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { redirect } from 'next/navigation';
+import { InputText } from 'primereact/inputtext';
 
 export default function Page() {
 
@@ -20,6 +21,7 @@ export default function Page() {
     const [horarios, setHorarios] = useState([]);
     const { data: session, status } = useSession();
     const [periodoA, setPeriodoA] = useState(_periodo);
+    const [globalFilter, setGlobalFilter] = useState('');
 
     useEffect(() => {
         if (status === "authenticated") fetchHorarios();
@@ -59,6 +61,25 @@ export default function Page() {
         )
     }
 
+    const header = (
+        <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+            <h4></h4>
+            <span className="p-input-icon-left">
+                <i className="pi pi-search" />
+                <InputText
+                    type="search"
+                    value={globalFilter}
+                    onInput={(e) => {
+                        if (e.target) {
+                            setGlobalFilter((e.target as HTMLInputElement).value);
+                        }
+                    }}
+                    placeholder="Buscar..."
+                />
+            </span>
+        </div>
+    );
+
     if (status === "loading") {
         return (
             <>
@@ -92,6 +113,8 @@ export default function Page() {
                         dataKey="CodigoHorario"
                         className="datatable-responsive"
                         emptyMessage='Horario vacío'
+                        header={header}
+                        globalFilter={globalFilter}
                     >
                         <Column header="Codigo" field="CodigoCurso" />
                         <Column header="Curso" field="Nombre" sortable />
