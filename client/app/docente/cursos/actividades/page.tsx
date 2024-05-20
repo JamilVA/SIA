@@ -65,8 +65,8 @@ export default function ActividadesPage() {
     }
 
     useEffect(() => {
-        fetchActividades()
-    }, []);
+        if (status === "authenticated") fetchActividades()
+    }, [status]);
 
     const openNew = () => {
         setActividad(emptyActividad);
@@ -278,7 +278,7 @@ export default function ActividadesPage() {
         return (
             <React.Fragment>
                 <div className="my-2">
-                    <Button label="New" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
+                    <Button label="Nueva actividad" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
                 </div>
             </React.Fragment>
         );
